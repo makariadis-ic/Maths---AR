@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>AR — Στερεό</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#2dd4bf}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  model-viewer{width:100%;height:100%;--poster-color:#0e1420;background:
+    radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:10px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.9),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px}
+  #bar h1{font-size:15px;margin:0;font-weight:640}
+  #bar .lv{font-size:11px;color:var(--dim);margin-left:auto}
+  #arbtn{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:10;
+    font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:var(--acc);
+    border:none;border-radius:12px;padding:15px 26px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer}
+  #note{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:10;display:none;
+    font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:10px 15px;border-radius:10px;max-width:88%;text-align:center}
+</style>
+<script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+</head>
+<body>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1 id="title">Στερεό</h1>
+  <span class="lv" id="level"></span>
+</div>
+
+<model-viewer id="mv" camera-controls auto-rotate touch-action="pan-y"
+  shadow-intensity="1" exposure="1.05" ar ar-modes="webxr scene-viewer quick-look"
+  ar-scale="auto" ar-placement="floor" ios-src="">
+</model-viewer>
+
+<button id="arbtn">📱 Δες το στο θρανίο (AR)</button>
+<div id="note"></div>
+
+<script>
+const USDZ=new Set(['kylindros','konos','sfaira','paravoloeides','salpigga']);
+const META={
+  kylindros:['Κύλινδρος','Λύκειο','#38bdf8'], konos:['Κώνος','Λύκειο','#ff6b6b'],
+  sfaira:['Σφαίρα','Λύκειο','#4ade80'], paravoloeides:['Παραβολοειδές √x','Γ΄ Λυκείου','#f5a524'],
+  salpigga:['Σάλπιγγα Γαβριήλ','Εμβάθυνση','#c084fc'],
+  conics:['Κωνικές τομές','Λύκειο','#ff8a5b'], svd:['Σφαίρα → Ελλειψοειδές (SVD)','Πανεπιστήμιο','#60a5fa'],
+  fuzzy:['Ασαφείς συνεπαγωγές','Μεταπτυχιακό','#c084fc']
+};
+const id=(new URLSearchParams(location.search).get('id')||'paravoloeides');
+const meta=META[id]||META.paravoloeides;
+const mv=document.getElementById('mv');
+document.getElementById('title').textContent=meta[0];
+document.getElementById('level').textContent=meta[1];
+document.documentElement.style.setProperty('--acc',meta[2]);
+mv.src=id+'.glb';
+if(USDZ.has(id)) mv.setAttribute('ios-src', id+'.usdz'); else mv.removeAttribute('ios-src');
+
+const btn=document.getElementById('arbtn'), note=document.getElementById('note');
+function showNote(t){ note.textContent=t; note.style.display='block'; btn.style.display='none'; }
+mv.addEventListener('load',()=>{
+  if(!mv.canActivateAR){
+    showNote('Σε αυτή τη συσκευή δεν υπάρχει AR — μπορείς όμως να περιστρέψεις το στερεό με το δάχτυλο. Άνοιξέ το από κινητό για AR στο θρανίο.');
+  }
+});
+btn.addEventListener('click',()=>{ try{ mv.activateAR(); }catch(e){ showNote('Το AR δεν ξεκίνησε. Δοκίμασε από Chrome (Android) ή Safari (iPhone).'); } });
+</script>
+</body>
+</html>
