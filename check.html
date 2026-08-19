@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Έλεγχος αρχείων — AR</title>
+<style>
+  :root{--bg:#0b0f18;--ink:#eaf1f8;--dim:#93a6bb;--line:rgba(255,255,255,.10);--ok:#4ade80;--bad:#ff6b6b;--warn:#f5a524}
+  *{box-sizing:border-box} html,body{margin:0;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif}
+  main{max-width:780px;margin:0 auto;padding:30px 20px 60px}
+  h1{font-size:26px;margin:6px 0 6px;letter-spacing:-.02em}
+  .kick{font:600 11px/1 system-ui;letter-spacing:.2em;text-transform:uppercase;color:#5ed0c0}
+  p{color:var(--dim);font-size:14px;line-height:1.65}
+  .addr{font-family:ui-monospace,Consolas,monospace;color:#5ed0c0;word-break:break-all}
+  .row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:14px 0}
+  .row input{flex:1 1 320px;min-width:0;background:#0b0f18;color:var(--ink);border:1px solid var(--line);
+    border-radius:9px;padding:10px 12px;font-size:13px;font-family:ui-monospace,Consolas,monospace}
+  .row button{background:#2dd4bf;color:#08131a;border:none;border-radius:9px;padding:10px 16px;
+    font:650 13px/1 "Segoe UI",system-ui,sans-serif;cursor:pointer}
+  #sum{border:1px solid var(--line);border-radius:14px;padding:14px 16px;margin:16px 0;
+    font-size:14px;line-height:1.6}
+  #sum.ok{border-color:rgba(74,222,128,.45);background:rgba(74,222,128,.08)}
+  #sum.bad{border-color:rgba(255,107,107,.5);background:rgba(255,107,107,.09)}
+  #sum.warn{border-color:rgba(245,165,36,.5);background:rgba(245,165,36,.09)}
+  #sum b{display:block;font-size:15px;margin-bottom:4px}
+  table{width:100%;border-collapse:collapse;font-size:13px}
+  th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line)}
+  th{color:var(--dim);font-weight:600;font-size:11.5px;text-transform:uppercase;letter-spacing:.08em}
+  td.f{font-family:ui-monospace,Consolas,monospace}
+  .s-ok{color:var(--ok)} .s-bad{color:var(--bad)} .s-warn{color:var(--warn)} .s-wait{color:var(--dim)}
+  a{color:#5ed0c0}
+</style>
+</head>
+<body>
+<main>
+  <div class="kick">Διαγνωστικό</div>
+  <h1>Έλεγχος αρχείων</h1>
+  <p>Ελέγχει ότι όλα τα αρχεία που χρειάζεται το AR υπάρχουν εκεί που έχει ανέβει η σελίδα.
+     Αν κάποιο λείπει, το σκανάρισμα του QR βγάζει <b>404</b>.</p>
+
+  <div class="row">
+    <input id="base" spellcheck="false" autocapitalize="off" placeholder="https://onoma.github.io/maths-ar/">
+    <button id="go">Έλεγχος</button>
+  </div>
+
+  <div id="sum">…</div>
+  <table><thead><tr><th>Αρχείο</th><th>Κατάσταση</th><th>Μέγεθος</th></tr></thead><tbody id="tb"></tbody></table>
+  <p style="margin-top:22px"><a href="index.html">‹ Πίσω στον πίνακα</a></p>
+</main>
+
+<script>
+(function(){
+  var FILES=['index.html','m.html',
+    'kylindros.glb','konos.glb','sfaira.glb','paravoloeides.glb','salpigga.glb',
+    'conics.glb','svd.glb','fuzzy.glb',
+    'kylindros.usdz','konos.usdz','sfaira.usdz','paravoloeides.usdz','salpigga.usdz',
+    'check.html','404.html'];
+  var OPTIONAL={'check.html':1,'404.html':1};
+
+  var tb=document.getElementById('tb'), sum=document.getElementById('sum'),
+      inp=document.getElementById('base'), go=document.getElementById('go');
+
+  function normalize(v){
+    v=(v||'').trim(); if(!v) return '';
+    if(!/^[a-z][a-z0-9+.-]*:\/\//i.test(v)) v='https://'+v.replace(/^\/+/,'');
+    var u; try{ u=new URL(v); }catch(e){ return null; }
+    if(!/^https?:$/.test(u.protocol)) return null;
+    u.hash=''; u.search='';
+    var p=u.pathname;
+    if(!/\/$/.test(p)) p=/\/[^\/]*\.[^\/]*$/.test(p)?p.replace(/[^\/]*$/,''):p+'/';
+    u.pathname=p; return u.href;
+  }
+  function kb(n){ return n>=1048576 ? (n/1048576).toFixed(1)+' MB' : Math.round(n/1024)+' KB'; }
+
+  function run(base){
+    tb.innerHTML=''; sum.className=''; sum.innerHTML='Έλεγχος '+FILES.length+' αρχείων στο <span class="addr">'+base+'</span> …';
+    var rows={}, missing=[], extra=[], blocked=0, done=0;
+
+    FILES.forEach(function(f){
+      var tr=document.createElement('tr');
+      tr.innerHTML='<td class="f">'+f+'</td><td class="s-wait" data-s>…</td><td data-z></td>';
+      tb.appendChild(tr); rows[f]=tr;
+    });
+
+    FILES.forEach(function(f){
+      var url=base+f, tr=rows[f], st=tr.querySelector('[data-s]'), sz=tr.querySelector('[data-z]');
+      fetch(url,{method:'GET',cache:'no-store'}).then(function(r){
+        if(r.ok){
+          st.className='s-ok'; st.textContent='✓ βρέθηκε';
+          var L=r.headers.get('content-length');
+          if(L) sz.textContent=kb(+L);
+          else return r.blob().then(function(b){ sz.textContent=kb(b.size); });
+        } else {
+          st.className='s-bad'; st.textContent='✕ '+r.status+(r.status===404?' — λείπει':'');
+          (OPTIONAL[f]?extra:missing).push(f);
+        }
+      }).catch(function(){
+        st.className='s-warn'; st.textContent='? δεν ελέγχθηκε (CORS/δίκτυο)'; blocked++;
+      }).then(function(){
+        if(++done===FILES.length) finish(base,missing,extra,blocked);
+      });
+    });
+  }
+
+  function finish(base,missing,extra,blocked){
+    var https=/^https:/i.test(base);
+    var lh=""; try{ lh=new URL(base).hostname; }catch(e){}
+    var localh=(lh==="localhost"||lh==="127.0.0.1");
+    if(missing.length){
+      sum.className='bad';
+      sum.innerHTML='<b>Λείπουν '+missing.length+' αρχεία</b>Γι’ αυτό βγάζει 404. Ανέβασε στον ίδιο φάκελο: '+
+        '<span class="addr">'+missing.join(', ')+'</span>';
+    } else if(blocked){
+      sum.className='warn';
+      sum.innerHTML='<b>Δεν μπόρεσα να ελέγξω '+blocked+' αρχεία</b>'+
+        'Άνοιξε αυτή τη σελίδα <i>από την ίδια διεύθυνση</i> με τα υπόλοιπα αρχεία '+
+        '(<span class="addr">'+base+'check.html</span>) για σίγουρο αποτέλεσμα.';
+    } else {
+      sum.className='ok';
+      sum.innerHTML='<b>✓ Όλα τα απαραίτητα αρχεία είναι στη θέση τους</b>'+
+        (localh?'Τοπική δοκιμή. Για την τάξη χρειάζεται δημοσιευμένη διεύθυνση <b>https://</b>.'
+          :https?'Η διεύθυνση είναι HTTPS — το AR μπορεί να ξεκινήσει.'
+              :'<span class="s-warn">Προσοχή: η διεύθυνση δεν είναι HTTPS· το AR δεν θα ξεκινήσει στο κινητό.</span>')+
+        (extra.length?'<br><span class="s-warn">Προαιρετικά που λείπουν: '+extra.join(', ')+'</span>':'');
+    }
+  }
+
+  var here=(function(){
+    try{
+      var u=new URL(location.href); u.hash=''; u.search='';
+      var p=u.pathname;
+      if(!/\/$/.test(p)) p = /\/[^\/]*\.[^\/]*$/.test(p) ? p.replace(/[^\/]*$/,'') : p+'/';
+      u.pathname=p; return u.href;
+    }catch(e){ return ''; }
+  })();
+  var served=/^https?:$/.test(location.protocol);
+  inp.value = served ? here : '';
+  go.onclick=function(){
+    var n=normalize(inp.value);
+    if(!n){ inp.style.borderColor='#ff6b6b'; return; }
+    inp.style.borderColor=''; run(n);
+  };
+  inp.addEventListener('keydown',function(e){ if(e.key==='Enter'){ e.preventDefault(); go.click(); } });
+
+  if(served) run(here);
+  else sum.innerHTML='Γράψε τη διεύθυνση όπου ανέβηκε η σελίδα και πάτα <b>Έλεγχος</b>.';
+})();
+</script>
+</body>
+</html>

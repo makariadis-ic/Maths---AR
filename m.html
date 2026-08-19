@@ -21,7 +21,9 @@
     border:none;border-radius:12px;padding:15px 26px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer}
   #note{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);z-index:10;display:none;
     font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
-    padding:10px 15px;border-radius:10px;max-width:88%;text-align:center}
+    padding:10px 15px;border-radius:10px;max-width:88%;text-align:center;line-height:1.55}
+  #note b{color:var(--ink)}
+  #note .addr{font-family:ui-monospace,Consolas,monospace;color:#f5a524;word-break:break-all}
 </style>
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
 </head>
@@ -34,7 +36,7 @@
 
 <model-viewer id="mv" camera-controls auto-rotate touch-action="pan-y"
   shadow-intensity="1" exposure="1.05" ar ar-modes="webxr scene-viewer quick-look"
-  ar-scale="auto" ar-placement="floor" ios-src="">
+  ar-scale="auto" ar-placement="floor">
 </model-viewer>
 
 <button id="arbtn">📱 Δες το στο θρανίο (AR)</button>
@@ -49,23 +51,56 @@ const META={
   conics:['Κωνικές τομές','Λύκειο','#ff8a5b'], svd:['Σφαίρα → Ελλειψοειδές (SVD)','Πανεπιστήμιο','#60a5fa'],
   fuzzy:['Ασαφείς συνεπαγωγές','Μεταπτυχιακό','#c084fc']
 };
-const id=(new URLSearchParams(location.search).get('id')||'paravoloeides');
-const meta=META[id]||META.paravoloeides;
+
+const asked=new URLSearchParams(location.search).get('id');
+const id=(asked&&META[asked])?asked:'paravoloeides';
+const meta=META[id];
 const mv=document.getElementById('mv');
+const btn=document.getElementById('arbtn'), note=document.getElementById('note');
+
 document.getElementById('title').textContent=meta[0];
 document.getElementById('level').textContent=meta[1];
 document.documentElement.style.setProperty('--acc',meta[2]);
 mv.src=id+'.glb';
-if(USDZ.has(id)) mv.setAttribute('ios-src', id+'.usdz'); else mv.removeAttribute('ios-src');
+if(USDZ.has(id)) mv.setAttribute('ios-src', id+'.usdz');
 
-const btn=document.getElementById('arbtn'), note=document.getElementById('note');
-function showNote(t){ note.textContent=t; note.style.display='block'; btn.style.display='none'; }
+function showNote(html){ note.innerHTML=html; note.style.display='block'; btn.style.display='none'; }
+
+/* το AR χρειάζεται ασφαλή σύνδεση (https ή localhost) */
+const secure = window.isSecureContext || /^(localhost|127\.0\.0\.1)$/.test(location.hostname);
+
+if(asked && !META[asked])
+  showNote('Άγνωστο μοντέλο <span class="addr">'+String(asked).replace(/[<>&]/g,'')+'</span>. '+
+           'Δείχνω το προεπιλεγμένο — <a href="index.html" style="color:var(--acc)">πίσω στον πίνακα</a>.');
+
+mv.addEventListener('error',()=>{
+  showNote('<b>Το αρχείο του μοντέλου δεν βρέθηκε.</b><br>Λείπει το <span class="addr">'+id+'.glb</span> '+
+           'από τον διακομιστή. Ανέβασε <b>όλα</b> τα αρχεία του φακέλου (.glb και .usdz) δίπλα στο '+
+           '<span class="addr">m.html</span> — δες το <a href="check.html" style="color:var(--acc)">check.html</a>.');
+});
+
 mv.addEventListener('load',()=>{
+  if(!secure){
+    showNote('Η σελίδα δεν σερβίρεται με <b>HTTPS</b>, οπότε το AR δεν επιτρέπεται από το κινητό. '+
+             'Μπορείς όμως να περιστρέψεις το στερεό με το δάχτυλο.');
+    return;
+  }
   if(!mv.canActivateAR){
-    showNote('Σε αυτή τη συσκευή δεν υπάρχει AR — μπορείς όμως να περιστρέψεις το στερεό με το δάχτυλο. Άνοιξέ το από κινητό για AR στο θρανίο.');
+    showNote('Σε αυτή τη συσκευή δεν υπάρχει AR — μπορείς όμως να περιστρέψεις το στερεό με το δάχτυλο. '+
+             'Άνοιξέ το από κινητό (Chrome σε Android, Safari σε iPhone) για AR στο θρανίο.');
   }
 });
-btn.addEventListener('click',()=>{ try{ mv.activateAR(); }catch(e){ showNote('Το AR δεν ξεκίνησε. Δοκίμασε από Chrome (Android) ή Safari (iPhone).'); } });
+
+mv.addEventListener('ar-status',e=>{
+  if(e.detail.status==='failed')
+    showNote('Το AR δεν ξεκίνησε σε αυτή τη συσκευή. Δοκίμασε Chrome (Android) ή Safari (iPhone), '+
+             'και βεβαιώσου ότι η διεύθυνση αρχίζει με <b>https://</b>.');
+});
+
+btn.addEventListener('click',()=>{
+  try{ mv.activateAR(); }
+  catch(e){ showNote('Το AR δεν ξεκίνησε. Δοκίμασε από Chrome (Android) ή Safari (iPhone).'); }
+});
 </script>
 </body>
 </html>

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>404 — δεν βρέθηκε</title>
+<style>
+  :root{--bg:#0b0f18;--ink:#eaf1f8;--dim:#93a6bb;--line:rgba(255,255,255,.10)}
+  *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif}
+  main{max-width:620px;margin:0 auto;padding:60px 22px}
+  h1{font-size:28px;margin:6px 0 10px;letter-spacing:-.02em}
+  .kick{font:600 11px/1 system-ui;letter-spacing:.2em;text-transform:uppercase;color:#f5a524}
+  p{color:var(--dim);font-size:14.5px;line-height:1.7}
+  .addr{font-family:ui-monospace,Consolas,monospace;color:#f5a524;word-break:break-all}
+  .btns{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
+  a.b{text-decoration:none;background:#2dd4bf;color:#08131a;font-weight:650;font-size:13.5px;
+    border-radius:10px;padding:12px 18px}
+  a.b.ghost{background:transparent;color:var(--dim);border:1px solid var(--line)}
+</style>
+</head>
+<body>
+<main>
+  <div class="kick">404</div>
+  <h1>Το αρχείο δεν βρέθηκε</h1>
+  <p>Ζητήθηκε το <span class="addr" id="what">…</span>, αλλά δεν υπάρχει σε αυτή τη διεύθυνση.</p>
+  <p>Σχεδόν πάντα σημαίνει ότι <b style="color:var(--ink)">δεν ανέβηκαν όλα τα αρχεία</b> του φακέλου:
+     το <span class="addr">index.html</span> χρειάζεται δίπλα του το <span class="addr">m.html</span>
+     και όλα τα <span class="addr">.glb</span> / <span class="addr">.usdz</span>, στον ίδιο φάκελο.</p>
+  <div class="btns">
+    <a class="b" href="check.html">Έλεγχος αρχείων</a>
+    <a class="b ghost" href="index.html">Πίσω στον πίνακα</a>
+  </div>
+</main>
+<script>document.getElementById('what').textContent=location.pathname.replace(/^.*\//,'')||location.pathname;</script>
+</body>
+</html>
