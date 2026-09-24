@@ -23,6 +23,12 @@
     font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
     padding:10px 15px;border-radius:10px;max-width:88%;text-align:center;line-height:1.55}
   #note b{color:var(--ink)}
+  #tomes{position:fixed;bottom:76px;left:50%;transform:translateX(-50%);z-index:10;display:none;
+    gap:6px;flex-wrap:wrap;justify-content:center;max-width:94%}
+  #tomes button{font:600 12.5px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:9px 12px;cursor:pointer}
+  #tomes button.on{color:#08131a;background:var(--acc);border-color:transparent}
   #note .addr{font-family:ui-monospace,Consolas,monospace;color:#f5a524;word-break:break-all}
 </style>
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
@@ -34,13 +40,14 @@
   <span class="lv" id="level"></span>
 </div>
 
-<model-viewer id="mv" camera-controls auto-rotate touch-action="pan-y"
+<model-viewer id="mv" camera-controls auto-rotate autoplay touch-action="pan-y"
   shadow-intensity="1" exposure="1.05" ar ar-modes="webxr scene-viewer quick-look"
   ar-scale="auto" ar-placement="floor">
 </model-viewer>
 
 <button id="arbtn">📱 Δες το στο θρανίο (AR)</button>
 <div id="note"></div>
+<div id="tomes"></div>
 
 <script>
 const USDZ=new Set(['kylindros','konos','sfaira','paravoloeides','salpigga']);
@@ -95,6 +102,41 @@ mv.addEventListener('ar-status',e=>{
   if(e.detail.status==='failed')
     showNote('Το AR δεν ξεκίνησε σε αυτή τη συσκευή. Δοκίμασε Chrome (Android) ή Safari (iPhone), '+
              'και βεβαιώσου ότι η διεύθυνση αρχίζει με <b>https://</b>.');
+});
+
+/* Οι τέσσερις τομές μέσα στην κίνηση των 14 δευτερολέπτων του μοντέλου.
+   Σε κάθε μία το επίπεδο μένει ακίνητο για 2,4 s· κρατάμε το μέσο του διαστήματος. */
+const TOMES={kyklos:['Κύκλος',1.2],elleipsi:['Έλλειψη',4.7],paravoli:['Παραβολή',8.2],ypervoli:['Υπερβολή',11.7]};
+const q=new URLSearchParams(location.search);
+let pending=null;
+
+if(id==='conics'){
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const mark=el=>[...row.children].forEach(b=>b.classList.toggle('on',b===el));
+  for(const k in TOMES){
+    const b=document.createElement('button');
+    b.textContent=TOMES[k][0];
+    b.onclick=()=>{ mv.currentTime=TOMES[k][1]; mv.pause(); mark(b); };
+    row.appendChild(b);
+  }
+  const play=document.createElement('button');
+  play.textContent='Συνεχής κίνηση';
+  play.onclick=()=>{ mv.play(); mark(play); };
+  row.appendChild(play);
+
+  /* Με παράμετρο στη διεύθυνση η σελίδα ανοίγει κατευθείαν σε μια τομή:
+     m.html?id=conics&tomi=elleipsi  ή  m.html?id=conics&t=4.7 */
+  const tomi=q.get('tomi'), t=parseFloat(q.get('t'));
+  if(tomi && TOMES[tomi]) pending=[TOMES[tomi][1], [...row.children][Object.keys(TOMES).indexOf(tomi)]];
+  else if(!isNaN(t)) pending=[t, null];
+}
+
+mv.addEventListener('load',()=>{
+  if(pending){
+    mv.currentTime=pending[0]; mv.pause();
+    if(pending[1]) pending[1].classList.add('on');
+  }
 });
 
 btn.addEventListener('click',()=>{
