@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Πυθαγόρειο θεώρημα με κύβους — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#f5a524}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px}
+  #bar h1{font-size:15px;margin:0;font-weight:640}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto}
+  #dock{position:fixed;left:0;right:0;bottom:18px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:10px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 13px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#08131a;background:var(--acc);border-color:transparent}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:640px;text-align:center;line-height:1.55;display:none}
+</style>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Πυθαγόρειο θεώρημα με κύβους</h1>
+  <span class="lv">Β΄ Γυμνασίου</span>
+</div>
+<div id="dock">
+  <div class="seg" id="seg">
+    <button data-s="0" class="on">Εμβαδά</button>
+    <button data-s="1">Χωρισμένοι κύβοι</button>
+    <button data-s="2">Όγκοι</button>
+  </div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ------------------------------------------------------------------
+   Ορθογώνιο τρίγωνο ΑΒΓ με Α = 90°: β = ΑΓ = 6, γ = ΑΒ = 8, α = ΒΓ = 10.
+   Πάνω σε κάθε πλευρά «κολλά» ένας κύβος με ακμή ίση με την πλευρά.
+   Μόνο η μπροστινή έδρα κάθε κύβου είναι χρωματισμένη· οι τρεις
+   χρωματισμένες έδρες βρίσκονται στο επίπεδο του τριγώνου και σχηματίζουν
+   τα τετράγωνα α², β², γ².
+   ------------------------------------------------------------------ */
+const UNIT = 0.02;                       // 1 μονάδα = 2 cm  ->  το μοντέλο ≈ 40 cm
+const COL = { a:'#f5a524', b:'#38bdf8', c:'#4ade80' };
+
+const V2 = (x,y)=>new THREE.Vector2(x,y);
+/* Υποτείνουσα ΒΓ οριζόντια, ορθή γωνία στην κορυφή Α (επάνω).
+   Γ αριστερά, Β δεξιά:  ΑΓ = √(3,6² + 4,8²) = 6 = β,  ΑΒ = √(6,4² + 4,8²) = 8 = γ,  ΒΓ = 10 = α. */
+const Gm = V2(-5,10), Bm = V2(5,10), A = V2(-1.4,14.8);
+
+/* ---------------- renderer, σκηνή, κάμερα ---------------- */
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias:true, alpha:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(45, innerWidth/innerHeight, 0.01, 50);
+camera.position.set(0.36, 0.30, 1.05);
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x3a4658, 1.15));
+const sun = new THREE.DirectionalLight(0xffffff, 1.4); sun.position.set(0.6,1.2,1.0); scene.add(sun);
+
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true; controls.target.set(0,0.03,-0.05);
+controls.minDistance = 0.25; controls.maxDistance = 3;
+
+/* περιβάλλον μόνο για VR (στο AR φαίνεται ο πραγματικός χώρος) */
+const env = new THREE.Group(); scene.add(env);
+{
+  const g = new THREE.GridHelper(12, 48, 0x2dd4bf, 0x2a3a52);
+  g.material.transparent = true; g.material.opacity = .45; env.add(g);
+  const sky = new THREE.Mesh(new THREE.SphereGeometry(20,32,16),
+    new THREE.MeshBasicMaterial({ color:0x0e1420, side:THREE.BackSide }));
+  env.add(sky);
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(1.2,0.04,0.7),
+    new THREE.MeshStandardMaterial({ color:0x6b5640, roughness:.8 }));
+  desk.name='desk'; env.add(desk);
+}
+env.visible = false;
+
+/* ---------------- βοηθητικά: κείμενο και υφές ---------------- */
+const FONT = '"Segoe UI","Noto Sans","Roboto","Helvetica Neue",Arial,sans-serif';
+
+function labelTexture(lines, opts={}){
+  const W = opts.w||1024, H = opts.h||512;
+  const cv = document.createElement('canvas'); cv.width=W; cv.height=H;
+  const x = cv.getContext('2d');
+  if(opts.bg){ x.fillStyle=opts.bg; roundRect(x,8,8,W-16,H-16,40); x.fill(); }
+  x.textAlign='center'; x.textBaseline='middle';
+  const n = lines.length;
+  lines.forEach((ln,i)=>{
+    x.font = `${ln.w||700} ${ln.size}px ${FONT}`;
+    x.fillStyle = ln.color || opts.color || '#0b0f18';
+    const y = H/2 + (i-(n-1)/2)*(opts.gap||ln.size*1.15);
+    x.fillText(ln.t, W/2, y);
+  });
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace;
+  t.anisotropy = 8; return t;
+}
+function roundRect(x,a,b,w,h,r){ x.beginPath(); x.moveTo(a+r,b); x.arcTo(a+w,b,a+w,b+h,r);
+  x.arcTo(a+w,b+h,a,b+h,r); x.arcTo(a,b+h,a,b,r); x.arcTo(a,b,a+w,b,r); x.closePath(); }
+
+/* χρωματισμένη έδρα: χρώμα + πλέγμα μοναδιαίων τετραγώνων */
+function faceTexture(color, n){
+  const S = 64*n, cv = document.createElement('canvas'); cv.width=cv.height=S;
+  const x = cv.getContext('2d');
+  x.fillStyle=color; x.fillRect(0,0,S,S);
+  x.strokeStyle='rgba(11,15,24,.38)'; x.lineWidth=3;
+  for(let i=1;i<n;i++){ const p=i*64;
+    x.beginPath(); x.moveTo(p,0); x.lineTo(p,S); x.stroke();
+    x.beginPath(); x.moveTo(0,p); x.lineTo(S,p); x.stroke(); }
+  x.strokeStyle='rgba(11,15,24,.75)'; x.lineWidth=8; x.strokeRect(4,4,S-8,S-8);
+  const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy=8;
+  return t;
+}
+
+/* ---------------- κατασκευή του μοντέλου ---------------- */
+const root  = new THREE.Group();   // αυτό μετακινείται/κλιμακώνεται στο XR
+const model = new THREE.Group();   // σε μονάδες του τριγώνου
+model.scale.setScalar(UNIT);
+root.add(model); scene.add(root);
+
+const pickables = [];
+const cubes = [];
+
+/* κύβος με ακμή e πάνω στο ευθύγραμμο τμήμα U→V, προς τα έξω από το τρίγωνο */
+function addCube(U, V, W, e, key, letter){
+  const d = V.clone().sub(U).normalize();
+  let n = V2(-d.y, d.x);
+  if(n.dot(W.clone().sub(U)) > 0) n.negate();         // έξω από το τρίγωνο
+  // τοπικό σύστημα: x κατά μήκος της πλευράς, y προς τα έξω
+  const ang = Math.atan2(n.y, n.x) - Math.PI/2;
+  const mid = U.clone().add(V).multiplyScalar(.5).add(n.clone().multiplyScalar(e/2));
+
+  const g = new THREE.Group();
+  g.position.set(mid.x, mid.y, 0);
+  g.rotation.z = ang;
+
+  const ftex = faceTexture(COL[key], e);
+  const coloured = new THREE.MeshStandardMaterial({ map:ftex, roughness:.55, metalness:0,
+    emissive:new THREE.Color(COL[key]), emissiveIntensity:.18, side:THREE.DoubleSide });
+  const glass = new THREE.MeshStandardMaterial({ color:0xd6e2f0, roughness:.2, metalness:0,
+    transparent:true, opacity:.14, depthWrite:false, side:THREE.DoubleSide });
+
+  const geo = new THREE.BoxGeometry(e,e,e);
+  // σειρά υλικών BoxGeometry: +x, −x, +y, −y, +z, −z  -> χρώμα μόνο στην +z (μπροστινή) έδρα
+  const mesh = new THREE.Mesh(geo, [glass,glass,glass,glass,coloured,glass]);
+  mesh.position.z = -e/2;
+  mesh.renderOrder = 1;
+  g.add(mesh); pickables.push(mesh);
+
+  const edges = new THREE.LineSegments(new THREE.EdgesGeometry(geo),
+    new THREE.LineBasicMaterial({ color:0xeaf1f8, transparent:true, opacity:.85 }));
+  edges.position.z = -e/2; g.add(edges);
+
+  // ετικέτα πάνω στη χρωματισμένη έδρα, πάντα όρθια
+  const lab = new THREE.Mesh(new THREE.PlaneGeometry(Math.max(e,7.2)*0.8, Math.max(e,7.2)*0.4),
+    new THREE.MeshBasicMaterial({ transparent:true, depthWrite:false }));
+  lab.position.z = 0.03; lab.rotation.z = -ang; lab.renderOrder = 3;
+  g.add(lab);
+
+  model.add(g);
+  cubes.push({ g, n, e, key, letter, lab, glass, base:g.position.clone(), off:0 });
+}
+
+/* β = 6 (αριστερή κάθετη), γ = 8 (δεξιά κάθετη), α = 10 (υποτείνουσα) */
+addCube(Gm, A, Bm, 6, 'b', 'β');
+addCube(A, Bm, Gm, 8, 'c', 'γ');
+addCube(Gm, Bm, A, 10,'a', 'α');
+
+/* το τρίγωνο στο κέντρο */
+{
+  const sh = new THREE.Shape([Gm, Bm, A]);
+  const tri = new THREE.Mesh(new THREE.ShapeGeometry(sh),
+    new THREE.MeshBasicMaterial({ color:0xf4f7fb, side:THREE.DoubleSide }));
+  tri.position.z = 0.005; model.add(tri); pickables.push(tri);
+  const pts = [Gm,Bm,A,Gm].map(p=>new THREE.Vector3(p.x,p.y,0.02));
+  model.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(pts),
+    new THREE.LineBasicMaterial({ color:0x0b0f18 })));
+  // σύμβολο ορθής γωνίας στην κορυφή Α
+  const u = Gm.clone().sub(A).normalize().multiplyScalar(.9);
+  const v = Bm.clone().sub(A).normalize().multiplyScalar(.9);
+  const q = [A.clone().add(u), A.clone().add(u).add(v), A.clone().add(v)]
+    .map(p=>new THREE.Vector3(p.x,p.y,0.025));
+  model.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(q),
+    new THREE.LineBasicMaterial({ color:0x0b0f18 })));
+  // ονόματα κορυφών
+  const vname = (t,p,dx,dy)=>{
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(1.6,1.6),
+      new THREE.MeshBasicMaterial({ map:labelTexture([{t,size:300,w:700,color:'#0b0f18'}],{w:512,h:512}),
+        transparent:true, depthWrite:false }));
+    m.position.set(p.x+dx,p.y+dy,0.04); m.renderOrder=4; model.add(m);
+  };
+  vname('Α', A, 0, -1.75);
+  vname('Γ', Gm, 1.35, 0.55);
+  vname('Β', Bm, -1.35, 0.55);
+}
+
+/* κεντράρισμα: κέντρο του μοντέλου στην αρχή του root */
+const bb = new THREE.Box3().setFromObject(model);
+const ctr = bb.getCenter(new THREE.Vector3());
+model.position.sub(ctr);
+const SIZE = bb.getSize(new THREE.Vector3());
+
+/* επιγραφή πάνω από το μοντέλο */
+const title = new THREE.Mesh(new THREE.PlaneGeometry(SIZE.x*0.9, SIZE.x*0.9*0.3),
+  new THREE.MeshBasicMaterial({ transparent:true, depthWrite:false }));
+title.position.set(0, SIZE.y/2 + SIZE.x*0.2, 0);
+title.renderOrder = 5; root.add(title);
+
+/* ---------------- καταστάσεις ---------------- */
+const STATES = [
+  { name:'Εμβαδά', sep:0, vol:false },
+  { name:'Χωρισμένοι κύβοι', sep:2.6, vol:false },
+  { name:'Όγκοι', sep:0, vol:true },
+];
+let state = 0;
+const VAL = { a:10, b:6, c:8 };
+
+function setState(s){
+  state = (s+STATES.length)%STATES.length;
+  const st = STATES[state];
+  cubes.forEach(c=>{
+    c.target = st.sep;
+    const v = VAL[c.key];
+    const big = st.vol ? `${c.letter}³ = ${v**3}` : `${c.letter}² = ${v*v}`;
+    c.lab.material.map?.dispose();
+    c.lab.material.map = labelTexture([
+      { t:`${c.letter} = ${v}`, size:118, w:600 },
+      { t:big, size:190, w:750 }
+    ], { gap:200 });
+    c.lab.material.needsUpdate = true;
+    c.glass.opacity = st.vol ? .42 : .14;
+    c.glass.color.set(st.vol ? COL[c.key] : 0xd6e2f0);
+  });
+  title.material.map?.dispose();
+  title.material.map = st.vol
+    ? labelTexture([{ t:'α³ ≠ β³ + γ³', size:150, color:'#eaf1f8' },
+                    { t:'1000 ≠ 216 + 512 = 728', size:88, w:600, color:'#f5a524' }],
+                   { bg:'rgba(14,20,32,.86)', gap:170 })
+    : labelTexture([{ t:'α² = β² + γ²', size:150, color:'#eaf1f8' },
+                    { t:'100 = 36 + 64', size:118, w:600, color:'#f5a524' }],
+                   { bg:'rgba(14,20,32,.86)', gap:170 });
+  title.material.needsUpdate = true;
+  document.querySelectorAll('#seg button').forEach(b=>b.classList.toggle('on', +b.dataset.s===state));
+}
+document.querySelectorAll('#seg button').forEach(b=>b.onclick=()=>setState(+b.dataset.s));
+setState(0);
+
+/* ---------------- WebXR ---------------- */
+const btnAR = document.getElementById('btnAR'), btnVR = document.getElementById('btnVR');
+const note = document.getElementById('note');
+let xrMode = null, placed = false, floorSpace = true;
+
+async function probe(){
+  if(!window.isSecureContext){
+    note.innerHTML='Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display='block'; return;
+  }
+  if(!navigator.xr){ note.textContent='Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.'; note.style.display='block'; return; }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(()=>false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(()=>false)]);
+  if(ar) btnAR.style.display='inline-block';
+  if(vr) btnVR.style.display='inline-block';
+  if(!ar && !vr){ note.textContent='Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.'; note.style.display='block'; }
+}
+probe();
+
+async function start(mode){
+  if(renderer.xr.isPresenting) return;
+  try{
+    const session = await navigator.xr.requestSession(mode, {
+      optionalFeatures:['local-floor','hand-tracking'] });
+    let space = 'local-floor';
+    try{ await session.requestReferenceSpace('local-floor'); }catch(e){ space = 'local'; }
+    renderer.xr.setReferenceSpaceType(space); floorSpace = (space==='local-floor');
+    await renderer.xr.setSession(session);
+    xrMode = mode; placed = false;
+    const opaque = (session.environmentBlendMode||'opaque') === 'opaque';
+    env.visible = opaque;
+    scene.background = null;
+    canvas.style.visibility = 'hidden';
+    session.addEventListener('end', ()=>{
+      xrMode = null; env.visible = false; canvas.style.visibility = 'visible';
+      root.position.set(0,0,0); root.quaternion.identity(); root.scale.setScalar(1);
+      camera.position.set(0.36,0.30,1.05); controls.target.set(0,0.03,-0.05); controls.update();
+    });
+  }catch(err){
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία '+(mode==='immersive-ar'?'AR':'VR')+': '+(err.message||err);
+    note.style.display='block';
+  }
+}
+btnAR.onclick = ()=>start('immersive-ar');
+btnVR.onclick = ()=>start('immersive-vr');
+
+/* τοποθέτηση μπροστά στον χρήστη, στο πρώτο καρέ της συνεδρίας */
+function place(frame){
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if(!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x,o.y,o.z,o.w);
+  const fwd = new THREE.Vector3(0,0,-1).applyQuaternion(q); fwd.y = 0;
+  if(fwd.lengthSq() < 1e-6) fwd.set(0,0,-1); fwd.normalize();
+  const yaw = Math.atan2(-fwd.x, -fwd.z);
+  root.position.set(p.x + fwd.x*0.85, p.y - 0.30, p.z + fwd.z*0.85);
+  root.rotation.set(0, yaw, 0);
+  const desk = env.getObjectByName('desk');
+  desk.position.set(root.position.x, root.position.y - SIZE.y*UNIT/2 - 0.02, root.position.z);
+  desk.rotation.y = yaw;
+  env.children[0].position.y = floorSpace ? 0 : p.y - 1.5;
+  placed = true;
+}
+
+/* Χειριστήρια και χέρια: σύντομο πάτημα αλλάζει κατάσταση, κράτημα πάνω
+   στο μοντέλο το μετακινεί, ο μοχλός αλλάζει το μέγεθος. */
+const ray = new THREE.Raycaster();
+const tmpM = new THREE.Matrix4();
+function makeController(i){
+  const c = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints(
+    [new THREE.Vector3(0,0,0), new THREE.Vector3(0,0,-1)]),
+    new THREE.LineBasicMaterial({ color:0x2dd4bf, transparent:true, opacity:.7 }));
+  line.scale.z = 2.5; line.visible = false; c.add(line);
+  c.userData = { line, t0:0, grab:false, source:null };
+  c.addEventListener('connected', e=>{
+    c.userData.source = e.data;
+    line.visible = e.data.targetRayMode === 'tracked-pointer';
+  });
+  c.addEventListener('disconnected', ()=>{ c.userData.source=null; line.visible=false; });
+  c.addEventListener('selectstart', ()=>{
+    c.userData.t0 = performance.now();
+    tmpM.identity().extractRotation(c.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(c.matrixWorld);
+    ray.ray.direction.set(0,0,-1).applyMatrix4(tmpM);
+    if(ray.intersectObjects(pickables,false).length){ c.userData.grab = true; c.attach(root); }
+  });
+  c.addEventListener('selectend', ()=>{
+    if(c.userData.grab){ scene.attach(root); c.userData.grab = false; }
+    if(performance.now() - c.userData.t0 < 280) setState(state+1);
+  });
+  scene.add(c);
+  return c;
+}
+const ctrls = [makeController(0), makeController(1)];
+
+/* ---------------- βρόχος ---------------- */
+const clock = new THREE.Clock();
+renderer.setAnimationLoop((t, frame)=>{
+  const dt = Math.min(clock.getDelta(), .05);
+  if(frame && !placed) place(frame);
+
+  // ομαλή μετάβαση χωρισμού/ένωσης
+  cubes.forEach(c=>{
+    c.off += (c.target - c.off) * Math.min(1, dt*6);
+    c.g.position.set(c.base.x + c.n.x*c.off, c.base.y + c.n.y*c.off, 0);
+  });
+
+  if(renderer.xr.isPresenting){
+    // η επιγραφή κοιτάζει πάντα τον θεατή (μόνο γύρω από τον κατακόρυφο άξονα)
+    const cam = renderer.xr.getCamera();
+    const cp = new THREE.Vector3().setFromMatrixPosition(cam.matrixWorld);
+    const local = root.worldToLocal(cp.clone());
+    title.rotation.set(0, Math.atan2(local.x - title.position.x, local.z - title.position.z), 0);
+    // μέγεθος με τον μοχλό
+    ctrls.forEach(c=>{
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if(gp && gp.axes && gp.axes.length){
+        const y = [gp.axes[1]||0, gp.axes[3]||0].reduce((m,v)=>Math.abs(v)>Math.abs(m)?v:m, 0);
+        if(Math.abs(y) > .25){
+          const s = THREE.MathUtils.clamp(root.scale.x * (1 - y*dt*1.2), .4, 6);
+          root.scale.setScalar(s);
+        }
+      }
+    });
+  } else {
+    title.rotation.set(0,0,0);
+    controls.update();
+  }
+  renderer.render(scene, camera);
+});
+
+window.PYTH = { root, model, title, setState };
+
+addEventListener('resize', ()=>{
+  camera.aspect = innerWidth/innerHeight; camera.updateProjectionMatrix();
+  renderer.setSize(innerWidth, innerHeight);
+});
+</script>
+</body>
+</html>

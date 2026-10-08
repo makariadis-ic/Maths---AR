@@ -80,6 +80,18 @@
 </header>
 <div class="setup"><div class="panel" id="setup">…</div></div>
 <div class="grid">
+    <div class="card" style="--acc:#f5a524">
+      <a class="open" href="pythagoras.html">
+        <model-viewer src="pythagoras.glb" camera-controls auto-rotate disable-zoom
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Πυθαγόρειο θεώρημα με κύβους</h3><p class="eq">α² = β² + γ²</p></div>
+        <div class="qr" data-id="pythagoras" data-href="pythagoras.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="pythagoras.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
     <div class="card" style="--acc:#38bdf8">
       <a class="open" href="m.html?id=kylindros">
         <model-viewer src="kylindros.glb" camera-controls auto-rotate disable-zoom
@@ -180,7 +192,9 @@
   <b>Πώς δουλεύει:</b> σε <b>Android</b> ανοίγει το Scene Viewer (Google) και τοποθετείς το στερεό στον χώρο·
   σε <b>iPhone</b> (Safari) ανοίγει το AR Quick Look. Τα πέντε στερεά εκ περιστροφής έχουν και iOS AR·
   οι κωνικές τομές, το SVD και οι ασαφείς συνεπαγωγές τοποθετούνται σε Android και προβάλλονται
-  διαδραστικά σε iPhone. Απαιτείται σύνδεση στο διαδίκτυο.
+  διαδραστικά σε iPhone.
+  Το Πυθαγόρειο θεώρημα με κύβους ανοίγει σε WebXR: AR στα γυαλιά Magic Leap 2 και Meta Quest 3
+  (και σε Android), VR στο Meta Quest 3, προβολή 3D σε κάθε άλλη συσκευή. Απαιτείται σύνδεση στο διαδίκτυο.
 </div>
 <div id="zoom">
   <button class="x" id="zx">Κλείσιμο ✕</button>
@@ -249,7 +263,7 @@
     var wrap=document.createElement('div'); wrap.className='qrbox';
     el.parentNode.insertBefore(wrap,el); wrap.appendChild(el);
     var tag=document.createElement('div'); tag.className='qrtag'; wrap.appendChild(tag);
-    return {el:el,tag:tag,id:el.dataset.id,name:h?h.textContent:el.dataset.id,url:''};
+    return {el:el,tag:tag,id:el.dataset.id,href:el.dataset.href||'',name:h?h.textContent:el.dataset.id,url:''};
   });
 
   var panel=document.getElementById('setup');
@@ -257,7 +271,7 @@
   function paint(){
     var ok=live();
     boxes.forEach(function(b){
-      b.url=new URL('m.html?id='+encodeURIComponent(b.id), base()).href;
+      b.url=new URL(b.href||('m.html?id='+encodeURIComponent(b.id)), base()).href;
       draw(b.el,b.url,256);
       b.el.title=b.url;
       b.tag.className='qrtag'+(ok?'':' bad');
