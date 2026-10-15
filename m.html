@@ -50,9 +50,11 @@
 <div id="tomes"></div>
 
 <script>
-const USDZ=new Set(['kylindros','konos','sfaira','paravoloeides','salpigga']);
+const USDZ=new Set(['kylindros','konos','kylindros-trigono','konos-trigono','sfaira','paravoloeides','salpigga']);
 const META={
   kylindros:['Κύλινδρος','Λύκειο','#38bdf8'], konos:['Κώνος','Λύκειο','#ff6b6b'],
+  'kylindros-trigono':['Κύλινδρος — ορθογώνιο τρίγωνο','Γυμνάσιο','#38bdf8'],
+  'konos-trigono':['Κώνος — ορθογώνιο τρίγωνο','Γυμνάσιο','#ff6b6b'],
   sfaira:['Σφαίρα','Λύκειο','#4ade80'], paravoloeides:['Παραβολοειδές √x','Γ΄ Λυκείου','#f5a524'],
   salpigga:['Σάλπιγγα Γαβριήλ','Εμβάθυνση','#c084fc'],
   conics:['Κωνικές τομές','Λύκειο','#ff8a5b'], svd:['Σφαίρα → Ελλειψοειδές (SVD)','Πανεπιστήμιο','#60a5fa'],
@@ -138,6 +140,29 @@ mv.addEventListener('load',()=>{
     if(pending[1]) pending[1].classList.add('on');
   }
 });
+
+/* Κώνος και κύλινδρος: εναλλαγή ανάμεσα στο στερεό και στο στερεό με το ορθογώνιο τρίγωνο
+   (ύψος, ακτίνα ή διάμετρος, γενέτειρα ή διαγώνιος). Το AR ανοίγει με το μοντέλο που φαίνεται. */
+const PAIR={konos:'konos-trigono',kylindros:'kylindros-trigono'};
+const base=id.replace('-trigono','');
+if(PAIR[base]){
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const opts=[[base,'Στερεό'],[PAIR[base],'Με το ορθογώνιο τρίγωνο']];
+  const show=(k,b)=>{
+    mv.src=k+'.glb'; mv.setAttribute('ios-src',k+'.usdz');
+    document.getElementById('title').textContent=META[k][0];
+    document.getElementById('level').textContent=META[k][1];
+    [...row.children].forEach(x=>x.classList.toggle('on',x===b));
+    history.replaceState(null,'','m.html?id='+k);
+  };
+  for(const [k,label] of opts){
+    const b=document.createElement('button');
+    b.textContent=label; b.onclick=()=>show(k,b);
+    if(k===id) b.classList.add('on');
+    row.appendChild(b);
+  }
+}
 
 btn.addEventListener('click',()=>{
   try{ mv.activateAR(); }
