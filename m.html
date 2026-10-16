@@ -58,7 +58,9 @@ const META={
   sfaira:['Σφαίρα','Λύκειο','#4ade80'], paravoloeides:['Παραβολοειδές √x','Γ΄ Λυκείου','#f5a524'],
   salpigga:['Σάλπιγγα Γαβριήλ','Εμβάθυνση','#c084fc'],
   conics:['Κωνικές τομές','Λύκειο','#ff8a5b'], svd:['Σφαίρα → Ελλειψοειδές (SVD)','Πανεπιστήμιο','#60a5fa'],
-  fuzzy:['Ασαφείς συνεπαγωγές','Μεταπτυχιακό','#c084fc']
+  fuzzy:['Ασαφείς συνεπαγωγές','Μεταπτυχιακό','#c084fc'],
+  'peristrofi-omega':['Χωρίο κάτω από y = √x → στερεό','Γ΄ Λυκείου','#f5a524'],
+  'peristrofi-gamma':['Χωρίο ανάμεσα σε y = √x και y = x/2 → στερεό','Γ΄ Λυκείου','#4ade80']
 };
 
 const asked=new URLSearchParams(location.search).get('id');
@@ -162,6 +164,31 @@ if(PAIR[base]){
     if(k===id) b.classList.add('on');
     row.appendChild(b);
   }
+}
+
+/* Εμβαδά επίπεδων χωρίων (Γ΄ Λυκείου, §3.7): το χωρίο περιστρέφεται γύρω από τον άξονα x΄x
+   και «σαρώνει» το στερεό. Εναλλαγή ανάμεσα στα δύο χωρία και σύνδεσμος για τα γυαλιά XR. */
+const CHORIA=[['peristrofi-omega','Χωρίο Ω: κάτω από √x'],['peristrofi-gamma','Χωρίο Γ: ανάμεσα σε √x και x/2']];
+if(CHORIA.some(c=>c[0]===id)){
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const show=(k,b)=>{
+    mv.src=k+'.glb'; mv.removeAttribute('ios-src');
+    document.getElementById('title').textContent=META[k][0];
+    document.getElementById('level').textContent=META[k][1];
+    document.documentElement.style.setProperty('--acc',META[k][2]);
+    [...row.children].forEach(x=>x.classList.toggle('on',x===b));
+    history.replaceState(null,'','m.html?id='+k);
+  };
+  for(const [k,label] of CHORIA){
+    const b=document.createElement('button');
+    b.textContent=label; b.onclick=()=>show(k,b);
+    if(k===id) b.classList.add('on');
+    row.appendChild(b);
+  }
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='emvada.html'; };
+  row.appendChild(xr);
 }
 
 btn.addEventListener('click',()=>{
