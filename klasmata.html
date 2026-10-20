@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ο κύβος των κλασμάτων — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#3b82f6}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px}
+  #bar h1{font-size:15px;margin:0;font-weight:640}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#08131a;background:var(--acc);border-color:transparent}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:780px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:640px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(92vw,80vh);height:auto}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segK,.nogl #segM,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #hint{font-size:11.5px} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 256 250" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<line x1="95.4" y1="171.8" x2="227.4" y2="171.8" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.6"/>
+<line x1="95.4" y1="171.8" x2="95.4" y2="39.8" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.6"/>
+<line x1="95.4" y1="171.8" x2="40.0" y2="214.0" stroke="#94a3b8" stroke-width="1.5" stroke-opacity="0.6"/>
+<polygon points="95.4,83.8 161.4,83.8 119.9,115.4 53.9,115.4" fill="#60a5fa" fill-opacity="0.95" stroke="#1e3a8a" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="53.9,203.4 119.9,203.4 119.9,115.4 53.9,115.4" fill="#3b82f6" fill-opacity="0.95" stroke="#1e3a8a" stroke-width="1.5" stroke-linejoin="round"/>
+<polygon points="161.4,171.8 119.9,203.4 119.9,115.4 161.4,83.8" fill="#2563eb" fill-opacity="0.95" stroke="#1e3a8a" stroke-width="1.5" stroke-linejoin="round"/>
+<line x1="81.6" y1="94.3" x2="147.6" y2="94.3" stroke="#1e3a8a" stroke-width="1.2" stroke-opacity="1"/>
+<line x1="147.6" y1="182.3" x2="147.6" y2="94.3" stroke="#1e3a8a" stroke-width="1.2" stroke-opacity="1"/>
+<line x1="67.7" y1="104.9" x2="133.7" y2="104.9" stroke="#1e3a8a" stroke-width="1.2" stroke-opacity="1"/>
+<line x1="133.7" y1="192.9" x2="133.7" y2="104.9" stroke="#1e3a8a" stroke-width="1.2" stroke-opacity="1"/>
+<line x1="53.9" y1="159.4" x2="119.9" y2="159.4" stroke="#1e3a8a" stroke-width="1.2" stroke-opacity="1"/>
+<line x1="161.4" y1="127.8" x2="119.9" y2="159.4" stroke="#1e3a8a" stroke-width="1.2" stroke-opacity="1"/>
+<line x1="227.4" y1="171.8" x2="227.4" y2="39.8" stroke="#e2e8f0" stroke-width="2.2" stroke-opacity="1"/>
+<line x1="227.4" y1="39.8" x2="95.4" y2="39.8" stroke="#e2e8f0" stroke-width="2.2" stroke-opacity="1"/>
+<line x1="95.4" y1="39.8" x2="40.0" y2="82.0" stroke="#e2e8f0" stroke-width="2.2" stroke-opacity="1"/>
+<line x1="40.0" y1="82.0" x2="172.0" y2="82.0" stroke="#e2e8f0" stroke-width="2.2" stroke-opacity="1"/>
+<line x1="172.0" y1="82.0" x2="227.4" y2="39.8" stroke="#e2e8f0" stroke-width="2.2" stroke-opacity="1"/>
+<line x1="172.0" y1="82.0" x2="172.0" y2="214.0" stroke="#e2e8f0" stroke-width="2.2" stroke-opacity="1"/>
+<line x1="172.0" y1="214.0" x2="227.4" y2="171.8" stroke="#e2e8f0" stroke-width="2.2" stroke-opacity="1"/>
+<line x1="172.0" y1="214.0" x2="40.0" y2="214.0" stroke="#e2e8f0" stroke-width="2.2" stroke-opacity="1"/>
+<line x1="40.0" y1="214.0" x2="40.0" y2="82.0" stroke="#e2e8f0" stroke-width="2.2" stroke-opacity="1"/>
+<text x="128" y="244" font-size="14" font-weight="700" text-anchor="middle" fill="#eaf1f8">½ · ⅔ · ¾ = 6/24 = ¼ του κύβου</text>
+</svg>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Ο κύβος των κλασμάτων</h1>
+  <span class="lv">Α΄ Γυμνασίου, §2.5</span>
+</div>
+<div id="dock">
+  <div class="seg" id="segK">
+    <button data-k="0" class="on">½ · ⅔ · ¾</button>
+    <button data-k="1">½ · 1 · ½</button>
+    <button data-k="2">1 · ⅓ · ¾</button>
+    <button data-k="3">1 · 1 · ¼</button>
+    <button data-k="4">2 · ⅔ · ¾</button>
+  </div>
+  <div class="seg" id="segM">
+    <button data-m="0" class="on">Ολόκληρο κουτί</button>
+    <button data-m="1">Κουτάκια χωριστά</button>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο «Τα Κλάσματα στο Κέντρο Καινοτομίας» — Σταθμός 4: Ο κύβος των κλασμάτων
+// Κέντρο Καινοτομίας Θεσσαλίας. Ο κύβος έχει όγκο 1 και χωρίζεται σε 2 · 3 · 4 = 24 ίσα κουτάκια:
+// μισά στο πλάτος, τρίτα στο ύψος, τέταρτα στο βάθος. Κάθε κουτί του σταθμού έχει όγκο ίσο με το
+// γινόμενο των τριών διαστάσεών του, δηλαδή όσα κουτάκια περιέχει, διά 24.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const UNIT = 0.26;                  // μήκος της ακμής του κύβου σε μέτρα (στην προβολή 3D)
+const DIV = [2, 3, 4];              // διαιρέσεις: πλάτος, ύψος, βάθος
+const KOUTIA = [
+  { n: [1, 2, 3], col: 0x3b82f6, eq: '½ · ⅔ · ¾ = (1 · 2 · 3) / (2 · 3 · 4) = 6/24 = ¼',
+    count: '6 κουτάκια από τα 24 του κύβου', css: '#3b82f6',
+    hint: '<b>Κουτί ½ · ⅔ · ¾:</b> πλάτος ½, ύψος ⅔ και βάθος ¾ της ακμής του κύβου. Ο κύβος χωρίζεται σε 2 · 3 · 4 = 24 ίσα κουτάκια· το κουτί αποτελείται από 1 · 2 · 3 = 6 από αυτά, άρα ο όγκος του είναι 6/24 = ¼ του κύβου.' },
+  { n: [1, 3, 2], col: 0x22c55e, eq: '½ · 1 · ½ = (1 · 3 · 2) / (2 · 3 · 4) = 6/24 = ¼',
+    count: '6 κουτάκια από τα 24 του κύβου', css: '#22c55e',
+    hint: '<b>Κουτί ½ · 1 · ½:</b> ολόκληρο ύψος, μισό πλάτος και μισό βάθος. Διαφορετικό σχήμα από το πρώτο κουτί, αλλά πάλι 1 · 3 · 2 = 6 κουτάκια: όγκος 6/24 = ¼.' },
+  { n: [2, 1, 3], col: 0xf59e0b, eq: '1 · ⅓ · ¾ = (2 · 1 · 3) / (2 · 3 · 4) = 6/24 = ¼',
+    count: '6 κουτάκια από τα 24 του κύβου', css: '#f59e0b',
+    hint: '<b>Κουτί 1 · ⅓ · ¾:</b> ολόκληρο πλάτος, ύψος ⅓ και βάθος ¾. Και πάλι 2 · 1 · 3 = 6 κουτάκια: όγκος ¼. Τα τρία γινόμενα έχουν ίδιο αποτέλεσμα, γιατί το γινόμενο των αριθμητών είναι 6 και το γινόμενο των παρονομαστών 24.' },
+  { n: [2, 3, 1], col: 0xa855f7, eq: '1 · 1 · ¼ = (2 · 3 · 1) / (2 · 3 · 4) = 6/24 = ¼',
+    count: '6 κουτάκια από τα 24 του κύβου', css: '#a855f7',
+    hint: '<b>Κουτί 1 · 1 · ¼:</b> μια «φέτα» του κύβου με βάθος ¼. Είναι το τέταρτο και τελευταίο κουτί του καννάβου με όγκο ¼: τα κουτιά με 6 κουτάκια είναι ακριβώς τέσσερα.' },
+  { n: [4, 2, 3], col: 0xef4444, eq: '2 · ⅔ · ¾ = (4 · 2 · 3) / (2 · 3 · 4) = 24/24 = 1',
+    count: '24 κουτάκια: όσα έχει και ο κύβος', css: '#ef4444',
+    hint: '<b>Κουτί 2 · ⅔ · ¾:</b> βγαίνει έξω από τον κύβο, γιατί το πλάτος του είναι 2. Αποτελείται όμως από 4 · 2 · 3 = 24 κουτάκια, όσα και ο κύβος, άρα έχει όγκο 1. Πράγματι, ⅔ · ¾ = ½ και 2 · ½ = 1: οι αριθμοί 2 και ½ είναι αντίστροφοι.' }
+];
+const MODES = ['Ολόκληρο κουτί', 'Κουτάκια χωριστά'];
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.01, 60);
+camera.position.set(0.30, 0.20, 1.05);
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0.04, -0.08, 0);
+controls.enableDamping = true;
+controls.minDistance = 0.3;
+controls.maxDistance = 2.5;
+controls.update();
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a3446, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(0.8, 1.6, 1.2);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xbcd8ff, 0.5);
+fill.position.set(-1, 0.5, -1);
+scene.add(fill);
+
+// δάπεδο και θρανίο μόνο σε αδιαφανή λειτουργία (VR)
+const room = new THREE.Group();
+room.visible = false;
+scene.add(room);
+{
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x1b2433, roughness: 0.95 }));
+  floor.rotation.x = -Math.PI / 2;
+  room.add(floor);
+  const grid = new THREE.GridHelper(12, 24, 0x3b4a63, 0x27324a);
+  grid.position.y = 0.002;
+  room.add(grid);
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.04, 0.6), new THREE.MeshStandardMaterial({ color: 0x6b4f3a, roughness: 0.7 }));
+  desk.name = 'desk';
+  room.add(desk);
+}
+
+const root = new THREE.Group();          // ό,τι μετακινείται στο XR
+scene.add(root);
+const world = new THREE.Group();         // μονάδα = ακμή του κύβου
+world.scale.setScalar(UNIT);
+world.position.set(-0.5 * UNIT, -0.5 * UNIT, -0.5 * UNIT);
+root.add(world);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+function textTexture(lines, opt = {}) {
+  const w = opt.w || 1024, h = opt.h || 256;
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  if (opt.bg) {
+    ctx.fillStyle = opt.bg;
+    const r = 36;
+    ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+    ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath(); ctx.fill();
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const gap = opt.gap || h / (lines.length + 0.4);
+  lines.forEach((ln, i) => {
+    let size = ln.size || 64;
+    const font = s => `${ln.weight || 600} ${s}px "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif`;
+    ctx.font = font(size);
+    while (size > 18 && ctx.measureText(ln.t).width > w - 80) { size -= 2; ctx.font = font(size); }
+    ctx.fillStyle = ln.color || '#eaf1f8';
+    ctx.fillText(ln.t, w / 2, h / 2 + (i - (lines.length - 1) / 2) * gap);
+  });
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+
+function label(text, color, size = 0.09) {
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: textTexture([{ t: text, size: 170, color, weight: 700 }], { w: 512, h: 256 }), transparent: true, depthWrite: false }));
+  sp.scale.set(size * 2, size, 1);
+  sp.renderOrder = 6;
+  return sp;
+}
+
+// ------------------------------------------------------------------ ο κύβος
+const cube = new THREE.Group();
+world.add(cube);
+{
+  const edgeMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, emissive: 0x334155, roughness: 0.5 });
+  const r = 0.008;
+  const E = [[[0,0,0],[1,0,0]],[[0,1,0],[1,1,0]],[[0,0,1],[1,0,1]],[[0,1,1],[1,1,1]],
+             [[0,0,0],[0,1,0]],[[1,0,0],[1,1,0]],[[0,0,1],[0,1,1]],[[1,0,1],[1,1,1]],
+             [[0,0,0],[0,0,1]],[[1,0,0],[1,0,1]],[[0,1,0],[0,1,1]],[[1,1,0],[1,1,1]]];
+  for (const [a, b] of E) {
+    const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b);
+    const len = A.distanceTo(B);
+    const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len + 2 * r, 10), edgeMat);
+    m.position.copy(A).add(B).multiplyScalar(0.5);
+    m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), B.clone().sub(A).normalize());
+    cube.add(m);
+  }
+  // γραμμές του καννάβου στις τρεις πίσω έδρες (δάπεδο, πίσω τοίχος, αριστερός τοίχος)
+  const p = [];
+  for (let i = 1; i < 2; i++) { const x = i / 2; p.push(x,0,0, x,0,1,  x,0,0, x,1,0); }
+  for (let j = 1; j < 3; j++) { const y = j / 3; p.push(0,y,0, 1,y,0,  0,y,0, 0,y,1); }
+  for (let k = 1; k < 4; k++) { const z = k / 4; p.push(0,0,z, 1,0,z,  0,0,z, 0,1,z); }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(p, 3));
+  cube.add(new THREE.LineSegments(g, new THREE.LineBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.55 })));
+  const glass = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshStandardMaterial({ color: 0x93c5fd, transparent: true, opacity: 0.07, depthWrite: false, side: THREE.DoubleSide }));
+  glass.position.set(0.5, 0.5, 0.5);
+  cube.add(glass);
+  // υποδιαιρέσεις πάνω στις ακμές
+  const T = [['½', [0.5, -0.08, 1.06]], ['1', [1.0, -0.08, 1.06]],
+             ['⅓', [-0.1, 1 / 3, 1.04]], ['⅔', [-0.1, 2 / 3, 1.04]], ['1', [-0.1, 1.0, 1.04]],
+             ['¼', [-0.1, -0.06, 0.25]], ['½', [-0.1, -0.06, 0.5]], ['¾', [-0.1, -0.06, 0.75]]];
+  for (const [t, pos] of T) {
+    const s = label(t, '#cbd5e1', 0.075);
+    s.position.set(...pos);
+    cube.add(s);
+  }
+}
+
+// ------------------------------------------------------------------ τα κουτιά
+const CELL = [1 / DIV[0], 1 / DIV[1], 1 / DIV[2]];
+const cellGeo = new THREE.BoxGeometry(CELL[0] - 0.012, CELL[1] - 0.012, CELL[2] - 0.012);
+const cellEdges = new THREE.EdgesGeometry(cellGeo);
+const boxes = KOUTIA.map(K => {
+  const grp = new THREE.Group();
+  grp.visible = false;
+  world.add(grp);
+  const mat = new THREE.MeshStandardMaterial({ color: K.col, emissive: K.col, emissiveIntensity: 0.25, roughness: 0.55, transparent: true, opacity: 0.92 });
+  const lineMat = new THREE.LineBasicMaterial({ color: 0x0b1220, transparent: true, opacity: 0.6 });
+  const cells = [];
+  for (let i = 0; i < K.n[0]; i++) for (let j = 0; j < K.n[1]; j++) for (let k = 0; k < K.n[2]; k++) {
+    const c = new THREE.Group();
+    const m = new THREE.Mesh(cellGeo, mat);
+    m.userData.box = true;
+    c.add(m);
+    c.add(new THREE.LineSegments(cellEdges, lineMat));
+    const home = new THREE.Vector3((i + 0.5) * CELL[0], (j + 0.5) * CELL[1], (k + 0.5) * CELL[2]);
+    c.position.copy(home);
+    c.userData = { home, ijk: [i, j, k] };
+    grp.add(c);
+    cells.push(c);
+  }
+  return { K, grp, cells, mat };
+});
+
+// πίνακας με τον υπολογισμό, πάνω από τον κύβο
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.5), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+panel.position.set(0.75, 1.42, 0.5);
+panel.renderOrder = 8;
+world.add(panel);
+let panelKey = '';
+function setPanel(lines) {
+  const key = JSON.stringify(lines);
+  if (key === panelKey) return;
+  panelKey = key;
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = textTexture(lines, { w: 1280, h: 320, bg: 'rgba(14,20,32,.88)', gap: 110 });
+  panel.material.needsUpdate = true;
+}
+
+// ------------------------------------------------------------------ κατάσταση
+let current = 0, mode = 0, spread = 0;
+const hintEl = document.getElementById('hint');
+function select(k, m) {
+  current = (k + KOUTIA.length) % KOUTIA.length;
+  mode = m;
+  boxes.forEach((b, i) => { b.grp.visible = i === current; });
+  document.querySelectorAll('#segK button').forEach(b => b.classList.toggle('on', +b.dataset.k === current));
+  document.querySelectorAll('#segM button').forEach(b => b.classList.toggle('on', +b.dataset.m === mode));
+  const K = KOUTIA[current];
+  document.documentElement.style.setProperty('--acc', K.css);
+  hintEl.innerHTML = K.hint;
+  setPanel([{ t: K.eq, size: 66, color: '#eaf1f8', weight: 650 }, { t: K.count, size: 54, color: K.css }]);
+}
+document.querySelectorAll('#segK button').forEach(b => b.onclick = () => select(+b.dataset.k, mode));
+document.querySelectorAll('#segM button').forEach(b => b.onclick = () => select(current, +b.dataset.m));
+function next() { if (mode === 0) select(current, 1); else select(current + 1, 0); }
+select(0, 0);
+
+function animate(dt) {
+  const target = mode === 1 ? 1 : 0;
+  spread += (target - spread) * Math.min(1, dt * 5);
+  const b = boxes[current];
+  for (const c of b.cells) {
+    const [i, j, k] = c.userData.ijk;
+    c.position.set(c.userData.home.x + spread * 0.09 * i, c.userData.home.y + spread * 0.09 * j, c.userData.home.z + spread * 0.09 * k);
+  }
+}
+
+// ------------------------------------------------------------------ XR
+const btnAR = document.getElementById('btnAR'), btnVR = document.getElementById('btnVR');
+const note = document.getElementById('note');
+let placed = false, floorRef = true;
+async function checkXR() {
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+    return;
+  }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+  }
+}
+checkXR();
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    await renderer.xr.setSession(session);
+    placed = false;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    room.visible = opaque;
+    scene.background = opaque ? new THREE.Color(0x0e1420) : null;
+    session.addEventListener('end', () => {
+      room.visible = false;
+      scene.background = null;
+      root.position.set(0, 0, 0);
+      root.quaternion.identity();
+      root.scale.setScalar(1);
+      camera.position.set(0.30, 0.20, 1.05);
+      controls.target.set(0.04, -0.08, 0);
+      controls.update();
+    });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+// στην πρώτη εικόνα του XR, ο κύβος τοποθετείται 80 cm μπροστά από τον χρήστη, λίγο κάτω από τα μάτια
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const yaw = Math.atan2(-dir.x, -dir.z);
+  root.position.set(p.x + dir.x * 0.8, p.y - 0.28, p.z + dir.z * 0.8);
+  root.rotation.set(0, yaw, 0);
+  root.scale.setScalar(1.6);
+  const desk = room.getObjectByName('desk');
+  desk.position.set(root.position.x, root.position.y - 0.5 * UNIT * 1.6 - 0.021, root.position.z);
+  desk.rotation.y = yaw;
+  room.children[0].position.y = floorRef ? 0 : p.y - 1.5;
+  placed = true;
+  select(0, 0);
+}
+
+// χειριστήρια: σύντομο πάτημα = επόμενη κατάσταση, παρατεταμένο πάτημα πάνω στο κουτί = μετακίνηση
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    const targets = [];
+    world.traverse(o => { if (o.isMesh && (o.userData.box || o.parent === cube)) targets.push(o); });
+    if (ray.intersectObjects(targets, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    if (ctl.userData.grab) { scene.attach(root); ctl.userData.grab = false; }
+    if (performance.now() - ctl.userData.t0 < 280) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+const ctls = [makeController(0), makeController(1)];
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+let last = performance.now();
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  animate(dt);
+  if (renderer.xr.isPresenting) {
+    // ο πίνακας γυρίζει πάντα προς τον χρήστη
+    const eye = new THREE.Vector3().setFromMatrixPosition(renderer.xr.getCamera().matrixWorld);
+    const local = world.worldToLocal(eye.clone());
+    panel.rotation.set(0, Math.atan2(local.x - panel.position.x, local.z - panel.position.z), 0);
+    // ο μοχλός του χειριστηρίου μεγαλώνει ή μικραίνει τον κύβο
+    ctls.forEach(c => {
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if (gp && gp.axes && gp.axes.length) {
+        const ax = gp.axes[3] !== undefined ? gp.axes[3] : gp.axes[1];
+        if (Math.abs(ax) > 0.2) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ax * dt * 0.9), 0.5, 4));
+      }
+    });
+  } else {
+    panel.rotation.set(0, 0, 0);
+    controls.update();
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
