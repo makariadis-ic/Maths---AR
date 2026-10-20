@@ -116,9 +116,12 @@ const KOUTIA = [
   { n: [2, 3, 1], col: 0xa855f7, eq: '1 · 1 · ¼ = (2 · 3 · 1) / (2 · 3 · 4) = 6/24 = ¼',
     count: '6 κουτάκια από τα 24 του κύβου', css: '#a855f7',
     hint: '<b>Κουτί 1 · 1 · ¼:</b> μια «φέτα» του κύβου με βάθος ¼. Είναι το τέταρτο και τελευταίο κουτί του καννάβου με όγκο ¼: τα κουτιά με 6 κουτάκια είναι ακριβώς τέσσερα.' },
-  { n: [4, 2, 3], col: 0xef4444, eq: '2 · ⅔ · ¾ = (4 · 2 · 3) / (2 · 3 · 4) = 24/24 = 1',
-    count: '24 κουτάκια: όσα έχει και ο κύβος', css: '#ef4444',
-    hint: '<b>Κουτί 2 · ⅔ · ¾:</b> βγαίνει έξω από τον κύβο, γιατί το πλάτος του είναι 2. Αποτελείται όμως από 4 · 2 · 3 = 24 κουτάκια, όσα και ο κύβος, άρα έχει όγκο 1. Πράγματι, ⅔ · ¾ = ½ και 2 · ½ = 1: οι αριθμοί 2 και ½ είναι αντίστροφοι.' }
+  // Το κουτί 2 · ⅔ · ¾ είναι δύο κουτιά 1 · ⅔ · ¾. Αντί να βγαίνει έξω από τον κύβο, το δεύτερο κουτί
+  // (ανοιχτό κόκκινο) γεμίζει τον χώρο που μένει άδειος: όλα μαζί τα 24 κουτάκια γεμίζουν τον κύβο.
+  { n: [2, 3, 4], col: 0xef4444, col2: 0xfca5a5, proto: (i, j, k) => j < 2 && k > 0,
+    eq: '2 · ⅔ · ¾ = (4 · 2 · 3) / (2 · 3 · 4) = 24/24 = 1',
+    count: '24 κουτάκια: γεμίζουν όλο τον κύβο', css: '#ef4444',
+    hint: '<b>Κουτί 2 · ⅔ · ¾:</b> πλάτος 2, δηλαδή δύο κουτιά 1 · ⅔ · ¾ με 2 · 2 · 3 = 12 κουτάκια το καθένα. Το δεύτερο κουτί (ανοιχτό κόκκινο) δεν βγαίνει έξω από τον κύβο: τα κουτάκια του γεμίζουν τον χώρο που μένει άδειος. Όλα μαζί τα 4 · 2 · 3 = 24 κουτάκια γεμίζουν ακριβώς τον κύβο, άρα ο όγκος είναι 1. Πράγματι, ⅔ · ¾ = ½ και 2 · ½ = 1: οι αριθμοί 2 και ½ είναι αντίστροφοι.' }
 ];
 const MODES = ['Ολόκληρο κουτί', 'Κουτάκια χωριστά'];
 
@@ -262,11 +265,12 @@ const boxes = KOUTIA.map(K => {
   grp.visible = false;
   world.add(grp);
   const mat = new THREE.MeshStandardMaterial({ color: K.col, emissive: K.col, emissiveIntensity: 0.25, roughness: 0.55, transparent: true, opacity: 0.92 });
+  const mat2 = K.col2 ? new THREE.MeshStandardMaterial({ color: K.col2, emissive: K.col2, emissiveIntensity: 0.2, roughness: 0.55, transparent: true, opacity: 0.92 }) : mat;
   const lineMat = new THREE.LineBasicMaterial({ color: 0x0b1220, transparent: true, opacity: 0.6 });
   const cells = [];
   for (let i = 0; i < K.n[0]; i++) for (let j = 0; j < K.n[1]; j++) for (let k = 0; k < K.n[2]; k++) {
     const c = new THREE.Group();
-    const m = new THREE.Mesh(cellGeo, mat);
+    const m = new THREE.Mesh(cellGeo, K.proto && !K.proto(i, j, k) ? mat2 : mat);
     m.userData.box = true;
     c.add(m);
     c.add(new THREE.LineSegments(cellEdges, lineMat));
@@ -313,14 +317,12 @@ document.querySelectorAll('#segM button').forEach(b => b.onclick = () => select(
 function next() { if (mode === 0) select(current, 1); else select(current + 1, 0); }
 select(0, 0);
 
+// «Κουτάκια χωριστά»: κάθε κουτάκι μικραίνει στη θέση του, ώστε να μετριέται χωρίς να βγαίνει έξω από τον κύβο
 function animate(dt) {
   const target = mode === 1 ? 1 : 0;
   spread += (target - spread) * Math.min(1, dt * 5);
   const b = boxes[current];
-  for (const c of b.cells) {
-    const [i, j, k] = c.userData.ijk;
-    c.position.set(c.userData.home.x + spread * 0.09 * i, c.userData.home.y + spread * 0.09 * j, c.userData.home.z + spread * 0.09 * k);
-  }
+  for (const c of b.cells) c.scale.setScalar(1 - 0.3 * spread);
 }
 
 // ------------------------------------------------------------------ XR
