@@ -1,0 +1,862 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Η πυραμίδα του Θαλή — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#f59e0b}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px;white-space:nowrap}
+  #bar h1{font-size:15px;margin:0;font-weight:640;white-space:nowrap}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.35}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#08131a;background:var(--acc);border-color:transparent}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:820px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:720px;text-align:center;line-height:1.55;display:none}
+  #pip{position:fixed;z-index:9;border:1px solid rgba(245,158,11,.55);border-radius:10px;
+    pointer-events:none;display:none}
+  #pip span{position:absolute;left:8px;top:6px;font-size:11.5px;color:var(--ink);
+    background:rgba(14,20,32,.8);padding:3px 7px;border-radius:6px}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(94vw,120vh);height:auto}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segS,.nogl #hint,.nogl #pip{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #hint{font-size:11.5px}
+    #bar{gap:10px;padding:10px 12px} #bar h1{font-size:14px} #bar .lv{font-size:10.5px} #bar .lv span{display:block} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<line x1="18" y1="230" x2="338" y2="230" stroke="#94a3b8" stroke-width="1.5"/>
+<polygon points="30,230 218.85,230 124.42,109.79" fill="#d8c08a" stroke="#8a7448" stroke-width="1.5"/>
+<polygon points="218.85,230 267.68,230 124.42,109.79" fill="#2a2f3a" fill-opacity="0.75"/>
+<line x1="124.42" y1="230" x2="124.42" y2="109.79" stroke="#f8fafc" stroke-width="1.4" stroke-dasharray="5 4"/>
+<path d="M124.42,222 H132.42 V230" fill="none" stroke="#f8fafc" stroke-width="1.2"/>
+<line x1="124.42" y1="233" x2="218.85" y2="233" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="5 4"/>
+<line x1="218.85" y1="233" x2="267.68" y2="233" stroke="#f59e0b" stroke-width="3"/>
+<line x1="22" y1="23.85" x2="267.68" y2="230" stroke="#facc15" stroke-width="2"/>
+<path d="M247.68,230 A20,20 0 0 1 252.36,217.14" fill="none" stroke="#facc15" stroke-width="1.6"/>
+<text x="131" y="176" font-size="14" fill="#eaf1f8">H</text>
+<text x="171.6" y="252" font-size="12.5" text-anchor="middle" fill="#cbd5e1">β/2 = 115,15 m</text>
+<line x1="243.3" y1="237" x2="243.3" y2="257" stroke="#f59e0b" stroke-width="1" stroke-dasharray="2 2"/>
+<text x="243.3" y="270" font-size="12.5" text-anchor="middle" fill="#f59e0b">S = 59,6 m</text>
+<text x="236.7" y="223" font-size="11.5" text-anchor="middle" fill="#facc15">40°</text>
+<rect x="352" y="52" width="272" height="220" rx="10" fill="#16202f" stroke="#f59e0b" stroke-opacity="0.55"/>
+<text x="612" y="72" font-size="11.5" text-anchor="end" fill="#eaf1f8">Η ράβδος σε μεγέθυνση</text>
+<line x1="356" y1="230" x2="620" y2="230" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="400" y1="230" x2="400" y2="110" stroke="#b07a3a" stroke-width="5" stroke-linecap="round"/>
+<path d="M400,222 H408 V230" fill="none" stroke="#f8fafc" stroke-width="1.2"/>
+<line x1="400" y1="233" x2="543" y2="233" stroke="#f59e0b" stroke-width="3"/>
+<line x1="354" y1="71.4" x2="543" y2="230" stroke="#facc15" stroke-width="2"/>
+<path d="M523,230 A20,20 0 0 1 527.68,217.14" fill="none" stroke="#facc15" stroke-width="1.6"/>
+<text x="392" y="175" font-size="12.5" text-anchor="end" fill="#eaf1f8">h = 2 m</text>
+<text x="471.5" y="252" font-size="12.5" text-anchor="middle" fill="#f59e0b">s = 2,38 m</text>
+<text x="512" y="223" font-size="11.5" text-anchor="middle" fill="#facc15">40°</text>
+<text x="320" y="294" font-size="15" font-weight="700" text-anchor="middle" fill="#eaf1f8">Ήλιος 40°: H = (S + β/2) · h/s ≈ 146,8 m</text>
+</svg>
+<div id="pip"><span>Η ράβδος σε μεγέθυνση</span></div>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Η πυραμίδα του Θαλή</h1>
+  <span class="lv"><span>Γ΄ Γυμνασίου §1.5,</span> <span>Α΄ Λυκείου §3.11</span></span>
+</div>
+<div id="dock">
+  <div class="seg" id="segS">
+    <button data-k="0" class="on">Ήλιος 45°</button>
+    <button data-k="1">Ήλιος 40°</button>
+    <button data-k="2">Ήλιος 35°</button>
+    <button data-k="3">Ήλιος 50°</button>
+    <button data-k="4">Τα δύο όμοια τρίγωνα</button>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο «Τα Τρίγωνα στο Κέντρο Καινοτομίας» (Γ΄ Γυμνασίου και Α΄ Λυκείου) — Σταθμός 4: Η πυραμίδα του Θαλή
+// Κέντρο Καινοτομίας Θεσσαλίας. Η Μεγάλη Πυραμίδα (βάση 230,3 m, αρχικό ύψος περίπου 146,6 m) και μια
+// κατακόρυφη ράβδος ύψους 2 m φωτίζονται από τον ήλιο, που βρίσκεται στον νότο. Οι ακτίνες είναι παράλληλες,
+// οπότε η γωνία τους με το έδαφος είναι η ίδια για τη ράβδο και για την πυραμίδα: τα δύο ορθογώνια τρίγωνα
+// (ύψος, σκιά, ακτίνα) είναι όμοια και H / (S + β/2) = h / s. Στις 45° τα τρίγωνα είναι ισοσκελή.
+// Μονάδα μήκους: 1 μέτρο. Προβολή 3D και VR σε κλίμακα 1:1, AR πάνω στο θρανίο σε κλίμακα 1:1000,
+// με τη ράβδο δίπλα σε μεγέθυνση 1:20.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const H = 146.6, BASE = 230.3, HB = BASE / 2;      // ύψος και βάση της πυραμίδας, μισό της βάσης
+const STICK_H = 2;                                   // ύψος της ράβδου
+const STICK = new THREE.Vector3(30, 0, -220);        // θέση της ράβδου, βόρεια της πυραμίδας και πέρα από τις σκιές
+const AR_SCALE = 1 / 1000, INSET = 50;               // 1:1000 η σκηνή, 1:20 η ράβδος (50 × 1/1000)
+const SCENE_C = new THREE.Vector3(30, 0, -160);      // κέντρο της σύνθεσης (πυραμίδα, σκιά, ράβδος σε μεγέθυνση) στο AR
+const FACE = 51.85;                                  // κλίση των εδρών σε μοίρες
+
+const f = (x, d) => x.toFixed(d).replace('.', ',');
+const rad = THREE.MathUtils.degToRad;
+const STATES = [45, 40, 35, 50, 40].map((e, k) => {
+  const t = Math.tan(rad(e)), L = H / t, S = L - HB, s = STICK_H / t;
+  return { e, L, S, s, sim: k === 4, sTxt: f(s, 2), STxt: f(S, 1) };
+});
+STATES.forEach(st => {
+  const Hc = (parseFloat(st.STxt.replace(',', '.')) + HB) * STICK_H / parseFloat(st.sTxt.replace(',', '.'));
+  st.HTxt = f(Hc, 1);
+});
+const HINTS = [
+  s => `<b>Ήλιος 45°:</b> στις 45° η σκιά κάθε κατακόρυφου αντικειμένου έχει το ίδιο μήκος με το ύψος του. Η ράβδος των 2 m ρίχνει σκιά s = ${s.sTxt} m. Η σκιά της πυραμίδας ξεπερνά την πλευρά της βάσης κατά S = ${s.STxt} m, και το μισό της βάσης είναι β/2 = 115,15 m.`,
+  s => `<b>Ήλιος 40°:</b> η ράβδος h = 2 m ρίχνει σκιά s = ${s.sTxt} m, μεγαλύτερη από το ύψος της. Η σκιά της πυραμίδας ξεπερνά την πλευρά της βάσης κατά S = ${s.STxt} m. Οι ακτίνες του ήλιου είναι παράλληλες, άρα σχηματίζουν την ίδια γωνία με το έδαφος στη ράβδο και στην πυραμίδα.`,
+  s => `<b>Ήλιος 35°:</b> s = ${s.sTxt} m και S = ${s.STxt} m. Όσο χαμηλώνει ο ήλιος, τόσο μακραίνουν όλες οι σκιές, αλλά ο λόγος του ύψους προς τη σκιά μένει ο ίδιος για όλα τα αντικείμενα την ίδια στιγμή.`,
+  s => `<b>Ήλιος 50°:</b> s = ${s.sTxt} m και S = ${s.STxt} m. Η σκιά της πυραμίδας μόλις βγαίνει έξω από τη βάση, γιατί οι έδρες της έχουν κλίση 51,85°, λίγο μεγαλύτερη από τη γωνία του ήλιου. Όταν ο ήλιος είναι ψηλότερα από 51,85°, η πυραμίδα δεν ρίχνει σκιά έξω από τη βάση της.`,
+  s => `<b>Τα δύο όμοια τρίγωνα (ήλιος 40°):</b> το τρίγωνο της ράβδου, με κάθετες πλευρές h και s, και το τρίγωνο της πυραμίδας, με κάθετες πλευρές H και S + β/2, είναι ορθογώνια και έχουν την ίδια γωνία 40° με το έδαφος, άρα είναι όμοια. Οι ομόλογες πλευρές τους είναι ανάλογες: H/(S + β/2) = h/s, οπότε H = (${s.STxt} + 115,15) · 2/${s.sTxt} ≈ ${s.HTxt} m. Το αρχικό ύψος της πυραμίδας ήταν περίπου 146,6 m και η διαφορά οφείλεται στη στρογγυλοποίηση των μετρήσεων.`
+];
+const PANELS = [
+  s => [`Ήλιος ${s.e}°`, `Ράβδος: h = 2 m, s = ${s.sTxt} m`, `Πυραμίδα: S = ${s.STxt} m, β/2 = 115,15 m`],
+  s => [`Ήλιος ${s.e}°`, `Ράβδος: h = 2 m, s = ${s.sTxt} m`, `Πυραμίδα: S = ${s.STxt} m, β/2 = 115,15 m`],
+  s => [`Ήλιος ${s.e}°`, `Ράβδος: h = 2 m, s = ${s.sTxt} m`, `Πυραμίδα: S = ${s.STxt} m, β/2 = 115,15 m`],
+  s => [`Ήλιος ${s.e}°`, `Ράβδος: h = 2 m, s = ${s.sTxt} m`, `Πυραμίδα: S = ${s.STxt} m, β/2 = 115,15 m`],
+  s => [`Τα δύο όμοια τρίγωνα (ήλιος ${s.e}°)`, `H/(S + β/2) = h/s`, `H = (${s.STxt} + 115,15) · 2/${s.sTxt} ≈ ${s.HTxt} m`]
+];
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, window.innerWidth / window.innerHeight, 1, 8000);
+const CAM0 = new THREE.Vector3(860, 250, 40), TGT0 = new THREE.Vector3(0, 40, -78);
+camera.position.copy(CAM0);
+const controls = new OrbitControls(camera, canvas);
+controls.target.copy(TGT0);
+controls.enableDamping = true;
+controls.minDistance = 25;
+controls.maxDistance = 2400;
+controls.maxPolarAngle = rad(86);
+controls.update();
+
+// πλαίσιο της προβολής 3D: σε κατακόρυφη οθόνη η κάμερα απομακρύνεται και η εικόνα ανεβαίνει πάνω από τα κουμπιά
+const FOV = 32;
+let barBottom = 62, touched = false;
+controls.addEventListener('start', () => { touched = true; });
+function layoutView() {
+  const W = window.innerWidth, Hh = window.innerHeight;
+  barBottom = Math.round(document.getElementById('bar').getBoundingClientRect().bottom);
+  let dy = 0;
+  if (W / Hh < 1.2) {
+    const dockTop = document.getElementById('dock').getBoundingClientRect().top;
+    dy = Math.max(0, Math.round(Hh / 2 - (barBottom + dockTop) / 2));
+  }
+  const FH = Hh + 2 * dy;
+  camera.fov = 2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(rad(FOV / 2)) * FH / Hh));
+  camera.aspect = W / FH;
+  if (dy) camera.setViewOffset(W, FH, 0, 2 * dy, W, Hh); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  if (!renderer.xr.isPresenting) setLabelScale(W / Hh < 1 ? 1.3 : 1);
+}
+function homeView() {
+  const a = window.innerWidth / window.innerHeight;
+  const k = a < 1 ? Math.pow(1 / a, 0.6) : 1;
+  const tgt = TGT0.clone();
+  if (a < 1) tgt.z -= 22 * Math.min(1, (1 - a) / 0.5);
+  camera.position.copy(CAM0).sub(TGT0).multiplyScalar(k).add(tgt);
+  controls.target.copy(tgt);
+  controls.update();
+}
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x4a3b22, 1.15));
+const sunLight = new THREE.DirectionalLight(0xfff4dc, 2.3);
+scene.add(sunLight, sunLight.target);
+
+// μεγάλο έδαφος και ουρανός μόνο στο VR
+const vrWorld = new THREE.Group();
+vrWorld.visible = false;
+scene.add(vrWorld);
+
+const root = new THREE.Group();          // ό,τι μετακινείται και κλιμακώνεται στο XR
+scene.add(root);
+const world = new THREE.Group();         // η σκηνή σε μέτρα
+root.add(world);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+function textTexture(lines, opt = {}) {
+  const w = opt.w || 1024, h = opt.h || 256;
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  if (opt.bg) {
+    ctx.fillStyle = opt.bg;
+    const r = 36;
+    ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+    ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath(); ctx.fill();
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const gap = opt.gap || h / (lines.length + 0.4);
+  lines.forEach((ln, i) => {
+    let size = ln.size || 64;
+    const font = s => `${ln.weight || 600} ${s}px "Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Arial, sans-serif`;
+    ctx.font = font(size);
+    while (size > 18 && ctx.measureText(ln.t).width > w - 60) { size -= 2; ctx.font = font(size); }
+    if (opt.halo) { ctx.lineWidth = Math.max(6, size / 7); ctx.strokeStyle = 'rgba(14,20,32,.85)'; ctx.strokeText(ln.t, w / 2, h / 2 + (i - (lines.length - 1) / 2) * gap); }
+    ctx.fillStyle = ln.color || '#eaf1f8';
+    ctx.fillText(ln.t, w / 2, h / 2 + (i - (lines.length - 1) / 2) * gap);
+  });
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+
+// ετικέτα με ύψος σε μέτρα, πάντα στραμμένη προς τον θεατή και ορατή μπροστά από τα άλλα αντικείμενα
+function labelTexture(text, color) {
+  const size = 120, pad = 40;
+  const cv = document.createElement('canvas');
+  const ctx = cv.getContext('2d');
+  const font = `700 ${size}px "Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Arial, sans-serif`;
+  ctx.font = font;
+  const w = Math.ceil(ctx.measureText(text).width) + 2 * pad, h = Math.ceil(size * 1.5);
+  cv.width = w; cv.height = h;
+  ctx.font = font;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 20;
+  ctx.strokeStyle = 'rgba(14,20,32,.88)';
+  ctx.strokeText(text, w / 2, h / 2);
+  ctx.fillStyle = color;
+  ctx.fillText(text, w / 2, h / 2);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return { tex, aspect: w / h };
+}
+function label(text, color, height) {
+  const { tex, aspect } = labelTexture(text, color);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false }));
+  sp.renderOrder = 20;
+  sp.userData = { text, color, h: height, aspect, k: 1 };
+  sp.scale.set(height * aspect, height, 1);
+  return sp;
+}
+function fitLabel(sp) { const u = sp.userData; sp.scale.set(u.h * u.k * u.aspect, u.h * u.k, 1); }
+function setLabel(sp, text) {
+  if (sp.userData.text === text) return;
+  sp.material.map.dispose();
+  const { tex, aspect } = labelTexture(text, sp.userData.color);
+  sp.material.map = tex;
+  sp.material.needsUpdate = true;
+  Object.assign(sp.userData, { text, aspect });
+  fitLabel(sp);
+}
+
+// ------------------------------------------------------------------ βοηθητικά γεωμετρίας
+const UP = new THREE.Vector3(0, 1, 0);
+function bar(a, b, r, mat) {               // κύλινδρος από το a στο b
+  const len = a.distanceTo(b);
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1, 10, 1), mat);
+  m.userData.r = r;
+  placeBar(m, a, b);
+  return m;
+}
+function placeBar(m, a, b) {
+  const len = Math.max(a.distanceTo(b), 1e-6);
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  m.quaternion.setFromUnitVectors(UP, b.clone().sub(a).normalize());
+  m.scale.set(1, len, 1);
+}
+function dashed(r, mat, n = 14) {          // διακεκομμένη γραμμή από ν τμήματα
+  const g = new THREE.Group();
+  for (let i = 0; i < n; i++) g.add(new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1, 8, 1), mat));
+  g.userData.n = n;
+  return g;
+}
+function placeDashed(g, a, b) {
+  const n = g.userData.n;
+  for (let i = 0; i < n; i++) {
+    const t0 = i / n, t1 = (i + 0.55) / n;
+    placeBar(g.children[i], a.clone().lerp(b, t0), a.clone().lerp(b, t1));
+  }
+}
+function arcPoints(c, a1, a2, r, n = 24) {  // τόξο στο κατακόρυφο επίπεδο x = σταθερό, γωνίες από τον άξονα +z
+  const pts = [];
+  for (let i = 0; i <= n; i++) {
+    const t = a1 + (a2 - a1) * i / n;
+    pts.push(new THREE.Vector3(c.x, c.y + r * Math.sin(t), c.z + r * Math.cos(t)));
+  }
+  return pts;
+}
+function tube(pts, r, mat) {
+  return new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), Math.max(8, pts.length * 2), r, 6, false), mat);
+}
+
+// ------------------------------------------------------------------ υλικά
+const M = {
+  sand: new THREE.MeshStandardMaterial({ color: 0xcdb27c, roughness: 1 }),
+  stone: new THREE.MeshStandardMaterial({ color: 0xdcc492, roughness: 0.92, flatShading: true }),
+  edge: new THREE.LineBasicMaterial({ color: 0x8a7448 }),
+  shadow: new THREE.MeshBasicMaterial({ color: 0x232837, transparent: true, opacity: 0.62, depthWrite: false,
+    polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }),
+  ray: new THREE.MeshBasicMaterial({ color: 0xfacc15 }),
+  sLine: new THREE.MeshBasicMaterial({ color: 0xf59e0b, depthTest: false, transparent: true }),
+  hidden: new THREE.MeshBasicMaterial({ color: 0xe2e8f0, depthTest: false, transparent: true, opacity: 0.85 }),
+  half: new THREE.MeshBasicMaterial({ color: 0x94a3b8, depthTest: false, transparent: true, opacity: 0.95 }),
+  wood: new THREE.MeshStandardMaterial({ color: 0x9a6534, roughness: 0.8 }),
+  arc: new THREE.MeshBasicMaterial({ color: 0xfacc15, depthTest: false, transparent: true }),
+  tri: new THREE.MeshBasicMaterial({ color: 0xf59e0b, transparent: true, opacity: 0.3, depthTest: false, depthWrite: false, side: THREE.DoubleSide }),
+  sun: new THREE.MeshBasicMaterial({ color: 0xfff1a8 }),
+  plate: new THREE.MeshStandardMaterial({ color: 0xe3cf9f, roughness: 1 }),
+  frame: new THREE.LineBasicMaterial({ color: 0xf59e0b })
+};
+['sLine', 'hidden', 'half', 'arc', 'tri'].forEach(k => { M[k].userData.top = true; });
+
+// ------------------------------------------------------------------ έδαφος και πυραμίδα
+{
+  const g = new THREE.Mesh(new THREE.PlaneGeometry(520, 440), M.sand);
+  g.rotation.x = -Math.PI / 2;
+  g.position.set(0, 0, -80);
+  world.add(g);
+  const north = label('Βορράς', '#eaf1f8', 16);
+  north.position.set(-230, 6, -250);
+  north.userData.big = true;
+  world.add(north);
+}
+const pyr = new THREE.Group();
+world.add(pyr);
+{
+  const A = [0, H, 0], P = [[-HB, 0, HB], [HB, 0, HB], [HB, 0, -HB], [-HB, 0, -HB]];
+  const pos = [];
+  for (let i = 0; i < 4; i++) { const p = P[i], q = P[(i + 1) % 4]; pos.push(...p, ...q, ...A); }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.computeVertexNormals();
+  pyr.add(new THREE.Mesh(geo, M.stone));
+  const e = [];
+  for (let i = 0; i < 4; i++) { const p = P[i], q = P[(i + 1) % 4]; e.push(...p, ...q, ...p, ...A); }
+  const eg = new THREE.BufferGeometry();
+  eg.setAttribute('position', new THREE.Float32BufferAttribute(e, 3));
+  pyr.add(new THREE.LineSegments(eg, M.edge));
+}
+
+// σκιά της πυραμίδας: τρίγωνο με βάση τη βόρεια πλευρά και κορυφή τη σκιά της κορυφής
+const shGeo = new THREE.BufferGeometry();
+shGeo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(9), 3));
+const shadow = new THREE.Mesh(shGeo, M.shadow);
+shadow.renderOrder = 2;
+world.add(shadow);
+
+// ήλιος και ακτίνες
+const sunBall = new THREE.Mesh(new THREE.SphereGeometry(26, 24, 16), M.sun);
+world.add(sunBall);
+const rayApex = bar(new THREE.Vector3(), new THREE.Vector3(0, 1, 0), 0.9, M.ray);
+world.add(rayApex);
+const lineS = bar(new THREE.Vector3(), new THREE.Vector3(0, 1, 0), 1.1, M.sLine);
+lineS.renderOrder = 12;
+world.add(lineS);
+const lineH = dashed(0.8, M.hidden, 16);
+lineH.children.forEach(m => { m.renderOrder = 12; });
+world.add(lineH);
+placeDashed(lineH, new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, H, 0));
+const lineB = dashed(0.8, M.half, 12);
+lineB.children.forEach(m => { m.renderOrder = 12; });
+world.add(lineB);
+placeDashed(lineB, new THREE.Vector3(0, 0.4, 0), new THREE.Vector3(0, 0.4, -HB));
+// ορθή γωνία στο κέντρο της βάσης
+const rightBig = new THREE.Group();
+{
+  const q = 9, pts = [new THREE.Vector3(0, q, 0), new THREE.Vector3(0, q, -q), new THREE.Vector3(0, 0.4, -q)];
+  rightBig.add(bar(pts[0], pts[1], 0.6, M.hidden), bar(pts[1], pts[2], 0.6, M.hidden));
+  rightBig.children.forEach(m => { m.renderOrder = 12; });
+  world.add(rightBig);
+}
+let arcBig = null, arcBig2 = null, arcSmall = null, arcSmall2 = null;
+const triBig = new THREE.Mesh(new THREE.BufferGeometry(), M.tri);
+triBig.geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(9), 3));
+triBig.renderOrder = 11;
+world.add(triBig);
+
+// ετικέτες της πυραμίδας (μεγάλες, για την προβολή 3D, το VR και το AR)
+const L = {
+  H: label('H', '#f8fafc', 18), HB: label('β/2 = 115,15 m', '#cbd5e1', 15), S: label('S', '#f59e0b', 16),
+  E: label('40°', '#facc15', 15)
+};
+Object.values(L).forEach(s => { s.userData.big = true; world.add(s); });
+L.H.position.set(0, H * 0.55, 12);
+L.HB.position.set(0, 36, -HB / 2);
+// θέση της ράβδου στη μεγάλη εικόνα
+const lStick = label('Ράβδος', '#eaf1f8', 13);
+lStick.userData.big = true;
+lStick.position.set(STICK.x, 12, STICK.z);
+world.add(lStick);
+
+// ------------------------------------------------------------------ η ράβδος (κλίμακα 1:1)
+function makeStick(scale) {
+  // scale: πολλαπλασιαστής πάχους ώστε η ράβδος να φαίνεται και σε μεγέθυνση
+  const g = new THREE.Group();
+  g.add(bar(new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, STICK_H, 0), 0.035 * scale, M.wood));
+  const top = new THREE.Mesh(new THREE.SphereGeometry(0.06 * scale, 16, 12), M.wood);
+  top.position.y = STICK_H;
+  g.add(top);
+  const sh = new THREE.Mesh(new THREE.PlaneGeometry(1, 0.09 * scale), M.shadow);
+  sh.rotation.x = -Math.PI / 2;
+  sh.rotation.z = Math.PI / 2;
+  sh.position.y = 0.002;
+  sh.renderOrder = 2;
+  g.add(sh);
+  const r = bar(new THREE.Vector3(), new THREE.Vector3(0, 1, 0), 0.014 * scale, M.ray);
+  g.add(r);
+  const sl = bar(new THREE.Vector3(), new THREE.Vector3(0, 1, 0), 0.02 * scale, M.sLine);
+  sl.renderOrder = 12;
+  g.add(sl);
+  const q = 0.16, rq = new THREE.Group();
+  rq.add(bar(new THREE.Vector3(0, q, 0), new THREE.Vector3(0, q, -q), 0.008 * scale, M.hidden),
+         bar(new THREE.Vector3(0, q, -q), new THREE.Vector3(0, 0.004, -q), 0.008 * scale, M.hidden));
+  g.add(rq);
+  const tri = new THREE.Mesh(new THREE.BufferGeometry(), M.tri);
+  tri.geometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(9), 3));
+  tri.renderOrder = 11;
+  g.add(tri);
+  const lh = label('h = 2 m', '#f8fafc', 0.24), ls = label('s', '#f59e0b', 0.24), le = label('40°', '#facc15', 0.2);
+  lh.position.set(0, 1.15, 0.5);
+  g.add(lh, ls, le);
+  g.userData = { sh, r, sl, tri, lh, ls, le, arcs: [], scale };
+  return g;
+}
+function stickLabels(u, k) {               // μέγεθος των ετικετών μιας ράβδου, με θέσεις που δεν πέφτουν πάνω της
+  [u.lh, u.ls, u.le].forEach(sp => { sp.userData.k = k; fitLabel(sp); });
+  u.lh.position.z = k > 1 ? 0.14 + 0.5 * u.lh.scale.x : 0.5;
+  u.ls.position.y = k > 1 ? -0.08 - 0.5 * u.ls.scale.y : -0.16;
+  placeLe(u, eNow, STICK_H / Math.tan(rad(eNow)));
+}
+const stick = makeStick(1);
+stick.position.copy(STICK);
+world.add(stick);
+
+// ------------------------------------------------------------------ η ράβδος σε μεγέθυνση 1:20 (μόνο στο AR)
+const inset = new THREE.Group();
+inset.visible = false;
+inset.position.set(60, 1.6, -300);
+inset.scale.setScalar(INSET);
+world.add(inset);
+{
+  const plate = new THREE.Mesh(new THREE.BoxGeometry(1.5, 0.03, 4.0), M.plate);
+  plate.position.set(0, -0.016, -1.25);
+  inset.add(plate);
+  const fr = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1.5, 0.03, 4.0)), M.frame);
+  fr.position.copy(plate.position);
+  inset.add(fr);
+  const cap = label('Ράβδος h = 2 m, κλίμακα 1:20', '#eaf1f8', 0.3);
+  cap.position.set(0, 2.7, -1.2);
+  inset.add(cap);
+}
+const stickIn = makeStick(2.2);
+inset.add(stickIn);
+
+// ------------------------------------------------------------------ πίνακας με τις τιμές (στο XR)
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.66), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, depthTest: false, side: THREE.DoubleSide }));
+panel.renderOrder = 30;
+panel.visible = false;
+scene.add(panel);
+let panelKey = '';
+function setPanel(lines) {
+  const key = JSON.stringify(lines);
+  if (key === panelKey) return;
+  panelKey = key;
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = textTexture(lines.map((t, i) => ({ t, size: i ? 56 : 66, color: i ? '#eaf1f8' : '#f59e0b', weight: i ? 600 : 700 })),
+    { w: 1280, h: 352, bg: 'rgba(14,20,32,.9)', gap: 100 });
+  panel.material.needsUpdate = true;
+}
+
+// ------------------------------------------------------------------ ενημέρωση της γεωμετρίας για γωνία ήλιου e
+const SIM = { on: false };
+function arcMesh(c, a1, a2, r, rr) { return tube(arcPoints(c, a1, a2, r, 20), rr, M.arc); }
+function placeLe(u, e, sLen) {            // ετικέτα της γωνίας στη διχοτόμο, έξω από τα τόξα
+  const d = 0.58 + 0.55 * u.le.scale.x, b = rad(e) / 2;
+  u.le.position.set(0, d * Math.sin(b), -sLen + d * Math.cos(b));
+}
+function setSun(e, st) {
+  const t = Math.tan(rad(e)), Lz = H / t, sLen = STICK_H / t;
+  const dir = new THREE.Vector3(0, Math.sin(rad(e)), Math.cos(rad(e)));     // προς τον ήλιο (νότος = +z)
+  sunLight.position.copy(dir).multiplyScalar(800);
+  sunLight.target.position.set(0, 0, 0);
+  sunBall.position.copy(dir).multiplyScalar(900).add(new THREE.Vector3(0, 0, -60));
+  // σκιά της πυραμίδας
+  const tip = new THREE.Vector3(0, 0, -Lz);
+  const a = shGeo.attributes.position.array;
+  const out = Lz > HB + 0.01;
+  a.set([-HB, 0.01, -HB, HB, 0.01, -HB, 0, 0.01, out ? -Lz : -HB]);
+  shGeo.attributes.position.needsUpdate = true;
+  shGeo.computeBoundingSphere();
+  shadow.visible = out;
+  // ακτίνα από τον ήλιο, μέσα από την κορυφή, ως την άκρη της σκιάς
+  const apex = new THREE.Vector3(0, H, 0);
+  placeBar(rayApex, tip, apex.clone().add(dir.clone().multiplyScalar(160)));
+  placeBar(lineS, new THREE.Vector3(0, 0.5, -HB), new THREE.Vector3(0, 0.5, -Math.max(Lz, HB + 0.1)));
+  lineS.visible = out;
+  // ετικέτες
+  setLabel(L.S, `S = ${st.STxt} m`);
+  L.S.position.set(20 + 40 * L.S.userData.k, 1, -(HB + Lz) / 2);     // κάτω από το τμήμα S, προς τον θεατή
+  L.S.visible = out;
+  setLabel(L.E, `${st.e}°`);
+  { const dE = 33 + 0.55 * L.E.scale.x, b = rad(e) / 2; L.E.position.set(0, dE * Math.sin(b), -Lz + dE * Math.cos(b)); }
+  // τόξο της γωνίας του ήλιου στην άκρη της σκιάς
+  if (arcBig) { world.remove(arcBig); arcBig.geometry.dispose(); }
+  if (arcBig2) { world.remove(arcBig2); arcBig2.geometry.dispose(); arcBig2 = null; }
+  arcBig = arcMesh(tip, 0, rad(e), 26, 0.7);
+  arcBig.renderOrder = 13;
+  world.add(arcBig);
+  if (SIM.on) { arcBig2 = arcMesh(tip, 0, rad(e), 31, 0.7); arcBig2.renderOrder = 13; world.add(arcBig2); }
+  // το μεγάλο ορθογώνιο τρίγωνο
+  triBig.geometry.attributes.position.array.set([0, 0.3, 0, 0, H, 0, 0, 0.3, -Lz]);
+  triBig.geometry.attributes.position.needsUpdate = true;
+  triBig.geometry.computeBoundingSphere();
+  triBig.visible = SIM.on;
+  // οι δύο ράβδοι (1:1 και 1:20)
+  for (const g of [stick, stickIn]) {
+    const u = g.userData, k = u.scale;
+    u.sh.scale.x = sLen;
+    u.sh.position.z = -sLen / 2;
+    const stTip = new THREE.Vector3(0, 0, -sLen), top = new THREE.Vector3(0, STICK_H, 0);
+    placeBar(u.r, stTip, top.clone().add(dir.clone().multiplyScalar(2.4)));
+    placeBar(u.sl, new THREE.Vector3(0, 0.006, 0), new THREE.Vector3(0, 0.006, -sLen));
+    setLabel(u.ls, `s = ${st.sTxt} m`);
+    u.ls.position.set(0, u.ls.userData.k > 1 ? -0.08 - 0.5 * u.ls.scale.y : -0.16, -sLen / 2);
+    setLabel(u.le, `${st.e}°`);
+    placeLe(u, e, sLen);
+    u.arcs.forEach(m => { g.remove(m); m.geometry.dispose(); });
+    u.arcs = [arcMesh(stTip, 0, rad(e), 0.42, 0.012 * k)];
+    if (SIM.on) u.arcs.push(arcMesh(stTip, 0, rad(e), 0.5, 0.012 * k));
+    u.arcs.forEach(m => { m.renderOrder = 13; g.add(m); });
+    u.tri.geometry.attributes.position.array.set([0, 0.004, 0, 0, STICK_H, 0, 0, 0.004, -sLen]);
+    u.tri.geometry.attributes.position.needsUpdate = true;
+    u.tri.geometry.computeBoundingSphere();
+    u.tri.visible = SIM.on;
+  }
+}
+
+// ------------------------------------------------------------------ κατάσταση
+let current = 0, eNow = STATES[0].e, eFrom = eNow, eTo = eNow, tAnim = 1;
+const hintEl = document.getElementById('hint');
+function select(k) {
+  current = (k + STATES.length) % STATES.length;
+  const st = STATES[current];
+  SIM.on = st.sim;
+  document.querySelectorAll('#segS button').forEach(b => b.classList.toggle('on', +b.dataset.k === current));
+  hintEl.innerHTML = HINTS[current](st).replace(/ ([=≈]) /g, '\u00a0$1\u00a0').replace(/(\d) m\b/g, '$1\u00a0m');
+  setPanel(PANELS[current](st));
+  eFrom = eNow; eTo = st.e; tAnim = 0;
+  setSun(eNow, st);
+}
+document.querySelectorAll('#segS button').forEach(b => b.onclick = () => select(+b.dataset.k));
+function next() { select(current + 1); }
+{
+  const q = parseInt(new URLSearchParams(location.search).get('k'), 10);
+  select(Number.isFinite(q) && q >= 0 && q < STATES.length ? q : 0);
+}
+layoutView();
+homeView();
+function animate(dt) {
+  if (tAnim < 1) {
+    tAnim = Math.min(1, tAnim + dt / 0.9);
+    const s = tAnim * tAnim * (3 - 2 * tAnim);
+    eNow = eFrom + (eTo - eFrom) * s;
+    setSun(eNow, STATES[current]);
+  }
+}
+
+// ------------------------------------------------------------------ η ράβδος σε μεγέθυνση στην προβολή 3D (δεύτερη κάμερα)
+const pipEl = document.getElementById('pip');
+const pipCam = new THREE.PerspectiveCamera(40, 1.6, 0.05, 3000);
+pipCam.position.set(STICK.x + 4.4, 1.25, STICK.z - 1.3);
+pipCam.lookAt(STICK.x, 0.95, STICK.z - 1.3);
+function pipRect() {
+  const W = window.innerWidth;
+  const w = Math.round(Math.min(380, W * (W < 700 ? 0.62 : 0.32))), h = Math.round(w * 0.62);
+  return { x: W - w - (W < 700 ? 10 : 14), y: barBottom + 6, w, h };
+}
+function layoutPip() {
+  const r = pipRect();
+  Object.assign(pipEl.style, { left: r.x + 'px', top: r.y + 'px', width: r.w + 'px', height: r.h + 'px' });
+  pipCam.aspect = r.w / r.h;
+  pipCam.updateProjectionMatrix();
+}
+layoutPip();
+
+// ------------------------------------------------------------------ XR
+const btnAR = document.getElementById('btnAR'), btnVR = document.getElementById('btnVR');
+const note = document.getElementById('note');
+let placed = false, floorRef = true, xrKind = '';
+async function checkXR() {
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap\u00a02 ή Meta Quest\u00a03.';
+    note.style.display = 'block';
+    return;
+  }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap\u00a02 ή Meta Quest\u00a03.';
+    note.style.display = 'block';
+  }
+}
+checkXR().then(() => { layoutView(); layoutPip(); });
+
+// μεγάλες ετικέτες: στο AR (1:1000) μικραίνουν μαζί με τη σκηνή, οπότε μεγαλώνουν ώστε να διαβάζονται
+function setLabelScale(k) {
+  world.traverse(o => { if (o.isSprite && o.userData.big) { o.userData.k = k; fitLabel(o); } });
+  setSun(eNow, STATES[current]);
+}
+
+function resetView() {
+  camera.near = 1;
+  camera.far = 8000;
+  root.position.set(0, 0, 0);
+  root.quaternion.identity();
+  root.scale.setScalar(1);
+  inset.visible = false;
+  vrWorld.visible = false;
+  sunBall.visible = true;
+  stick.visible = true;
+  lStick.visible = true;
+  stickLabels(stickIn.userData, 1);
+  panel.visible = false;
+  scene.attach(panel);
+  scene.background = null;
+  layoutView();
+  homeView();
+  touched = false;
+}
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    // τα όρια βάθους της κάμερας περνούν στη συνεδρία XR: στο AR η σκηνή είναι 0,85 m μπροστά, στο VR η πυραμίδα σε εκατοντάδες μέτρα
+    camera.near = 0.05;
+    camera.far = kind === 'immersive-vr' ? 6000 : 100;
+    camera.updateProjectionMatrix();
+    await renderer.xr.setSession(session);
+    placed = false;
+    xrKind = kind;
+    pipEl.style.display = 'none';
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    scene.background = opaque ? new THREE.Color(kind === 'immersive-vr' ? 0x9fc4e8 : 0x0e1420) : null;
+    session.addEventListener('end', () => { xrKind = ''; resetView(); });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+// VR: ο χρήστης στέκεται δίπλα στη ράβδο, κοιτάζοντας προς την πυραμίδα (νότος), όπως ο Θαλής
+const STAND = new THREE.Vector3(STICK.x + 2.0, 0, STICK.z - 3.0);
+{
+  const big = new THREE.Mesh(new THREE.CircleGeometry(3000, 64), new THREE.MeshStandardMaterial({ color: 0xc4a874, roughness: 1 }));
+  big.rotation.x = -Math.PI / 2;
+  big.position.y = -0.05;
+  vrWorld.add(big);
+}
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const floorY = floorRef ? 0 : p.y - 1.6;
+  if (xrKind === 'immersive-vr') {
+    // ο άξονας +z της σκηνής (προς την πυραμίδα) γίνεται η κατεύθυνση του βλέμματος
+    const yaw = Math.atan2(dir.x, dir.z);
+    root.scale.setScalar(1);
+    root.rotation.set(0, yaw, 0);
+    const off = STAND.clone().applyAxisAngle(UP, yaw);
+    root.position.set(p.x - off.x, floorY, p.z - off.z);
+    vrWorld.visible = true;
+    vrWorld.position.set(0, floorY, 0);
+    inset.visible = false;
+    stick.visible = true;
+    lStick.visible = false;
+    sunBall.visible = true;
+    setLabelScale(0.5);                    // από τη θέση της ράβδου η πυραμίδα απέχει 100-250 m
+    // ο πίνακας 1,9 m μακριά, 40° αριστερά από τη διεύθυνση προς την πυραμίδα, λίγο κάτω από τα μάτια
+    const pd = dir.clone().applyAxisAngle(UP, rad(40));
+    panel.position.set(p.x + pd.x * 1.9, p.y - 0.2, p.z + pd.z * 1.9);
+    panel.scale.setScalar(0.65);
+  } else {
+    // AR: σκηνή 1:1000 στο θρανίο, με τον βορρά (κατεύθυνση των σκιών) δεξιά του χρήστη
+    const right = new THREE.Vector3(-dir.z, 0, dir.x);
+    const yaw = Math.atan2(-right.x, -right.z);
+    root.scale.setScalar(AR_SCALE);
+    root.rotation.set(0, yaw, 0);
+    const c = SCENE_C.clone().multiplyScalar(AR_SCALE).applyAxisAngle(UP, yaw);
+    root.position.set(p.x + dir.x * 0.85 - c.x, p.y - 0.32, p.z + dir.z * 0.85 - c.z);
+    inset.visible = true;
+    stick.visible = false;
+    lStick.visible = false;
+    sunBall.visible = false;
+    setLabelScale(1.6);
+    stickLabels(stickIn.userData, 1.5);
+    root.add(panel);
+    panel.position.set(SCENE_C.x, 270, SCENE_C.z);
+    panel.scale.setScalar(130);
+  }
+  panel.visible = true;
+  placed = true;
+}
+
+// χειριστήρια: σύντομο πάτημα = επόμενη κατάσταση, και στο AR παρατεταμένο πάτημα πάνω στη σκηνή = μετακίνηση
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    if (xrKind !== 'immersive-ar') return;
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    const targets = [];
+    world.traverse(o => { if (o.isMesh && !o.material.userData.top) targets.push(o); });
+    if (ray.intersectObjects(targets, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    if (ctl.userData.grab) { scene.attach(root); ctl.userData.grab = false; }
+    if (performance.now() - ctl.userData.t0 < 280) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+const ctls = [makeController(0), makeController(1)];
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  layoutView();
+  if (!touched) homeView();
+  layoutPip();
+});
+
+// στην προβολή 3D, η δεύτερη κάμερα δείχνει τη ράβδο και τα στοιχεία της πυραμίδας κρύβονται εκεί
+const bigLabels = [];
+world.traverse(o => { if (o.isSprite && o.userData.big) bigLabels.push(o); });
+const pipHide = () => [...bigLabels, lineS, rayApex, triBig, lineH, lineB, rightBig, shadow, sunBall, arcBig, arcBig2].filter(Boolean);
+const su = stick.userData;
+const pipLabels = k => stickLabels(su, k);   // σε μικρή οθόνη οι ετικέτες της ράβδου μεγαλώνουν στη δεύτερη κάμερα
+let last = performance.now();
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  animate(dt);
+  if (renderer.xr.isPresenting) {
+    // ο πίνακας γυρίζει πάντα προς τον χρήστη
+    const eye = new THREE.Vector3().setFromMatrixPosition(renderer.xr.getCamera().matrixWorld);
+    const pw = new THREE.Vector3();
+    panel.getWorldPosition(pw);
+    const yawP = Math.atan2(eye.x - pw.x, eye.z - pw.z);
+    const parentQ = new THREE.Quaternion();
+    if (panel.parent) panel.parent.getWorldQuaternion(parentQ);
+    panel.quaternion.copy(parentQ.invert()).multiply(new THREE.Quaternion().setFromAxisAngle(UP, yawP));
+    if (xrKind === 'immersive-ar') {
+      // ο μοχλός του χειριστηρίου μεγαλώνει ή μικραίνει τη σκηνή
+      ctls.forEach(c => {
+        const gp = c.userData.source && c.userData.source.gamepad;
+        if (gp && gp.axes && gp.axes.length) {
+          const ax = gp.axes[3] !== undefined ? gp.axes[3] : gp.axes[1];
+          if (Math.abs(ax) > 0.2) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ax * dt * 0.9), AR_SCALE * 0.5, AR_SCALE * 4));
+        }
+      });
+    }
+    renderer.render(scene, camera);
+  } else {
+    controls.update();
+    const W = window.innerWidth, Hh = window.innerHeight;
+    renderer.setScissorTest(false);
+    renderer.setViewport(0, 0, W, Hh);
+    renderer.render(scene, camera);
+    // δεύτερη κάμερα, σε ορθογώνιο πάνω δεξιά
+    const r = pipRect();
+    if (pipEl.style.display !== 'block') pipEl.style.display = 'block';
+    const hide = pipHide();
+    hide.forEach(o => { o.userData.pv = o.visible; o.visible = false; });
+    const kP = THREE.MathUtils.clamp(330 / r.w, 1, 1.8);
+    if (kP > 1) pipLabels(kP);
+    renderer.autoClear = false;
+    renderer.setScissorTest(true);
+    renderer.setScissor(r.x, Hh - r.y - r.h, r.w, r.h);
+    renderer.setViewport(r.x, Hh - r.y - r.h, r.w, r.h);
+    renderer.setClearColor(0x16202f, 1);
+    renderer.clear();
+    renderer.render(scene, pipCam);
+    renderer.setClearColor(0x000000, 0);
+    renderer.setScissorTest(false);
+    renderer.setViewport(0, 0, W, Hh);
+    renderer.autoClear = true;
+    hide.forEach(o => { o.visible = o.userData.pv; });
+    if (kP > 1) pipLabels(1);
+  }
+});
+</script>
+</body>
+</html>
