@@ -1,0 +1,843 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Το καλάθι: τρεις βολές — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#f97316}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px;white-space:nowrap}
+  #bar h1{font-size:15px;margin:0;font-weight:640;white-space:nowrap}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.35}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#08131a;background:var(--acc);border-color:transparent}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:820px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:720px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(94vw,120vh);height:auto}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segS,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #hint{font-size:11.5px}
+    #bar{gap:10px;padding:10px 12px} #bar h1{font-size:14px} #bar .lv{font-size:10.5px} #bar .lv span{display:block} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 640 334" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<line x1="10" y1="290" x2="630" y2="290" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="70" y1="290" x2="70" y2="296" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="70" y="308" font-size="11" text-anchor="middle" fill="#96a8bd">0</text>
+<line x1="138" y1="290" x2="138" y2="296" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="138" y="308" font-size="11" text-anchor="middle" fill="#96a8bd">1</text>
+<line x1="206" y1="290" x2="206" y2="296" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="206" y="308" font-size="11" text-anchor="middle" fill="#96a8bd">2</text>
+<line x1="274" y1="290" x2="274" y2="296" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="274" y="308" font-size="11" text-anchor="middle" fill="#96a8bd">3</text>
+<line x1="342" y1="290" x2="342" y2="296" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="342" y="308" font-size="11" text-anchor="middle" fill="#96a8bd">4</text>
+<line x1="410" y1="290" x2="410" y2="296" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="410" y="308" font-size="11" text-anchor="middle" fill="#96a8bd">5</text>
+<line x1="478" y1="290" x2="478" y2="296" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="478" y="308" font-size="11" text-anchor="middle" fill="#96a8bd">6</text>
+<line x1="546" y1="290" x2="546" y2="296" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="546" y="308" font-size="11" text-anchor="middle" fill="#96a8bd">7</text>
+<line x1="614" y1="290" x2="614" y2="296" stroke="#94a3b8" stroke-width="1.2"/>
+<text x="614" y="308" font-size="11" text-anchor="middle" fill="#96a8bd">8</text>
+<text x="32.6" y="308" font-size="11" text-anchor="middle" fill="#96a8bd">x (m)</text>
+<line x1="10" y1="86" x2="630" y2="86" stroke="#e2e8f0" stroke-width="1.4" stroke-dasharray="7 5"/>
+<text x="12" y="80" font-size="12" fill="#eaf1f8">3 m</text>
+<g stroke="#cbd5e1" stroke-width="5" stroke-linecap="round" fill="none"><path d="M53.7,288.6 L56.4,227.4 L58.4,288.6"/><path d="M56.4,190 L60.5,173 L66.6,158.8" stroke-width="4"/></g>
+<rect x="47.4" y="188" width="18" height="42.2" rx="5" fill="#2563eb"/>
+<circle cx="56.4" cy="169" r="8.2" fill="#cbd5e1"/>
+<polyline points="70,154 75.7,147.3 81.3,140.8 87,134.4 92.7,128.3 98.3,122.4 104,116.6 109.7,111 115.3,105.6 121,100.4 126.7,95.4 132.3,90.6 138,86 143.7,81.6 149.3,77.3 155,73.2 160.7,69.4 166.3,65.7 172,62.2 177.7,58.9 183.3,55.8 189,52.9 194.7,50.1 200.3,47.6 206,45.2 211.7,43 217.3,41 223,39.2 228.7,37.6 234.3,36.2 240,35 245.7,34 251.3,33.1 257,32.5 262.7,32 268.3,31.7 274,31.6 279.7,31.7 285.3,32 291,32.5 296.7,33.1 302.3,34 308,35 313.7,36.2 319.3,37.6 325,39.2 330.7,41 336.3,43 342,45.2 347.7,47.6 353.3,50.1 359,52.9 364.7,55.8 370.3,58.9 376,62.2 381.7,65.7 387.3,69.4 393,73.2 398.7,77.3 404.3,81.6 410,86" fill="none" stroke="#f97316" stroke-width="2.6" stroke-linejoin="round"/>
+<polyline points="70,154 76.2,147.9 82.4,142.2 88.6,136.7 94.8,131.5 101,126.6 107.2,121.9 113.3,117.6 119.5,113.5 125.7,109.7 131.9,106.2 138.1,102.9 144.3,100 150.5,97.3 156.7,94.9 162.9,92.8 169.1,91 175.3,89.5 181.5,88.2 187.7,87.2 193.9,86.5 200,86.1 206.2,86 212.4,86.2 218.6,86.6 224.8,87.3 231,88.3 237.2,89.6 243.4,91.1 249.6,93 255.8,95.1 262,97.5 268.2,100.2 274.4,103.2 280.6,106.4 286.7,110 292.9,113.8 299.1,117.9 305.3,122.3 311.5,126.9 317.7,131.9 323.9,137.1 330.1,142.6 336.3,148.4 342.5,154.5 348.7,160.8 354.9,167.5 361.1,174.4 367.2,181.6 373.4,189.1 379.6,196.8 385.8,204.9 392,213.2 398.2,221.8 404.4,230.7 410.6,239.9 416.8,249.4 423,259.1 429.2,269.1 435.4,279.4 441.6,290" fill="none" stroke="#facc15" stroke-width="2.6" stroke-linejoin="round"/>
+<polyline points="70,154 74.5,151.8 79.1,149.8 83.6,147.9 88.1,146.1 92.7,144.6 97.2,143.1 101.7,141.8 106.3,140.7 110.8,139.7 115.3,138.9 119.9,138.2 124.4,137.7 128.9,137.3 133.5,137.1 138,137 142.5,137.1 147.1,137.3 151.6,137.7 156.1,138.2 160.7,138.9 165.2,139.7 169.7,140.7 174.3,141.8 178.8,143.1 183.3,144.6 187.9,146.1 192.4,147.9 196.9,149.8 201.5,151.8 206,154 210.5,156.3 215.1,158.8 219.6,161.5 224.1,164.3 228.7,167.2 233.2,170.3 237.7,173.6 242.3,177 246.8,180.5 251.3,184.2 255.9,188.1 260.4,192.1 264.9,196.2 269.5,200.5 274,205 278.5,209.6 283.1,214.4 287.6,219.3 292.1,224.3 296.7,229.6 301.2,234.9 305.7,240.4 310.3,246.1 314.8,251.9 319.3,257.9 323.9,264 328.4,270.3 332.9,276.7 337.5,283.3 342,290" fill="none" stroke="#38bdf8" stroke-width="2.6" stroke-linejoin="round"/>
+<circle cx="70" cy="154" r="8.2" fill="#d4581f" stroke="#1c1917" stroke-width="1"/>
+<path d="M395,86 L400.5,115.9 M425,86 L419.5,115.9 M404.6,86 L406.6,115.9 M415.4,86 L413.4,115.9" stroke="#e2e8f0" stroke-width="1" fill="none"/>
+<line x1="394.7" y1="86" x2="426.7" y2="86" stroke="#ea580c" stroke-width="3.2" stroke-linecap="round"/>
+<line x1="438.9" y1="92.8" x2="438.9" y2="18" stroke="#f8fafc" stroke-width="4"/>
+<line x1="440.6" y1="63.6" x2="512" y2="63.6" stroke="#64748b" stroke-width="4"/>
+<line x1="512" y1="290" x2="512" y2="58.8" stroke="#64748b" stroke-width="6"/>
+<circle cx="138" cy="86" r="4" fill="#f8fafc" stroke="#0e1420" stroke-width="1.2"/>
+<circle cx="410" cy="86" r="4" fill="#f8fafc" stroke="#0e1420" stroke-width="1.2"/>
+<circle cx="206" cy="86" r="4" fill="#f8fafc" stroke="#0e1420" stroke-width="1.2"/>
+<circle cx="274" cy="31.6" r="4" fill="#f97316" stroke="#0e1420" stroke-width="1.2"/>
+<circle cx="138" cy="137" r="4" fill="#38bdf8" stroke="#0e1420" stroke-width="1.2"/>
+<text x="131.2" y="79" font-size="12" text-anchor="end" fill="#f97316">x = 1</text>
+<text x="474.6" y="105" font-size="12" text-anchor="middle" fill="#f97316">x = 5</text>
+<text x="206" y="105" font-size="12" text-anchor="middle" fill="#facc15">x = 2</text>
+<line x1="470" y1="12" x2="486" y2="12" stroke="#f97316" stroke-width="3"/>
+<text x="492" y="16" font-size="11.5" fill="#eaf1f8">Βολή Α: Δ = 16 &gt; 0</text>
+<line x1="470" y1="29" x2="486" y2="29" stroke="#facc15" stroke-width="3"/>
+<text x="492" y="33" font-size="11.5" fill="#eaf1f8">Βολή Β: Δ = 0</text>
+<line x1="470" y1="46" x2="486" y2="46" stroke="#38bdf8" stroke-width="3"/>
+<text x="492" y="50" font-size="11.5" fill="#eaf1f8">Βολή Γ: Δ = −12 &lt; 0</text>
+<text x="320" y="326" font-size="14" font-weight="700" text-anchor="middle" fill="#eaf1f8">Η μπάλα στα 3 m: δύο φορές (Α), μία φορά (Β), καμία φορά (Γ)</text>
+</svg>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Το καλάθι: τρεις βολές</h1>
+  <span class="lv"><span>Α΄ Λυκείου</span> <span>§3.3, §4.2</span></span>
+</div>
+<div id="dock">
+  <div class="seg" id="segS">
+    <button data-k="0" class="on">Βολή Α: Δ &gt; 0</button>
+    <button data-k="1">Βολή Β: Δ = 0</button>
+    <button data-k="2">Βολή Γ: Δ &lt; 0</button>
+    <button data-k="3">Η κορυφή και ο άξονας</button>
+    <button data-k="4">Πάνω από τα 3 m: 1 &lt; x &lt; 5</button>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο 9 «Το Τριώνυμο στο Κέντρο Καινοτομίας» (Α΄ Λυκείου, §3.3 και §4.2) — Σταθμός 4: Το καλάθι
+// Κέντρο Καινοτομίας Θεσσαλίας. Τρεις βολές από το σημείο (0, 2) προς ένα καλάθι με το κέντρο του στεφανιού
+// σε οριζόντια απόσταση 5 m και ύψος 3 m. Η τροχιά κάθε βολής είναι η παραβολή h(x) = αx² + βx + 2 και η μπάλα
+// βρίσκεται στο ύψος του καλαθιού όταν αx² + βx + 2 = 3: δύο φορές αν Δ > 0, μία αν Δ = 0, καμία αν Δ < 0.
+// Με g = 10 m/s² η οριζόντια ταχύτητα v δίνεται από το α = −g/(2v²): 5 m/s στη Βολή Α, √20 m/s στις Β και Γ.
+// Μονάδα μήκους: 1 μέτρο. Προβολή 3D και VR σε κλίμακα 1:1, AR πάνω στο θρανίο σε κλίμακα 1:20.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const G = 10;                                        // επιτάχυνση της βαρύτητας (m/s²)
+const KALATHI = new THREE.Vector3(5, 3, 0);          // κέντρο του στεφανιού
+const R_MPALA = 0.12;                                // ακτίνα της μπάλας
+const ANAMONI = 0.3, ANAPAUSI = 1.2;                 // η μπάλα περιμένει στη ρίψη και μένει στο έδαφος πριν από την επόμενη βολή
+const V_DIXTY = 2.5;                                 // κατακόρυφη ταχύτητα με την οποία η μπάλα βγαίνει από το δίχτυ (m/s)
+const AR_SCALE = 1 / 20;                             // κλίμακα της σκηνής στο AR
+const SCENE_C = new THREE.Vector3(3.5, 0, 0);        // κέντρο της σκηνής, που στο AR μπαίνει 0,85 m μπροστά στον χρήστη
+const STAND = new THREE.Vector3(SCENE_C.x, 0, 6);    // θέση του χρήστη στο VR: 6 m από το επίπεδο του γηπέδου, απέναντι από το κέντρο του
+const ACC = '#f97316';
+
+const f = (x, d) => x.toFixed(d).replace('.', ',');
+const rad = THREE.MathUtils.degToRad;
+const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
+
+// ------------------------------------------------------------------ οι τρεις βολές
+const VOLES = [
+  { onoma: 'Α', a: -0.2, b: 1.2, col: 0xf97316 },
+  { onoma: 'Β', a: -0.25, b: 1, col: 0xfacc15 },
+  { onoma: 'Γ', a: -0.25, b: 0.5, col: 0x38bdf8 }
+];
+VOLES.forEach(v => {
+  v.h = x => v.a * x * x + v.b * x + 2;
+  v.vx = Math.sqrt(-G / (2 * v.a));                                         // 5 m/s και √20 m/s
+  v.riza = h0 => (-v.b - Math.sqrt(v.b * v.b - 4 * v.a * (2 - h0))) / (2 * v.a);   // θετική λύση της h(x) = h0
+  v.xEdafos = v.riza(0);                                                    // εκεί που η παραβολή φτάνει στο έδαφος
+  if (v.onoma === 'Α') {
+    v.tKalathi = KALATHI.x / v.vx;                                          // 1 s ως το στεφάνι
+    v.tauPtosis = (-V_DIXTY + Math.sqrt(V_DIXTY * V_DIXTY + 2 * G * (KALATHI.y - R_MPALA))) / G;
+    v.tEnd = v.tKalathi + v.tauPtosis;
+    v.xTelos = KALATHI.x;                                                   // η τροχιά τελειώνει στο στεφάνι
+  } else {
+    v.tEnd = v.riza(R_MPALA) / v.vx;                                        // ως εκεί που η μπάλα ακουμπά το έδαφος
+    v.xTelos = v.xEdafos;
+  }
+  v.kyklos = ANAMONI + v.tEnd + ANAPAUSI;
+});
+// η θέση της μπάλας τη στιγμή t του κύκλου (επιστρέφει και τον χρόνο πτήσης ως εκείνη τη στιγμή)
+function thesiMpalas(v, t, out) {
+  const s = t - ANAMONI;
+  if (s <= 0) { out.set(0, 2, 0); return 0; }
+  if (v.onoma === 'Α' && s > v.tKalathi) {
+    // μετά το στεφάνι: το δίχτυ κόβει την οριζόντια κίνηση και η μπάλα πέφτει
+    const tau = Math.min(s - v.tKalathi, v.tauPtosis);
+    out.set(KALATHI.x + 0.06 * (1 - Math.exp(-tau / 0.012)), KALATHI.y - V_DIXTY * tau - G / 2 * tau * tau, 0);
+  } else {
+    const x = v.vx * Math.min(s, v.tEnd);
+    out.set(x, v.h(x), 0);
+  }
+  return Math.min(s, v.tEnd);
+}
+
+// καταστάσεις: ποια βολή δείχνει η καθεμία
+const STATE_VOLI = [0, 1, 2, 0, 0];
+const HINTS = [
+  '<b>Βολή Α:</b> h(x) = −0,2x² + 1,2x + 2. Η μπάλα φτάνει στο ύψος του καλαθιού, 3 m, δύο φορές: όταν ανεβαίνει, στο x = 1, και όταν κατεβαίνει, στο x = 5, όπου είναι το καλάθι. Η εξίσωση −0,2x² + 1,2x + 2 = 3 γίνεται x² − 6x + 5 = 0, με Δ = 16 &gt; 0. Καλάθι γίνεται μόνο με τη δεύτερη ρίζα: στην πρώτη η μπάλα ανεβαίνει και θα χτυπούσε το στεφάνι από κάτω.',
+  '<b>Βολή Β:</b> h(x) = −0,25x² + x + 2. Η μπάλα μόλις αγγίζει τα 3 m, μία φορά, στην κορυφή της τροχιάς (x = 2). Η εξίσωση γίνεται x² − 4x + 4 = 0, με Δ = 0: μία διπλή ρίζα. Στο x = 5 η μπάλα είναι ήδη στα 0,75 m.',
+  '<b>Βολή Γ:</b> h(x) = −0,25x² + 0,5x + 2. Το ψηλότερο σημείο της τροχιάς είναι στα 2,25 m, οπότε η μπάλα δεν φτάνει ποτέ τα 3 m. Η εξίσωση γίνεται x² − 2x + 4 = 0, με Δ = −12 &lt; 0: καμία ρίζα. Η μπάλα πέφτει στο έδαφος στο x = 4.',
+  '<b>Η κορυφή και ο άξονας:</b> στη Βολή Α οι ρίζες x₁ = 1 και x₂ = 5 έχουν άθροισμα 6 και γινόμενο 5 (τύποι του Vieta για την x² − 6x + 5 = 0). Απέχουν το ίδιο από την ευθεία x = 3, τον άξονα συμμετρίας της παραβολής, πάνω στον οποίο βρίσκεται η κορυφή (3; 3,8).',
+  '<b>Πάνω από τα 3 m:</b> η μπάλα της Βολής Α είναι ψηλότερα από το καλάθι μόνο ανάμεσα στις ρίζες: −0,2x² + 1,2x + 2 &gt; 3 ⇔ x² − 6x + 5 &lt; 0 ⇔ (x − 1)(x − 5) &lt; 0 ⇔ 1 &lt; x &lt; 5.'
+];
+// αδιάσπαστα κενά γύρω από τα σύμβολα σχέσεων, πριν από τις μονάδες και μέσα στα ζεύγη συντεταγμένων
+// (ζεύγος με δεκαδικό γράφεται με «; », π.χ. (3; 3,8), ζεύγος ακεραίων με «, », π.χ. (5, 3))
+const hintHTML = k => HINTS[k].replace(/ (=|≈|⇔|&gt;|&lt;) /g, ' $1 ').replace(/(\d) m\b/g, '$1 m')
+  .replace(/\(([−-]?\d+(?:,\d+)?)([;,]) ([−-]?\d+(?:,\d+)?)\)/g, '($1$2\u00a0$3)');
+const PANELS = [
+  ['Βολή Α: Δ > 0', '−0,2x² + 1,2x + 2 = 3 ⇔ x² − 6x + 5 = 0', 'Δ = 16 > 0: δύο ρίζες, x = 1 και x = 5'],
+  ['Βολή Β: Δ = 0', '−0,25x² + x + 2 = 3 ⇔ x² − 4x + 4 = 0', 'Δ = 0: μία διπλή ρίζα, x = 2'],
+  ['Βολή Γ: Δ < 0', '−0,25x² + 0,5x + 2 = 3 ⇔ x² − 2x + 4 = 0', 'Δ = −12 < 0: καμία ρίζα'],
+  ['Η κορυφή και ο άξονας', 'S = x₁ + x₂ = 6, P = x₁x₂ = 5', 'Άξονας συμμετρίας x = 3, κορυφή (3; 3,8)'],
+  ['Πάνω από τα 3 m: 1 < x < 5', 'x² − 6x + 5 < 0 ⇔ (x − 1)(x − 5) < 0', 'Ανάμεσα στις ρίζες x₁ = 1 και x₂ = 5']
+];
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const FOV = 32;
+const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 0.05, 400);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.minDistance = 2;
+controls.maxDistance = 60;
+controls.maxPolarAngle = rad(86);
+
+// πλαίσιο της προβολής 3D: το γήπεδο με τον παίκτη, το καλάθι και τις ετικέτες χωρά ανάμεσα στη μπάρα και στα
+// κουμπιά. Σε οριζόντια οθόνη φαίνεται όλο το γήπεδο, σε κατακόρυφη ως λίγο μετά τον στύλο.
+const FIT = [V(-1.55, 0, 1.6), V(-1.55, 0, -1.6), V(-1.6, 3.24, 0), V(-1.0, 4.75, 0), V(7.0, 4.75, 0)];
+const FIT_LAND = [V(8.5, 0, 1.6), V(8.5, 0, -1.6)], FIT_PORT = [V(7.2, 0, 1.6), V(7.2, 0, -1.6)];
+const TGT0 = V(3.2, 2.1, 0);
+const VIEW_DIR = new THREE.Vector3(-0.2, 0.22, 1).normalize();  // από το πλάι, λίγο από ψηλά και από την πλευρά του παίκτη
+let barBottom = 62, dockTop = 600, touched = false;
+controls.addEventListener('start', () => { touched = true; });
+const hintEl = document.getElementById('hint');
+function dockTopMax() {                   // το ψηλότερο σημείο των κουμπιών, με τη μεγαλύτερη από τις υποδείξεις
+  const dock = document.getElementById('dock'), keep = hintEl.innerHTML;
+  let top = dock.getBoundingClientRect().top;
+  for (let k = 0; k < HINTS.length; k++) { hintEl.innerHTML = hintHTML(k); top = Math.min(top, dock.getBoundingClientRect().top); }
+  hintEl.innerHTML = keep;
+  return top;
+}
+function layoutView() {
+  const W = window.innerWidth, Hh = window.innerHeight;
+  barBottom = Math.round(document.getElementById('bar').getBoundingClientRect().bottom);
+  dockTop = Math.round(dockTopMax());
+  // το κέντρο της εικόνας μετακινείται στο μέσο του ελεύθερου χώρου ανάμεσα στη μπάρα και στα κουμπιά
+  const dy = Math.max(0, Math.round(Hh / 2 - (barBottom + dockTop) / 2));
+  const FH = Hh + 2 * dy;
+  camera.fov = 2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(rad(FOV / 2)) * FH / Hh));
+  camera.aspect = W / FH;
+  if (dy) camera.setViewOffset(W, FH, 0, 2 * dy, W, Hh); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  if (!renderer.xr.isPresenting) setLabelScale(W / Hh < 1 ? 1.15 : 1);
+}
+function homeView() {
+  const W = window.innerWidth, Hh = window.innerHeight;
+  // το ελεύθερο ορθογώνιο σε κανονικοποιημένες συντεταγμένες της οθόνης (−1 έως 1)
+  const yTop = 1 - 2 * (barBottom + 6) / Hh, yBot = 1 - 2 * (dockTop - 6) / Hh;
+  const yMid = (yTop + yBot) / 2, hy = 0.95 * (yTop - yBot) / 2, hx = 0.95;
+  const pts = FIT.concat(W >= Hh ? FIT_LAND : FIT_PORT);
+  // η απόσταση της κάμερας διορθώνεται μέχρι οι γωνίες της σκηνής να χωρούν ακριβώς στο ορθογώνιο
+  let D = 16;
+  for (let it = 0; it < 8; it++) {
+    camera.position.copy(VIEW_DIR).multiplyScalar(D).add(TGT0);
+    camera.lookAt(TGT0);
+    camera.updateMatrixWorld();
+    let r = 0;
+    for (const c of pts) {
+      const p = c.clone().project(camera);
+      r = Math.max(r, Math.abs(p.x) / hx, Math.abs(p.y - yMid) / Math.max(hy, 0.05));
+    }
+    D = THREE.MathUtils.clamp(D * r, controls.minDistance, controls.maxDistance);
+  }
+  camera.position.copy(VIEW_DIR).multiplyScalar(D).add(TGT0);
+  controls.target.copy(TGT0);
+  controls.update();
+}
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x3a3226, 1.35));
+const sunLight = new THREE.DirectionalLight(0xffffff, 2.1);
+sunLight.position.set(2, 9, 7);
+scene.add(sunLight);
+
+// μεγάλο δάπεδο μόνο στο VR (ο ουρανός είναι το χρώμα του φόντου)
+const vrWorld = new THREE.Group();
+vrWorld.visible = false;
+scene.add(vrWorld);
+{
+  // το δάπεδο είναι η χαμηλότερη επιφάνεια: σχεδιάζεται πρώτο και δεν γράφει βάθος, ώστε να μην κρύβει ποτέ τίποτα
+  const big = new THREE.Mesh(new THREE.CircleGeometry(80, 64), new THREE.MeshStandardMaterial({ color: 0x8b929c, roughness: 1, depthWrite: false }));
+  big.rotation.x = -Math.PI / 2;
+  big.position.y = -0.05;
+  big.renderOrder = -1;
+  vrWorld.add(big);
+}
+
+const root = new THREE.Group();          // ό,τι μετακινείται και κλιμακώνεται στο XR
+scene.add(root);
+const world = new THREE.Group();         // η σκηνή σε μέτρα
+root.add(world);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+function textTexture(lines, opt = {}) {
+  const w = opt.w || 1024, h = opt.h || 256;
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  if (opt.bg) {
+    ctx.fillStyle = opt.bg;
+    const r = 36;
+    ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+    ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath(); ctx.fill();
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const gap = opt.gap || h / (lines.length + 0.4);
+  lines.forEach((ln, i) => {
+    let size = ln.size || 64;
+    const font = s => `${ln.weight || 600} ${s}px "Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Arial, sans-serif`;
+    ctx.font = font(size);
+    while (size > 18 && ctx.measureText(ln.t).width > w - 2 * (opt.pad || 30)) { size -= 2; ctx.font = font(size); }
+    ctx.fillStyle = ln.color || '#eaf1f8';
+    ctx.fillText(ln.t, w / 2, h / 2 + (i - (lines.length - 1) / 2) * gap);
+  });
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+
+// ετικέτα με ύψος σε μέτρα, πάντα στραμμένη προς τον θεατή και ορατή μπροστά από τα άλλα αντικείμενα
+function labelTexture(text, color) {
+  const size = 120, pad = 40;
+  const cv = document.createElement('canvas');
+  const ctx = cv.getContext('2d');
+  const font = `700 ${size}px "Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Arial, sans-serif`;
+  ctx.font = font;
+  const w = Math.ceil(ctx.measureText(text).width) + 2 * pad, h = Math.ceil(size * 1.5);
+  cv.width = w; cv.height = h;
+  ctx.font = font;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 20;
+  ctx.strokeStyle = 'rgba(14,20,32,.88)';
+  ctx.strokeText(text, w / 2, h / 2);
+  ctx.fillStyle = color;
+  ctx.fillText(text, w / 2, h / 2);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return { tex, aspect: w / h };
+}
+function label(text, color, height) {
+  const { tex, aspect } = labelTexture(text, color);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false, depthTest: false }));
+  sp.renderOrder = 20;
+  sp.userData = { text, color, h: height, aspect, k: 1, big: true };
+  sp.scale.set(height * aspect, height, 1);
+  return sp;
+}
+function fitLabel(sp) { const u = sp.userData; sp.scale.set(u.h * u.k * u.aspect, u.h * u.k, 1); }
+
+// ------------------------------------------------------------------ βοηθητικά γεωμετρίας
+const UP = new THREE.Vector3(0, 1, 0);
+function bar(a, b, r, mat) {               // κύλινδρος από το a στο b
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1, 10, 1), mat);
+  placeBar(m, a, b);
+  return m;
+}
+function placeBar(m, a, b) {
+  const len = Math.max(a.distanceTo(b), 1e-6);
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  m.quaternion.setFromUnitVectors(UP, b.clone().sub(a).normalize());
+  m.scale.set(1, len, 1);
+}
+function dashed(r, mat, n = 14) {          // διακεκομμένη γραμμή από n τμήματα
+  const g = new THREE.Group();
+  for (let i = 0; i < n; i++) g.add(new THREE.Mesh(new THREE.CylinderGeometry(r, r, 1, 8, 1), mat));
+  g.userData.n = n;
+  return g;
+}
+function placeDashed(g, a, b) {
+  const n = g.userData.n;
+  for (let i = 0; i < n; i++) {
+    const t0 = i / n, t1 = (i + 0.55) / n;
+    placeBar(g.children[i], a.clone().lerp(b, t0), a.clone().lerp(b, t1));
+  }
+}
+function tube(pts, r, mat, seg) {
+  return new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), seg || Math.max(8, pts.length * 2), r, 8, false), mat);
+}
+function sfaira(c, r, mat, seg = 16) {
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r, seg, Math.max(6, Math.round(seg * 0.6))), mat);
+  m.position.copy(c);
+  return m;
+}
+function kouti(sx, sy, sz, c, mat) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(sx, sy, sz), mat);
+  m.position.copy(c);
+  return m;
+}
+function parabola(v, x0, x1, n = 80) {     // σημεία της τροχιάς για x από x0 έως x1
+  const pts = [];
+  for (let i = 0; i <= n; i++) { const x = x0 + (x1 - x0) * i / n; pts.push(V(x, v.h(x), 0)); }
+  return pts;
+}
+
+// ------------------------------------------------------------------ υλικά
+const pano = (color, opacity = 1) => {      // υλικό που σχεδιάζεται πάνω από τα άλλα αντικείμενα
+  const m = new THREE.MeshBasicMaterial({ color, depthTest: false, transparent: true, opacity });
+  m.userData.top = true;
+  return m;
+};
+const M = {
+  court: new THREE.MeshStandardMaterial({ color: 0xb9834e, roughness: 0.85 }),
+  line: new THREE.MeshStandardMaterial({ color: 0xeef2f7, roughness: 0.6 }),
+  rim: new THREE.MeshStandardMaterial({ color: 0xea580c, roughness: 0.45, metalness: 0.1 }),
+  board: new THREE.MeshStandardMaterial({ color: 0xf8fafc, roughness: 0.35 }),
+  metal: new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.5, metalness: 0.3 }),
+  jersey: new THREE.MeshStandardMaterial({ color: 0x2563eb, roughness: 0.7 }),
+  body: new THREE.MeshStandardMaterial({ color: 0xcbd5e1, roughness: 0.8 }),
+  ball: new THREE.MeshStandardMaterial({ color: 0xd4581f, roughness: 0.75 }),
+  seam: new THREE.MeshStandardMaterial({ color: 0x1c1917, roughness: 0.8 }),
+  net: new THREE.LineBasicMaterial({ color: 0xf1f5f9, transparent: true, opacity: 0.85 }),
+  shadow: new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.35, depthWrite: false }),
+  dash3: pano(0xe2e8f0, 0.9),
+  guide: pano(0xe2e8f0, 0.75),
+  mark: pano(0xf8fafc),
+  acc: pano(0xf97316),
+  strip: new THREE.MeshBasicMaterial({ color: 0xf97316, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 })
+};
+
+// ------------------------------------------------------------------ γήπεδο, άξονας x, γραμμή των 3 m
+world.add(kouti(10, 0.04, 3.2, V(3.5, -0.02, 0), M.court));                  // γήπεδο από x = −1,5 έως 8,5
+world.add(kouti(10, 0.006, 0.04, V(3.5, 0.003, 0), M.line));                 // ο άξονας x πάνω στο δάπεδο
+for (let i = 0; i <= 8; i++) {
+  world.add(kouti(0.04, 0.008, 0.36, V(i, 0.004, 0), M.line));               // υποδιαιρέσεις κάθε 1 m
+  const l = label(String(i), '#cbd5e1', 0.3);
+  l.position.set(i, 0.16, 0.55);
+  world.add(l);
+}
+{
+  const l = label('x (m)', '#cbd5e1', 0.3);
+  l.position.set(-0.85, 0.16, 0.55);
+  world.add(l);
+}
+const line3 = dashed(0.018, M.dash3, 25);
+line3.children.forEach(m => { m.renderOrder = 12; });
+placeDashed(line3, V(-1.5, 3, 0), V(8.5, 3, 0));
+world.add(line3);
+{
+  const l = label('3 m', '#eaf1f8', 0.36);
+  l.position.set(-1.15, 3.24, 0);
+  world.add(l);
+}
+
+// ------------------------------------------------------------------ ο παίκτης (περίπου 1,9 m) με τα χέρια ψηλά
+{
+  const p = new THREE.Group();
+  for (const s of [1, -1]) {
+    p.add(bar(V(-0.23, 0, 0.11 * s), V(-0.21, 0.92, 0.09 * s), 0.072, M.body));
+    p.add(kouti(0.24, 0.07, 0.11, V(-0.2, 0.035, 0.11 * s), M.metal));
+    p.add(sfaira(V(-0.2, 1.47, 0.19 * s), 0.07, M.jersey, 12));
+    p.add(bar(V(-0.2, 1.47, 0.19 * s), V(-0.15, 1.7, 0.17 * s), 0.05, M.body));
+    p.add(sfaira(V(-0.15, 1.7, 0.17 * s), 0.05, M.body, 10));
+    p.add(bar(V(-0.15, 1.7, 0.17 * s), V(-0.07, 1.92, 0.1 * s), 0.046, M.body));
+    p.add(sfaira(V(-0.07, 1.92, 0.1 * s), 0.055, M.body, 10));
+  }
+  p.add(bar(V(-0.21, 0.8, 0), V(-0.21, 1.05, 0), 0.165, M.jersey));
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.18, 0.15, 0.5, 16), M.jersey);
+  torso.position.set(-0.205, 1.25, 0);
+  p.add(torso);
+  p.add(bar(V(-0.2, 1.5, 0), V(-0.2, 1.67, 0), 0.055, M.body));
+  p.add(sfaira(V(-0.2, 1.78, 0), 0.12, M.body, 20));
+  world.add(p);
+}
+
+// ------------------------------------------------------------------ το καλάθι: στεφάνι (εσωτερική διάμετρος 0,45 m), δίχτυ, ταμπλό, στύλος
+{
+  const rim = new THREE.Mesh(new THREE.TorusGeometry(0.245, 0.02, 10, 48), M.rim);
+  rim.rotation.x = Math.PI / 2;
+  rim.position.copy(KALATHI);
+  world.add(rim);
+  world.add(kouti(0.15, 0.04, 0.1, V(5.325, 2.99, 0), M.metal));
+  // δίχτυ: τρία δαχτυλίδια και κορδόνια σε σχήμα ρόμβων
+  const rings = [[3.0, 0.235], [2.78, 0.19], [2.56, 0.15]], k = 12, pos = [];
+  for (let j = 0; j < 2; j++) {
+    const [ya, ra] = rings[j], [yb, rb] = rings[j + 1];
+    for (let i = 0; i < k; i++) {
+      const pa = 2 * Math.PI * (i + 0.5 * (j % 2)) / k;
+      for (const d of [-0.5, 0.5]) {
+        const pb = pa + 2 * Math.PI * d / k;
+        pos.push(5 + ra * Math.cos(pa), ya, ra * Math.sin(pa), 5 + rb * Math.cos(pb), yb, rb * Math.sin(pb));
+      }
+    }
+  }
+  for (let i = 0; i < k; i++) {
+    const a = 2 * Math.PI * i / k, b = 2 * Math.PI * (i + 1) / k;
+    pos.push(5 + 0.15 * Math.cos(a), 2.56, 0.15 * Math.sin(a), 5 + 0.15 * Math.cos(b), 2.56, 0.15 * Math.sin(b));
+  }
+  const ng = new THREE.BufferGeometry();
+  ng.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  world.add(new THREE.LineSegments(ng, M.net));
+  // ταμπλό 1,8 × 1,1 m με το μπροστινό επίπεδο στο x = 5,4, και το ορθογώνιο στόχευσης
+  world.add(kouti(0.05, 1.1, 1.8, V(5.425, 3.45, 0), M.board));
+  world.add(kouti(0.006, 0.05, 0.59, V(5.397, 3.075, 0), M.rim), kouti(0.006, 0.05, 0.59, V(5.397, 3.475, 0), M.rim),
+            kouti(0.006, 0.45, 0.05, V(5.397, 3.275, -0.27), M.rim), kouti(0.006, 0.45, 0.05, V(5.397, 3.275, 0.27), M.rim));
+  world.add(bar(V(6.5, 0, 0), V(6.5, 3.4, 0), 0.08, M.metal));
+  world.add(kouti(1.05, 0.1, 0.12, V(5.975, 3.33, 0), M.metal), kouti(0.6, 0.12, 0.6, V(6.5, 0.06, 0), M.metal));
+}
+
+// ------------------------------------------------------------------ ό,τι αλλάζει με την κατάσταση
+const perState = [];
+function per(obj, st) { obj.userData.st = st; perState.push(obj); world.add(obj); return obj; }
+function perLabel(text, color, p, st, h = 0.36) { const l = label(text, color, h); l.position.copy(p); return per(l, st); }
+function marker(p, mat = M.mark, r = 0.07) { const m = sfaira(p, r, mat, 16); m.renderOrder = 15; return m; }
+
+// οι τρεις τροχιές (η Βολή Α ως το στεφάνι, οι Β και Γ ως το έδαφος)
+const tubeMat = VOLES.map(v => new THREE.MeshStandardMaterial({ color: v.col, emissive: v.col, emissiveIntensity: 0.35, roughness: 0.5 }));
+const tubes = VOLES.map((v, i) => per(tube(parabola(v, 0, v.xTelos), 0.035, tubeMat[i], 160), i === 0 ? [0, 3, 4] : [i]));
+const dimA = new THREE.MeshStandardMaterial({ color: 0xfdba74, emissive: 0xf97316, emissiveIntensity: 0.25, roughness: 0.5, transparent: true, opacity: 0.45, depthWrite: false });
+
+// Βολή Α: οι δύο ρίζες στα 3 m και η κορυφή
+per(marker(V(1, 3)), [0, 3, 4]);
+per(marker(V(5, 3)), [0, 3, 4]);
+per(marker(V(3, 3.8), pano(0xf97316)), [0, 3]);
+perLabel('x₁ = 1', '#f8fafc', V(0.5, 3.3), [0, 3, 4]);
+perLabel('x₂ = 5', '#f8fafc', V(4.7, 3.6), [0, 3, 4]);
+perLabel('Κορυφή (3; 3,8)', '#f97316', V(3, 4.12), [0, 3]);
+// Βολή Β: η διπλή ρίζα στην κορυφή και το ύψος της μπάλας στο x = 5
+per(marker(V(2, 3)), [1]);
+per(marker(V(5, 0.75), M.mark, 0.055), [1]);
+perLabel('Κορυφή (2, 3)', '#facc15', V(2, 3.38), [1]);
+perLabel('x₁ = x₂ = 2', '#f8fafc', V(2, 2.6), [1]);
+perLabel('h(5) = 0,75 m', '#f8fafc', V(4.08, 0.75), [1]);
+// Βολή Γ: η κορυφή κάτω από τα 3 m και η πτώση στο x = 4
+per(marker(V(1, 2.25), pano(0x38bdf8)), [2]);
+per(marker(V(4, 0.02), pano(0x38bdf8), 0.06), [2]);
+{
+  const gap = dashed(0.012, M.guide, 6);
+  gap.children.forEach(m => { m.renderOrder = 12; });
+  placeDashed(gap, V(1, 2.32, 0), V(1, 2.97, 0));
+  per(gap, [2]);
+}
+perLabel('Κορυφή (1; 2,25)', '#38bdf8', V(2.3, 2.62), [2]);
+perLabel('0,75 m', '#f8fafc', V(0.5, 2.62), [2]);
+perLabel('x = 4', '#38bdf8', V(4.5, 0.62), [2]);
+// η κορυφή και ο άξονας: x = 3, οι ρίζες απέχουν 2 από τον άξονα, η παραβολή συνεχίζει συμμετρικά ως το (6, 2)
+{
+  const ax = dashed(0.014, M.guide, 16);
+  ax.children.forEach(m => { m.renderOrder = 12; });
+  placeDashed(ax, V(3, 0.02, 0), V(3, 3.93, 0));
+  per(ax, [3]);
+  for (const [a, b] of [[1, 3], [3, 5]]) {
+    const s = bar(V(a, 3, 0.05), V(b, 3, 0.05), 0.03, M.acc);
+    s.renderOrder = 13;
+    per(s, [3]);
+  }
+  for (const x of [1, 3, 5]) { const t = bar(V(x, 2.88, 0.05), V(x, 3.12, 0.05), 0.022, M.acc); t.renderOrder = 13; per(t, [3]); }
+  perLabel('2 m', ACC, V(2, 2.72), [3]);
+  perLabel('2 m', ACC, V(4, 2.72), [3]);
+  perLabel('Άξονας x = 3', '#f8fafc', V(3, 4.52), [3]);
+  const n = 5;
+  for (let i = 0; i < n; i++) {
+    const x0 = 5 + i / n, x1 = 5 + (i + 0.55) / n;
+    per(tube(parabola(VOLES[0], x0, x1, 6), 0.025, dimA, 12), [3]);
+  }
+}
+// πάνω από τα 3 m: το τόξο ανάμεσα στις ρίζες και το διάστημα 1 < x < 5 πάνω στον άξονα
+{
+  const hi = new THREE.MeshStandardMaterial({ color: 0xffa65c, emissive: 0xf97316, emissiveIntensity: 0.9, roughness: 0.4 });
+  per(tube(parabola(VOLES[0], 1, 5, 60), 0.05, hi, 120), [4]);
+  for (const x of [1, 5]) {
+    const d = dashed(0.012, M.guide, 14);
+    d.children.forEach(m => { m.renderOrder = 12; });
+    placeDashed(d, V(x, 2.93, 0), V(x, 0.03, 0));
+    per(d, [4]);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(0.11, 0.025, 8, 28), M.strip);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.set(x, 0.016, 0);
+    per(ring, [4]);
+  }
+  per(kouti(3.78, 0.01, 0.16, V(3, 0.012, 0), M.strip), [4]);
+  perLabel('1 < x < 5', ACC, V(3, 0.8), [4]);
+}
+
+// ------------------------------------------------------------------ η μπάλα και η σκιά της
+const mpala = new THREE.Group();
+mpala.add(new THREE.Mesh(new THREE.SphereGeometry(R_MPALA, 28, 18), M.ball));
+for (const r of [[0, 0, 0], [Math.PI / 2, 0, 0], [0, Math.PI / 2, 0]]) {
+  const s = new THREE.Mesh(new THREE.TorusGeometry(R_MPALA * 1.004, 0.004, 4, 48), M.seam);
+  s.rotation.set(...r);
+  mpala.add(s);
+}
+world.add(mpala);
+const skia = new THREE.Mesh(new THREE.CircleGeometry(R_MPALA, 24), M.shadow);
+skia.rotation.x = -Math.PI / 2;
+world.add(skia);
+
+// ------------------------------------------------------------------ πίνακας με τις τιμές (στο XR)
+// Αδιαφανής πίνακας: κρύβει ό,τι βρίσκεται πίσω του. Έχει την ίδια σειρά σχεδίασης με τις ετικέτες, οπότε σχεδιάζονται
+// με βάση την απόσταση (οι ετικέτες πίσω από τον πίνακα πρώτα, όσες είναι μπροστά του μετά), και με έλεγχο βάθους,
+// ώστε ένα στερεό αντικείμενο μπροστά από τον πίνακα να τον καλύπτει.
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(2.4, 0.66), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, depthTest: true, side: THREE.DoubleSide }));
+panel.renderOrder = 20;
+panel.visible = false;
+scene.add(panel);
+let panelKey = '';
+function setPanel(lines) {
+  const key = JSON.stringify(lines);
+  if (key === panelKey) return;
+  panelKey = key;
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = textTexture(lines.map((t, i) => ({ t, size: i ? 56 : 66, color: i ? '#eaf1f8' : ACC, weight: i ? 600 : 700 })),
+    { w: 1280, h: 352, bg: 'rgb(14,20,32)', gap: 100, pad: 80 });          // κάθε γραμμή χωρά με περιθώριο 80 px δεξιά και αριστερά
+  panel.material.needsUpdate = true;
+}
+
+// ------------------------------------------------------------------ κατάσταση
+let current = 0, tLoop = 0;
+function select(k) {
+  current = (k + HINTS.length) % HINTS.length;
+  document.querySelectorAll('#segS button').forEach(b => b.classList.toggle('on', +b.dataset.k === current));
+  hintEl.innerHTML = hintHTML(current);
+  setPanel(PANELS[current]);
+  perState.forEach(o => { o.visible = o.userData.st.includes(current); });
+  tubes[0].material = current === 4 ? dimA : tubeMat[0];
+  tLoop = 0;                               // η μπάλα ξαναρχίζει από το σημείο ρίψης
+}
+document.querySelectorAll('#segS button').forEach(b => b.onclick = () => select(+b.dataset.k));
+function next() { select(current + 1); }
+{
+  const q = parseInt(new URLSearchParams(location.search).get('k'), 10);
+  select(Number.isFinite(q) && q >= 0 && q < HINTS.length ? q : 0);
+}
+layoutView();
+homeView();
+const pB = new THREE.Vector3();
+function animate(dt) {
+  const v = VOLES[STATE_VOLI[current]];
+  tLoop = (tLoop + dt) % v.kyklos;
+  const ptisi = thesiMpalas(v, tLoop, pB);
+  mpala.position.copy(pB);
+  mpala.rotation.z = 4 * Math.PI * ptisi;  // ανάποδη περιστροφή, 2 στροφές το δευτερόλεπτο
+  const k = THREE.MathUtils.clamp(1 - pB.y / 6, 0.35, 1);
+  skia.position.set(pB.x, 0.004, 0);
+  skia.scale.setScalar(k);
+  skia.material.opacity = 0.35 * k;
+}
+
+// ------------------------------------------------------------------ XR
+const btnAR = document.getElementById('btnAR'), btnVR = document.getElementById('btnVR');
+const note = document.getElementById('note');
+let placed = false, floorRef = true, xrKind = '';
+async function checkXR() {
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+    return;
+  }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+  }
+}
+checkXR().then(() => { layoutView(); if (!touched) homeView(); });
+
+// ετικέτες: στο AR (1:20) μεγαλώνουν λίγο ώστε να διαβάζονται, σε κατακόρυφη οθόνη επίσης
+function setLabelScale(k) {
+  world.traverse(o => { if (o.isSprite && o.userData.big) { o.userData.k = k; fitLabel(o); } });
+}
+
+function resetView() {
+  camera.near = 0.05;
+  camera.far = 400;
+  root.position.set(0, 0, 0);
+  root.quaternion.identity();
+  root.scale.setScalar(1);
+  vrWorld.visible = false;
+  panel.visible = false;
+  scene.attach(panel);
+  scene.background = null;
+  layoutView();
+  homeView();
+  touched = false;
+}
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    // τα όρια βάθους της κάμερας περνούν στη συνεδρία XR: στο AR η σκηνή είναι 0,85 m μπροστά, στο VR σε φυσικό μέγεθος
+    camera.near = 0.02;
+    camera.far = kind === 'immersive-vr' ? 500 : 50;
+    camera.updateProjectionMatrix();
+    await renderer.xr.setSession(session);
+    placed = false;
+    xrKind = kind;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    scene.background = opaque ? new THREE.Color(kind === 'immersive-vr' ? 0x9fc4e8 : 0x0e1420) : null;
+    session.addEventListener('end', () => { xrKind = ''; resetView(); });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const floorY = floorRef ? 0 : p.y - 1.6;
+  // στο AR και στο VR ο άξονας +x του γηπέδου (από τον παίκτη προς το καλάθι) γίνεται η δεξιά πλευρά του χρήστη,
+  // όπως στα σχήματα του φύλλου εργασίας: ο παίκτης αριστερά, το καλάθι δεξιά
+  const right = new THREE.Vector3(-dir.z, 0, dir.x);
+  const yaw = Math.atan2(-right.z, right.x);
+  if (xrKind === 'immersive-vr') {
+    // VR: φυσικό μέγεθος, ο χρήστης στέκεται στο πλάι του γηπέδου, 6 m από το επίπεδο των τροχιών και απέναντι
+    // από το κέντρο του, και κοιτάζει κάθετα προς αυτό, οπότε βλέπει καθαρά τα δύο σημεία της τροχιάς στα 3 m
+    root.scale.setScalar(1);
+    root.rotation.set(0, yaw, 0);
+    const off = STAND.clone().applyAxisAngle(UP, yaw);
+    root.position.set(p.x - off.x, floorY, p.z - off.z);
+    vrWorld.visible = scene.background !== null;
+    vrWorld.position.set(0, floorY, 0);
+    setLabelScale(1);
+    // ο πίνακας 1,9 m μακριά, 57° αριστερά από τη διεύθυνση του βλέμματος και 0,3 m κάτω από τα μάτια, ώστε να μην
+    // κρύβει την τροχιά, το καλάθι ή τον παίκτη (η πλευρά του προς το γήπεδο είναι στις 33,9°, ο παίκτης ως τις 33,0°)
+    const pd = dir.clone().applyAxisAngle(UP, rad(57));
+    scene.add(panel);                        // ο πίνακας μένει σταθερός στον χώρο, όχι πάνω στη σκηνή
+    panel.position.set(p.x + pd.x * 1.9, p.y - 0.3, p.z + pd.z * 1.9);
+    panel.scale.setScalar(0.65);
+  } else {
+    // AR: σκηνή 1:20 στο θρανίο, 0,85 m μπροστά και 0,32 m κάτω από τα μάτια, με το γήπεδο από τα αριστερά προς τα δεξιά
+    root.scale.setScalar(AR_SCALE);
+    root.rotation.set(0, yaw, 0);
+    const c = SCENE_C.clone().multiplyScalar(AR_SCALE).applyAxisAngle(UP, yaw);
+    root.position.set(p.x + dir.x * 0.85 - c.x, p.y - 0.32, p.z + dir.z * 0.85 - c.z);
+    setLabelScale(1.25);
+    root.add(panel);
+    panel.position.set(SCENE_C.x, 5.7, 0);
+    panel.scale.setScalar(3.2);
+  }
+  panel.visible = true;
+  placed = true;
+}
+
+// χειριστήρια: σύντομο πάτημα = επόμενη κατάσταση, και στο AR παρατεταμένο πάτημα πάνω στη σκηνή = μετακίνηση
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    if (xrKind !== 'immersive-ar') return;
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    const targets = [];
+    world.traverseVisible(o => { if (o.isMesh && !o.material.userData.top) targets.push(o); });
+    if (ray.intersectObjects(targets, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    if (ctl.userData.grab) { scene.attach(root); ctl.userData.grab = false; }
+    if (performance.now() - ctl.userData.t0 < 280) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+const ctls = [makeController(0), makeController(1)];
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  layoutView();
+  if (!touched) homeView();
+});
+
+let last = performance.now();
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  animate(dt);
+  if (renderer.xr.isPresenting) {
+    // ο πίνακας γυρίζει πάντα προς τον χρήστη
+    const eye = new THREE.Vector3().setFromMatrixPosition(renderer.xr.getCamera().matrixWorld);
+    const pw = new THREE.Vector3();
+    panel.getWorldPosition(pw);
+    const yawP = Math.atan2(eye.x - pw.x, eye.z - pw.z);
+    const parentQ = new THREE.Quaternion();
+    if (panel.parent) panel.parent.getWorldQuaternion(parentQ);
+    panel.quaternion.copy(parentQ.invert()).multiply(new THREE.Quaternion().setFromAxisAngle(UP, yawP));
+    if (xrKind === 'immersive-ar') {
+      // ο μοχλός του χειριστηρίου μεγαλώνει ή μικραίνει τη σκηνή
+      ctls.forEach(c => {
+        const gp = c.userData.source && c.userData.source.gamepad;
+        if (gp && gp.axes && gp.axes.length) {
+          const ax = gp.axes[3] !== undefined ? gp.axes[3] : gp.axes[1];
+          if (Math.abs(ax) > 0.2) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ax * dt * 0.9), AR_SCALE * 0.5, AR_SCALE * 4));
+        }
+      });
+    }
+  } else {
+    controls.update();
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
