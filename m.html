@@ -63,7 +63,8 @@ const META={
   'peristrofi-gamma':['Χωρίο ανάμεσα σε y = √x και y = x/2 → στερεό','Γ΄ Λυκείου','#4ade80'],
   'kyvos-klasmaton':['Ο κύβος των κλασμάτων: κουτιά με όγκο ¼','Α΄ Γυμνασίου','#3b82f6'],
   'pyramida-thali':['Η σκιά της πυραμίδας: ο Θαλής και τα όμοια τρίγωνα','Γ΄ Γυμνασίου, Α΄ Λυκείου','#f59e0b'],
-  kalathi:['Το καλάθι: τρεις βολές, τρεις διακρίνουσες','Α΄ Λυκείου','#f97316']
+  kalathi:['Το καλάθι: τρεις βολές, τρεις διακρίνουσες','Α΄ Λυκείου','#f97316'],
+  'kouti-diaireton':['Το κουτί των διαιρετών: ΜΚΔ και ΕΚΠ','Α΄ Γυμνασίου','#2E9E4F']
 };
 
 const asked=new URLSearchParams(location.search).get('id');
@@ -249,6 +250,35 @@ if(id==='kalathi'){
   row.appendChild(play);
   const xr=document.createElement('button');
   xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='trionymo.html'; };
+  row.appendChild(xr);
+  /* τα κουμπιά πιάνουν το κάτω μέρος, οπότε το μήνυμα για το AR πάει κάτω από τον τίτλο */
+  mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
+}
+
+/* Το κουτί των διαιρετών (σενάριο 10 «Ο ΜΚΔ και το ΕΚΠ στο Κέντρο Καινοτομίας», Α΄ Γυμνασίου §1.5): οι 24 διαιρέτες
+   του 360 = 2³ · 3² · 5 σε κάνναβο 4 × 3 × 2. Τέσσερις καταστάσεις μέσα στα 12 s της κίνησης, 3 s η καθεμία: οι διαιρέτες
+   του 12, οι διαιρέτες του 20, οι κοινοί διαιρέτες με τον ΜΚΔ = 4 και το ΕΚΠ = 60. Τα κουμπιά σταματούν την κίνηση στο
+   μέσο κάθε κατάστασης. Οι ετικέτες είναι στραμμένες προς τον θεατή, γι' αυτό το μοντέλο δεν περιστρέφεται μόνο του.
+   Σύνδεσμος για τα γυαλιά XR. */
+const KOUTI=[['Διαιρέτες του 12',1.5],['Διαιρέτες του 20',4.5],['ΜΚΔ = 4',7.5],['ΕΚΠ = 60',10.5]];
+if(id==='kouti-diaireton'){
+  mv.removeAttribute('auto-rotate');
+  mv.setAttribute('camera-orbit','20deg 66deg 105%');
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const mark=el=>[...row.children].forEach(b=>b.classList.toggle('on',b===el));
+  for(const [label,t] of KOUTI){
+    const b=document.createElement('button');
+    b.textContent=label;
+    b.onclick=()=>{ mv.currentTime=t; mv.pause(); mark(b); };
+    row.appendChild(b);
+  }
+  const play=document.createElement('button');
+  play.textContent='Συνεχής κίνηση';
+  play.onclick=()=>{ mv.play(); mark(play); };
+  row.appendChild(play);
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='mkd-ekp.html'; };
   row.appendChild(xr);
   /* τα κουμπιά πιάνουν το κάτω μέρος, οπότε το μήνυμα για το AR πάει κάτω από τον τίτλο */
   mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });

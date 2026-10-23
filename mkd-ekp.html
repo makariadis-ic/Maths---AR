@@ -1,0 +1,869 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Το κουτί των διαιρετών — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#2E9E4F}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px;white-space:nowrap}
+  #bar h1{font-size:15px;margin:0;font-weight:640;white-space:nowrap}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.35}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#08131a;background:var(--acc);border-color:transparent}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:820px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:720px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(92vw,78vh);height:auto}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segS,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #hint{font-size:11.5px}
+    #bar{gap:10px;padding:10px 12px} #bar h1{font-size:14px} #bar .lv{font-size:10.5px} #bar .lv span{display:block} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="-107 -205 398 353" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<defs><marker id="ah" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#e2e8f0"/></marker></defs>
+<line x1="-10.6" y1="12.8" x2="-10.6" y2="-41.1" stroke="#ED7D31" stroke-width="2.2"/>
+<line x1="-12.5" y1="15.1" x2="-12.5" y2="-117.5" stroke="#2E9E4F" stroke-width="3.2"/>
+<line x1="-8.9" y1="10.8" x2="-33.4" y2="26.0" stroke="#2E75B6" stroke-width="2.2"/>
+<line x1="-8.9" y1="10.8" x2="-8.9" y2="-103.8" stroke="#2E75B6" stroke-width="2.2"/>
+<line x1="-12.5" y1="15.1" x2="174.7" y2="53.8" stroke="#2E9E4F" stroke-width="3.2"/>
+<circle cx="0.0" cy="-0.0" r="13.3" fill="#7030A0"/><text x="0.0" y="6.5" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">1</text>
+<line x1="-10.6" y1="12.8" x2="167.6" y2="49.7" stroke="#ED7D31" stroke-width="2.2"/>
+<line x1="-12.5" y1="15.1" x2="-83.5" y2="59.2" stroke="#2E9E4F" stroke-width="3.2"/>
+<line x1="-8.9" y1="10.8" x2="161.5" y2="46.1" stroke="#2E75B6" stroke-width="2.2"/>
+<line x1="-10.6" y1="12.8" x2="-76.4" y2="53.7" stroke="#ED7D31" stroke-width="2.2"/>
+<line x1="0.0" y1="-0.0" x2="0.0" y2="-69.1" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="0.0" y1="-0.0" x2="64.1" y2="13.3" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="-10.6" y1="-41.1" x2="167.6" y2="-4.2" stroke="#ED7D31" stroke-width="2.2"/>
+<line x1="-33.4" y1="26.0" x2="-33.4" y2="-88.7" stroke="#2E75B6" stroke-width="2.2"/>
+<line x1="-8.9" y1="-103.8" x2="-33.4" y2="-88.7" stroke="#2E75B6" stroke-width="2.2"/>
+<line x1="-10.6" y1="-41.1" x2="-76.4" y2="-0.2" stroke="#ED7D31" stroke-width="2.2"/>
+<circle cx="0.0" cy="-69.1" r="13.3" fill="#2E75B6"/><text x="0.0" y="-62.6" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">3</text>
+<line x1="0.0" y1="-0.0" x2="-37.0" y2="23.0" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<circle cx="64.1" cy="13.3" r="13.3" fill="#7030A0"/><text x="64.1" y="19.8" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">2</text>
+<line x1="0.0" y1="-0.0" x2="0.0" y2="-186.5" stroke="#e2e8f0" stroke-width="2.6" marker-end="url(#ah)"/>
+<line x1="0.0" y1="-69.1" x2="0.0" y2="-138.2" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="0.0" y1="-69.1" x2="64.1" y2="-55.8" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="-33.4" y1="26.0" x2="137.1" y2="61.3" stroke="#2E75B6" stroke-width="2.2"/>
+<line x1="-12.5" y1="-117.5" x2="174.7" y2="-78.8" stroke="#2E9E4F" stroke-width="3.2"/>
+<line x1="64.1" y1="13.3" x2="64.1" y2="-55.8" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="-8.9" y1="-103.8" x2="161.5" y2="-68.6" stroke="#2E75B6" stroke-width="2.2"/>
+<line x1="64.1" y1="13.3" x2="128.2" y2="26.5" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="-12.5" y1="-117.5" x2="-83.5" y2="-73.4" stroke="#2E9E4F" stroke-width="3.2"/>
+<circle cx="0.0" cy="-138.2" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="0.0" y="-131.7" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">9</text>
+<line x1="0.0" y1="-0.0" x2="-67.3" y2="41.8" stroke="#e2e8f0" stroke-width="2.6" marker-end="url(#ah)"/>
+<line x1="0.0" y1="-69.1" x2="-37.0" y2="-46.1" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="167.6" y1="49.7" x2="167.6" y2="-4.2" stroke="#ED7D31" stroke-width="2.2"/>
+<circle cx="-37.0" cy="23.0" r="13.3" fill="#ED7D31"/><text x="-37.0" y="29.5" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">5</text>
+<circle cx="64.1" cy="-55.8" r="13.3" fill="#2E75B6"/><text x="64.1" y="-49.3" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">6</text>
+<line x1="64.1" y1="13.3" x2="27.1" y2="36.2" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="0.0" y1="-0.0" x2="244.8" y2="50.7" stroke="#e2e8f0" stroke-width="2.6" marker-end="url(#ah)"/>
+<line x1="-76.4" y1="53.7" x2="-76.4" y2="-0.2" stroke="#ED7D31" stroke-width="2.2"/>
+<circle cx="128.2" cy="26.5" r="13.3" fill="#7030A0"/><text x="128.2" y="33.0" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">4</text>
+<line x1="0.0" y1="-138.2" x2="64.1" y2="-124.9" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="174.7" y1="53.8" x2="174.7" y2="-78.8" stroke="#2E9E4F" stroke-width="3.2"/>
+<line x1="161.5" y1="46.1" x2="137.1" y2="61.3" stroke="#2E75B6" stroke-width="2.2"/>
+<line x1="-37.0" y1="23.0" x2="-37.0" y2="-46.1" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="161.5" y1="46.1" x2="161.5" y2="-68.6" stroke="#2E75B6" stroke-width="2.2"/>
+<line x1="64.1" y1="-55.8" x2="64.1" y2="-124.9" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="-37.0" y1="23.0" x2="27.1" y2="36.2" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="64.1" y1="-55.8" x2="128.2" y2="-42.6" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="128.2" y1="26.5" x2="128.2" y2="-42.6" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="0.0" y1="-138.2" x2="-37.0" y2="-115.2" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="-83.5" y1="59.2" x2="-83.5" y2="-73.4" stroke="#2E9E4F" stroke-width="3.2"/>
+<line x1="128.2" y1="26.5" x2="192.3" y2="39.8" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<circle cx="-37.0" cy="-46.1" r="13.3" fill="#2E9E4F"/><text x="-37.0" y="-39.6" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">15</text>
+<circle cx="64.1" cy="-124.9" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="64.1" y="-118.4" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">18</text>
+<line x1="-33.4" y1="-88.7" x2="137.1" y2="-53.4" stroke="#2E75B6" stroke-width="2.2"/>
+<line x1="64.1" y1="-55.8" x2="27.1" y2="-32.9" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<circle cx="27.1" cy="36.2" r="13.3" fill="#ED7D31"/><text x="27.1" y="42.7" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">10</text>
+<circle cx="128.2" cy="-42.6" r="13.3" fill="#2E75B6"/><text x="128.2" y="-36.1" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">12</text>
+<line x1="128.2" y1="26.5" x2="91.2" y2="49.5" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="-37.0" y1="-46.1" x2="-37.0" y2="-115.2" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="167.6" y1="49.7" x2="101.7" y2="90.6" stroke="#ED7D31" stroke-width="2.2"/>
+<line x1="174.7" y1="53.8" x2="103.6" y2="97.9" stroke="#2E9E4F" stroke-width="3.2"/>
+<line x1="-37.0" y1="-46.1" x2="27.1" y2="-32.9" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<circle cx="192.3" cy="39.8" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="192.3" y="46.3" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">8</text>
+<line x1="64.1" y1="-124.9" x2="128.2" y2="-111.7" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="-76.4" y1="53.7" x2="101.7" y2="90.6" stroke="#ED7D31" stroke-width="2.2"/>
+<line x1="27.1" y1="36.2" x2="27.1" y2="-32.9" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="128.2" y1="-42.6" x2="128.2" y2="-111.7" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="-83.5" y1="59.2" x2="103.6" y2="97.9" stroke="#2E9E4F" stroke-width="3.2"/>
+<line x1="27.1" y1="36.2" x2="91.2" y2="49.5" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="128.2" y1="-42.6" x2="192.3" y2="-29.3" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="137.1" y1="61.3" x2="137.1" y2="-53.4" stroke="#2E75B6" stroke-width="2.2"/>
+<circle cx="-37.0" cy="-115.2" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="-37.0" y="-108.7" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">45</text>
+<line x1="161.5" y1="-68.6" x2="137.1" y2="-53.4" stroke="#2E75B6" stroke-width="2.2"/>
+<line x1="192.3" y1="39.8" x2="192.3" y2="-29.3" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="64.1" y1="-124.9" x2="27.1" y2="-101.9" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<circle cx="27.1" cy="-32.9" r="13.3" fill="#2E9E4F"/><text x="27.1" y="-26.4" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">30</text>
+<line x1="167.6" y1="-4.2" x2="101.7" y2="36.7" stroke="#ED7D31" stroke-width="2.2"/>
+<circle cx="128.2" cy="-111.7" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="128.2" y="-105.2" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">36</text>
+<line x1="128.2" y1="-42.6" x2="91.2" y2="-19.6" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="-76.4" y1="-0.2" x2="101.7" y2="36.7" stroke="#ED7D31" stroke-width="2.2"/>
+<circle cx="91.2" cy="49.5" r="13.3" fill="#ED7D31"/><text x="91.2" y="56.0" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">20</text>
+<line x1="-37.0" y1="-115.2" x2="27.1" y2="-101.9" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<circle cx="192.3" cy="-29.3" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="192.3" y="-22.8" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">24</text>
+<line x1="192.3" y1="39.8" x2="155.3" y2="62.7" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="27.1" y1="-32.9" x2="27.1" y2="-101.9" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="27.1" y1="-32.9" x2="91.2" y2="-19.6" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="128.2" y1="-111.7" x2="192.3" y2="-98.4" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="91.2" y1="49.5" x2="91.2" y2="-19.6" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="192.3" y1="-29.3" x2="192.3" y2="-98.4" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="91.2" y1="49.5" x2="155.3" y2="62.7" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<circle cx="27.1" cy="-101.9" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="27.1" y="-95.4" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">90</text>
+<line x1="128.2" y1="-111.7" x2="91.2" y2="-88.7" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="174.7" y1="-78.8" x2="103.6" y2="-34.7" stroke="#2E9E4F" stroke-width="3.2"/>
+<circle cx="91.2" cy="-19.6" r="17.3" fill="#2E9E4F"/><circle cx="91.2" cy="-19.6" r="22.0" fill="none" stroke="#6DBB84" stroke-width="3"/><text x="91.2" y="-12.1" font-size="22" font-weight="700" text-anchor="middle" fill="#ffffff" stroke="#0e1420" stroke-width="4" paint-order="stroke">60</text>
+<circle cx="192.3" cy="-98.4" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="192.3" y="-91.9" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">72</text>
+<line x1="192.3" y1="-29.3" x2="155.3" y2="-6.3" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="-83.5" y1="-73.4" x2="103.6" y2="-34.7" stroke="#2E9E4F" stroke-width="3.2"/>
+<circle cx="155.3" cy="62.7" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="155.3" y="69.2" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">40</text>
+<line x1="27.1" y1="-101.9" x2="91.2" y2="-88.7" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="101.7" y1="90.6" x2="101.7" y2="36.7" stroke="#ED7D31" stroke-width="2.2"/>
+<line x1="91.2" y1="-19.6" x2="91.2" y2="-88.7" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="91.2" y1="-19.6" x2="155.3" y2="-6.3" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="155.3" y1="62.7" x2="155.3" y2="-6.3" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<circle cx="91.2" cy="-88.7" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="91.2" y="-82.2" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">180</text>
+<line x1="103.6" y1="97.9" x2="103.6" y2="-34.7" stroke="#2E9E4F" stroke-width="3.2"/>
+<line x1="192.3" y1="-98.4" x2="155.3" y2="-75.4" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<circle cx="155.3" cy="-6.3" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="155.3" y="0.2" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">120</text>
+<line x1="91.2" y1="-88.7" x2="155.3" y2="-75.4" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<line x1="155.3" y1="-6.3" x2="155.3" y2="-75.4" stroke="#A6A6A6" stroke-width="1.3" stroke-opacity="0.55"/>
+<circle cx="155.3" cy="-75.4" r="13.3" fill="#A6A6A6" fill-opacity="0.18"/><text x="155.3" y="-68.9" font-size="19" font-weight="700" text-anchor="middle" fill="#ffffff" fill-opacity="0.32">360</text>
+<text x="-26.9" y="-179.2" font-size="19" font-weight="700" text-anchor="middle" fill="#eaf1f8" stroke="#0e1420" stroke-width="4" paint-order="stroke">× 3</text>
+<text x="-77.0" y="53.8" font-size="19" font-weight="700" text-anchor="middle" fill="#eaf1f8" stroke="#0e1420" stroke-width="4" paint-order="stroke">× 5</text>
+<text x="261.5" y="60.1" font-size="19" font-weight="700" text-anchor="middle" fill="#eaf1f8" stroke="#0e1420" stroke-width="4" paint-order="stroke">× 2</text>
+<text x="92.3" y="135.9" font-size="21" font-weight="700" text-anchor="middle" fill="#eaf1f8">ΜΚΔ(12, 20) = 4, ΕΚΠ(12, 20) = 60</text>
+</svg>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Το κουτί των διαιρετών</h1>
+  <span class="lv"><span>Α΄ Γυμνασίου</span> <span>§1.5</span></span>
+</div>
+<div id="dock">
+  <div class="seg" id="segS">
+    <button data-k="0" class="on">Διαιρέτες του 360</button>
+    <button data-k="1">Διαιρέτες του 12</button>
+    <button data-k="2">Διαιρέτες του 20</button>
+    <button data-k="3">ΜΚΔ(12, 20)</button>
+    <button data-k="4">ΕΚΠ(12, 20)</button>
+    <button data-k="5">Το 72 και το 60</button>
+    <button data-k="6">Το 8 και το 45</button>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο 10 «Ο ΜΚΔ και το ΕΚΠ στο Κέντρο Καινοτομίας» (Α΄ Γυμνασίου, §1.5) — Σταθμός 4: Το κουτί των διαιρετών
+// Κέντρο Καινοτομίας Θεσσαλίας. Οι 24 διαιρέτες του 360 = 2³ · 3² · 5 είναι σφαίρες σε κάνναβο 4 × 3 × 2: η σφαίρα
+// στη θέση (a, b, c) είναι ο αριθμός 2^a · 3^b · 5^c, με a από 0 έως 3 (προς τα δεξιά, × 2), b από 0 έως 2 (προς τα
+// πάνω, × 3) και c από 0 έως 1 (προς τον θεατή, × 5). Οι διαιρέτες ενός αριθμού n που διαιρεί το 360 σχηματίζουν ένα
+// κουτί από τη σφαίρα του 1 ως τη σφαίρα του n. Οι κοινοί διαιρέτες δύο αριθμών είναι το κοινό μέρος των δύο κουτιών,
+// με απέναντι κορυφή τον ΜΚΔ (σε κάθε άξονα ο μικρότερος εκθέτης), και το μικρότερο κουτί που περιέχει και τα δύο
+// φτάνει ως το ΕΚΠ (σε κάθε άξονα ο μεγαλύτερος εκθέτης). Πλήθος διαιρετών: (a + 1)(b + 1)(c + 1).
+// Μονάδα μήκους της σκηνής: η απόσταση δύο γειτονικών σφαιρών, 13 cm στο XR (το κουτί έχει πλάτος περίπου 45 cm).
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const UNIT = 0.13;                   // απόσταση δύο γειτονικών σφαιρών σε μέτρα
+const R = 0.18;                      // ακτίνα σφαίρας (σε μονάδες του καννάβου)
+const LH = 0.34;                     // ύψος ετικέτας
+const BASE = 0.55;                   // οι κάτω σφαίρες πάνω από τη βάση της σκηνής (το θρανίο στο XR)
+const TABLE = 0.78, DIST = 1.0;      // XR: ύψος θρανίου από το δάπεδο και απόσταση από τον χρήστη (m)
+const SKEW = 30;                     // XR: ο χρήστης βλέπει το κουτί λοξά, από δεξιά και εμπρός (μοίρες)
+// χρώματα του σεναρίου: πρώτος αριθμός, δεύτερος αριθμός, κοινοί διαιρέτες και ΜΚΔ, ΕΚΠ, ουδέτερο
+const COL = { A: '#2E75B6', B: '#ED7D31', M: '#7030A0', E: '#2E9E4F', N: '#A6A6A6' };
+// τα ίδια χρώματα κατά 30% πιο ανοιχτά, για κείμενο πάνω σε σκούρο φόντο
+const TXT = { A: '#6D9ECC', B: '#F2A46F', M: '#9B6EBC', E: '#6DBB84' };
+const INK = '#eaf1f8';
+
+const rad = THREE.MathUtils.degToRad;
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const UP = V(0, 1, 0);
+
+// ------------------------------------------------------------------ οι 24 διαιρέτες του 360
+const ekth = n => [2, 3, 5].map(p => { let e = 0; while (n % p === 0) { n /= p; e++; } return e; });
+const DIAIRETES = [];
+for (let c = 0; c <= 1; c++) for (let b = 0; b <= 2; b++) for (let a = 0; a <= 3; a++)
+  DIAIRETES.push({ e: [a, b, c], n: 2 ** a * 3 ** b * 5 ** c });
+const diairei = (e, top) => e[0] <= top[0] && e[1] <= top[1] && e[2] <= top[2];   // ο διαιρέτης με εκθέτες e διαιρεί τον αριθμό με εκθέτες top
+
+// ------------------------------------------------------------------ οι επτά καταστάσεις
+// A: ο πρώτος αριθμός (μπλε), B: ο δεύτερος (πορτοκαλί), M: φαίνεται το κουτί των κοινών διαιρετών (μωβ),
+// E: φαίνεται το κουτί του ΕΚΠ (πράσινο περίγραμμα). Στις γραμμές του πίνακα, το δεύτερο στοιχείο είναι το χρώμα.
+const STATES = [
+  { all: true,
+    title: 'Οι 24 διαιρέτες του 360 = 2³ · 3² · 5',
+    lines: [['Κάθε βήμα πολλαπλασιάζει με 2, με 3 ή με 5'], ['60 = 2² · 3 · 5 → εκθέτες (2, 1, 1)'],
+            ['Πλήθος: (3 + 1) · (2 + 1) · (1 + 1) = 24']],
+    hint: '<b>Οι 24 διαιρέτες του 360:</b> κάθε διαιρέτης του 360 = 2³ · 3² · 5 είναι γινόμενο δυνάμεων του 2, του 3 και του 5, με εκθέτες από 0 έως 3, από 0 έως 2 και από 0 έως 1. Οι εκθέτες δίνουν τη θέση της σφαίρας: ένα βήμα προς τα δεξιά πολλαπλασιάζει με 2, ένα βήμα προς τα πάνω με 3 και ένα βήμα προς τα εμπρός με 5, οπότε το 60 = 2² · 3 · 5 βρίσκεται στη θέση (2, 1, 1). Οι θέσεις είναι 4 · 3 · 2 = 24, όσοι και οι διαιρέτες.' },
+  { A: 12,
+    title: 'Οι διαιρέτες του 12 = 2² · 3',
+    lines: [['12 = 2² · 3 → (2, 1, 0)', 'A'], ['Κουτί 3 × 2 × 1: 1, 2, 3, 4, 6, 12'],
+            ['Πλήθος: (2 + 1) · (1 + 1) · (0 + 1) = 6']],
+    hint: '<b>Οι διαιρέτες του 12:</b> 12 = 2² · 3, οπότε οι διαιρέτες του έχουν εκθέτη του 2 από 0 έως 2, εκθέτη του 3 από 0 έως 1 και δεν έχουν τον παράγοντα 5. Σχηματίζουν το μπλε κουτί 3 × 2 × 1, από τη σφαίρα του 1 ως τη σφαίρα του 12: (2 + 1) · (1 + 1) = 6 διαιρέτες, οι 1, 2, 3, 4, 6 και 12.' },
+  { B: 20,
+    title: 'Οι διαιρέτες του 20 = 2² · 5',
+    lines: [['20 = 2² · 5 → (2, 0, 1)', 'B'], ['Κουτί 3 × 1 × 2: 1, 2, 4, 5, 10, 20'],
+            ['Πλήθος: (2 + 1) · (0 + 1) · (1 + 1) = 6']],
+    hint: '<b>Οι διαιρέτες του 20:</b> 20 = 2² · 5, οπότε οι διαιρέτες του έχουν εκθέτη του 2 από 0 έως 2, δεν έχουν τον παράγοντα 3 και έχουν εκθέτη του 5 από 0 έως 1. Σχηματίζουν το πορτοκαλί κουτί 3 × 1 × 2, από τη σφαίρα του 1 ως τη σφαίρα του 20: (2 + 1) · (1 + 1) = 6 διαιρέτες, οι 1, 2, 4, 5, 10 και 20.' },
+  { A: 12, B: 20, M: true,
+    title: 'Κοινοί διαιρέτες: 1, 2, 4 — ΜΚΔ(12, 20) = 4',
+    lines: [['12 = 2² · 3 → (2, 1, 0)', 'A'], ['20 = 2² · 5 → (2, 0, 1)', 'B'],
+            ['Σε κάθε άξονα ο μικρότερος εκθέτης'], ['ΜΚΔ(12, 20) = 2² = 4', 'M']],
+    hint: '<b>Κοινοί διαιρέτες και ΜΚΔ:</b> οι κοινοί διαιρέτες του 12 και του 20 είναι οι σφαίρες που ανήκουν και στο μπλε και στο πορτοκαλί κουτί: το μωβ κουτί 3 × 1 × 1 με τα 1, 2 και 4. Στην κορυφή του απέναντι από το 1 βρίσκεται ο ΜΚΔ: σε κάθε άξονα κρατάμε τον μικρότερο εκθέτη, από τα (2, 1, 0) και (2, 0, 1) παίρνουμε (2, 0, 0), δηλαδή ΜΚΔ(12, 20) = 2² = 4. Κάθε κοινός διαιρέτης του 12 και του 20 είναι διαιρέτης του 4.' },
+  { A: 12, B: 20, E: true,
+    title: 'ΕΚΠ(12, 20) = 60 = 2² · 3 · 5',
+    lines: [['12 = 2² · 3 → (2, 1, 0)', 'A'], ['20 = 2² · 5 → (2, 0, 1)', 'B'],
+            ['Σε κάθε άξονα ο μεγαλύτερος εκθέτης'], ['ΕΚΠ(12, 20) = 2² · 3 · 5 = 60', 'E']],
+    hint: '<b>ΕΚΠ:</b> το πράσινο κουτί 3 × 2 × 2 είναι το μικρότερο κουτί που περιέχει και το μπλε και το πορτοκαλί κουτί. Στην κορυφή του απέναντι από το 1 βρίσκεται το ΕΚΠ: σε κάθε άξονα κρατάμε τον μεγαλύτερο εκθέτη, από τα (2, 1, 0) και (2, 0, 1) παίρνουμε (2, 1, 1), δηλαδή ΕΚΠ(12, 20) = 2² · 3 · 5 = 60. Οι 12 σφαίρες του πράσινου κουτιού είναι οι διαιρέτες του 60. Επίσης 12 · 20 = 240 = 4 · 60, δηλαδή ΜΚΔ · ΕΚΠ = 12 · 20.' },
+  { A: 72, B: 60, M: true, E: true,
+    title: 'Το 72 και το 60: ΜΚΔ = 12, ΕΚΠ = 360',
+    lines: [['72 = 2³ · 3² → (3, 2, 0)', 'A'], ['60 = 2² · 3 · 5 → (2, 1, 1)', 'B'],
+            ['ΜΚΔ: (2, 1, 0) → 2² · 3 = 12', 'M'], ['ΕΚΠ: (3, 2, 1) → 2³ · 3² · 5 = 360', 'E']],
+    hint: '<b>Το 72 και το 60:</b> 72 = 2³ · 3² (μπλε κουτί 4 × 3 × 1) και 60 = 2² · 3 · 5 (πορτοκαλί κουτί 3 × 2 × 2). Το κοινό τους μέρος είναι το μωβ κουτί 3 × 2 × 1 με τους κοινούς διαιρέτες 1, 2, 3, 4, 6 και 12, άρα ΜΚΔ(72, 60) = 2² · 3 = 12. Το μικρότερο κουτί που περιέχει και τα δύο είναι όλο το κουτί 4 × 3 × 2, άρα ΕΚΠ(72, 60) = 2³ · 3² · 5 = 360. Και εδώ 72 · 60 = 4.320 = 12 · 360.' },
+  { A: 8, B: 45, M: true, E: true,
+    title: 'Το 8 και το 45: πρώτοι μεταξύ τους',
+    lines: [['8 = 2³ → (3, 0, 0)', 'A'], ['45 = 3² · 5 → (0, 2, 1)', 'B'],
+            ['Κοινός διαιρέτης μόνο το 1', 'M'], ['ΕΚΠ(8, 45) = 360 = 8 · 45', 'E']],
+    hint: '<b>Το 8 και το 45:</b> 8 = 2³ (μπλε κουτί 4 × 1 × 1) και 45 = 3² · 5 (πορτοκαλί κουτί 1 × 3 × 2). Τα δύο κουτιά έχουν κοινή μόνο τη σφαίρα του 1: ΜΚΔ(8, 45) = 1, δηλαδή το 8 και το 45 είναι πρώτοι μεταξύ τους. Το μικρότερο κουτί που περιέχει και τα δύο είναι όλο το κουτί 4 × 3 × 2, οπότε το ΕΚΠ είναι το γινόμενό τους: ΕΚΠ(8, 45) = 8 · 45 = 360.' }
+];
+// αδιάσπαστα κενά γύρω από τα σύμβολα πράξεων και σχέσεων και μέσα στις τριάδες εκθετών, π.χ. (2, 1, 0)
+const hintHTML = k => STATES[k].hint.replace(/ (=|·|×|→) /g, ' $1 ')
+  .replace(/\((\d+), (\d+), (\d+)\)/g, '($1, $2, $3)');
+
+// ρόλος κάθε σφαίρας σε κάθε κατάσταση: 'N' όλοι οι διαιρέτες, 'A' / 'B' μόνο του πρώτου / δεύτερου αριθμού,
+// 'M' κοινός διαιρέτης, 'E' μόνο του ΕΚΠ, '' σβησμένη. Τονίζονται (μεγαλύτερες, με δαχτυλίδι) ο ΜΚΔ και το ΕΚΠ.
+STATES.forEach(S => {
+  const eA = S.A && ekth(S.A), eB = S.B && ekth(S.B);
+  S.gcd = eA && eB ? eA.map((x, i) => Math.min(x, eB[i])) : null;
+  S.lcm = eA && eB ? eA.map((x, i) => Math.max(x, eB[i])) : null;
+  S.roles = DIAIRETES.map(d => {
+    if (S.all) return 'N';
+    const a = eA && diairei(d.e, eA), b = eB && diairei(d.e, eB);
+    if (a && b) return 'M';
+    if (a) return 'A';
+    if (b) return 'B';
+    if (S.E && diairei(d.e, S.lcm)) return 'E';
+    return '';
+  });
+  const same = (e, f) => e[0] === f[0] && e[1] === f[1] && e[2] === f[2];
+  S.emph = DIAIRETES.map(d => (S.M && same(d.e, S.gcd)) || (S.E && same(d.e, S.lcm)));
+  // κουτιά: [εκθέτες της απέναντι από το 1 κορυφής, χρώμα, είδος]
+  if (S.all) S.boxes = [[[3, 2, 1], 'N', 'olo']];
+  else if (!eB) S.boxes = [[eA, 'A', 'gemato']];
+  else if (!eA) S.boxes = [[eB, 'B', 'gemato']];
+  else {
+    S.boxes = [[eA, 'A', 'perigramma'], [eB, 'B', 'perigramma']];
+    if (S.M) S.boxes.push([S.gcd, 'M', 'koino']);
+    if (S.E) S.boxes.push([S.lcm, 'E', 'ekp']);
+  }
+});
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const FOV = 26;
+const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 0.01, 60);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.minDistance = 0.35;
+controls.maxDistance = 6;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a3446, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(0.8, 1.6, 1.2);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xbcd8ff, 0.5);
+fill.position.set(-1, 0.5, -1);
+scene.add(fill);
+
+// δάπεδο και θρανίο μόνο σε αδιαφανή λειτουργία (VR). Το δάπεδο είναι η χαμηλότερη επιφάνεια: σχεδιάζεται πρώτο και
+// δεν γράφει βάθος, ώστε να μην κρύβει ποτέ τίποτα.
+const room = new THREE.Group();
+room.visible = false;
+scene.add(room);
+{
+  const floor = new THREE.Group();
+  floor.name = 'floor';
+  room.add(floor);
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x1b2433, roughness: 0.95, depthWrite: false }));
+  disc.rotation.x = -Math.PI / 2;
+  disc.renderOrder = -2;
+  floor.add(disc);
+  const grid = new THREE.GridHelper(12, 24, 0x3b4a63, 0x27324a);
+  grid.material.depthWrite = false;
+  grid.renderOrder = -1;
+  grid.position.y = 0.002;
+  floor.add(grid);
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.04, 0.6), new THREE.MeshStandardMaterial({ color: 0x6b4f3a, roughness: 0.7 }));
+  desk.name = 'desk';
+  room.add(desk);
+}
+
+const root = new THREE.Group();          // ό,τι μετακινείται στο XR· η αρχή του είναι το κέντρο της βάσης της σκηνής
+scene.add(root);
+const world = new THREE.Group();         // μονάδα = απόσταση δύο γειτονικών σφαιρών
+world.scale.setScalar(UNIT);
+world.position.set(-1.5 * UNIT, BASE * UNIT, -0.5 * UNIT);
+root.add(world);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+const FONT = '"Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Arial, sans-serif';
+function roundRect(ctx, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+  ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath();
+}
+// ετικέτα με ύψος σε μονάδες του καννάβου, πάντα στραμμένη προς τον θεατή
+function labelTexture(text, color) {
+  const size = 120, pad = 40;
+  const cv = document.createElement('canvas');
+  const ctx = cv.getContext('2d');
+  const font = `700 ${size}px ${FONT}`;
+  ctx.font = font;
+  const w = Math.ceil(ctx.measureText(text).width) + 2 * pad, h = Math.ceil(size * 1.5);
+  cv.width = w; cv.height = h;
+  ctx.font = font;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 22;
+  ctx.strokeStyle = 'rgba(14,20,32,.88)';
+  ctx.strokeText(text, w / 2, h / 2);
+  ctx.fillStyle = color;
+  ctx.fillText(text, w / 2, h / 2);
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return { tex, aspect: w / h };
+}
+function label(text, color, height) {
+  const { tex, aspect } = labelTexture(text, color);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+  sp.renderOrder = 4;
+  sp.userData = { h: height, aspect, k: 1, big: 1 };
+  sp.scale.set(height * aspect, height, 1);
+  return sp;
+}
+// ετικέτα σφαίρας: μικρό επίπεδο που κοιτά το μάτι του θεατή (και όχι απλώς το επίπεδο της οθόνης, όπως ένα sprite),
+// ώστε να μη μπαίνει ποτέ μέσα στη σφαίρα της, ακόμη κι όταν στο XR το κουτί είναι χαμηλά στο οπτικό πεδίο
+const plateGeo = new THREE.PlaneGeometry(1, 1);
+function plateLabel(text, color, height) {
+  const { tex, aspect } = labelTexture(text, color);
+  const m = new THREE.Mesh(plateGeo, new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+  m.renderOrder = 4;
+  m.userData = { h: height, aspect, k: 1, big: 1 };
+  m.scale.set(height * aspect, height, 1);
+  return m;
+}
+function fitLabel(sp) { const u = sp.userData, s = u.h * u.k * u.big; sp.scale.set(s * u.aspect, s, 1); }
+
+// ------------------------------------------------------------------ βοηθητικά γεωμετρίας
+const unitBar = new THREE.CylinderGeometry(1, 1, 1, 10, 1);
+function bar(a, b, r, mat) {               // κύλινδρος από το a στο b
+  const m = new THREE.Mesh(unitBar, mat);
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  m.quaternion.setFromUnitVectors(UP, b.clone().sub(a).normalize());
+  m.scale.set(r, a.distanceTo(b), r);
+  return m;
+}
+
+// ------------------------------------------------------------------ κάνναβος και άξονες
+{
+  const lineMat = new THREE.MeshBasicMaterial({ color: COL.N, transparent: true, opacity: 0.55, depthWrite: false });
+  for (const d of DIAIRETES) {
+    const [a, b, c] = d.e, p = V(a, b, c);
+    if (a < 3) world.add(bar(p, V(a + 1, b, c), 0.012, lineMat));
+    if (b < 2) world.add(bar(p, V(a, b + 1, c), 0.012, lineMat));
+    if (c < 1) world.add(bar(p, V(a, b, c + 1), 0.012, lineMat));
+  }
+  // άξονες από τη σφαίρα του 1: × 2 προς τα δεξιά, × 3 προς τα πάνω, × 5 προς τον θεατή
+  const axisMat = new THREE.MeshStandardMaterial({ color: 0xe2e8f0, emissive: 0x334155, roughness: 0.5 });
+  const headGeo = new THREE.ConeGeometry(0.075, 0.22, 20);
+  // η ετικέτα του κατακόρυφου άξονα μπαίνει αριστερά από την αιχμή του, ώστε να μην την κρύβει ο πίνακας
+  for (const [u, len, t, at] of [[V(1, 0, 0), 3.6, '× 2', V(4.08, 0, 0)], [V(0, 1, 0), 2.48, '× 3', V(-0.42, 2.6, 0)],
+                                 [V(0, 0, 1), 1.6, '× 5', V(0, 0, 2.08)]]) {
+    world.add(bar(V(0, 0, 0), u.clone().multiplyScalar(len), 0.022, axisMat));
+    const head = new THREE.Mesh(headGeo, axisMat);
+    head.position.copy(u).multiplyScalar(len + 0.11);
+    head.quaternion.setFromUnitVectors(UP, u);
+    world.add(head);
+    const l = label(t, INK, LH);
+    l.position.copy(at);
+    world.add(l);
+  }
+}
+
+// ------------------------------------------------------------------ οι σφαίρες
+const sphereGeo = new THREE.SphereGeometry(R, 32, 20);
+const ringGeo = new THREE.RingGeometry(1.17 * R, 1.37 * R, 48);
+const EMPH = 1.3;                       // οι σφαίρες του ΜΚΔ και του ΕΚΠ μεγαλώνουν
+const spheres = DIAIRETES.map(d => {
+  const mat = new THREE.MeshStandardMaterial({ color: COL.N, emissive: COL.N, emissiveIntensity: 0.22, roughness: 0.45, transparent: true });
+  const m = new THREE.Mesh(sphereGeo, mat);
+  m.position.set(...d.e);
+  world.add(m);
+  const lab = plateLabel(String(d.n), '#ffffff', LH);
+  lab.position.copy(m.position);
+  world.add(lab);
+  const ring = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color: COL.M, transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide }));
+  ring.position.copy(m.position);
+  ring.renderOrder = 3;
+  ring.visible = false;
+  world.add(ring);
+  return { d, m, mat, lab, ring, col: new THREE.Color(COL.N), op: 1, lop: 1, s: 1, rop: 0,
+           tCol: new THREE.Color(COL.N), tOp: 1, tLop: 1, tS: 1, tRop: 0 };
+});
+// ένα αόρατο κουτί γύρω από όλη τη σκηνή, για να την πιάνει το χειριστήριο
+const hit = new THREE.Mesh(new THREE.BoxGeometry(4.2, 3.2, 2.2), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+hit.position.set(1.5, 1, 0.5);
+hit.visible = false;
+world.add(hit);
+
+// ------------------------------------------------------------------ τα κουτιά
+// Τα περιθώρια διαφέρουν, ώστε οι έδρες κουτιών που περικλείουν τις ίδιες σφαίρες να μη συμπίπτουν.
+const KIND = {
+  olo:        { pad: 0.46, r: 0.012, fill: 0,    line: 0.75 },   // όλο το κουτί 4 × 3 × 2 (γκρι περίγραμμα)
+  gemato:     { pad: 0.30, r: 0.014, fill: 0.2,  line: 1 },      // ένας αριθμός μόνος του
+  perigramma: { pad: 0.33, r: 0.016, fill: 0,    line: 1 },      // δύο αριθμοί μαζί (το πορτοκαλί με περιθώριο 0,39)
+  koino:      { pad: 0.26, r: 0.014, fill: 0.26, line: 1 },      // κοινοί διαιρέτες (ΜΚΔ)
+  ekp:        { pad: 0.46, r: 0.022, fill: 0.05, line: 1 }       // ΕΚΠ (πράσινο περίγραμμα)
+};
+const boxCache = new Map();
+function getBox(top, col, kind) {
+  const key = top.join('') + col + kind;
+  if (boxCache.has(key)) return boxCache.get(key);
+  const K = KIND[kind], pad = col === 'B' && kind === 'perigramma' ? 0.39 : K.pad;
+  const lo = V(-pad, -pad, -pad), hi = V(top[0] + pad, top[1] + pad, top[2] + pad);
+  const g = new THREE.Group();
+  g.visible = false;
+  const mats = [];
+  if (K.fill) {
+    const fm = new THREE.MeshStandardMaterial({ color: COL[col], transparent: true, opacity: 0, depthWrite: false, side: THREE.DoubleSide, roughness: 0.8 });
+    const f = new THREE.Mesh(new THREE.BoxGeometry(hi.x - lo.x, hi.y - lo.y, hi.z - lo.z), fm);
+    f.position.copy(lo).add(hi).multiplyScalar(0.5);
+    f.renderOrder = 1;
+    g.add(f);
+    mats.push([fm, K.fill]);
+  }
+  const em = new THREE.MeshBasicMaterial({ color: COL[col], transparent: true, opacity: 0, depthWrite: false });
+  mats.push([em, K.line]);
+  const xs = [lo.x, hi.x], ys = [lo.y, hi.y], zs = [lo.z, hi.z];
+  for (const y of ys) for (const z of zs) g.add(bar(V(lo.x - K.r, y, z), V(hi.x + K.r, y, z), K.r, em));
+  for (const x of xs) for (const z of zs) g.add(bar(V(x, lo.y - K.r, z), V(x, hi.y + K.r, z), K.r, em));
+  for (const x of xs) for (const y of ys) g.add(bar(V(x, y, lo.z - K.r), V(x, y, hi.z + K.r), K.r, em));
+  g.children.forEach(o => { if (o.material === em) o.renderOrder = 2; });
+  world.add(g);
+  const box = { g, mats, a: 0, t: 0 };
+  boxCache.set(key, box);
+  return box;
+}
+STATES.forEach(S => { S.boxObjs = S.boxes.map(([top, col, kind]) => getBox(top, col, kind)); });
+
+// ------------------------------------------------------------------ πίνακας με τον τίτλο και τις γραμμές
+// Στο XR ο πίνακας είναι πάνω από το κουτί και γυρίζει προς τον χρήστη. Στην προβολή 3D είναι πάνω αριστερά από το
+// κουτί σε οριζόντια οθόνη και πάνω από αυτό σε κατακόρυφη, πάντα στραμμένος προς την κάμερα.
+const PTW = 1600, PW = 4.8;              // πλάτος της υφής (px) και του πίνακα (μονάδες)
+const PANEL_Y = 3.2, PANEL_Z = -0.3;     // XR: η κάτω πλευρά του πίνακα και το βάθος του
+const panelH = n => 60 + 72 + 34 + n * 92 + 36;   // ύψος της υφής για n γραμμές
+const CENTER = V(1.5, 1, 0.5);           // κέντρο του καννάβου
+let side = true;                         // προβολή 3D: ο πίνακας δίπλα στο κουτί (οριζόντια οθόνη) ή από πάνω
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+panel.renderOrder = 6;
+world.add(panel);
+let panelKey = '';
+function setPanel(S) {
+  const key = S.title;
+  if (key === panelKey) return;
+  panelKey = key;
+  const h = panelH(S.lines.length);
+  const cv = document.createElement('canvas');
+  cv.width = PTW; cv.height = h;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = 'rgb(14,20,32)';
+  roundRect(ctx, PTW, h, 40);
+  ctx.fill();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const line = (t, y, size, weight, color) => {
+    let s = size;
+    ctx.font = `${weight} ${s}px ${FONT}`;
+    while (s > 20 && ctx.measureText(t).width > PTW - 120) { s -= 2; ctx.font = `${weight} ${s}px ${FONT}`; }
+    ctx.fillStyle = color;
+    ctx.fillText(t, PTW / 2, y);
+  };
+  line(S.title, 60 + 36, 60, 700, INK);
+  S.lines.forEach(([t, c], i) => line(t, 60 + 72 + 34 + 46 + i * 92, 52, 600, c ? TXT[c] : INK));
+  if (panel.material.map) panel.material.map.dispose();
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  panel.material.map = tex;
+  panel.material.needsUpdate = true;
+  panel.scale.set(PW, PW * h / PTW, 1);
+  panelXR();
+}
+function panelXR() { panel.position.set(1.5, PANEL_Y + panel.scale.y / 2, PANEL_Z); }
+
+// ------------------------------------------------------------------ κατάσταση
+let current = 0;
+const hintEl = document.getElementById('hint');
+function select(k) {
+  current = (k + STATES.length) % STATES.length;
+  const S = STATES[current];
+  document.querySelectorAll('#segS button').forEach(b => b.classList.toggle('on', +b.dataset.k === current));
+  hintEl.innerHTML = hintHTML(current);
+  setPanel(S);
+  spheres.forEach((s, i) => {
+    const role = S.roles[i], big = S.emph[i];
+    s.tCol.set(COL[role || 'N']);
+    s.tOp = role ? 1 : 0.18;
+    s.tLop = role ? 1 : 0.32;
+    s.tS = big ? EMPH : 1;
+    s.tRop = big ? 1 : 0;
+    if (big) s.ring.material.color.set(TXT[role]);          // το δαχτυλίδι στην πιο ανοιχτή απόχρωση του ίδιου χρώματος
+  });
+  boxCache.forEach(b => { b.t = S.boxObjs.includes(b) ? 1 : 0; });
+}
+document.querySelectorAll('#segS button').forEach(b => b.onclick = () => select(+b.dataset.k));
+function next() { select(current + 1); }
+
+// ομαλή μετάβαση από την προηγούμενη κατάσταση (περίπου 0,3 s)
+function animate(dt) {
+  const k = 1 - Math.exp(-dt * 12);
+  for (const s of spheres) {
+    s.col.lerp(s.tCol, k);
+    s.op += (s.tOp - s.op) * k;
+    s.lop += (s.tLop - s.lop) * k;
+    s.s += (s.tS - s.s) * k;
+    s.rop += (s.tRop - s.rop) * k;
+    s.mat.color.copy(s.col);
+    s.mat.emissive.copy(s.col);
+    s.mat.opacity = s.op;
+    s.mat.depthWrite = s.op > 0.6;
+    s.m.scale.setScalar(s.s);
+    s.lab.material.opacity = s.lop;
+    if (Math.abs(s.lab.userData.big - (1 + (s.s - 1) * 0.6)) > 1e-3) { s.lab.userData.big = 1 + (s.s - 1) * 0.6; fitLabel(s.lab); }
+    s.ring.material.opacity = s.rop;
+    s.ring.visible = s.rop > 0.01;
+    s.ring.scale.setScalar(s.s);
+  }
+  boxCache.forEach(b => {
+    b.a += (b.t - b.a) * k;
+    if (b.t === 0 && b.a < 0.01) b.a = 0;
+    b.g.visible = b.a > 0;
+    for (const [m, o] of b.mats) m.opacity = o * b.a;
+  });
+}
+
+// οι ετικέτες κάθονται στην πλευρά της σφαίρας προς τον θεατή, τα δαχτυλίδια κοιτούν τον θεατή,
+// ο πίνακας γυρίζει προς τον θεατή (στο XR μόνο γύρω από τον κατακόρυφο άξονα)
+const eyeW = new THREE.Vector3(), eyeL = new THREE.Vector3(), tmp = new THREE.Vector3(), pw = new THREE.Vector3();
+const camR = new THREE.Vector3(), camU = new THREE.Vector3();
+const qP = new THREE.Quaternion(), qY = new THREE.Quaternion();
+function faceViewer(cam, xr) {
+  cam.getWorldPosition(eyeW);
+  eyeL.copy(eyeW);
+  world.worldToLocal(eyeL);
+  for (const s of spheres) {
+    tmp.copy(eyeL).sub(s.m.position).normalize();
+    s.lab.position.copy(s.m.position).addScaledVector(tmp, R * s.s * 1.04);
+    s.lab.lookAt(eyeW);
+    if (s.ring.visible) s.ring.lookAt(eyeW);
+  }
+  world.getWorldQuaternion(qP).invert();
+  if (xr) {
+    panel.getWorldPosition(pw);
+    qY.setFromAxisAngle(UP, Math.atan2(eyeW.x - pw.x, eyeW.z - pw.z));
+    panel.quaternion.copy(qP).multiply(qY);
+  } else {
+    // προβολή 3D (η σκηνή δεν είναι στραμμένη): οι άξονες της κάμερας είναι και άξονες του καννάβου
+    panel.quaternion.copy(qP).multiply(cam.quaternion);
+    camR.setFromMatrixColumn(cam.matrixWorld, 0).normalize();
+    camU.setFromMatrixColumn(cam.matrixWorld, 1).normalize();
+    const ph = panel.scale.y;
+    if (side) panel.position.copy(CENTER).addScaledVector(camR, -(PW / 2 + 2.6)).addScaledVector(camU, 2.05 - ph / 2);
+    else panel.position.copy(CENTER).addScaledVector(camR, 0.35).addScaledVector(camU, 2.3 + ph / 2);
+  }
+}
+
+// ------------------------------------------------------------------ πλαίσιο της προβολής 3D
+// Το κουτί, οι άξονες και ο πίνακας χωρούν ανάμεσα στη μπάρα και στα κουμπιά. Η κάμερα κοιτά από δεξιά, εμπρός
+// και λίγο από ψηλά, ώστε οι σφαίρες της πίσω στρώσης να μην κρύβονται πίσω από τις σφαίρες της μπροστινής.
+const VIEW_DIR = V(Math.sin(rad(30)) * Math.cos(rad(21)), Math.sin(rad(21)), Math.cos(rad(30)) * Math.cos(rad(21))).normalize();
+const FIT = [];
+for (const x of [-0.5, 3.5]) for (const y of [-0.5, 2.5]) for (const z of [-0.5, 1.5]) FIT.push(V(x, y, z));
+FIT.push(V(4.4, 0.2, 0), V(4.4, -0.2, 0), V(-0.72, 2.78, 0), V(-0.12, 2.42, 0), V(-0.3, -0.2, 2.1), V(0.3, 0.2, 2.1));
+const PANEL_MAX = Math.max(...STATES.map(S => S.lines.length));
+let barBottom = 62, dockTop = 600, frameH = 800, touched = false;
+controls.addEventListener('start', () => { touched = true; });
+function dockTopMax() {                   // το ψηλότερο σημείο των κουμπιών, με τη μεγαλύτερη από τις υποδείξεις
+  const dock = document.getElementById('dock'), keep = hintEl.innerHTML;
+  let top = dock.getBoundingClientRect().top;
+  for (let k = 0; k < STATES.length; k++) { hintEl.innerHTML = hintHTML(k); top = Math.min(top, dock.getBoundingClientRect().top); }
+  hintEl.innerHTML = keep;
+  return top;
+}
+function layoutView() {
+  const W = window.innerWidth, Hh = window.innerHeight;
+  barBottom = Math.round(document.getElementById('bar').getBoundingClientRect().bottom);
+  dockTop = Math.round(dockTopMax());
+  // το κέντρο της εικόνας μετακινείται στο μέσο του ελεύθερου χώρου ανάμεσα στη μπάρα και στα κουμπιά
+  const dy = Math.max(0, Math.round(Hh / 2 - (barBottom + dockTop) / 2));
+  frameH = Hh + 2 * dy;
+  camera.fov = 2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(rad(FOV / 2)) * frameH / Hh));
+  camera.aspect = W / frameH;
+  if (dy) camera.setViewOffset(W, frameH, 0, 2 * dy, W, Hh); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  // ο πίνακας μπαίνει δίπλα στο κουτί όταν ο ελεύθερος χώρος είναι αρκετά φαρδύς
+  side = W / Math.max(dockTop - barBottom, 1) > 1.55;
+  if (!renderer.xr.isPresenting) setLabelScale(W / Hh < 1 ? 1.15 : 1);
+}
+function homeView() {
+  const W = window.innerWidth, Hh = window.innerHeight;
+  // το ελεύθερο ορθογώνιο σε κανονικοποιημένες συντεταγμένες της οθόνης (−1 έως 1)
+  const yTop = 1 - 2 * (barBottom + 8) / Hh, yBot = 1 - 2 * (dockTop - 8) / Hh;
+  const yMid = (yTop + yBot) / 2, hy = 0.94 * (yTop - yBot) / 2, hx = 0.94;
+  const keep = panel.scale.clone();
+  panel.scale.set(PW, PW * panelH(PANEL_MAX) / PTW, 1);   // ο πίνακας με τις περισσότερες γραμμές
+  const tgt = world.localToWorld(V(1.6, 2.2, 0.5));
+  const right = new THREE.Vector3(), up = new THREE.Vector3(), corner = new THREE.Vector3();
+  let D = 1.4;
+  for (let it = 0; it < 14; it++) {
+    camera.position.copy(VIEW_DIR).multiplyScalar(D).add(tgt);
+    camera.lookAt(tgt);
+    camera.updateMatrixWorld();
+    faceViewer(camera, false);
+    scene.updateMatrixWorld(true);
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    const add = p => { p.project(camera); x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); };
+    for (const c of FIT) add(world.localToWorld(c.clone()));
+    for (const [u, v] of [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]]) add(panel.localToWorld(corner.set(u, v, 0)));
+    // η σκηνή μετακινείται ώστε να είναι στο κέντρο του ελεύθερου ορθογωνίου και η απόσταση ώστε να χωρά ακριβώς
+    const hh = D * Math.tan(rad(camera.fov / 2)) * Hh / frameH, ww = D * Math.tan(rad(camera.fov / 2)) * W / frameH;
+    right.setFromMatrixColumn(camera.matrixWorld, 0);
+    up.setFromMatrixColumn(camera.matrixWorld, 1);
+    tgt.addScaledVector(right, (x0 + x1) / 2 * ww).addScaledVector(up, ((y0 + y1) / 2 - yMid) * hh);
+    const r = Math.max((x1 - x0) / 2 / hx, (y1 - y0) / 2 / Math.max(hy, 0.05));
+    D = THREE.MathUtils.clamp(D * r, controls.minDistance, controls.maxDistance);
+  }
+  camera.position.copy(VIEW_DIR).multiplyScalar(D).add(tgt);
+  controls.target.copy(tgt);
+  controls.update();
+  panel.scale.copy(keep);
+  faceViewer(camera, false);
+}
+function setLabelScale(k) {
+  world.traverse(o => { if (o.userData.aspect) { o.userData.k = k; fitLabel(o); } });
+}
+
+{
+  const q = parseInt(new URLSearchParams(location.search).get('k'), 10);
+  select(Number.isFinite(q) && q >= 0 && q < STATES.length ? q : 0);
+}
+animate(10);
+layoutView();
+homeView();
+
+// ------------------------------------------------------------------ XR
+const btnAR = document.getElementById('btnAR'), btnVR = document.getElementById('btnVR');
+const note = document.getElementById('note');
+let placed = false, floorRef = true, xrKind = '';
+async function checkXR() {
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+    return;
+  }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+  }
+}
+checkXR().then(() => { layoutView(); if (!touched) homeView(); });
+
+function resetView() {
+  camera.near = 0.01;
+  camera.far = 60;
+  root.position.set(0, 0, 0);
+  root.quaternion.identity();
+  root.scale.setScalar(1);
+  room.visible = false;
+  scene.background = null;
+  layoutView();
+  homeView();
+  touched = false;
+}
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    camera.near = 0.02;
+    camera.far = 50;
+    camera.updateProjectionMatrix();
+    await renderer.xr.setSession(session);
+    placed = false;
+    xrKind = kind;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    room.visible = opaque;
+    scene.background = opaque ? new THREE.Color(0x0e1420) : null;
+    session.addEventListener('end', () => { xrKind = ''; resetView(); });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+// στην πρώτη εικόνα του XR, το κουτί τοποθετείται 1 m μπροστά από τον χρήστη, στο ύψος ενός θρανίου (πάντα κάτω
+// από τα μάτια), στραμμένο κατά 30° ώστε να φαίνονται και οι δύο στρώσεις σφαιρών
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const floorY = floorRef ? 0 : p.y - 1.6;
+  const y = THREE.MathUtils.clamp(floorY + TABLE, p.y - 0.9, p.y - 0.4);
+  const yaw = Math.atan2(-dir.x, -dir.z) - rad(SKEW);
+  root.position.set(p.x + dir.x * DIST, y, p.z + dir.z * DIST);
+  root.rotation.set(0, yaw, 0);
+  root.scale.setScalar(1);
+  const desk = room.getObjectByName('desk');
+  desk.position.set(root.position.x, y - 0.021, root.position.z);
+  desk.rotation.y = yaw;
+  room.getObjectByName('floor').position.y = floorY;
+  setLabelScale(1);
+  panelXR();
+  placed = true;
+}
+
+// χειριστήρια: σύντομο πάτημα (σκανδάλη ή τσίμπημα) = επόμενη κατάσταση, παρατεταμένο πάτημα πάνω στο κουτί = μετακίνηση.
+// Ένα πάτημα έως 0,8 s που δεν έπιασε το κουτί μετρά επίσης ως «επόμενη κατάσταση» (π.χ. αργό τσίμπημα).
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    if (ray.intersectObject(hit, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    const held = performance.now() - ctl.userData.t0, grabbed = ctl.userData.grab;
+    if (grabbed) { scene.attach(root); ctl.userData.grab = false; }
+    if (held < 280 || (!grabbed && held < 800)) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+// τέσσερις θέσεις: χειριστήρια και χέρια μπορεί να είναι ενεργά ταυτόχρονα (π.χ. το χειριστήριο του Magic Leap 2 και τα δύο χέρια)
+const ctls = [0, 1, 2, 3].map(makeController);
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  layoutView();
+  if (!touched) homeView();
+});
+
+let last = performance.now();
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  animate(dt);
+  if (renderer.xr.isPresenting) {
+    faceViewer(renderer.xr.getCamera(), true);
+    // ο μοχλός του χειριστηρίου μεγαλώνει ή μικραίνει το κουτί
+    ctls.forEach(c => {
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if (gp && gp.axes && gp.axes.length) {
+        const ax = gp.axes[3] !== undefined ? gp.axes[3] : gp.axes[1];
+        if (Math.abs(ax) > 0.2) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ax * dt * 0.9), 0.5, 3));
+      }
+    });
+  } else {
+    controls.update();
+    faceViewer(camera, false);
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
