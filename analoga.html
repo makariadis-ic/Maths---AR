@@ -1,0 +1,1300 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Τα δοχεία γεμίζουν — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#5B9BD5}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px;white-space:nowrap}
+  #bar h1{font-size:15px;margin:0;font-weight:640;white-space:nowrap}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.35}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#08131a;background:var(--acc);border-color:transparent}
+  #btnPlay{min-width:132px}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:820px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:720px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(94vw,100vh);height:auto}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segS,.nogl #segT,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #btnPlay{min-width:112px} #hint{font-size:11.5px}
+    #bar{gap:10px;padding:10px 12px} #bar h1{font-size:14px} #bar .lv{font-size:10.5px} #bar .lv span{display:block} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 576 416" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<rect x="32.0" y="320.0" width="262.4" height="32.0" fill="#e5e7eb"/>
+<line x1="36.8" y1="80.0" x2="289.6" y2="80.0" stroke="#94a3b8" stroke-width="11.2"/>
+<line x1="36.8" y1="320.0" x2="36.8" y2="80.0" stroke="#94a3b8" stroke-width="8.8"/>
+<line x1="289.6" y1="320.0" x2="289.6" y2="80.0" stroke="#94a3b8" stroke-width="8.8"/>
+<line x1="68.0" y1="80.0" x2="68.0" y2="100.0" stroke="#94a3b8" stroke-width="6.72"/>
+<rect x="57.6" y="116.0" width="20.8" height="204.0" fill="#dbeafe" fill-opacity="0.14" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="60.0" y="156.0" width="16.0" height="160.0" fill="#5B9BD5"/>
+<line x1="54.8" y1="156.0" x2="81.2" y2="156.0" stroke="#7030A0" stroke-width="1.3"/>
+<line x1="57.6" y1="316.0" x2="62.4" y2="316.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="57.6" y1="308.0" x2="60.6" y2="308.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="300.0" x2="60.6" y2="300.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="292.0" x2="60.6" y2="292.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="284.0" x2="60.6" y2="284.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="276.0" x2="62.4" y2="276.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="57.6" y1="268.0" x2="60.6" y2="268.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="260.0" x2="60.6" y2="260.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="252.0" x2="60.6" y2="252.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="244.0" x2="60.6" y2="244.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="236.0" x2="62.4" y2="236.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="57.6" y1="228.0" x2="60.6" y2="228.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="220.0" x2="60.6" y2="220.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="212.0" x2="60.6" y2="212.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="204.0" x2="60.6" y2="204.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="196.0" x2="62.4" y2="196.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="57.6" y1="188.0" x2="60.6" y2="188.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="180.0" x2="60.6" y2="180.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="172.0" x2="60.6" y2="172.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="164.0" x2="60.6" y2="164.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="156.0" x2="62.4" y2="156.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="57.6" y1="148.0" x2="60.6" y2="148.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="140.0" x2="60.6" y2="140.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="132.0" x2="60.6" y2="132.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="124.0" x2="60.6" y2="124.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="57.6" y1="116.0" x2="62.4" y2="116.0" stroke="#f8fafc" stroke-width="1.4"/>
+<text x="55.6" y="318.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">0</text>
+<text x="55.6" y="278.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">5</text>
+<text x="55.6" y="238.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">10</text>
+<text x="55.6" y="198.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">15</text>
+<text x="55.6" y="158.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">20</text>
+<text x="55.6" y="118.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">25</text>
+<text x="68.0" y="340.4" font-size="11" font-weight="650" text-anchor="middle" fill="#262626">B = 10 cm²</text>
+<text x="57.6" y="54.4" font-size="12.5" font-weight="700" text-anchor="middle" fill="#9B6EBC" stroke="#0e1420" stroke-width="3.5" paint-order="stroke">Α: 20 cm</text>
+<line x1="132.0" y1="80.0" x2="132.0" y2="100.0" stroke="#94a3b8" stroke-width="6.72"/>
+<rect x="113.6" y="116.0" width="36.8" height="204.0" fill="#dbeafe" fill-opacity="0.14" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="116.0" y="236.0" width="32.0" height="80.0" fill="#2E75B6"/>
+<line x1="110.8" y1="236.0" x2="153.2" y2="236.0" stroke="#7030A0" stroke-width="1.3"/>
+<line x1="113.6" y1="316.0" x2="118.4" y2="316.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="113.6" y1="308.0" x2="116.6" y2="308.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="300.0" x2="116.6" y2="300.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="292.0" x2="116.6" y2="292.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="284.0" x2="116.6" y2="284.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="276.0" x2="118.4" y2="276.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="113.6" y1="268.0" x2="116.6" y2="268.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="260.0" x2="116.6" y2="260.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="252.0" x2="116.6" y2="252.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="244.0" x2="116.6" y2="244.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="236.0" x2="118.4" y2="236.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="113.6" y1="228.0" x2="116.6" y2="228.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="220.0" x2="116.6" y2="220.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="212.0" x2="116.6" y2="212.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="204.0" x2="116.6" y2="204.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="196.0" x2="118.4" y2="196.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="113.6" y1="188.0" x2="116.6" y2="188.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="180.0" x2="116.6" y2="180.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="172.0" x2="116.6" y2="172.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="164.0" x2="116.6" y2="164.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="156.0" x2="118.4" y2="156.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="113.6" y1="148.0" x2="116.6" y2="148.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="140.0" x2="116.6" y2="140.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="132.0" x2="116.6" y2="132.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="124.0" x2="116.6" y2="124.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="113.6" y1="116.0" x2="118.4" y2="116.0" stroke="#f8fafc" stroke-width="1.4"/>
+<text x="111.6" y="318.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">0</text>
+<text x="111.6" y="278.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">5</text>
+<text x="111.6" y="238.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">10</text>
+<text x="111.6" y="198.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">15</text>
+<text x="111.6" y="158.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">20</text>
+<text x="111.6" y="118.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">25</text>
+<text x="132.0" y="340.4" font-size="11" font-weight="650" text-anchor="middle" fill="#262626">B = 20 cm²</text>
+<text x="134.4" y="54.4" font-size="12.5" font-weight="700" text-anchor="middle" fill="#9B6EBC" stroke="#0e1420" stroke-width="3.5" paint-order="stroke">Β: 10 cm</text>
+<line x1="236.0" y1="80.0" x2="236.0" y2="100.0" stroke="#94a3b8" stroke-width="6.72"/>
+<rect x="201.6" y="116.0" width="68.8" height="204.0" fill="#dbeafe" fill-opacity="0.14" stroke="#cbd5e1" stroke-width="1"/>
+<rect x="204.0" y="276.0" width="64.0" height="40.0" fill="#1F4E79"/>
+<line x1="198.8" y1="276.0" x2="273.2" y2="276.0" stroke="#7030A0" stroke-width="1.3"/>
+<line x1="201.6" y1="316.0" x2="206.4" y2="316.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="201.6" y1="308.0" x2="204.6" y2="308.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="300.0" x2="204.6" y2="300.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="292.0" x2="204.6" y2="292.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="284.0" x2="204.6" y2="284.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="276.0" x2="206.4" y2="276.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="201.6" y1="268.0" x2="204.6" y2="268.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="260.0" x2="204.6" y2="260.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="252.0" x2="204.6" y2="252.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="244.0" x2="204.6" y2="244.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="236.0" x2="206.4" y2="236.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="201.6" y1="228.0" x2="204.6" y2="228.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="220.0" x2="204.6" y2="220.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="212.0" x2="204.6" y2="212.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="204.0" x2="204.6" y2="204.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="196.0" x2="206.4" y2="196.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="201.6" y1="188.0" x2="204.6" y2="188.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="180.0" x2="204.6" y2="180.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="172.0" x2="204.6" y2="172.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="164.0" x2="204.6" y2="164.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="156.0" x2="206.4" y2="156.0" stroke="#f8fafc" stroke-width="1.4"/>
+<line x1="201.6" y1="148.0" x2="204.6" y2="148.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="140.0" x2="204.6" y2="140.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="132.0" x2="204.6" y2="132.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="124.0" x2="204.6" y2="124.0" stroke="#f8fafc" stroke-width="1"/>
+<line x1="201.6" y1="116.0" x2="206.4" y2="116.0" stroke="#f8fafc" stroke-width="1.4"/>
+<text x="199.6" y="318.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">0</text>
+<text x="199.6" y="278.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">5</text>
+<text x="199.6" y="238.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">10</text>
+<text x="199.6" y="198.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">15</text>
+<text x="199.6" y="158.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">20</text>
+<text x="199.6" y="118.8" font-size="8.5" font-weight="700" text-anchor="end" fill="#f8fafc">25</text>
+<text x="236.0" y="340.4" font-size="11" font-weight="650" text-anchor="middle" fill="#262626">B = 40 cm²</text>
+<text x="236.0" y="54.4" font-size="12.5" font-weight="700" text-anchor="middle" fill="#9B6EBC" stroke="#0e1420" stroke-width="3.5" paint-order="stroke">Γ: 5 cm</text>
+<rect x="304.0" y="92.0" width="260.0" height="260.0" fill="#ffffff" stroke="#A6A6A6" stroke-width="1"/>
+<line x1="344.0" y1="316.0" x2="344.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="308.0" x2="536.0" y2="308.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="352.0" y1="316.0" x2="352.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="300.0" x2="536.0" y2="300.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="360.0" y1="316.0" x2="360.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="292.0" x2="536.0" y2="292.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="368.0" y1="316.0" x2="368.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="284.0" x2="536.0" y2="284.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="376.0" y1="316.0" x2="376.0" y2="116.0" stroke="#D9D9D9" stroke-width="1"/>
+<line x1="336.0" y1="276.0" x2="536.0" y2="276.0" stroke="#D9D9D9" stroke-width="1"/>
+<line x1="384.0" y1="316.0" x2="384.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="268.0" x2="536.0" y2="268.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="392.0" y1="316.0" x2="392.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="260.0" x2="536.0" y2="260.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="400.0" y1="316.0" x2="400.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="252.0" x2="536.0" y2="252.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="408.0" y1="316.0" x2="408.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="244.0" x2="536.0" y2="244.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="416.0" y1="316.0" x2="416.0" y2="116.0" stroke="#D9D9D9" stroke-width="1"/>
+<line x1="336.0" y1="236.0" x2="536.0" y2="236.0" stroke="#D9D9D9" stroke-width="1"/>
+<line x1="424.0" y1="316.0" x2="424.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="228.0" x2="536.0" y2="228.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="432.0" y1="316.0" x2="432.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="220.0" x2="536.0" y2="220.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="440.0" y1="316.0" x2="440.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="212.0" x2="536.0" y2="212.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="448.0" y1="316.0" x2="448.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="204.0" x2="536.0" y2="204.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="456.0" y1="316.0" x2="456.0" y2="116.0" stroke="#D9D9D9" stroke-width="1"/>
+<line x1="336.0" y1="196.0" x2="536.0" y2="196.0" stroke="#D9D9D9" stroke-width="1"/>
+<line x1="464.0" y1="316.0" x2="464.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="188.0" x2="536.0" y2="188.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="472.0" y1="316.0" x2="472.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="180.0" x2="536.0" y2="180.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="480.0" y1="316.0" x2="480.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="172.0" x2="536.0" y2="172.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="488.0" y1="316.0" x2="488.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="164.0" x2="536.0" y2="164.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="496.0" y1="316.0" x2="496.0" y2="116.0" stroke="#D9D9D9" stroke-width="1"/>
+<line x1="336.0" y1="156.0" x2="536.0" y2="156.0" stroke="#D9D9D9" stroke-width="1"/>
+<line x1="504.0" y1="316.0" x2="504.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="148.0" x2="536.0" y2="148.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="512.0" y1="316.0" x2="512.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="140.0" x2="536.0" y2="140.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="520.0" y1="316.0" x2="520.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="132.0" x2="536.0" y2="132.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="528.0" y1="316.0" x2="528.0" y2="116.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="336.0" y1="124.0" x2="536.0" y2="124.0" stroke="#EDEDED" stroke-width="0.6"/>
+<line x1="536.0" y1="316.0" x2="536.0" y2="116.0" stroke="#D9D9D9" stroke-width="1"/>
+<line x1="336.0" y1="116.0" x2="536.0" y2="116.0" stroke="#D9D9D9" stroke-width="1"/>
+<line x1="336.0" y1="316.0" x2="546.4" y2="316.0" stroke="#262626" stroke-width="1.4"/>
+<line x1="336.0" y1="316.0" x2="336.0" y2="105.6" stroke="#262626" stroke-width="1.4"/>
+<path d="M551.2,316.0 l-8,-3.5 v7 z M336.0,100.8 l-3.5,8 h7 z" fill="#262626"/>
+<text x="336.0" y="328.4" font-size="9.5" font-weight="600" text-anchor="middle" fill="#262626">0</text>
+<text x="376.0" y="328.4" font-size="9.5" font-weight="600" text-anchor="middle" fill="#262626">5</text>
+<text x="416.0" y="328.4" font-size="9.5" font-weight="600" text-anchor="middle" fill="#262626">10</text>
+<text x="456.0" y="328.4" font-size="9.5" font-weight="600" text-anchor="middle" fill="#262626">15</text>
+<text x="496.0" y="328.4" font-size="9.5" font-weight="600" text-anchor="middle" fill="#262626">20</text>
+<text x="536.0" y="328.4" font-size="9.5" font-weight="600" text-anchor="middle" fill="#262626">25</text>
+<text x="332.8" y="279.2" font-size="9.5" font-weight="600" text-anchor="end" fill="#262626">5</text>
+<text x="332.8" y="239.2" font-size="9.5" font-weight="600" text-anchor="end" fill="#262626">10</text>
+<text x="332.8" y="199.2" font-size="9.5" font-weight="600" text-anchor="end" fill="#262626">15</text>
+<text x="332.8" y="159.2" font-size="9.5" font-weight="600" text-anchor="end" fill="#262626">20</text>
+<text x="332.8" y="119.2" font-size="9.5" font-weight="600" text-anchor="end" fill="#262626">25</text>
+<text x="543.2" y="328.4" font-size="10.5" font-weight="600" fill="#262626"><tspan font-style="italic">t</tspan> (s)</text>
+<text x="342.0" y="105.2" font-size="10.5" font-weight="600" fill="#262626"><tspan font-style="italic">h</tspan> (cm)</text>
+<line x1="336.0" y1="316.0" x2="436.0" y2="116.0" stroke="#5B9BD5" stroke-width="2.4"/>
+<circle cx="436.0" cy="116.0" r="3.4" fill="#5B9BD5"/>
+<line x1="336.0" y1="316.0" x2="536.0" y2="116.0" stroke="#2E75B6" stroke-width="2.4"/>
+<circle cx="536.0" cy="116.0" r="3.4" fill="#2E75B6"/>
+<line x1="336.0" y1="316.0" x2="536.0" y2="216.0" stroke="#1F4E79" stroke-width="2.4"/>
+<circle cx="536.0" cy="216.0" r="3.4" fill="#1F4E79"/>
+<text x="388.0" y="155.2" font-size="10" font-weight="650" text-anchor="middle" fill="#406C95">h = 2t</text>
+<text x="480.0" y="140.0" font-size="10" font-weight="650" text-anchor="middle" fill="#20527F">h = t</text>
+<text x="504.0" y="260.0" font-size="10" font-weight="650" text-anchor="middle" fill="#163755">h = 0,5t</text>
+<line x1="416.0" y1="316.0" x2="416.0" y2="156.0" stroke="#7030A0" stroke-width="1.3" stroke-dasharray="4.8 3.6"/>
+<circle cx="416.0" cy="156.0" r="7" fill="none" stroke="#7030A0" stroke-width="1.6"/>
+<circle cx="416.0" cy="236.0" r="7" fill="none" stroke="#7030A0" stroke-width="1.6"/>
+<circle cx="416.0" cy="276.0" r="7" fill="none" stroke="#7030A0" stroke-width="1.6"/>
+<text x="436.0" y="77.6" font-size="15" font-weight="700" text-anchor="middle" fill="#eaf1f8" stroke="#0e1420" stroke-width="4" paint-order="stroke">t = 10,0 s</text>
+<text x="282.0" y="388.8" font-size="16.5" font-weight="700" text-anchor="middle" fill="#eaf1f8">t = 10 s: 10 · 20 = 20 · 10 = 40 · 5 = 200 cm³</text>
+</svg>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Τα δοχεία γεμίζουν</h1>
+  <span class="lv"><span>Β΄ Γυμνασίου</span> <span>§3.3, §3.4, §3.5</span></span>
+</div>
+<div id="dock">
+  <div class="seg" id="segS">
+    <button data-k="0" class="on">Τρία δοχεία</button>
+    <button data-k="1">Ύψος και χρόνος</button>
+    <button data-k="2">Ίδιος όγκος</button>
+    <button data-k="3">Τα 10 cm</button>
+    <button data-k="4">Νερό από πριν</button>
+    <button data-k="5">Το χωνί</button>
+  </div>
+  <div class="seg" id="segT">
+    <button id="btnPlay">Παύση</button>
+    <button id="btnReset">Επαναφορά</button>
+    <button id="btnSpeed">2×</button>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο 11 «Ανάλογα και αντιστρόφως ανάλογα ποσά στο Κέντρο Καινοτομίας» (Β΄ Γυμνασίου, §3.3, §3.4 και §3.5) —
+// Σταθμός 4: Τα δοχεία γεμίζουν. Κέντρο Καινοτομίας Θεσσαλίας.
+// Τρία διάφανα πρίσματα με εσωτερικό ύψος 25 cm και βάσεις 2 × 5, 4 × 5 και 8 × 5 cm (B = 10, 20 και 40 cm²) γεμίζουν
+// από τρεις ίδιες βρύσες με παροχή 20 cm³ το δευτερόλεπτο, οπότε h = 20t/B: h_Α = 2t, h_Β = t, h_Γ = 0,5t (h σε cm,
+// t σε s). Τη στιγμή t = 10 s κάθε δοχείο έχει 200 cm³ νερό, άρα B · h = 200 (αντιστρόφως ανάλογα), και τα 10 cm
+// φτάνονται σε t = 0,5 · B = 5, 10 και 20 s (ανάλογα). Δύο αντιπαραδείγματα: το Δ (βάση 20 cm², 5 cm νερό από πριν,
+// h = t + 5) και το χωνί Ε (ανεστραμμένος κώνος με ακτίνα 6 cm και ύψος 20 cm, h = ∛(212,2 · t)).
+// Μονάδα μήκους της σκηνής: 1 cm. Στο XR η σκηνή είναι σε φυσικό μέγεθος (περίπου 66 cm πλάτος) πάνω στο θρανίο.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const CM = 0.01;                        // 1 cm της σκηνής σε μέτρα (κλίμακα 1:1)
+const HP = 25;                          // εσωτερικό ύψος των πρισμάτων
+const BATHOS = 5;                       // εσωτερικό βάθος των πρισμάτων
+const GYALI = 0.3, PATOS = 0.5;         // πάχος των τοιχωμάτων και του πάτου
+const RAFI = 4;                         // ύψος του ραφιού όπου στέκονται τα δοχεία
+const Y0 = RAFI + PATOS;                // ο εσωτερικός πάτος των δοχείων: εκεί είναι το h = 0
+const ZF = BATHOS / 2 + GYALI;          // η μπροστινή έδρα των πρισμάτων
+const XA = -28.5, XB = -20.5, X3 = -7.5; // κέντρα των τριών θέσεων: Α, Β και η τρίτη θέση (Γ, Δ ή Ε)
+const RAFI_X = [-33, -0.2], RAFI_Z = [-9, 4.6];
+const SOLINAS_Y = 34, STOMIO_Y = 31.5;  // ο σωλήνας των βρυσών και το στόμιο κάθε βρύσης
+// γραφική παράσταση h–t: πίνακας από x = 1 έως 33,5 και y = 0 έως 32,5, με την αρχή Ο στο ύψος του πάτου των δοχείων,
+// ώστε το ύψος στη γραφική παράσταση να είναι το ίδιο με το ύψος του νερού (1 cm), και 1 s = 1 cm στον οριζόντιο άξονα
+const BX0 = 1, BX1 = 33.5, BY1 = 32.5, OX = 5, OY = Y0;
+const SET_CX = 0.25, SET_CZ = -2;       // κέντρο της σκηνής: στο XR μπαίνει 1 m μπροστά από τον χρήστη
+const TIME_Y = 34.9, READ_Y = 38.0;     // η ένδειξη του χρόνου (πάνω από τη γραφική παράσταση) και οι ενδείξεις ύψους
+const PANEL_Y = 41.5;                   // η κάτω πλευρά του πίνακα με τον τίτλο και τις γραμμές
+const TABLE = 0.78, DIST = 1.0;         // XR: ύψος θρανίου από το δάπεδο και απόσταση από τον χρήστη (m)
+const DT = 0.05;                        // βήμα δειγματοληψίας των γραμμών της γραφικής παράστασης (s)
+// χρώματα του σεναρίου: το νερό κάθε δοχείου, ανάλογα (μπλε), αντιστρόφως ανάλογα (πορτοκαλί), ούτε το ένα ούτε το
+// άλλο (πετρόλ), η σταθερά (μωβ)
+const COL = { A: '#5B9BD5', B: '#2E75B6', G: '#1F4E79', D: '#2BA59B', E: '#7FB8B2' };
+// τα ίδια χρώματα κατά 30% πιο σκούρα, για κείμενο πάνω στον λευκό πίνακα της γραφικής παράστασης
+const SKOYRO = { A: '#406C95', B: '#20527F', G: '#163755', D: '#1E736C', E: '#59817D' };
+// κατά 30% πιο ανοιχτά, για κείμενο σε σκούρο φόντο
+const TXT = { P: '#6D9ECC', I: '#F2A46F', N: '#6BC0B9', M: '#9B6EBC' };
+const MOV = '#7030A0', INK = '#eaf1f8', KEIMENO = '#262626';
+
+const rad = THREE.MathUtils.degToRad;
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const UP = V(0, 1, 0);
+const f1 = x => x.toFixed(1).replace('.', ',');                                  // 10,0
+const fh = x => { const r = Math.round(x * 10) / 10; return Number.isInteger(r) ? String(r) : f1(r); };   // 20 ή 7,4
+
+// ------------------------------------------------------------------ τα δοχεία
+// h(t): ύψος του νερού τη στιγμή t, t(h): πότε φτάνει το ύψος h, full: πότε είναι γεμάτο (εσωτερικό ύψος)
+const DOX = {
+  A: { gr: 'Α', x: XA, w: 2, B: 10, h: t => 2 * t, t: h => h / 2, full: HP },
+  B: { gr: 'Β', x: XB, w: 4, B: 20, h: t => t, t: h => h, full: HP },
+  G: { gr: 'Γ', x: X3, w: 8, B: 40, h: t => t / 2, t: h => 2 * h, full: HP },
+  D: { gr: 'Δ', x: X3, w: 4, B: 20, h: t => t + 5, t: h => h - 5, full: HP },
+  E: { gr: 'Ε', x: X3, cone: true, h: t => Math.cbrt(212.2 * t), t: h => h ** 3 / 212.2, full: 20 }
+};
+const SLOT = { A: 0, B: 1, G: 2, D: 2, E: 2 };   // η θέση κάθε δοχείου: η βρύση και η ένδειξη ύψους από πάνω του
+
+// ------------------------------------------------------------------ οι έξι καταστάσεις
+// set: τα δοχεία που φαίνονται, graph: γραμμές στη γραφική παράσταση, t0 και tEnd: ο χρόνος της κατάστασης,
+// cap: οι βρύσες κλείνουν σε αυτό το ύψος, freeze: η κατάσταση ξεκινά σταματημένη στο t0, eq: ετικέτες με τις εξισώσεις.
+// Στις γραμμές του πίνακα, το δεύτερο στοιχείο είναι το χρώμα: P ανάλογα, I αντιστρόφως ανάλογα, N ούτε το ένα ούτε
+// το άλλο, M η σταθερά.
+const STATES = [
+  { set: ['A', 'B', 'G'], graph: false, t0: 0, tEnd: 25,
+    title: 'Τρία δοχεία, ίδια βρύση',
+    lines: [['Κάθε βρύση: 20 cm³ το δευτερόλεπτο'], ['Ποιο δοχείο γεμίζει πιο γρήγορα;']],
+    hint: '<b>Τρία δοχεία, ίδια βρύση:</b> τα δοχεία Α, Β και Γ είναι διάφανα πρίσματα με εσωτερικό ύψος 25 cm και βάσεις 2 cm × 5 cm, 4 cm × 5 cm και 8 cm × 5 cm, δηλαδή με εμβαδόν βάσης B = 10 cm², 20 cm² και 40 cm². Τρεις ίδιες βρύσες ρίχνουν η καθεμία 20 cm³ νερό το δευτερόλεπτο, οπότε, όσο τρέχουν και οι τρεις, τα τρία δοχεία έχουν κάθε στιγμή τον ίδιο όγκο νερού. Το Α γεμίζει σε 12,5 s και η βρύση του κλείνει, ενώ το Β γεμίζει σε 25 s.' },
+  { set: ['A', 'B', 'G'], graph: true, t0: 0, tEnd: 25, eq: true,
+    title: 'Ύψος και χρόνος: h = 2t, h = t, h = 0,5t',
+    lines: [['Σε κάθε δοχείο το h : t μένει σταθερό'], ['h : t = 2 στο Α, 1 στο Β, 0,5 στο Γ'], ['Ύψος και χρόνος: ποσά ανάλογα', 'P']],
+    hint: '<b>Ύψος και χρόνος:</b> κάθε δευτερόλεπτο μπαίνουν 20 cm³ νερό, οπότε το ύψος ανεβαίνει κατά 20/B εκατοστά: 2 cm στο Α, 1 cm στο Β και 0,5 cm στο Γ. Άρα h = 2t, h = t και h = 0,5t. Σε κάθε δοχείο ο λόγος h : t μένει σταθερός και η γραφική παράσταση είναι ευθεία που διέρχεται από την αρχή Ο: το ύψος και ο χρόνος είναι ποσά ανάλογα. Η γραμμή του Α σταματά στο (12,5; 25), όταν το δοχείο γεμίζει.' },
+  { set: ['A', 'B', 'G'], graph: true, t0: 10, tEnd: 10, freeze: true,
+    title: 'Ίδιος όγκος: B · h = 200 cm³',
+    lines: [['t = 10 s: h = 20 cm, 10 cm, 5 cm'], ['10 · 20 = 20 · 10 = 40 · 5 = 200', 'M'], ['Βάση και ύψος, για τον ίδιο όγκο: ποσά αντιστρόφως ανάλογα', 'I']],
+    hint: '<b>Ίδιος όγκος:</b> τη στιγμή t = 10 s κάθε βρύση έχει ρίξει 10 · 20 = 200 cm³ νερό. Ο όγκος του νερού σε ένα πρίσμα είναι V = B · h, άρα 10 · 20 = 20 · 10 = 40 · 5 = 200 και τα ύψη είναι 20 cm, 10 cm και 5 cm. Όταν η βάση διπλασιάζεται, το ύψος υποδιπλασιάζεται: h = 200/B. Για τον ίδιο όγκο, το εμβαδόν της βάσης και το ύψος είναι ποσά αντιστρόφως ανάλογα.' },
+  { set: ['A', 'B', 'G'], graph: true, t0: 0, tEnd: 20, cap: 10,
+    title: 'Τα 10 cm: t = 5 s, 10 s, 20 s',
+    lines: [['B = 10, 20, 40 cm² → t = 5, 10, 20 s'], ['Διπλάσια βάση, διπλάσιος χρόνος'], ['t = 0,5 · B: ποσά ανάλογα', 'P']],
+    hint: '<b>Τα 10 cm:</b> κάθε βρύση κλείνει όταν το νερό φτάσει τα 10 cm. Χρειάζονται B · 10 cm³ νερό και η βρύση δίνει 20 cm³ το δευτερόλεπτο, οπότε t = 10 · B/20 = 0,5 · B: 5 s για το Α, 10 s για το Β και 20 s για το Γ. Διπλάσια βάση χρειάζεται διπλάσιο χρόνο: για το ίδιο ύψος, ο χρόνος και το εμβαδόν της βάσης είναι ποσά ανάλογα.' },
+  { set: ['B', 'D'], graph: true, t0: 0, tEnd: 25, eq: true,
+    title: 'Νερό από πριν: h = t + 5',
+    lines: [['Στο Δ: 10 : 5 = 2, ενώ 15 : 10 = 1,5'], ['Το h : t δεν μένει σταθερό'], ['h = t + 5: δεν είναι ανάλογα', 'N']],
+    hint: '<b>Νερό από πριν:</b> το δοχείο Δ έχει την ίδια βάση με το Β (B = 20 cm²), αλλά τη στιγμή t = 0 έχει ήδη 5 cm νερό. Το ύψος του ανεβαίνει 1 cm το δευτερόλεπτο, όπως στο Β, άρα h = t + 5. Ο λόγος h : t δεν μένει σταθερός (10 : 5 = 2 στα 5 s, 15 : 10 = 1,5 στα 10 s) και η γραφική παράσταση είναι ευθεία που δεν διέρχεται από την αρχή Ο: το ύψος και ο χρόνος μεγαλώνουν μαζί, αλλά δεν είναι ποσά ανάλογα.' },
+  { set: ['B', 'E'], graph: true, t0: 0, tEnd: 25, eq: true,
+    title: 'Το χωνί: η γραφική παράσταση δεν είναι ευθεία',
+    lines: [['Ε: h ≈ 6 cm στο 1 s, h ≈ 12 cm στα 8 s'], ['Στην αρχή ανεβαίνει γρήγορα, μετά όλο και πιο αργά'], ['Ούτε ανάλογα ούτε αντιστρόφως ανάλογα', 'N']],
+    hint: '<b>Το χωνί:</b> το δοχείο Ε είναι ανεστραμμένος κώνος με ακτίνα 6 cm στο χείλος και ύψος 20 cm. Όσο ανεβαίνει το νερό, η επιφάνειά του μεγαλώνει, οπότε ανεβαίνει όλο και πιο αργά: h = ∛(212,2 · t). Στο 1 s το ύψος είναι περίπου 6 cm και στα 8 s περίπου 12 cm: το ύψος διπλασιάζεται, ενώ ο χρόνος οκταπλασιάζεται. Η γραφική παράσταση είναι καμπύλη: ούτε ανάλογα ούτε αντιστρόφως ανάλογα. Στα 25 s το νερό φτάνει περίπου τα 17,4 cm.' }
+];
+// αδιάσπαστα κενά γύρω από τα σύμβολα πράξεων και σχέσεων, ανάμεσα σε αριθμό και μονάδα (π.χ. 20 cm³) και μέσα στα
+// ζεύγη συντεταγμένων (π.χ. (12,5; 25))
+const hintHTML = k => STATES[k].hint.replace(/ (=|·|×|→|≈|:) /g, '\u00a0$1\u00a0')
+  .replace(/(\d) (cm³|cm²|cm|s)(?!\p{L})/gu, '$1\u00a0$2').replace(/\(([\d,]+); ([\d,]+)\)/g, '($1;\u00a0$2)');
+STATES.forEach(S => {
+  // πότε σταματά κάθε δοχείο: όταν γεμίσει, όταν φτάσει το ύψος cap ή στο τέλος της κατάστασης
+  S.stop = {};
+  for (const k of S.set) { const D = DOX[k]; S.stop[k] = Math.min(S.tEnd, D.t(Math.min(S.cap || D.full, D.full))); }
+});
+const hAt = (k, t, S) => Math.min(DOX[k].h(Math.min(t, S.stop[k])), S.cap || DOX[k].full);
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const FOV = 26;
+const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 0.01, 60);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.minDistance = 0.3;
+controls.maxDistance = 4;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a3446, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(0.8, 1.6, 1.2);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xbcd8ff, 0.5);
+fill.position.set(-1, 0.5, -1);
+scene.add(fill);
+
+// δάπεδο και θρανίο μόνο σε αδιαφανή λειτουργία (VR). Το δάπεδο είναι η χαμηλότερη επιφάνεια: σχεδιάζεται πρώτο και
+// δεν γράφει βάθος, ώστε να μην κρύβει ποτέ τίποτα.
+const room = new THREE.Group();
+room.visible = false;
+scene.add(room);
+{
+  const floor = new THREE.Group();
+  floor.name = 'floor';
+  room.add(floor);
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x1b2433, roughness: 0.95, depthWrite: false }));
+  disc.rotation.x = -Math.PI / 2;
+  disc.renderOrder = -2;
+  floor.add(disc);
+  const grid = new THREE.GridHelper(12, 24, 0x3b4a63, 0x27324a);
+  grid.material.depthWrite = false;
+  grid.renderOrder = -1;
+  grid.position.y = 0.002;
+  floor.add(grid);
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.04, 0.5), new THREE.MeshStandardMaterial({ color: 0x6b4f3a, roughness: 0.7 }));
+  desk.name = 'desk';
+  room.add(desk);
+}
+
+const root = new THREE.Group();          // ό,τι μετακινείται στο XR· η αρχή του είναι το κέντρο της βάσης της σκηνής
+scene.add(root);
+const world = new THREE.Group();         // η σκηνή σε εκατοστά
+world.scale.setScalar(CM);
+world.position.set(-SET_CX * CM, 0, -SET_CZ * CM);
+root.add(world);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+const FONT = '"Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Arial, sans-serif';
+function roundRect(ctx, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+  ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath();
+}
+function canvasTexture(cv) {
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+// ετικέτα με περίγραμμα (ανοιχτό κείμενο σε σκούρο περίγραμμα), πάντα στραμμένη προς τον θεατή. Η υφή έχει σταθερό
+// πλάτος, φτιαγμένο για το μεγαλύτερο κείμενο (template), ώστε το κείμενο να αλλάζει χωρίς να αλλάζει το μέγεθος.
+// Με maxW η ετικέτα μικραίνει, αν χρειαστεί, ώστε να μην ξεπερνά αυτό το πλάτος (τα πλάτη των γραμματοσειρών διαφέρουν).
+function label(text, color, height, template, maxW = Infinity) {
+  const size = 120, pad = 40;
+  const cv = document.createElement('canvas');
+  const ctx = cv.getContext('2d');
+  ctx.font = `700 ${size}px ${FONT}`;
+  const w = Math.ceil(ctx.measureText(template || text).width) + 2 * pad, h = Math.ceil(size * 1.5);
+  cv.width = w; cv.height = h;
+  const tex = canvasTexture(cv);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+  sp.renderOrder = 8;
+  sp.userData = { h: Math.min(height, maxW * h / w), aspect: w / h, k: 1, big: 1, cv, ctx, tex, text: null, color: null, scalable: true };
+  fitLabel(sp);
+  setText(sp, text, color);
+  return sp;
+}
+function setText(sp, text, color) {
+  const u = sp.userData;
+  if (u.text === text && u.color === color) return;
+  u.text = text; u.color = color;
+  const { cv, ctx } = u;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.font = `700 120px ${FONT}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 22;
+  ctx.strokeStyle = 'rgba(14,20,32,.88)';
+  ctx.strokeText(text, cv.width / 2, cv.height / 2);
+  ctx.fillStyle = color;
+  ctx.fillText(text, cv.width / 2, cv.height / 2);
+  u.tex.needsUpdate = true;
+}
+function fitLabel(sp) { const u = sp.userData, s = u.h * u.k * u.big; sp.scale.set(s * u.aspect, s, 1); }
+// τυπωμένο κείμενο χωρίς περίγραμμα, πάνω σε επιφάνεια (στο ράφι, στον πίνακα της γραφικής παράστασης)
+const plateGeo = new THREE.PlaneGeometry(1, 1);
+function plate(text, color, height, maxW = Infinity, weight = 650) {
+  const size = 120, pad = 18;
+  const cv = document.createElement('canvas');
+  const ctx = cv.getContext('2d');
+  const font = `${weight} ${size}px ${FONT}`;
+  ctx.font = font;
+  const w = Math.ceil(ctx.measureText(text).width) + 2 * pad, h = Math.ceil(size * 1.32);
+  cv.width = w; cv.height = h;
+  ctx.font = font;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = color;
+  ctx.fillText(text, w / 2, h / 2);
+  const m = new THREE.Mesh(plateGeo, new THREE.MeshBasicMaterial({ map: canvasTexture(cv), transparent: true, depthWrite: false }));
+  m.renderOrder = 5;
+  const hh = Math.min(height, maxW * h / w);
+  m.scale.set(hh * w / h, hh, 1);
+  return m;
+}
+
+// ------------------------------------------------------------------ βοηθητικά γεωμετρίας
+const unitBox = new THREE.BoxGeometry(1, 1, 1);
+function kouti(sx, sy, sz, c, mat) {
+  const m = new THREE.Mesh(unitBox, mat);
+  m.scale.set(sx, sy, sz);
+  m.position.copy(c);
+  return m;
+}
+const unitCyl = new THREE.CylinderGeometry(1, 1, 1, 16, 1);
+function bar(a, b, r, mat) {                // κύλινδρος από το a στο b
+  const m = new THREE.Mesh(unitCyl, mat);
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  m.quaternion.setFromUnitVectors(UP, b.clone().sub(a).normalize());
+  m.scale.set(r, a.distanceTo(b), r);
+  return m;
+}
+function akmes(lo, hi, r, mat) {            // οι 12 ακμές ενός ορθογώνιου παραλληλεπιπέδου
+  const g = new THREE.Group(), c = lo.clone().add(hi).multiplyScalar(0.5), s = hi.clone().sub(lo);
+  for (const y of [lo.y, hi.y]) for (const z of [lo.z, hi.z]) g.add(kouti(s.x + 2 * r, 2 * r, 2 * r, V(c.x, y, z), mat));
+  for (const x of [lo.x, hi.x]) for (const z of [lo.z, hi.z]) g.add(kouti(2 * r, s.y, 2 * r, V(x, c.y, z), mat));
+  for (const x of [lo.x, hi.x]) for (const y of [lo.y, hi.y]) g.add(kouti(2 * r, 2 * r, s.z, V(x, y, c.z), mat));
+  return g;
+}
+// λωρίδα πλάτους w πάνω στο επίπεδο z = 0, κατά μήκος μιας τεθλασμένης: 6 κορυφές για κάθε τμήμα, ώστε η γραμμή να
+// σχεδιάζεται σταδιακά με το setDrawRange
+function ribbon(pts, w) {
+  const pos = new Float32Array(Math.max(pts.length - 1, 0) * 18);
+  for (let i = 0; i < pts.length - 1; i++) {
+    const [x0, y0] = pts[i], [x1, y1] = pts[i + 1];
+    let nx = y0 - y1, ny = x1 - x0;
+    const L = Math.hypot(nx, ny) || 1;
+    nx *= w / 2 / L; ny *= w / 2 / L;
+    pos.set([x0 - nx, y0 - ny, 0, x1 - nx, y1 - ny, 0, x0 + nx, y0 + ny, 0,
+             x0 + nx, y0 + ny, 0, x1 - nx, y1 - ny, 0, x1 + nx, y1 + ny, 0], i * 18);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+  return g;
+}
+function dashed(a, b, w, dash = 0.6, gap = 0.45) {   // διακεκομμένη γραμμή από το a στο b (σημεία [x, y])
+  const L = Math.hypot(b[0] - a[0], b[1] - a[1]), pts = [];
+  const g = new THREE.BufferGeometry(), pos = [];
+  for (let s = 0; s < L; s += dash + gap) {
+    const e = Math.min(s + dash, L);
+    const p = [a[0] + (b[0] - a[0]) * s / L, a[1] + (b[1] - a[1]) * s / L], q = [a[0] + (b[0] - a[0]) * e / L, a[1] + (b[1] - a[1]) * e / L];
+    pos.push(...ribbon([p, q], w).attributes.position.array);
+  }
+  g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(pos), 3));
+  return g;
+}
+
+// ------------------------------------------------------------------ υλικά
+const M = {
+  rafi: new THREE.MeshStandardMaterial({ color: 0xe5e7eb, roughness: 0.85 }),
+  metallo: new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.35, metalness: 0.55 }),
+  lavi: new THREE.MeshStandardMaterial({ color: 0x475569, roughness: 0.5 }),
+  akmi: new THREE.MeshBasicMaterial({ color: 0xcbd5e1 }),
+  // το γυαλί σχεδιάζεται σε δύο περάσματα: πρώτα η πίσω πλευρά, μετά το νερό (αδιαφανές), τέλος η μπροστινή πλευρά
+  gyaliPiso: new THREE.MeshStandardMaterial({ color: 0xdbeafe, roughness: 0.15, transparent: true, opacity: 0.12, depthWrite: false, side: THREE.BackSide }),
+  gyaliMpros: new THREE.MeshStandardMaterial({ color: 0xdbeafe, roughness: 0.15, transparent: true, opacity: 0.16, depthWrite: false }),
+  odigos: new THREE.MeshBasicMaterial({ color: 0xe2e8f0, transparent: true, opacity: 0.7, depthWrite: false }),
+  mov: new THREE.MeshBasicMaterial({ color: MOV }),
+  epipedo: new THREE.MeshBasicMaterial({ color: MOV, transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide })
+};
+const nero = {}, roi = {};
+for (const k in COL) {
+  nero[k] = new THREE.MeshStandardMaterial({ color: COL[k], emissive: COL[k], emissiveIntensity: 0.25, roughness: 0.3 });
+  roi[k] = new THREE.MeshStandardMaterial({ color: COL[k], emissive: COL[k], emissiveIntensity: 0.3, roughness: 0.3, transparent: true, opacity: 0.8, depthWrite: false });
+}
+
+// ------------------------------------------------------------------ η κλίμακα σε εκατοστά (υφή)
+// Γραμμές κάθε 1 cm και αριθμοί κάθε 5 cm, λευκά με σκούρο περίγραμμα, ώστε να διαβάζονται πάνω στο νερό, στο σκούρο
+// φόντο και στην εικόνα της κάμερας (passthrough). Η λωρίδα ξεκινά 2,6 cm αριστερά από την ακμή του δοχείου (οι
+// αριθμοί) και οι γραμμές μπαίνουν πάνω στο γυαλί, προς τα δεξιά.
+const PXCM = 40;
+function rulerTexture(hMax) {
+  const x0 = -2.6, x1 = 0.6, y0 = -1, y1 = hMax + 1.2;
+  const cv = document.createElement('canvas');
+  cv.width = Math.round((x1 - x0) * PXCM); cv.height = Math.round((y1 - y0) * PXCM);
+  const ctx = cv.getContext('2d');
+  const X = x => (x - x0) * PXCM, Y = h => (y1 - h) * PXCM;
+  for (const pass of [0, 1]) {
+    ctx.strokeStyle = pass ? '#f8fafc' : 'rgba(14,20,32,.85)';
+    ctx.lineWidth = pass ? 3 : 7;
+    ctx.beginPath();
+    for (let h = 0; h <= hMax; h++) {
+      ctx.moveTo(X(pass ? 0 : -0.04), Y(h));
+      ctx.lineTo(X((h % 5 ? 0.38 : 0.6) + (pass ? 0 : 0.04)), Y(h));
+    }
+    ctx.stroke();
+  }
+  ctx.font = `700 44px ${FONT}`;
+  ctx.textAlign = 'right';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 9;
+  ctx.strokeStyle = 'rgba(14,20,32,.88)';
+  ctx.fillStyle = '#f8fafc';
+  for (let h = 0; h <= hMax; h += 5) { ctx.strokeText(String(h), X(-0.22), Y(h)); ctx.fillText(String(h), X(-0.22), Y(h)); }
+  return { tex: canvasTexture(cv), w: x1 - x0, h: y1 - y0, cx: (x0 + x1) / 2, cy: (y0 + y1) / 2 };
+}
+const RUL25 = rulerTexture(25), RUL20 = rulerTexture(20);
+function ruler(R, xEdge, z) {               // η λωρίδα της κλίμακας με την ακμή στο xEdge
+  const m = new THREE.Mesh(plateGeo, new THREE.MeshBasicMaterial({ map: R.tex, transparent: true, depthWrite: false }));
+  m.scale.set(R.w, R.h, 1);
+  m.position.set(xEdge + R.cx, Y0 + R.cy, z);
+  m.renderOrder = 4;
+  return m;
+}
+
+// ------------------------------------------------------------------ το ράφι, ο σωλήνας και οι βρύσες
+world.add(kouti(RAFI_X[1] - RAFI_X[0], RAFI, RAFI_Z[1] - RAFI_Z[0], V((RAFI_X[0] + RAFI_X[1]) / 2, RAFI / 2, (RAFI_Z[0] + RAFI_Z[1]) / 2), M.rafi));
+{
+  const xL = -32.4, xR = -0.8;
+  world.add(bar(V(xL, SOLINAS_Y, 0), V(xR, SOLINAS_Y, 0), 0.7, M.metallo));
+  for (const x of [xL, xR]) {
+    world.add(bar(V(x, RAFI, 0), V(x, SOLINAS_Y, 0), 0.55, M.metallo));
+    const j = new THREE.Mesh(new THREE.SphereGeometry(0.7, 16, 12), M.metallo);
+    j.position.set(x, SOLINAS_Y, 0);
+    world.add(j);
+  }
+}
+const vryses = [XA, XB, X3].map(x => {
+  world.add(bar(V(x, SOLINAS_Y, 0), V(x, STOMIO_Y + 0.4, 0), 0.42, M.metallo));
+  world.add(bar(V(x, STOMIO_Y, 0), V(x, STOMIO_Y + 0.5, 0), 0.52, M.metallo));
+  world.add(bar(V(x, SOLINAS_Y + 0.5, 0), V(x, SOLINAS_Y + 1.35, 0), 0.18, M.lavi));
+  // λαβή: παράλληλη προς τον σωλήνα όταν η βρύση είναι ανοιχτή, κάθετη (προς τον θεατή) όταν είναι κλειστή
+  const lavi = new THREE.Group();
+  lavi.position.set(x, SOLINAS_Y + 1.45, 0);
+  lavi.add(kouti(2.6, 0.32, 0.55, V(0.95, 0, 0), M.lavi));
+  world.add(lavi);
+  // η ροή του νερού: κύλινδρος μήκους 1 από το στόμιο προς τα κάτω, που τεντώνεται ως την επιφάνεια του νερού
+  const g = new THREE.CylinderGeometry(0.22, 0.22, 1, 12, 1, true);
+  g.translate(0, -0.5, 0);
+  const rei = new THREE.Mesh(g, roi.A);
+  rei.position.set(x, STOMIO_Y, 0);
+  rei.renderOrder = 2;
+  rei.visible = false;
+  world.add(rei);
+  return { lavi, rei, a: -Math.PI / 2, open: false };
+});
+
+// ------------------------------------------------------------------ τα δοχεία
+// Κάθε δοχείο είναι μια ομάδα με το γυαλί, το νερό, την κλίμακα και την ετικέτα της βάσης του στο ράφι.
+const cont = {};
+for (const k in DOX) {
+  const D = DOX[k], g = new THREE.Group();
+  g.position.x = D.x;
+  g.visible = false;
+  world.add(g);
+  const c = { D, g, show: 0, from: 0 };
+  cont[k] = c;
+  if (!D.cone) {
+    const W = D.w + 2 * GYALI, Hg = HP + PATOS, Dg = BATHOS + 2 * GYALI;
+    const cy = RAFI + Hg / 2;
+    const back = kouti(W, Hg, Dg, V(0, cy, 0), M.gyaliPiso); back.renderOrder = 1; g.add(back);
+    const front = kouti(W, Hg, Dg, V(0, cy, 0), M.gyaliMpros); front.renderOrder = 3; g.add(front);
+    g.add(akmes(V(-W / 2, RAFI, -Dg / 2), V(W / 2, RAFI + Hg, Dg / 2), 0.06, M.akmi));
+    // το νερό: κουτί με ύψος 1 που τεντώνεται στο ύψος h
+    const wg = new THREE.BoxGeometry(D.w - 0.04, 1, BATHOS - 0.04);
+    wg.translate(0, 0.5, 0);
+    c.water = new THREE.Mesh(wg, nero[k]);
+    c.water.position.y = Y0;
+    g.add(c.water);
+    g.add(ruler(RUL25, -W / 2, ZF + 0.03));
+    const bl = plate(`B = ${D.B} cm²`, KEIMENO, 1.55, k === 'A' ? 6.6 : 9);
+    bl.position.set(0, RAFI / 2, RAFI_Z[1] + 0.02);
+    g.add(bl);
+    // κατάσταση 3: μωβ γραμμή στην επιφάνεια του νερού τη στιγμή t = 10 s
+    c.mark = kouti(W + 0.7, 0.16, 0.08, V(0, Y0 + D.h(10), ZF + 0.08), M.mov);
+    c.mark.visible = false;
+    g.add(c.mark);
+    // κατάσταση 4: ο χρόνος που το νερό φτάνει τα 10 cm
+    if (k !== 'D') {
+      c.t10 = label(`t = ${fh(D.t(10))} s`, INK, 1.7);
+      c.t10.position.set(0, Y0 + 11.7, ZF + 0.2);
+      c.t10.visible = false;
+      g.add(c.t10);
+    }
+  } else {
+    // ανεστραμμένος κώνος: η κορυφή του γυαλιού 0,4 cm κάτω από το h = 0, ακτίνα 6,3 cm στο χείλος,
+    // ώστε το νερό (ακτίνα 0,3h) να μην ακουμπά ποτέ το γυαλί
+    const cg = new THREE.ConeGeometry(6.3, 20.4, 64, 1, true);
+    cg.rotateX(Math.PI);
+    cg.translate(0, Y0 - 0.4 + 10.2, 0);
+    const back = new THREE.Mesh(cg, M.gyaliPiso); back.renderOrder = 1; g.add(back);
+    const front = new THREE.Mesh(cg, M.gyaliMpros); front.renderOrder = 3; g.add(front);
+    const rim = new THREE.Mesh(new THREE.TorusGeometry(6.3, 0.09, 8, 72), M.akmi);
+    rim.rotation.x = Math.PI / 2;
+    rim.position.y = Y0 + 20;
+    g.add(rim);
+    // στήριγμα από πίσω: ορθοστάτης και βραχίονας ως το χείλος
+    g.add(bar(V(0, RAFI, -7.6), V(0, Y0 + 20.8, -7.6), 0.4, M.metallo));
+    g.add(bar(V(0, Y0 + 20, -7.6), V(0, Y0 + 20, -6.3), 0.25, M.metallo));
+    // το νερό: κώνος με ύψος 1 και ακτίνα 0,3, που μεγαλώνει ομοιόμορφα (όμοιοι κώνοι)
+    const wg = new THREE.ConeGeometry(0.3, 1, 64, 1, false);
+    wg.rotateX(Math.PI);
+    wg.translate(0, 0.5, 0);
+    c.water = new THREE.Mesh(wg, nero[k]);
+    c.water.position.y = Y0;
+    g.add(c.water);
+    // κατακόρυφος κανόνας αριστερά από το χωνί, με κλίμακα από 0 έως 20 cm
+    const xs = -6.9;
+    g.add(kouti(0.5, Y0 + 21.5 - RAFI, 0.5, V(xs - 0.25, (RAFI + Y0 + 21.5) / 2, 0), M.rafi));
+    g.add(ruler(RUL20, xs, 0.27));
+    // οδηγός από τον κανόνα ως την επιφάνεια του νερού
+    c.guide = kouti(1, 0.08, 0.08, V(0, 0, 0), M.odigos);
+    c.guide.renderOrder = 4;
+    g.add(c.guide);
+    const bl = plate('Χωνί: ακτίνα 6 cm, ύψος 20 cm', KEIMENO, 1.35, 13.4);
+    bl.position.set(0, RAFI / 2, RAFI_Z[1] + 0.02);
+    g.add(bl);
+  }
+}
+
+// ------------------------------------------------------------------ ενδείξεις: χρόνος και ύψος κάθε δοχείου
+const timeLabel = label('t = 0,0 s', INK, 2.6, 't = 88,8 s');
+timeLabel.position.set((BX0 + BX1) / 2, TIME_Y, 0);
+world.add(timeLabel);
+// η ένδειξη του Α λίγο αριστερά και του Β λίγο δεξιά από το κέντρο του δοχείου, ώστε να μην ακουμπούν μεταξύ τους
+const READ_X = [XA - 1.3, XB + 0.3, X3];
+const readouts = READ_X.map(x => {
+  const l = label('Α: 0 cm', INK, 2.2, 'Α: 88,8 cm', 9);
+  l.position.set(x, READ_Y, 0);
+  world.add(l);
+  return l;
+});
+
+// ------------------------------------------------------------------ κατάσταση 4: το επίπεδο των 10 cm
+const level = new THREE.Group();
+level.visible = false;
+world.add(level);
+{
+  const p = new THREE.Mesh(new THREE.PlaneGeometry(31.4, 7.4), M.epipedo);
+  p.rotation.x = -Math.PI / 2;
+  p.position.set(-16.5, Y0 + 10.05, 0);
+  p.renderOrder = 2;
+  level.add(p);
+  level.add(kouti(31.4, 0.12, 0.12, V(-16.5, Y0 + 10.05, 3.7), M.mov));
+  const l = label('10 cm', TXT.M, 1.6);
+  l.position.set(-34.9, Y0 + 10.05, 3.7);
+  level.add(l);
+}
+
+// ------------------------------------------------------------------ ο πίνακας της γραφικής παράστασης
+const GX = t => OX + t, GY = h => OY + h;  // σημείο (t, h) της γραφικής παράστασης σε συντεταγμένες της σκηνής
+const board = new THREE.Group();
+world.add(board);
+const boardMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+const boardBody = new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.9 });
+{
+  const W = BX1 - BX0, Hh = BY1;
+  board.add(kouti(W, Hh, 0.4, V((BX0 + BX1) / 2, Hh / 2, 0), boardBody));
+  for (const x of [BX0 + 2.5, BX1 - 2.5]) board.add(kouti(2.2, 0.8, 6, V(x, 0.4, 0), M.metallo));
+  // τυπωμένη γραφική παράσταση: κάνναβος κάθε 1 (ανοιχτός) και κάθε 5 (πιο σκούρος), άξονες, αριθμοί, ονόματα αξόνων
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(W * PXCM); cv.height = Math.round(Hh * PXCM);
+  const ctx = cv.getContext('2d');
+  const X = t => (GX(t) - BX0) * PXCM, Y = h => (BY1 - GY(h)) * PXCM;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.strokeStyle = '#A6A6A6'; ctx.lineWidth = 4;
+  ctx.strokeRect(2, 2, cv.width - 4, cv.height - 4);
+  const seg = (a, b, c, d) => { ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); };
+  ctx.strokeStyle = '#EDEDED'; ctx.lineWidth = 2;
+  for (let i = 1; i <= 25; i++) if (i % 5) { seg(X(i), Y(0), X(i), Y(25)); seg(X(0), Y(i), X(25), Y(i)); }
+  ctx.strokeStyle = '#D9D9D9'; ctx.lineWidth = 3;
+  for (let i = 5; i <= 25; i += 5) { seg(X(i), Y(0), X(i), Y(25)); seg(X(0), Y(i), X(25), Y(i)); }
+  ctx.strokeStyle = KEIMENO; ctx.fillStyle = KEIMENO; ctx.lineWidth = 5;
+  seg(X(0), Y(0), X(26.1), Y(0));
+  seg(X(0), Y(0), X(0), Y(26.1));
+  const arrow = (x, y, dx, dy) => { ctx.beginPath(); ctx.moveTo(x + dx * 26, y + dy * 26);
+    ctx.lineTo(x - dy * 11, y + dx * 11); ctx.lineTo(x + dy * 11, y - dx * 11); ctx.closePath(); ctx.fill(); };
+  arrow(X(26.1), Y(0), 1, 0);
+  arrow(X(0), Y(26.1), 0, -1);
+  ctx.font = `600 46px ${FONT}`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (let t = 0; t <= 25; t += 5) ctx.fillText(String(t), X(t), Y(0) + 12);
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (let h = 5; h <= 25; h += 5) ctx.fillText(String(h), X(0) - 24, Y(h));
+  // ονόματα των αξόνων: η μεταβλητή πλάγια, η μονάδα όρθια
+  const axisName = (v, u, x, y, base) => {
+    ctx.textAlign = 'left'; ctx.textBaseline = base;
+    ctx.font = `italic 600 48px ${FONT}`;
+    ctx.fillText(v, x, y);
+    const w = ctx.measureText(v).width;
+    ctx.font = `600 46px ${FONT}`;
+    ctx.fillText(u, x + w, y);
+  };
+  axisName('t', ' (s)', X(26.2), Y(0) + 12, 'top');
+  axisName('h', ' (cm)', X(0) + 30, Y(26.6), 'middle');
+  const p = new THREE.Mesh(plateGeo, boardMat);
+  boardMat.map = canvasTexture(cv);
+  p.scale.set(W, Hh, 1);
+  p.position.set((BX0 + BX1) / 2, Hh / 2, 0.21);
+  board.add(p);
+}
+
+// οι γραμμές κάθε κατάστασης: λωρίδα από το (0, h(0)) ως το σημείο όπου σταματά το δοχείο, που φανερώνεται καθώς
+// τρέχει ο χρόνος, το τρέχον σημείο και η εξίσωση (εμφανίζεται όταν η γραμμή περάσει από τη θέση της)
+const EQ = {
+  A: ['h = 2t', 6.5, 20.5], B: ['h = t', 18, 22.4], G: ['h = 0,5t', 21, 7.4],
+  D: ['h = t + 5', 6.2, 17.6], E: ['h = ∛(212,2 · t)', 18.6, 11.6]
+};
+const dotGeo = new THREE.CircleGeometry(0.42, 28), ringGeo = new THREE.RingGeometry(0.78, 1.0, 40);
+const graphs = STATES.map((S, si) => {
+  const g = new THREE.Group();
+  g.visible = false;
+  world.add(g);
+  const series = [];
+  if (S.graph) for (const k of S.set) {
+    const ts = S.stop[k], n = Math.ceil(ts / DT - 1e-9), pts = [];
+    for (let i = 0; i <= n; i++) { const t = Math.min(i * DT, ts); pts.push([GX(t), GY(hAt(k, t, S))]); }
+    const line = new THREE.Mesh(ribbon(pts, 0.3), new THREE.MeshBasicMaterial({ color: COL[k], side: THREE.DoubleSide }));
+    line.position.z = 0.25;
+    g.add(line);
+    const dot = new THREE.Mesh(dotGeo, new THREE.MeshBasicMaterial({ color: COL[k] }));
+    dot.position.z = 0.3;
+    g.add(dot);
+    let eq = null;
+    if (S.eq) {
+      const [txt, et, eh] = EQ[k];
+      eq = plate(txt, SKOYRO[k], 1.4);
+      eq.position.set(GX(et), GY(eh), 0.27);
+      eq.visible = false;
+      g.add(eq);
+    }
+    // η εξίσωση εμφανίζεται όταν το τρέχον σημείο φτάσει κάτω από την ετικέτα (ή όταν σταματήσει το δοχείο)
+    const tEq = Math.min(ts, EQ[k][1]);
+    series.push({ k, n, ts, line, dot, eq, tEq });
+  }
+  return { g, series, extra: [] };
+});
+// κατάσταση 3: η κατακόρυφη γραμμή t = 10 s και τα τρία σημεία της
+{
+  const G3 = graphs[2];
+  const d = new THREE.Mesh(dashed([GX(10), GY(0)], [GX(10), GY(20)], 0.16), M.mov);
+  d.position.z = 0.24;
+  G3.g.add(d);
+  G3.extra.push({ o: d, t: 10 });
+  for (const h of [20, 10, 5]) {
+    const r = new THREE.Mesh(ringGeo, M.mov);
+    r.position.set(GX(10), GY(h), 0.29);
+    G3.g.add(r);
+    G3.extra.push({ o: r, t: 10 });
+  }
+}
+// κατάσταση 4: η οριζόντια γραμμή h = 10 cm και οι χρόνοι 5, 10 και 20 s
+{
+  const G4 = graphs[3];
+  const d = new THREE.Mesh(dashed([GX(0), GY(10)], [GX(25), GY(10)], 0.16), M.mov);
+  d.position.z = 0.24;
+  G4.g.add(d);
+  G4.extra.push({ o: d, t: 0 });
+  for (const t of [5, 10, 20]) {
+    const v = new THREE.Mesh(dashed([GX(t), GY(10)], [GX(t), GY(0)], 0.16), M.mov);
+    v.position.z = 0.24;
+    G4.g.add(v);
+    const r = new THREE.Mesh(ringGeo, M.mov);
+    r.position.set(GX(t), GY(10), 0.29);
+    G4.g.add(r);
+    G4.extra.push({ o: v, t }, { o: r, t });
+  }
+}
+// κατάσταση 5: η γραμμή του Δ ξεκινά από το (0, 5) και όχι από την αρχή Ο (σημείο που μένει στη θέση του)
+{
+  const r = new THREE.Mesh(new THREE.CircleGeometry(0.5, 28), new THREE.MeshBasicMaterial({ color: COL.D }));
+  r.position.set(GX(0), GY(5), 0.29);
+  graphs[4].g.add(r);
+  graphs[4].extra.push({ o: r, t: 0 });
+}
+
+// ------------------------------------------------------------------ πίνακας με τον τίτλο και τις γραμμές
+// Στο XR ο πίνακας είναι πάνω από τη σκηνή και γυρίζει προς τον χρήστη. Στην προβολή 3D είναι πάνω από τη σκηνή,
+// πάντα στραμμένος προς την κάμερα.
+const PTW = 1600, PW = 58;               // πλάτος της υφής (px) και του πίνακα (cm)
+const panelH = n => 60 + 72 + 34 + n * 92 + 36;   // ύψος της υφής για n γραμμές
+const ANCHOR = V(SET_CX, PANEL_Y, SET_CZ);         // XR και προβολή 3D σε στενή οθόνη: το μέσο της κάτω πλευράς του πίνακα
+const FX0 = -36.4, FX1 = 33.6, FY1 = 38.8;         // όρια της σκηνής με τις ετικέτες της (για το πλαίσιο της προβολής 3D)
+const SIDE = V(FX0 - 2.5, FY1, SET_CZ);            // προβολή 3D σε φαρδιά οθόνη: η πάνω δεξιά γωνία του πίνακα
+let side = false;                                  // προβολή 3D: ο πίνακας αριστερά από τη σκηνή ή από πάνω της
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+panel.renderOrder = 6;
+world.add(panel);
+let panelKey = '';
+function setPanel(S) {
+  const key = S.title;
+  if (key === panelKey) return;
+  panelKey = key;
+  const h = panelH(S.lines.length);
+  const cv = document.createElement('canvas');
+  cv.width = PTW; cv.height = h;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = 'rgb(14,20,32)';
+  roundRect(ctx, PTW, h, 40);
+  ctx.fill();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const line = (t, y, size, weight, color) => {
+    let s = size;
+    ctx.font = `${weight} ${s}px ${FONT}`;
+    while (s > 20 && ctx.measureText(t).width > PTW - 120) { s -= 2; ctx.font = `${weight} ${s}px ${FONT}`; }
+    ctx.fillStyle = color;
+    ctx.fillText(t, PTW / 2, y);
+  };
+  line(S.title, 60 + 36, 60, 700, INK);
+  S.lines.forEach(([t, c], i) => line(t, 60 + 72 + 34 + 46 + i * 92, 52, 600, c ? TXT[c] : INK));
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = canvasTexture(cv);
+  panel.material.needsUpdate = true;
+  panel.scale.set(PW, PW * h / PTW, 1);
+  panelXR();
+}
+function panelXR() { panel.position.copy(ANCHOR).addScaledVector(UP, panel.scale.y / 2); }
+
+// ------------------------------------------------------------------ κατάσταση και χρόνος
+let current = 0, tNow = 0, playing = false, speed = 1, hold = 0, blend = 1;
+const hintEl = document.getElementById('hint');
+const btnPlay = document.getElementById('btnPlay'), btnSpeed = document.getElementById('btnSpeed');
+function updateButtons() {
+  btnPlay.textContent = playing ? 'Παύση' : 'Αναπαραγωγή';
+  btnSpeed.classList.toggle('on', speed === 2);
+}
+function select(k) {
+  current = (k + STATES.length) % STATES.length;
+  const S = STATES[current];
+  document.querySelectorAll('#segS button').forEach(b => b.classList.toggle('on', +b.dataset.k === current));
+  hintEl.innerHTML = hintHTML(current);
+  setPanel(S);
+  for (const key in cont) { const c = cont[key]; c.from = c.show; c.g.visible = S.set.includes(key); }
+  graphs.forEach((G, i) => { G.g.visible = i === current; });
+  level.visible = S.cap === 10;
+  tNow = S.t0;
+  playing = !S.freeze;
+  hold = 0;
+  blend = 0;                             // τα ύψη του νερού περνούν ομαλά στις τιμές της νέας κατάστασης
+  updateButtons();
+}
+document.querySelectorAll('#segS button').forEach(b => b.onclick = () => select(+b.dataset.k));
+function next() { select(current + 1); }
+function play() {
+  const S = STATES[current];
+  if (playing) playing = false;
+  else { if (tNow >= S.tEnd - 1e-9) tNow = 0; playing = true; hold = 0; }
+  updateButtons();
+}
+btnPlay.onclick = play;
+document.getElementById('btnReset').onclick = () => { tNow = 0; playing = false; hold = 0; updateButtons(); };
+btnSpeed.onclick = () => { speed = speed === 2 ? 1 : 2; updateButtons(); };
+
+const ease = x => 1 - (1 - x) ** 3;
+let boardDim = 1;
+function step(dt) {
+  const S = STATES[current];
+  if (playing) {
+    tNow += dt * speed;
+    if (tNow >= S.tEnd) { tNow = S.tEnd; playing = false; hold = 0; updateButtons(); }
+  } else if (renderer.xr.isPresenting && !S.freeze && tNow >= S.tEnd - 1e-9) {
+    // στο XR δεν υπάρχουν κουμπιά: η κατάσταση ξαναπαίζει από την αρχή 5 s αφού τελειώσει
+    hold += dt;
+    if (hold > 5) { tNow = 0; playing = true; hold = 0; updateButtons(); }
+  }
+  const ds = Math.min(dt, 0.1);           // βήμα για τις ομαλές μεταβάσεις
+  blend = Math.min(1, blend + ds / 0.45);
+  // η ένδειξη του χρόνου (με ένα δεκαδικό) και τα ύψη στις ενδείξεις υπολογίζονται από τον ίδιο χρόνο
+  const tShow = Math.floor(tNow * 10 + 1e-6) / 10;
+  setText(timeLabel, `t = ${f1(tShow)} s`, INK);
+  const emph = !!S.freeze && tNow >= 10 - 1e-9;
+  readouts.forEach(l => { l.visible = false; });
+  for (const key in cont) {
+    const c = cont[key], D = c.D;
+    if (!c.g.visible) continue;
+    const h = hAt(key, tNow, S);
+    c.show = blend < 1 ? c.from + (h - c.from) * ease(blend) : h;
+    const hs = Math.max(c.show, 0.001);
+    if (D.cone) {
+      c.water.scale.setScalar(hs);
+      c.water.visible = c.show > 0.02;
+      const xe = -0.3 * c.show - 0.15, xs = -6.3;
+      c.guide.visible = c.show > 0.3;
+      c.guide.scale.x = Math.max(xe - xs, 0.01);
+      c.guide.position.set((xe + xs) / 2, Y0 + c.show, 0);
+    } else {
+      c.water.scale.y = hs;
+      c.water.visible = c.show > 0.005;
+      c.mark.visible = emph;
+      if (c.t10) c.t10.visible = S.cap === 10 && tNow >= D.t(10) - 1e-9;
+    }
+    // η ένδειξη ύψους πάνω από το δοχείο
+    const l = readouts[SLOT[key]];
+    l.visible = true;
+    setText(l, `${D.gr}: ${fh(hAt(key, tShow, S))} cm`, emph ? TXT.M : INK);
+    const big = emph ? 1.25 : 1;
+    if (l.userData.big !== big) { l.userData.big = big; fitLabel(l); }
+    // η βρύση είναι ανοιχτή όσο το δοχείο γεμίζει
+    const v = vryses[SLOT[key]];
+    const open = tNow < S.stop[key] - 1e-9;
+    v.rei.visible = open;
+    v.rei.material = roi[key];
+    v.rei.scale.y = Math.max(STOMIO_Y - (Y0 + c.show), 0.01);
+    v.open = open;
+  }
+  // οι βρύσες χωρίς δοχείο από κάτω μένουν κλειστές
+  vryses.forEach((v, i) => {
+    if (!S.set.some(key => SLOT[key] === i)) { v.rei.visible = false; v.open = false; }
+    const a = v.open ? 0 : -Math.PI / 2;
+    v.a += (a - v.a) * (1 - Math.exp(-ds * 10));
+    v.lavi.rotation.y = v.a;
+  });
+  // γραφική παράσταση
+  const G = graphs[current];
+  for (const s of G.series) {
+    const tt = Math.min(tNow, s.ts);
+    const n = tt >= s.ts - 1e-9 ? s.n : Math.min(s.n, Math.floor(tt / DT + 1e-6));
+    s.line.geometry.setDrawRange(0, 6 * n);
+    s.dot.position.set(GX(tt), GY(hAt(s.k, tt, STATES[current])), 0.3);
+    if (s.eq) s.eq.visible = tNow >= s.tEq - 1e-9;
+  }
+  for (const e of G.extra) e.o.visible = tNow >= e.t - 1e-9;
+  // στην πρώτη κατάσταση ο πίνακας της γραφικής παράστασης είναι αχνός (δεν έχει ακόμη γραμμές)
+  boardDim += ((S.graph ? 0 : 1) - boardDim) * (1 - Math.exp(-ds * 8));
+  const c = 1 - 0.55 * boardDim;
+  boardMat.color.setRGB(c, c, c, THREE.SRGBColorSpace);
+  boardBody.color.setRGB(0.945 * c, 0.961 * c, 0.976 * c, THREE.SRGBColorSpace);
+}
+
+// ο πίνακας γυρίζει προς τον θεατή (στο XR μόνο γύρω από τον κατακόρυφο άξονα)
+const eyeW = new THREE.Vector3(), pw = new THREE.Vector3(), camR = new THREE.Vector3(), camU = new THREE.Vector3();
+const qP = new THREE.Quaternion(), qY = new THREE.Quaternion();
+function faceViewer(cam, xr) {
+  cam.getWorldPosition(eyeW);
+  world.getWorldQuaternion(qP).invert();
+  if (xr) {
+    panel.getWorldPosition(pw);
+    qY.setFromAxisAngle(UP, Math.atan2(eyeW.x - pw.x, eyeW.z - pw.z));
+    panel.quaternion.copy(qP).multiply(qY);
+  } else {
+    // προβολή 3D (η σκηνή δεν είναι στραμμένη): οι άξονες της κάμερας είναι και άξονες της σκηνής. Ο πίνακας κοιτά
+    // την κάμερα, αριστερά από τη σκηνή σε φαρδιά οθόνη (η πάνω δεξιά γωνία του στο SIDE) ή από πάνω της σε στενή
+    panel.quaternion.copy(qP).multiply(cam.quaternion);
+    camR.setFromMatrixColumn(cam.matrixWorld, 0).normalize();
+    camU.setFromMatrixColumn(cam.matrixWorld, 1).normalize();
+    if (side) panel.position.copy(SIDE).addScaledVector(camR, -PW / 2).addScaledVector(camU, -panel.scale.y / 2);
+    else panel.position.copy(ANCHOR).addScaledVector(camU, panel.scale.y / 2);
+  }
+}
+
+// ------------------------------------------------------------------ πλαίσιο της προβολής 3D
+// Η σκηνή, οι ενδείξεις και ο πίνακας χωρούν ανάμεσα στη μπάρα και στα κουμπιά. Η κάμερα κοιτά από εμπρός, λίγο από
+// δεξιά και λίγο από ψηλά, ώστε να φαίνονται το βάθος των δοχείων και οι κλίμακες στις μπροστινές τους έδρες.
+const VIEW_DIR = V(Math.sin(rad(16)) * Math.cos(rad(13)), Math.sin(rad(13)), Math.cos(rad(16)) * Math.cos(rad(13))).normalize();
+const FIT = [];
+for (const x of [FX0, FX1]) for (const y of [0, FY1]) for (const z of RAFI_Z) FIT.push(V(x, y, z));
+const PANEL_MAX = Math.max(...STATES.map(S => S.lines.length));
+let barBottom = 62, dockTop = 600, frameH = 800, touched = false;
+controls.addEventListener('start', () => { touched = true; });
+function dockTopMax() {                   // το ψηλότερο σημείο των κουμπιών, με τη μεγαλύτερη από τις υποδείξεις
+  const dock = document.getElementById('dock'), keep = hintEl.innerHTML;
+  let top = dock.getBoundingClientRect().top;
+  for (let k = 0; k < STATES.length; k++) { hintEl.innerHTML = hintHTML(k); top = Math.min(top, dock.getBoundingClientRect().top); }
+  hintEl.innerHTML = keep;
+  return top;
+}
+function layoutView() {
+  const W = window.innerWidth, Hh = window.innerHeight;
+  barBottom = Math.round(document.getElementById('bar').getBoundingClientRect().bottom);
+  dockTop = Math.round(dockTopMax());
+  // το κέντρο της εικόνας μετακινείται στο μέσο του ελεύθερου χώρου ανάμεσα στη μπάρα και στα κουμπιά
+  const dy = Math.max(0, Math.round(Hh / 2 - (barBottom + dockTop) / 2));
+  frameH = Hh + 2 * dy;
+  camera.fov = 2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(rad(FOV / 2)) * frameH / Hh));
+  camera.aspect = W / frameH;
+  if (dy) camera.setViewOffset(W, frameH, 0, 2 * dy, W, Hh); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  // ο πίνακας μπαίνει αριστερά από τη σκηνή όταν έτσι όλα φαίνονται μεγαλύτερα (φαρδύς ελεύθερος χώρος)
+  const fw = W, fv = Math.max(dockTop - barBottom, 1), ph = PW * panelH(PANEL_MAX) / PTW, sw = FX1 - FX0;
+  side = Math.min(fw / (sw + 2.5 + PW), fv / Math.max(FY1, ph)) > Math.min(fw / sw, fv / (PANEL_Y + ph));
+  if (!renderer.xr.isPresenting) setLabelScale(W / Hh < 1 ? 1.15 : 1);
+}
+function homeView() {
+  const W = window.innerWidth, Hh = window.innerHeight;
+  // το ελεύθερο ορθογώνιο σε κανονικοποιημένες συντεταγμένες της οθόνης (−1 έως 1)
+  const yTop = 1 - 2 * (barBottom + 8) / Hh, yBot = 1 - 2 * (dockTop - 8) / Hh;
+  const yMid = (yTop + yBot) / 2, hy = 0.95 * (yTop - yBot) / 2, hx = 0.95;
+  const keep = panel.scale.clone();
+  panel.scale.set(PW, PW * panelH(PANEL_MAX) / PTW, 1);   // ο πίνακας με τις περισσότερες γραμμές
+  const tgt = world.localToWorld(V(SET_CX, 30, SET_CZ));
+  const right = new THREE.Vector3(), up = new THREE.Vector3(), corner = new THREE.Vector3();
+  let D = 1.6;
+  for (let it = 0; it < 14; it++) {
+    camera.position.copy(VIEW_DIR).multiplyScalar(D).add(tgt);
+    camera.lookAt(tgt);
+    camera.updateMatrixWorld();
+    faceViewer(camera, false);
+    scene.updateMatrixWorld(true);
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    const add = p => { p.project(camera); x0 = Math.min(x0, p.x); x1 = Math.max(x1, p.x); y0 = Math.min(y0, p.y); y1 = Math.max(y1, p.y); };
+    for (const c of FIT) add(world.localToWorld(c.clone()));
+    for (const [u, v] of [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]]) add(panel.localToWorld(corner.set(u, v, 0)));
+    // η σκηνή μετακινείται ώστε να είναι στο κέντρο του ελεύθερου ορθογωνίου και η απόσταση ώστε να χωρά ακριβώς
+    const hh = D * Math.tan(rad(camera.fov / 2)) * Hh / frameH, ww = D * Math.tan(rad(camera.fov / 2)) * W / frameH;
+    right.setFromMatrixColumn(camera.matrixWorld, 0);
+    up.setFromMatrixColumn(camera.matrixWorld, 1);
+    tgt.addScaledVector(right, (x0 + x1) / 2 * ww).addScaledVector(up, ((y0 + y1) / 2 - yMid) * hh);
+    const r = Math.max((x1 - x0) / 2 / hx, (y1 - y0) / 2 / Math.max(hy, 0.05));
+    D = THREE.MathUtils.clamp(D * r, controls.minDistance, controls.maxDistance);
+  }
+  camera.position.copy(VIEW_DIR).multiplyScalar(D).add(tgt);
+  controls.target.copy(tgt);
+  controls.update();
+  panel.scale.copy(keep);
+  faceViewer(camera, false);
+}
+function setLabelScale(k) {
+  world.traverse(o => { if (o.userData.scalable) { o.userData.k = k; fitLabel(o); } });
+}
+
+{
+  const q = parseInt(new URLSearchParams(location.search).get('k'), 10);
+  select(Number.isFinite(q) && q >= 0 && q < STATES.length ? q : 0);
+}
+blend = 1;
+step(0);
+layoutView();
+homeView();
+
+// ------------------------------------------------------------------ XR
+const btnAR = document.getElementById('btnAR'), btnVR = document.getElementById('btnVR');
+const note = document.getElementById('note');
+let placed = false, floorRef = true, xrKind = '';
+async function checkXR() {
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+    return;
+  }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+  }
+}
+checkXR().then(() => { layoutView(); if (!touched) homeView(); });
+
+function resetView() {
+  camera.near = 0.01;
+  camera.far = 60;
+  root.position.set(0, 0, 0);
+  root.quaternion.identity();
+  root.scale.setScalar(1);
+  room.visible = false;
+  scene.background = null;
+  layoutView();
+  homeView();
+  touched = false;
+}
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    camera.near = 0.02;
+    camera.far = 50;
+    camera.updateProjectionMatrix();
+    await renderer.xr.setSession(session);
+    placed = false;
+    xrKind = kind;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    room.visible = opaque;
+    scene.background = opaque ? new THREE.Color(0x0e1420) : null;
+    // μέσα στα γυαλιά δεν υπάρχουν κουμπιά για τον χρόνο: η κίνηση συνεχίζει
+    if (!playing && !STATES[current].freeze && tNow < STATES[current].tEnd - 1e-9) { playing = true; updateButtons(); }
+    session.addEventListener('end', () => { xrKind = ''; resetView(); });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+// στην πρώτη εικόνα του XR, η σκηνή τοποθετείται 1 m μπροστά από τον χρήστη, στο ύψος ενός θρανίου (πάντα κάτω από τα
+// μάτια), με τα δοχεία και τη γραφική παράσταση από αριστερά προς τα δεξιά, όπως στην προβολή 3D
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const floorY = floorRef ? 0 : p.y - 1.6;
+  const y = THREE.MathUtils.clamp(floorY + TABLE, p.y - 0.9, p.y - 0.4);
+  const yaw = Math.atan2(-dir.x, -dir.z);
+  root.position.set(p.x + dir.x * DIST, y, p.z + dir.z * DIST);
+  root.rotation.set(0, yaw, 0);
+  root.scale.setScalar(1);
+  const desk = room.getObjectByName('desk');
+  desk.position.set(root.position.x, y - 0.021, root.position.z);
+  desk.rotation.y = yaw;
+  room.getObjectByName('floor').position.y = floorY;
+  setLabelScale(1);
+  panelXR();
+  placed = true;
+}
+
+// χειριστήρια: σύντομο πάτημα (σκανδάλη ή τσίμπημα) = επόμενη κατάσταση, παρατεταμένο πάτημα πάνω στη σκηνή = μετακίνηση.
+// Ένα πάτημα έως 0,8 s που δεν έπιασε τη σκηνή μετρά επίσης ως «επόμενη κατάσταση» (π.χ. αργό τσίμπημα).
+// ένα αόρατο κουτί γύρω από όλη τη σκηνή, για να την πιάνει το χειριστήριο
+const hit = new THREE.Mesh(new THREE.BoxGeometry(70, 40, 16), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+hit.position.set(SET_CX, 20, SET_CZ);
+hit.visible = false;
+world.add(hit);
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    if (ray.intersectObject(hit, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    const held = performance.now() - ctl.userData.t0, grabbed = ctl.userData.grab;
+    if (grabbed) { scene.attach(root); ctl.userData.grab = false; }
+    if (held < 280 || (!grabbed && held < 800)) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+// τέσσερις θέσεις: χειριστήρια και χέρια μπορεί να είναι ενεργά ταυτόχρονα (π.χ. το χειριστήριο του Magic Leap 2 και τα δύο χέρια)
+const ctls = [0, 1, 2, 3].map(makeController);
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  layoutView();
+  if (!touched) homeView();
+});
+
+// ο χρόνος της σκηνής ακολουθεί τον πραγματικό χρόνο, και σε αργές συσκευές. Ένα κενό πάνω από 1 s ανάμεσα σε δύο
+// εικόνες (π.χ. καρτέλα στο παρασκήνιο) δεν μετρά.
+let last = performance.now();
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const raw = (now - last) / 1000;
+  const dt = raw < 1 ? raw : 0;
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  step(dt);
+  if (renderer.xr.isPresenting) {
+    faceViewer(renderer.xr.getCamera(), true);
+    // ο μοχλός του χειριστηρίου μεγαλώνει ή μικραίνει τη σκηνή
+    ctls.forEach(c => {
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if (gp && gp.axes && gp.axes.length) {
+        const ax = gp.axes[3] !== undefined ? gp.axes[3] : gp.axes[1];
+        if (Math.abs(ax) > 0.2) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ax * Math.min(dt, 0.1) * 0.9), 0.5, 3));
+      }
+    });
+  } else {
+    controls.update();
+    faceViewer(camera, false);
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

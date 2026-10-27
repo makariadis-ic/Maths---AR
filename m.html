@@ -64,7 +64,8 @@ const META={
   'kyvos-klasmaton':['Ο κύβος των κλασμάτων: κουτιά με όγκο ¼','Α΄ Γυμνασίου','#3b82f6'],
   'pyramida-thali':['Η σκιά της πυραμίδας: ο Θαλής και τα όμοια τρίγωνα','Γ΄ Γυμνασίου, Α΄ Λυκείου','#f59e0b'],
   kalathi:['Το καλάθι: τρεις βολές, τρεις διακρίνουσες','Α΄ Λυκείου','#f97316'],
-  'kouti-diaireton':['Το κουτί των διαιρετών: ΜΚΔ και ΕΚΠ','Α΄ Γυμνασίου','#2E9E4F']
+  'kouti-diaireton':['Το κουτί των διαιρετών: ΜΚΔ και ΕΚΠ','Α΄ Γυμνασίου','#2E9E4F'],
+  'docheia-nerou':['Τα δοχεία γεμίζουν: τρία δοχεία, ίδια βρύση','Β΄ Γυμνασίου','#5B9BD5']
 };
 
 const asked=new URLSearchParams(location.search).get('id');
@@ -279,6 +280,37 @@ if(id==='kouti-diaireton'){
   row.appendChild(play);
   const xr=document.createElement('button');
   xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='mkd-ekp.html'; };
+  row.appendChild(xr);
+  /* τα κουμπιά πιάνουν το κάτω μέρος, οπότε το μήνυμα για το AR πάει κάτω από τον τίτλο */
+  mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
+}
+
+/* Τα δοχεία γεμίζουν (σενάριο 11 «Ανάλογα και αντιστρόφως ανάλογα ποσά στο Κέντρο Καινοτομίας», Β΄ Γυμνασίου §3.3 και
+   §3.5): τρία πρίσματα με βάσεις 10, 20 και 40 cm² γεμίζουν από ίδιες βρύσες, 20 cm³ το δευτερόλεπτο. Κίνηση 12 s σε
+   επανάληψη: 10 s γέμισμα (h = 2t, h = t, h = 0,5t), 2 s με τα τελικά ύψη 20, 10 και 5 cm (B · h = 200 cm³). Τα κουμπιά
+   σταματούν την κίνηση στα t = 2, 4, 6, 8 και 10 s, τις στιγμές του πίνακα τιμών. Οι ετικέτες είναι στραμμένες προς τον
+   θεατή, γι' αυτό το μοντέλο δεν περιστρέφεται μόνο του. Σύνδεσμος για τα γυαλιά XR. */
+const DOXEIA=[['t = 2 s',2],['t = 4 s',4],['t = 6 s',6],['t = 8 s',8],['t = 10 s',10]];
+if(id==='docheia-nerou'){
+  mv.removeAttribute('auto-rotate');
+  /* το μοντέλο είναι ψηλό (40 cm): η κάμερα απομακρύνεται λίγο, ώστε ο τίτλος και τα κουμπιά να μην το κρύβουν */
+  mv.setAttribute('max-camera-orbit','Infinity 157.5deg 150%');
+  mv.setAttribute('camera-orbit','0deg 80deg 124%');
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const mark=el=>[...row.children].forEach(b=>b.classList.toggle('on',b===el));
+  for(const [label,t] of DOXEIA){
+    const b=document.createElement('button');
+    b.textContent=label;
+    b.onclick=()=>{ mv.currentTime=t; mv.pause(); mark(b); };
+    row.appendChild(b);
+  }
+  const play=document.createElement('button');
+  play.textContent='Συνεχής κίνηση';
+  play.onclick=()=>{ mv.play(); mark(play); };
+  row.appendChild(play);
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='analoga.html'; };
   row.appendChild(xr);
   /* τα κουμπιά πιάνουν το κάτω μέρος, οπότε το μήνυμα για το AR πάει κάτω από τον τίτλο */
   mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
