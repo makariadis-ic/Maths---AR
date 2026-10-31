@@ -1,0 +1,1199 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Ο κύκλος και η έλικα — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#E36C09}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px;white-space:nowrap}
+  #bar h1{font-size:15px;margin:0;font-weight:640;white-space:nowrap}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.35}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#08131a;background:var(--acc);border-color:transparent}
+  #btnPlay{min-width:132px}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:820px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:720px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(94vw,120vh);height:auto}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segS,.nogl #segT,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #btnPlay{min-width:112px} #hint{font-size:11.5px}
+    #bar{gap:10px;padding:10px 12px} #bar h1{font-size:14px} #bar .lv{font-size:10.5px} #bar .lv span{display:block} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 640 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<line x1="20" y1="150" x2="190" y2="150" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="105" y1="65" x2="105" y2="235" stroke="#94a3b8" stroke-width="1.5"/>
+<circle cx="105" cy="150" r="66" fill="none" stroke="#cbd5e1" stroke-width="2.5"/>
+<line x1="105" y1="150" x2="162.2" y2="117" stroke="#cbd5e1" stroke-width="2"/>
+<line x1="105" y1="150" x2="162.2" y2="150" stroke="#5B9BD5" stroke-width="5"/>
+<line x1="162.2" y1="150" x2="162.2" y2="117" stroke="#E06B5E" stroke-width="5"/>
+<circle cx="162.2" cy="117" r="5.5" fill="#f8fafc"/>
+<text x="168" y="108" font-size="14" font-weight="700" fill="#f8fafc">M</text>
+<line x1="162.2" y1="117" x2="282.6" y2="117" stroke="#f8fafc" stroke-width="1.2" stroke-dasharray="5 4"/>
+<line x1="220" y1="150" x2="630" y2="150" stroke="#94a3b8" stroke-width="1.5"/>
+<line x1="220" y1="65" x2="220" y2="235" stroke="#94a3b8" stroke-width="1.5"/>
+<polyline fill="none" stroke="#E06B5E" stroke-width="3" points="220,150 233.8,138.6 247.6,127.6 261.4,117.6 275.2,108.9 289,102.1 302.8,97.5 316.6,95.1 330.4,95.1 344.2,97.5 358,102.1 371.8,108.9 385.6,117.6 399.4,127.6 413.2,138.6 427,150 440.8,161.4 454.6,172.4 468.4,182.4 482.2,191.1 496,197.9 509.8,202.5 523.6,204.9 537.4,204.9 551.2,202.5 565,197.9 578.8,191.1 592.6,182.4 606.4,172.4 620.2,161.4 634,150"/>
+<circle cx="282.6" cy="117" r="5.5" fill="#f8fafc"/>
+<text x="105" y="275" font-size="15" font-weight="700" text-anchor="middle" fill="#eaf1f8">M(συνt, ημt)</text>
+<text x="427" y="275" font-size="15" font-weight="700" text-anchor="middle" fill="#E06B5E">y = ημt, περίοδος 2π</text>
+<text x="613" y="140" font-size="13" font-weight="700" fill="#94a3b8">2π</text>
+<text x="420" y="140" font-size="13" font-weight="700" fill="#94a3b8">π</text>
+</svg>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Ο κύκλος και η έλικα</h1>
+  <span class="lv"><span>Β΄ Λυκείου</span> <span>§3.1–3.5</span></span>
+</div>
+<div id="dock">
+  <div class="seg" id="segS">
+    <button data-k="0" class="on">Ο κύκλος</button>
+    <button data-k="1">Η έλικα</button>
+    <button data-k="2">Οι σκιές</button>
+    <button data-k="3">2ημ(2t)</button>
+    <button data-k="4">ημt = 1/2</button>
+    <button data-k="5">Το ελατήριο</button>
+  </div>
+  <div class="seg" id="segT">
+    <button id="btnPlay">Παύση</button>
+    <button id="btnReset">Επαναφορά</button>
+    <button id="btnSpeed">2×</button>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο 12 «Τριγωνομετρία στο Κέντρο Καινοτομίας» (Άλγεβρα Β΄ Λυκείου, Κεφάλαιο 3, §3.1–3.5): Ο κύκλος και η έλικα.
+// Κέντρο Καινοτομίας Θεσσαλίας.
+// Το σημείο M(συνt, ημt) του τριγωνομετρικού κύκλου γυρίζει με 1 rad το δευτερόλεπτο. Το σημείο P έχει τις ίδιες
+// συντεταγμένες, αλλά ταυτόχρονα απομακρύνεται κατά μήκος του άξονα t, κάθετα στον κύκλο: γράφει μια έλικα. Η σκιά της
+// έλικας στον πλάγιο τοίχο είναι η γραφική παράσταση της y = ημt, στο δάπεδο της y = συνt, και από μπροστά φαίνεται ο
+// κύκλος. Με ακτίνα ρ = 2 και διπλάσια γωνιακή ταχύτητα η σκιά γίνεται y = 2ημ(2t) (μέγιστο 2, περίοδος π). Το επίπεδο
+// y = 1/2 κόβει την έλικα σε δύο σειρές σημείων: t = 2κπ + π/6 και t = 2κπ + 5π/6. Τέλος, το παιχνίδι στο ελατήριο
+// (h = 1 + (1/3)συν3t, Β΄ Ομάδα, άσκ. 3 της §3.4) κινείται όπως η σκιά σημείου που γυρίζει σε κύκλο ακτίνας 1/3 m.
+// Μονάδα μήκους της σκηνής: 1 cm. Η μονάδα των αξόνων είναι 6 cm και το 1 rad του άξονα t είναι επίσης 6 cm (ίδια κλίμακα).
+// Στο ελατήριο: 1 m = 18 cm και 1 s = 12 cm, ώστε ο κύκλος αναφοράς (ακτίνα 1/3 m, κέντρο στο 1 m) να είναι ο ίδιος κύκλος.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const CM = 0.01;                        // 1 cm της σκηνής σε μέτρα
+const R = 6;                            // η μονάδα των αξόνων (ακτίνα του τριγωνομετρικού κύκλου)
+const K = 6;                            // 1 rad στον άξονα t
+const YC = 18;                          // ύψος του κέντρου O του κύκλου πάνω από τη βάση
+const TMAX = 4 * Math.PI;               // ο χρόνος των καταστάσεων 2–5: δύο στροφές
+const L = K * TMAX;                     // μήκος της έλικας: 75,4 cm
+const SM = 18, KS = 12;                 // ελατήριο: 1 m = 18 cm, 1 s = 12 cm (2π s = 75,4 cm)
+const XW = -16;                         // ο πλάγιος τοίχος
+const ZF = 3, ZB = -(L + 5);            // μπροστινή και πίσω άκρη της βάσης και του τοίχου
+const WALL_H = 36;
+const BX = [-16.6, 23.4];               // πλάτος της βάσης
+const XS = 14, XP = 22;                 // το ελατήριο και ο ορθοστάτης του
+const SET_CX = (BX[0] + BX[1]) / 2, SET_CZ = (ZF + ZB) / 2;   // κέντρο της σκηνής: στο XR μπαίνει 1,2 m μπροστά
+const PANEL_Y = 39.5;                   // η κάτω πλευρά του πίνακα με τον τίτλο και τις γραμμές
+const TABLE = 0.78, DIST = 1.2;         // XR: ύψος θρανίου και απόσταση του κέντρου της σκηνής από τον χρήστη (m)
+const AZ = 50, EL = 24;                 // η σκηνή φαίνεται από εμπρός-δεξιά (50°) και από ψηλά (24°), και στο XR (AZ)
+const TH5 = Math.PI / 6;                // κατάσταση 5: ημθ = 1/2
+const TH6 = Math.acos(0.75);            // κατάσταση 6: συνθ = 0,75 (h = 1,25 m)
+
+// χρώματα: ημίτονο κόκκινο, συνημίτονο μπλε, η έλικα και η οικογένεια t = 2κπ + θ πορτοκαλί, η οικογένεια
+// t = 2κπ + (π − θ) και τα επίπεδα μωβ (όπως στις εφαρμογές GeoGebra του σεναρίου)
+const COL = { S: '#C0392B', C: '#1F6FB2', O: '#E36C09', P: '#7B4FA0', G: '#94a3b8' };
+const TXT = { S: '#E8857A', C: '#7FB2E5', O: '#F2A46F', P: '#B89BD4' };     // πιο ανοιχτά, για σκούρο φόντο
+const INK = '#eaf1f8', KEIMENO = '#262626';
+
+const rad = THREE.MathUtils.degToRad;
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const UP = V(0, 1, 0);
+const num = (x, d = 2) => { const s = (Math.abs(x) < 0.5 * 10 ** -d ? 0 : x).toFixed(d); return s.replace('.', ',').replace('-', '−'); };
+
+// ------------------------------------------------------------------ οι έξι καταστάσεις
+// tEnd: ο χρόνος της κατάστασης (rad στις 1–5, s στην 6)
+const STATES = [
+  { tEnd: 2 * Math.PI, unit: 'rad',
+    title: 'Ο τριγωνομετρικός κύκλος: M(συνt, ημt)',
+    lines: [['Η γωνία t μεγαλώνει 1 rad το δευτερόλεπτο'], ['συνt: η τετμημένη του M', 'C'], ['ημt: η τεταγμένη του M', 'S']],
+    hint: '<b>Ο τριγωνομετρικός κύκλος:</b> κύκλος με κέντρο O(0, 0) και ακτίνα 1. Η γωνία t, σε rad, μεγαλώνει 1 rad το δευτερόλεπτο, με αρχική πλευρά την OA, και η τελική της πλευρά τέμνει τον κύκλο στο M. Η τετμημένη του M είναι το συνt (μπλε) και η τεταγμένη του το ημt (κόκκινο), δηλαδή M(συνt, ημt). Σε 2π ≈ 6,28 s το M κάνει μία ολόκληρη στροφή και ξαναβρίσκεται στο A.' },
+  { tEnd: TMAX, unit: 'rad',
+    title: 'Η έλικα: η γωνία t γίνεται και βάθος',
+    lines: [['Το P έχει τις συντεταγμένες του M και προχωρά στον άξονα t'], ['Κάθε 2π το P κάνει μία στροφή'], ['ημ(t + 2π) = ημt, συν(t + 2π) = συνt']],
+    hint: '<b>Η έλικα:</b> το σημείο P έχει κάθε στιγμή τις ίδιες συντεταγμένες (συνt, ημt) με το M, αλλά ταυτόχρονα προχωρά κατά μήκος του άξονα t, κάθετα στον κύκλο. Το 1 rad στον άξονα t έχει το ίδιο μήκος με τη μονάδα του κύκλου. Έτσι το P γράφει μια έλικα: κάθε 2π ξαναβρίσκεται στην ίδια θέση του κύκλου του, μία στροφή πιο πέρα. Γι\' αυτό ημ(t + 2π) = ημt και συν(t + 2π) = συνt: οι συναρτήσεις ημίτονο και συνημίτονο είναι περιοδικές με περίοδο 2π.' },
+  { tEnd: TMAX, unit: 'rad',
+    title: 'Οι σκιές της έλικας',
+    lines: [['Στον τοίχο: η γραφική παράσταση της y = ημt', 'S'], ['Στο δάπεδο: η γραφική παράσταση της y = συνt', 'C'], ['Από μπροστά: ο τριγωνομετρικός κύκλος']],
+    hint: '<b>Οι σκιές της έλικας:</b> η σκιά του P στον πλάγιο τοίχο κρατά το ύψος του, ημt, και τη θέση του στον άξονα t: γράφει τη γραφική παράσταση της y = ημt (κόκκινη). Η σκιά στο δάπεδο κρατά την τετμημένη του, συνt, και γράφει τη γραφική παράσταση της y = συνt (μπλε). Από μπροστά η έλικα φαίνεται ως ο τριγωνομετρικός κύκλος. Και οι δύο γραφικές παραστάσεις έχουν μέγιστο 1, ελάχιστο −1 και περίοδο 2π.' },
+  { tEnd: TMAX, unit: 'rad',
+    title: 'Η συνάρτηση f(t) = 2ημ(2t)',
+    lines: [['ρ = 2: η ακτίνα της έλικας, μέγιστο 2, ελάχιστο −2', 'S'], ['ω = 2: μία στροφή σε T = 2π/ω = π', 'O'], ['Για σύγκριση: y = ημt (αχνή)']],
+    hint: '<b>Η συνάρτηση f(t) = 2ημ(2t):</b> τώρα ο κύκλος έχει ακτίνα ρ = 2 και το σημείο γυρίζει με διπλάσια ταχύτητα, 2 rad το δευτερόλεπτο, ενώ προχωρά στον άξονα t όπως πριν. Η έλικα είναι φαρδύτερη και πυκνότερη: η σκιά της στον τοίχο είναι η y = 2ημ(2t), με μέγιστο 2, ελάχιστο −2 και περίοδο π. Γενικά, η f(t) = ρημ(ωt), με ρ, ω > 0, έχει μέγιστο ρ, ελάχιστο −ρ και περίοδο T = 2π/ω (Σχόλιο της §3.4): το ρ είναι η ακτίνα της έλικας και το T η απόσταση δύο διαδοχικών στροφών.' },
+  { tEnd: TMAX, unit: 'rad',
+    title: 'Η εξίσωση ημt = 1/2',
+    lines: [['Το επίπεδο y = 1/2 κόβει την έλικα σε δύο σειρές σημείων', 'P'], ['t = 2κπ + π/6', 'O'], ['ή t = 2κπ + 5π/6, κ ∈ ℤ', 'P']],
+    hint: '<b>Η εξίσωση ημt = 1/2:</b> οι λύσεις είναι οι θέσεις όπου η έλικα έχει ύψος 1/2, δηλαδή τα σημεία όπου την κόβει το οριζόντιο επίπεδο y = 1/2. Στον κύκλο υπάρχουν δύο τέτοια σημεία, στις γωνίες θ = π/6 και π − θ = 5π/6. Επειδή η έλικα επαναλαμβάνεται κάθε 2π, τα σημεία τομής σχηματίζουν δύο σειρές: t = 2κπ + π/6 (πορτοκαλί) ή t = 2κπ + 5π/6 (μωβ), κ ∈ ℤ, όπως ο τύπος της §3.5 για την ημx = ημθ. Από το 0 έως το 4π: π/6, 5π/6, 13π/6 και 17π/6.' },
+  { tEnd: 2 * Math.PI, unit: 's',
+    title: 'Το παιχνίδι στο ελατήριο: h(t) = 1 + (1/3)συν3t',
+    lines: [['Κινείται όπως η σκιά σημείου που γυρίζει σε κύκλο ακτίνας 1/3 m'], ['Περίοδος T = 2π/3 ≈ 2,09 s: τρεις στροφές σε 2π s', 'O'], ['h(t) = 1,25 m: t ≈ 0,24, 1,85, 2,34, 3,95, 4,43, 6,04 s', 'P']],
+    hint: '<b>Το παιχνίδι στο ελατήριο</b> (§3.4, Β΄ Ομάδα, άσκηση 3): το ύψος του από το πάτωμα είναι h(t) = 1 + (1/3)συν3t (h σε m, t σε s). Είναι το ύψος ενός σημείου που γυρίζει σε κύκλο ακτίνας 1/3 m με κέντρο στο 1 m, κάνοντας 3 rad το δευτερόλεπτο, με αρχή την ψηλότερη θέση: μέγιστο 4/3 m, ελάχιστο 2/3 m, περίοδος 2π/3 ≈ 2,09 s. Η έλικα του σημείου ρίχνει στον τοίχο τη γραφική παράσταση της h. Το επίπεδο h = 1,25 m την κόβει όπου συν3t = 0,75: 3t = 2κπ ± θ, με θ ≈ 0,72, και στο [0, 2π] t ≈ 0,24, 1,85, 2,34, 3,95, 4,43 και 6,04 s. Κλίμακα: 1 m = 18 cm.' }
+];
+// αδιάσπαστα κενά γύρω από τα σύμβολα πράξεων και σχέσεων και ανάμεσα σε αριθμό και μονάδα
+const hintHTML = k => STATES[k].hint.replace(/ (=|·|×|→|≈|:|\+|−|±) /g, ' $1 ')
+  .replace(/(\d) (cm|m|s|rad)(?!\p{L})/gu, '$1 $2');
+
+// ------------------------------------------------------------------ τα σημεία: M στον κύκλο, P στην έλικα
+// κάθε κατάσταση: x, y (ως προς τη σκηνή) και βάθος z για τον χρόνο t
+function pos(k, t, z0 = null) {
+  let x, y, z;
+  if (k === 3) { x = 2 * R * Math.cos(2 * t); y = YC + 2 * R * Math.sin(2 * t); z = -K * t; }
+  else if (k === 5) { x = -R * Math.sin(3 * t); y = YC + R * Math.cos(3 * t); z = -KS * t; }
+  else { x = R * Math.cos(t); y = YC + R * Math.sin(t); z = -K * t; }
+  return V(x, y, z0 === null ? z : z0);
+}
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const FOV = 26;
+const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 0.01, 60);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.minDistance = 0.3;
+controls.maxDistance = 5;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a3446, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(0.8, 1.6, 1.2);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xbcd8ff, 0.5);
+fill.position.set(-1, 0.5, -1);
+scene.add(fill);
+
+// δάπεδο και θρανίο μόνο σε αδιαφανή λειτουργία (VR)
+const room = new THREE.Group();
+room.visible = false;
+scene.add(room);
+{
+  const floor = new THREE.Group();
+  floor.name = 'floor';
+  room.add(floor);
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x1b2433, roughness: 0.95, depthWrite: false }));
+  disc.rotation.x = -Math.PI / 2;
+  disc.renderOrder = -2;
+  floor.add(disc);
+  const grid = new THREE.GridHelper(12, 24, 0x3b4a63, 0x27324a);
+  grid.material.depthWrite = false;
+  grid.renderOrder = -1;
+  grid.position.y = 0.002;
+  floor.add(grid);
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(0.56, 0.04, 1.0), new THREE.MeshStandardMaterial({ color: 0x6b4f3a, roughness: 0.7 }));
+  desk.name = 'desk';
+  room.add(desk);
+}
+
+const root = new THREE.Group();
+scene.add(root);
+const world = new THREE.Group();         // η σκηνή σε εκατοστά
+world.scale.setScalar(CM);
+world.position.set(-SET_CX * CM, 0, -SET_CZ * CM);
+root.add(world);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+const FONT = '"Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Arial, sans-serif';
+function roundRect(ctx, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+  ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath();
+}
+function canvasTexture(cv) {
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+// ετικέτα με περίγραμμα, πάντα στραμμένη προς τον θεατή· η υφή έχει πλάτος για το μεγαλύτερο κείμενο (template)
+function label(text, color, height, template) {
+  const size = 120, pad = 40;
+  const cv = document.createElement('canvas');
+  const ctx = cv.getContext('2d');
+  ctx.font = `700 ${size}px ${FONT}`;
+  const w = Math.ceil(ctx.measureText(template || text).width) + 2 * pad, h = Math.ceil(size * 1.5);
+  cv.width = w; cv.height = h;
+  const tex = canvasTexture(cv);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+  sp.renderOrder = 8;
+  sp.userData = { h: height, aspect: w / h, k: 1, cv, ctx, tex, text: null, color: null, scalable: true };
+  fitLabel(sp);
+  setText(sp, text, color);
+  return sp;
+}
+function setText(sp, text, color) {
+  const u = sp.userData;
+  if (u.text === text && u.color === color) return;
+  u.text = text; u.color = color;
+  const { cv, ctx } = u;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.font = `700 120px ${FONT}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 22;
+  ctx.strokeStyle = 'rgba(14,20,32,.88)';
+  ctx.strokeText(text, cv.width / 2, cv.height / 2);
+  ctx.fillStyle = color;
+  ctx.fillText(text, cv.width / 2, cv.height / 2);
+  u.tex.needsUpdate = true;
+}
+function fitLabel(sp) { const u = sp.userData, s = u.h * u.k; sp.scale.set(s * u.aspect, s, 1); }
+// τυπωμένο κείμενο πάνω σε επιφάνεια (τοίχος, δάπεδο)
+const plateGeo = new THREE.PlaneGeometry(1, 1);
+function plate(text, color, height, weight = 650) {
+  const size = 120, pad = 18;
+  const cv = document.createElement('canvas');
+  const ctx = cv.getContext('2d');
+  const font = `${weight} ${size}px ${FONT}`;
+  ctx.font = font;
+  const w = Math.ceil(ctx.measureText(text).width) + 2 * pad, h = Math.ceil(size * 1.32);
+  cv.width = w; cv.height = h;
+  ctx.font = font;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillStyle = color;
+  ctx.fillText(text, w / 2, h / 2);
+  const m = new THREE.Mesh(plateGeo, new THREE.MeshBasicMaterial({ map: canvasTexture(cv), transparent: true, depthWrite: false }));
+  m.renderOrder = 5;
+  m.scale.set(height * w / h, height, 1);
+  return m;
+}
+
+// ------------------------------------------------------------------ βοηθητικά γεωμετρίας
+const unitBox = new THREE.BoxGeometry(1, 1, 1);
+function kouti(sx, sy, sz, c, mat) {
+  const m = new THREE.Mesh(unitBox, mat);
+  m.scale.set(sx, sy, sz);
+  m.position.copy(c);
+  return m;
+}
+const unitCyl = new THREE.CylinderGeometry(1, 1, 1, 14, 1);
+function setBar(m, a, b, r) {
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  const d = b.clone().sub(a), l = d.length();
+  if (l > 1e-6) m.quaternion.setFromUnitVectors(UP, d.multiplyScalar(1 / l));
+  m.scale.set(r, Math.max(l, 1e-4), r);
+  m.visible = l > 0.05;
+}
+function bar(a, b, r, mat) { const m = new THREE.Mesh(unitCyl, mat); setBar(m, a, b, r); return m; }
+function dashedBar(a, b, r, mat, dash = 1.1, gap = 0.75) {
+  const g = new THREE.Group(), d = b.clone().sub(a), l = d.length();
+  for (let s = 0; s < l; s += dash + gap) {
+    const e = Math.min(s + dash, l);
+    g.add(bar(a.clone().addScaledVector(d, s / l), a.clone().addScaledVector(d, e / l), r, mat));
+  }
+  return g;
+}
+function cone(at, dir, r, h, mat) {         // βέλος: κώνος με τη βάση στο at, προς την κατεύθυνση dir
+  const g = new THREE.ConeGeometry(r, h, 18);
+  g.translate(0, h / 2, 0);
+  const m = new THREE.Mesh(g, mat);
+  m.position.copy(at);
+  m.quaternion.setFromUnitVectors(UP, dir.clone().normalize());
+  return m;
+}
+const ballGeo = new THREE.SphereGeometry(1, 24, 16);
+function ball(r, mat) { const m = new THREE.Mesh(ballGeo, mat); m.scale.setScalar(r); return m; }
+// σωλήνας κατά μήκος της καμπύλης fn(t), t από t0 έως t1· με reveal φαίνεται μόνο το κομμάτι ως το t
+class FnCurve extends THREE.Curve {
+  constructor(fn, t0, t1) { super(); this.fn = fn; this.t0 = t0; this.t1 = t1; }
+  getPoint(u, target = new THREE.Vector3()) { return target.copy(this.fn(this.t0 + (this.t1 - this.t0) * u)); }
+  // ισαπέχουσες τιμές του t (όχι ίσα τόξα): το κομμάτι i του σωλήνα αντιστοιχεί στο t0 + i(t1 − t0)/seg
+  getPointAt(u, target) { return this.getPoint(u, target); }
+  getTangentAt(u, target) { return this.getTangent(u, target); }
+}
+function tube(fn, t0, t1, seg, r, mat, rs = 8) {
+  const m = new THREE.Mesh(new THREE.TubeGeometry(new FnCurve(fn, t0, t1), seg, r, rs, false), mat);
+  m.userData.tube = { seg, rs, t0, t1 };
+  return m;
+}
+function reveal(m, t) {
+  const u = m.userData.tube, f = THREE.MathUtils.clamp((t - u.t0) / (u.t1 - u.t0), 0, 1);
+  m.geometry.setDrawRange(0, Math.round(f * u.seg) * u.rs * 6);
+}
+
+// ------------------------------------------------------------------ υλικά
+const basic = c => new THREE.MeshBasicMaterial({ color: c });
+const glow = c => new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.35, roughness: 0.4 });
+const M = {
+  vasi: new THREE.MeshStandardMaterial({ color: 0xe5e7eb, roughness: 0.85 }),
+  toixos: new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.9 }),
+  axonas: basic(0xcbd5e1),
+  axonasSk: basic(0x64748b),
+  kyklos: basic(0xe2e8f0),
+  kyklosAx: new THREE.MeshBasicMaterial({ color: 0x94a3b8, transparent: true, opacity: 0.55 }),
+  aktina: basic(0xcbd5e1),
+  simeio: glow(0xf8fafc),
+  elika: glow(COL.O),
+  elikaAx: new THREE.MeshStandardMaterial({ color: COL.O, emissive: COL.O, emissiveIntensity: 0.3, transparent: true, opacity: 0.28, depthWrite: false }),
+  imit: glow(COL.S), synim: glow(COL.C),
+  imitT: basic(COL.S), synimT: basic(COL.C), sygkrisi: basic(0xb6bec9),
+  portok: glow(COL.O), mov: glow(COL.P), movT: basic(COL.P), portokT: basic(COL.O),
+  provoli: new THREE.MeshBasicMaterial({ color: 0xf8fafc, transparent: true, opacity: 0.55, depthWrite: false }),
+  epipedo: new THREE.MeshBasicMaterial({ color: COL.P, transparent: true, opacity: 0.2, depthWrite: false, side: THREE.DoubleSide }),
+  metallo: new THREE.MeshStandardMaterial({ color: 0x94a3b8, roughness: 0.35, metalness: 0.55 }),
+  elatirio: new THREE.MeshStandardMaterial({ color: 0x9ca3af, roughness: 0.3, metalness: 0.7 }),
+  paixnidi: new THREE.MeshStandardMaterial({ color: 0xF28C28, roughness: 0.45 }),
+  matia: basic(0x1f2937)
+};
+
+// ------------------------------------------------------------------ υφές: ο τοίχος και το δάπεδο με κάνναβο
+const PX = 24;                          // pixels ανά cm στις υφές
+// τοίχος (x = XW): οριζόντια ο άξονας t (z = 0 αριστερά, προς τα πίσω δεξιά), κατακόρυφα το ύψος της σκηνής
+function wallTexture(kind) {
+  const W = ZF - ZB, Hh = WALL_H;
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(W * PX); cv.height = Math.round(Hh * PX);
+  const ctx = cv.getContext('2d');
+  const X = z => (ZF - z) * PX, Y = y => (Hh - y) * PX;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.strokeStyle = '#A6A6A6'; ctx.lineWidth = 4;
+  ctx.strokeRect(2, 2, cv.width - 4, cv.height - 4);
+  const seg = (a, b, c, d) => { ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); };
+  const arrow = (x, y, dx, dy) => { ctx.beginPath(); ctx.moveTo(x + dx * 26, y + dy * 26);
+    ctx.lineTo(x - dy * 11, y + dx * 11); ctx.lineTo(x + dy * 11, y - dx * 11); ctx.closePath(); ctx.fill(); };
+  const zEnd = -L - 1.5;
+  ctx.font = `600 40px ${FONT}`;
+  if (kind === 'trig') {
+    // κάνναβος: κάθε π/2 στον άξονα t, κάθε 1/2 μονάδα στο ύψος (από −2 έως 2)
+    ctx.strokeStyle = '#EDEDED'; ctx.lineWidth = 2;
+    for (let i = 1; i <= 8; i++) seg(X(-K * i * Math.PI / 2), Y(YC - 2 * R), X(-K * i * Math.PI / 2), Y(YC + 2 * R));
+    for (let j = -4; j <= 4; j++) seg(X(0), Y(YC + j * R / 2), X(-L), Y(YC + j * R / 2));
+    ctx.strokeStyle = KEIMENO; ctx.fillStyle = KEIMENO; ctx.lineWidth = 4;
+    seg(X(0), Y(YC), X(zEnd), Y(YC)); arrow(X(zEnd), Y(YC), 1, 0);
+    seg(X(0), Y(YC - 2 * R - 1), X(0), Y(YC + 2 * R + 1.5)); arrow(X(0), Y(YC + 2 * R + 1.5), 0, -1);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+    const PI = ['', 'π/2', 'π', '3π/2', '2π', '5π/2', '3π', '7π/2', '4π'];
+    for (let i = 1; i <= 8; i++) { seg(X(-K * i * Math.PI / 2), Y(YC) - 8, X(-K * i * Math.PI / 2), Y(YC) + 8); ctx.fillText(PI[i], X(-K * i * Math.PI / 2), Y(YC) + 12); }
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (const j of [-2, -1, 1, 2]) ctx.fillText(String(j).replace('-', '−'), X(0) - 14, Y(YC + j * R));
+    ctx.font = `italic 600 44px ${FONT}`; ctx.textAlign = 'left';
+    ctx.fillText('t', X(zEnd) + 14, Y(YC) - 30);
+    ctx.fillText('y', X(0) + 18, Y(YC + 2 * R + 1.2));
+  } else {
+    // ελατήριο: οριζόντια ο χρόνος t σε s (1 s = 12 cm), κατακόρυφα το ύψος h σε m (1 m = 18 cm), h = 0 στη βάση
+    ctx.strokeStyle = '#EDEDED'; ctx.lineWidth = 2;
+    for (let i = 1; i <= 6; i++) seg(X(-KS * i), Y(0.3), X(-KS * i), Y(1.6 * SM));
+    for (let j = 1; j <= 16; j++) if (j % 5) seg(X(0), Y(j * SM / 10), X(-L), Y(j * SM / 10));
+    ctx.strokeStyle = '#D9D9D9'; ctx.lineWidth = 3;
+    for (const j of [5, 10, 15]) seg(X(0), Y(j * SM / 10), X(-L), Y(j * SM / 10));
+    ctx.strokeStyle = KEIMENO; ctx.fillStyle = KEIMENO; ctx.lineWidth = 4;
+    seg(X(0), Y(0.35), X(zEnd), Y(0.35)); arrow(X(zEnd), Y(0.35), 1, 0);
+    seg(X(0), Y(0.35), X(0), Y(1.75 * SM)); arrow(X(0), Y(1.75 * SM), 0, -1);
+    ctx.textAlign = 'center'; ctx.textBaseline = 'bottom';
+    for (let i = 1; i <= 6; i++) { seg(X(-KS * i), Y(0.35) - 8, X(-KS * i), Y(0.35) + 8); ctx.fillText(String(i), X(-KS * i), Y(0.35) - 12); }
+    ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+    for (const [j, s] of [[0.5, '0,5'], [1, '1'], [1.5, '1,5']]) ctx.fillText(s, X(0) - 14, Y(j * SM));
+    ctx.font = `italic 600 44px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'bottom';
+    ctx.fillText('t', X(zEnd) - 6, Y(0.35) - 40);
+    ctx.font = `600 40px ${FONT}`;
+    ctx.fillText(' (s)', X(zEnd) + 16, Y(0.35) - 40);
+    ctx.font = `italic 600 44px ${FONT}`; ctx.textBaseline = 'middle';
+    ctx.fillText('h', X(0) + 18, Y(1.72 * SM));
+    ctx.font = `600 40px ${FONT}`;
+    ctx.fillText(' (m)', X(0) + 42, Y(1.72 * SM));
+  }
+  return canvasTexture(cv);
+}
+// δάπεδο (y = 0): οριζόντια η τετμημένη x (από −14 έως 14 cm), προς τα πάνω της υφής ο άξονας t (προς τα πίσω)
+function floorTexture() {
+  const X0 = -14, X1 = 14, W = X1 - X0, Hh = ZF - ZB;
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(W * PX); cv.height = Math.round(Hh * PX);
+  const ctx = cv.getContext('2d');
+  const X = x => (x - X0) * PX, Y = z => (z - ZB) * PX;   // z = ZF στο κάτω μέρος της υφής, z = ZB στο πάνω
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.strokeStyle = '#A6A6A6'; ctx.lineWidth = 4;
+  ctx.strokeRect(2, 2, cv.width - 4, cv.height - 4);
+  const seg = (a, b, c, d) => { ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); };
+  ctx.strokeStyle = '#EDEDED'; ctx.lineWidth = 2;
+  for (let i = 1; i <= 8; i++) seg(X(-2 * R), Y(-K * i * Math.PI / 2), X(2 * R), Y(-K * i * Math.PI / 2));
+  for (let j = -4; j <= 4; j++) seg(X(j * R / 2), Y(0), X(j * R / 2), Y(-L));
+  ctx.strokeStyle = KEIMENO; ctx.fillStyle = KEIMENO; ctx.lineWidth = 4;
+  const zEnd = -L - 1.5;
+  seg(X(0), Y(0), X(0), Y(zEnd));
+  ctx.beginPath(); ctx.moveTo(X(0), Y(zEnd) - 26); ctx.lineTo(X(0) - 11, Y(zEnd)); ctx.lineTo(X(0) + 11, Y(zEnd)); ctx.closePath(); ctx.fill();
+  seg(X(-2 * R - 1), Y(0), X(2 * R + 1), Y(0));
+  ctx.font = `600 40px ${FONT}`;
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  const PI = ['', '', 'π', '', '2π', '', '3π', '', '4π'];
+  for (let i = 2; i <= 8; i += 2) ctx.fillText(PI[i], X(0) - 12, Y(-K * i * Math.PI / 2));
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const j of [-2, -1, 1, 2]) ctx.fillText(String(j).replace('-', '−'), X(j * R), Y(0) + 10);
+  ctx.font = `italic 600 44px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText('t', X(0) + 14, Y(zEnd) + 10);
+  return canvasTexture(cv);
+}
+
+// ------------------------------------------------------------------ η βάση, ο τοίχος και το δάπεδο
+world.add(kouti(BX[1] - BX[0], 0.8, ZF - ZB, V(SET_CX, -0.4, SET_CZ), M.vasi));
+const wall = new THREE.Group();
+world.add(wall);
+const wallMat = new THREE.MeshBasicMaterial({ map: wallTexture('trig') });
+const wallTexS = wallTexture('spring');
+{
+  wall.add(kouti(0.6, WALL_H, ZF - ZB, V(XW - 0.3, WALL_H / 2, SET_CZ), M.toixos));
+  const p = new THREE.Mesh(plateGeo, wallMat);
+  p.rotation.y = Math.PI / 2;
+  p.scale.set(ZF - ZB, WALL_H, 1);
+  p.position.set(XW + 0.02, WALL_H / 2, SET_CZ);
+  wall.add(p);
+}
+const floorG = new THREE.Group();        // το χαρτί με τη γραφική παράσταση του συνημιτόνου στο δάπεδο
+world.add(floorG);
+{
+  const p = new THREE.Mesh(plateGeo, new THREE.MeshBasicMaterial({ map: floorTexture() }));
+  p.rotation.x = -Math.PI / 2;
+  p.scale.set(28, ZF - ZB, 1);
+  p.position.set(0, 0.03, SET_CZ);
+  floorG.add(p);
+}
+
+// ------------------------------------------------------------------ ο τριγωνομετρικός κύκλος (μπροστά, z = 0)
+const circle = new THREE.Group();
+world.add(circle);
+const ring1 = new THREE.Mesh(new THREE.TorusGeometry(R, 0.2, 10, 120), M.kyklos);
+ring1.position.set(0, YC, 0);
+circle.add(ring1);
+const ring2 = new THREE.Mesh(new THREE.TorusGeometry(2 * R, 0.2, 10, 160), M.kyklos);
+ring2.position.set(0, YC, 0);
+circle.add(ring2);
+// άξονες x΄x και y΄y με τις ετικέτες τους: μήκος 9 cm (ρ = 1) ή 14 cm (ρ = 2)
+function axes(a) {
+  const g = new THREE.Group();
+  g.add(bar(V(-a, YC, 0), V(a, YC, 0), 0.12, M.axonas), cone(V(a, YC, 0), V(1, 0, 0), 0.45, 1.3, M.axonas));
+  g.add(bar(V(0, YC - a, 0), V(0, YC + a, 0), 0.12, M.axonas), cone(V(0, YC + a, 0), UP, 0.45, 1.3, M.axonas));
+  for (const [t, x, y] of [['x', a + 1.6, YC - 1.3], ['x΄', -a - 1.2, YC - 1.3], ['y', 1.3, YC + a + 1.2], ['y΄', 1.4, YC - a - 0.6], ['O', -1.1, YC - 1.4]]) {
+    const l = label(t, '#cbd5e1', 1.5);
+    l.position.set(x, y, 0.3);
+    g.add(l);
+  }
+  return g;
+}
+const axes1 = axes(9), axes2 = axes(14);
+circle.add(axes1, axes2);
+const lblA = label('A', '#cbd5e1', 1.5);
+lblA.position.set(R + 1.1, YC - 1.4, 0.3);
+circle.add(lblA);
+// M, η ακτίνα OM, το συνt (μπλε) και το ημt (κόκκινο), το τόξο της γωνίας t
+const ptM = ball(0.75, M.simeio);
+circle.add(ptM);
+const OM = bar(V(0, YC, 0), V(R, YC, 0), 0.16, M.aktina);
+circle.add(OM);
+const cosBar = bar(V(0, YC, 0), V(R, YC, 0), 0.38, M.synim), sinBar = bar(V(R, YC, 0), V(R, YC, 0), 0.38, M.imit);
+circle.add(cosBar, sinBar);
+const arcT = tube(t => V(2.2 * Math.cos(t), YC + 2.2 * Math.sin(t), 0.05), 0, 2 * Math.PI, 120, 0.14, M.portok, 6);
+circle.add(arcT);
+const lblM = label('M', INK, 1.7), lblArc = label('t', TXT.O, 1.5);
+circle.add(lblM, lblArc);
+const lblCos = label('συνt ≈ −0,00', TXT.C, 1.6, 'συνt ≈ −0,00'), lblSin = label('ημt ≈ −0,00', TXT.S, 1.6, 'ημt ≈ −0,00');
+circle.add(lblCos, lblSin);
+
+// ------------------------------------------------------------------ ο άξονας t
+const axisT = new THREE.Group();
+world.add(axisT);
+axisT.add(bar(V(0, YC, 1.5), V(0, YC, -L - 3), 0.13, M.axonas), cone(V(0, YC, -L - 3), V(0, 0, -1), 0.45, 1.4, M.axonas));
+{
+  const l = label('t', '#cbd5e1', 1.7);
+  l.position.set(0, YC + 1.8, -L - 4);
+  axisT.add(l);
+}
+const ticksRad = new THREE.Group(), ticksSec = new THREE.Group();
+axisT.add(ticksRad, ticksSec);
+const tickGeo = new THREE.TorusGeometry(0.55, 0.12, 8, 24);
+for (let i = 1; i <= 8; i++) {
+  const r = new THREE.Mesh(tickGeo, M.axonas);
+  r.position.set(0, YC, -K * i * Math.PI / 2);
+  ticksRad.add(r);
+  if (i % 2 === 0) {
+    const l = label(['π', '2π', '3π', '4π'][i / 2 - 1], '#cbd5e1', 1.45);
+    l.position.set(0, YC - 1.9, -K * i * Math.PI / 2);
+    ticksRad.add(l);
+  }
+}
+for (let i = 1; i <= 6; i++) {
+  const r = new THREE.Mesh(tickGeo, M.axonas);
+  r.position.set(0, YC, -KS * i);
+  ticksSec.add(r);
+  const l = label(`${i} s`, '#cbd5e1', 1.35);
+  l.position.set(0, YC - 1.9, -KS * i);
+  ticksSec.add(l);
+}
+
+// ------------------------------------------------------------------ οι έλικες και οι σκιές τους
+const helix = {}, wallLine = {}, floorLine = {};
+const SEG = 420;
+for (const k of [1, 3, 5]) {
+  const t1 = STATES[k].tEnd;
+  helix[k] = tube(t => pos(k, t), 0, t1, SEG, 0.3, M.elika);
+  wallLine[k] = tube(t => { const p = pos(k, t); return V(XW + 0.35, p.y, p.z); }, 0, t1, SEG, 0.24, k === 5 ? M.portokT : M.imitT, 6);
+  world.add(helix[k], wallLine[k]);
+}
+helix[2] = helix[1]; helix[4] = helix[1]; wallLine[2] = wallLine[1]; wallLine[4] = wallLine[1];
+for (const k of [2, 3]) {
+  floorLine[k] = tube(t => { const p = pos(k, t); return V(p.x, 0.3, p.z); }, 0, TMAX, SEG, 0.24, M.synimT, 6);
+  world.add(floorLine[k]);
+}
+// κατάσταση 4: η y = ημt αχνή στον τοίχο, για σύγκριση
+const wallRef = tube(t => V(XW + 0.3, YC + R * Math.sin(t), -K * t), 0, TMAX, SEG, 0.16, M.sygkrisi, 6);
+world.add(wallRef);
+// το σημείο P, η σκιά του και οι γραμμές προβολής
+const ptP = ball(0.75, M.simeio);
+const shW = ball(0.55, M.imit), shF = ball(0.55, M.synim);
+const prW = bar(V(0, 0, 0), V(1, 0, 0), 0.08, M.provoli), prF = bar(V(0, 0, 0), V(1, 0, 0), 0.08, M.provoli);
+world.add(ptP, shW, shF, prW, prF);
+// κατάσταση 2: ο κύκλος που ταξιδεύει μαζί με το P και οι προβολές του P σε αυτόν
+const ringP = new THREE.Mesh(new THREE.TorusGeometry(R, 0.12, 8, 96), M.kyklosAx);
+const cosP = bar(V(0, 0, 0), V(1, 0, 0), 0.3, M.synim), sinP = bar(V(0, 0, 0), V(1, 0, 0), 0.3, M.imit);
+const axP = bar(V(0, 0, 0), V(1, 0, 0), 0.1, M.kyklosAx);
+world.add(ringP, cosP, sinP, axP);
+const lblP = label('P', INK, 1.7);
+world.add(lblP);
+// ενδείξεις: ο χρόνος και οι τιμές των σκιών
+const timeLabel = label('t = 0 rad', INK, 2.4, 't ≈ 12,57 rad (720°)');
+timeLabel.position.set(0, YC + 2 * R + 5, 0);
+world.add(timeLabel);
+const lblShW = label('ημt ≈ −0,00', TXT.S, 1.6, 'ημt ≈ −0,00'), lblShF = label('συνt ≈ −0,00', TXT.C, 1.6, 'συνt ≈ −0,00');
+world.add(lblShW, lblShF);
+// ονόματα των γραφικών παραστάσεων: τυπωμένα στον τοίχο και στο δάπεδο
+function wallPlate(text, color, h, y, z) {
+  const p = plate(text, color, h);
+  p.rotation.y = Math.PI / 2;
+  p.position.set(XW + 0.06, y, z);
+  return p;
+}
+const wallTexts = {};
+wallTexts[2] = [wallPlate('y = ημt', COL.S, 2.2, YC + R + 2.6, -K * 2.5 * Math.PI)];
+wallTexts[3] = [wallPlate('y = 2ημ(2t)', COL.S, 2.2, YC + 2 * R + 2.6, -K * 2.25 * Math.PI),
+  wallPlate('y = ημt', '#8a94a3', 1.7, YC + R + 1.6, -K * 3.5 * Math.PI)];
+wallTexts[4] = [wallPlate('y = ημt', COL.S, 2.2, YC + R + 2.6, -K * 3.5 * Math.PI)];
+wallTexts[5] = [wallPlate('h(t) = 1 + (1/3)συν3t', COL.O, 2.2, 1.55 * SM, -KS * 4.2)];
+for (const k in wallTexts) wallTexts[k].forEach(p => wall.add(p));
+const floorText = plate('y = συνt', COL.C, 2.2);
+floorText.rotation.x = -Math.PI / 2;
+floorText.position.set(7.5, 0.08, -K * 2.5 * Math.PI);
+floorG.add(floorText);
+
+// ------------------------------------------------------------------ κατάσταση 4: μέγιστο, ελάχιστο, περίοδος
+const extra4 = new THREE.Group();
+world.add(extra4);
+{
+  for (const y of [YC + 2 * R, YC - 2 * R]) {
+    const d = dashedBar(V(XW + 0.3, y, 0), V(XW + 0.3, y, -L), 0.12, M.imitT);
+    extra4.add(d);
+  }
+  extra4.add(wallPlate('μέγιστο 2', COL.S, 1.6, YC + 2 * R + 1.3, -K * 0.62 * Math.PI));
+  extra4.add(wallPlate('ελάχιστο −2', COL.S, 1.6, YC - 2 * R - 1.3, -K * 1.15 * Math.PI));
+  // η περίοδος T = π: αγκύλη από το t = 0 ως το t = π, κάτω από την καμπύλη
+  const yb = YC - 2 * R - 3.4;
+  extra4.add(bar(V(XW + 0.3, yb, 0), V(XW + 0.3, yb, -K * Math.PI), 0.16, M.portokT));
+  for (const z of [0, -K * Math.PI]) extra4.add(bar(V(XW + 0.3, yb - 0.8, z), V(XW + 0.3, yb + 0.8, z), 0.16, M.portokT));
+  extra4.add(wallPlate('T = π', COL.O, 1.8, yb + 1.6, -K * Math.PI / 2));
+}
+
+// ------------------------------------------------------------------ καταστάσεις 5 και 6: το επίπεδο και τα σημεία τομής
+// k = 4: y = 1/2, t = 2κπ + π/6 (πορτοκαλί) ή t = 2κπ + 5π/6 (μωβ)
+// k = 5: h = 1,25 m, 3t = 2κπ + θ (πορτοκαλί) ή 3t = 2κπ − θ (μωβ), συνθ = 0,75
+const SOL = {
+  4: { y: YC + R / 2, t: [[Math.PI / 6, 'O', 'π/6'], [5 * Math.PI / 6, 'P', '5π/6'], [13 * Math.PI / 6, 'O', '13π/6'], [17 * Math.PI / 6, 'P', '17π/6']] },
+  5: { y: 1.25 * SM, t: [0, 1, 2].flatMap(n => [[(2 * n * Math.PI + TH6) / 3, 'O'], [(2 * (n + 1) * Math.PI - TH6) / 3, 'P']]).sort((a, b) => a[0] - b[0]).map(([t, c]) => [t, c, num(t) + ' s']) }
+};
+const sol = {};
+for (const k of [4, 5]) {
+  const S = SOL[k], g = new THREE.Group();
+  g.visible = false;
+  world.add(g);
+  const z1 = -STATES[k].tEnd * (k === 5 ? KS : K);
+  const pl = new THREE.Mesh(new THREE.PlaneGeometry(18, ZF - 1 - z1 + 1.5), M.epipedo);
+  pl.rotation.x = -Math.PI / 2;
+  pl.position.set(0, S.y, (ZF - 1 + z1 - 1.5) / 2);
+  pl.renderOrder = 2;
+  g.add(pl);
+  g.add(dashedBar(V(XW + 0.3, S.y, 0), V(XW + 0.3, S.y, z1), 0.12, M.movT));
+  const lvl = label(k === 4 ? 'y = 1/2' : 'h = 1,25 m', TXT.P, 1.7);
+  lvl.position.set(-11.5, S.y + 1.2, 1.5);
+  g.add(lvl);
+  // ο κύκλος μπροστά: η χορδή στο ύψος του επιπέδου και οι δύο ακτίνες προς τα άκρα της
+  const xs = [pos(k, S.t[0][0], 0), pos(k, S.t[1][0], 0)];
+  g.add(bar(xs[0], xs[1], 0.14, M.movT));
+  g.add(bar(V(0, YC, 0), xs[0], 0.2, M.portok), bar(V(0, YC, 0), xs[1], 0.2, M.mov));
+  for (const [i, mt] of [[0, M.portok], [1, M.mov]]) { const b = ball(0.6, mt); b.position.copy(xs[i]); g.add(b); }
+  if (k === 4) {
+    const a = label('θ = π/6', TXT.O, 1.5), b = label('π − θ', TXT.P, 1.5);
+    a.position.copy(xs[0]).add(V(2.6, 1.0, 0.3)); b.position.copy(xs[1]).add(V(-2.6, 1.0, 0.3));
+    g.add(a, b);
+  }
+  // τα σημεία τομής: εμφανίζονται όταν τα φτάσει το P (στην έλικα και στη σκιά της στον τοίχο)
+  const pts = S.t.map(([t, c, s]) => {
+    const p = pos(k, t), m = ball(0.65, c === 'O' ? M.portok : M.mov);
+    m.position.copy(p);
+    const w = ball(0.5, c === 'O' ? M.portok : M.mov);
+    w.position.set(XW + 0.4, p.y, p.z);
+    const l = label(s, TXT[c], 1.45);
+    l.position.copy(p).add(V(p.x >= 0 ? 2.6 : -2.6, 1.5, 0));
+    const lw = wallPlate(s, COL[c], 1.35, S.y + 1.6, p.z);
+    g.add(m, w, l);
+    wall.add(lw);
+    lw.visible = false;
+    return { t, items: [m, w, l, lw] };
+  });
+  sol[k] = { g, pts };
+}
+
+// ------------------------------------------------------------------ κατάσταση 6: το ελατήριο, το παιχνίδι, ο χάρακας
+const spring = new THREE.Group();
+world.add(spring);
+const TOP = 1.9 * SM;                   // το σημείο ανάρτησης: 1,9 m
+{
+  spring.add(bar(V(XP, 0, 0), V(XP, TOP + 1.2, 0), 0.5, M.metallo));
+  spring.add(bar(V(XP + 0.5, TOP + 1.0, 0), V(XS - 1.5, TOP + 1.0, 0), 0.45, M.metallo));
+  spring.add(kouti(5, 0.6, 5, V(XP, 0.3, 0), M.metallo));
+  spring.add(bar(V(XS, TOP + 1.0, 0), V(XS, TOP, 0), 0.2, M.metallo));
+}
+// το ελατήριο: σπείρα 14 σπειρών· τεντώνεται μετακινώντας κατακόρυφα κάθε κομμάτι του σωλήνα (το σύρμα κρατά το πάχος του)
+const COIL = { n: 14, seg: 700, rs: 6, L0: 15 };
+const coil = tube(u => V(XS + 1.1 * Math.cos(u * 2 * Math.PI * COIL.n), -u * COIL.L0, 1.1 * Math.sin(u * 2 * Math.PI * COIL.n)), 0, 1, COIL.seg, 0.12, M.elatirio, COIL.rs);
+coil.position.y = TOP;
+coil.frustumCulled = false;
+COIL.base = coil.geometry.attributes.position.array.slice();
+spring.add(coil);
+function setCoil(len) {
+  const a = coil.geometry.attributes.position.array, b = COIL.base, n = COIL.rs + 1;
+  for (let i = 0; i <= COIL.seg; i++) {
+    const dy = -(i / COIL.seg) * (len - COIL.L0);
+    for (let j = 0; j < n; j++) { const q = (i * n + j) * 3 + 1; a[q] = b[q] + dy; }
+  }
+  coil.geometry.attributes.position.needsUpdate = true;
+}
+const RT = 0.08 * SM;                   // ακτίνα του παιχνιδιού: 8 cm
+const toy = new THREE.Group();
+{
+  toy.add(ball(RT, M.paixnidi));
+  for (const s of [-1, 1]) { const e = ball(0.17, M.matia); e.position.set(s * 0.45, 0.3, RT * 0.93); toy.add(e); }
+}
+spring.add(toy);
+// ο χάρακας σε m (0 έως 1,6 m), στραμμένος προς τον θεατή, και η οριζόντια γραμμή από το σημείο του κύκλου ως το παιχνίδι
+{
+  const W = 3.4, Hh = 1.65 * SM, P2 = 40;
+  const cv = document.createElement('canvas');
+  cv.width = Math.round(W * P2); cv.height = Math.round((Hh + 1.2) * P2);
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#f8fafc'; ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.strokeStyle = KEIMENO; ctx.fillStyle = KEIMENO;
+  const Y = h => (Hh + 0.6 - h * SM) * P2;
+  for (let i = 0; i <= 16; i++) {
+    ctx.lineWidth = i % 5 ? 2 : 4;
+    ctx.beginPath(); ctx.moveTo(0, Y(i / 10)); ctx.lineTo((i % 5 ? 0.6 : 1.1) * P2, Y(i / 10)); ctx.stroke();
+  }
+  ctx.font = `700 40px ${FONT}`; ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  for (const [h, s] of [[0, '0'], [0.5, '0,5'], [1, '1'], [1.5, '1,5']]) ctx.fillText(s, 1.35 * P2, Y(h));
+  ctx.font = `600 34px ${FONT}`;
+  ctx.fillText('m', 1.35 * P2, Y(1.62));
+  const p = new THREE.Mesh(plateGeo, new THREE.MeshBasicMaterial({ map: canvasTexture(cv) }));
+  p.scale.set(W, Hh + 1.2, 1);
+  p.position.set(XS + 3.3 + W / 2, (Hh + 1.2) / 2 - 0.6, 1.2);
+  spring.add(p);
+  spring.add(kouti(W + 0.3, Hh + 1.5, 0.5, V(XS + 3.3 + W / 2, (Hh + 1.2) / 2 - 0.6, 0.85), M.toixos));
+}
+const link = bar(V(0, 0, 0), V(1, 0, 0), 0.09, M.provoli);
+spring.add(link);
+const lblH = label('h(t) ≈ 1,33 m', TXT.O, 1.7, 'h(t) ≈ 1,33 m');
+spring.add(lblH);
+
+// ------------------------------------------------------------------ πίνακας με τον τίτλο και τις γραμμές
+const PTW = 1600, PW = 60;               // πλάτος της υφής (px) και του πίνακα (cm)
+const panelH = n => 60 + 72 + 34 + n * 92 + 36;
+const ANCHOR = V(SET_CX, PANEL_Y, SET_CZ);
+const FX0 = BX[0], FX1 = BX[1], FY1 = 37;
+const SIDE = V(FX0 - 3, FY1, ZF);
+let side = false;
+// ο πίνακας σχεδιάζεται πάντα πάνω από τη σκηνή (χωρίς έλεγχο βάθους), ώστε να μην τον κρύβει ο τοίχος
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, depthTest: false, side: THREE.DoubleSide }));
+panel.renderOrder = 20;
+world.add(panel);
+let panelKey = '';
+function setPanel(S) {
+  const key = S.title;
+  if (key === panelKey) return;
+  panelKey = key;
+  const h = panelH(S.lines.length);
+  const cv = document.createElement('canvas');
+  cv.width = PTW; cv.height = h;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = 'rgb(14,20,32)';
+  roundRect(ctx, PTW, h, 40);
+  ctx.fill();
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const line = (t, y, size, weight, color) => {
+    let s = size;
+    ctx.font = `${weight} ${s}px ${FONT}`;
+    while (s > 20 && ctx.measureText(t).width > PTW - 120) { s -= 2; ctx.font = `${weight} ${s}px ${FONT}`; }
+    ctx.fillStyle = color;
+    ctx.fillText(t, PTW / 2, y);
+  };
+  line(S.title, 60 + 36, 60, 700, INK);
+  S.lines.forEach(([t, c], i) => line(t, 60 + 72 + 34 + 46 + i * 92, 50, 600, c ? TXT[c] : INK));
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = canvasTexture(cv);
+  panel.material.needsUpdate = true;
+  panel.scale.set(PW, PW * h / PTW, 1);
+  panelXR();
+}
+function panelXR() { panel.position.copy(ANCHOR).addScaledVector(UP, panel.scale.y / 2); }
+
+// ------------------------------------------------------------------ κατάσταση και χρόνος
+let current = 0, tNow = 0, playing = false, speed = 1, hold = 0;
+const hintEl = document.getElementById('hint');
+const btnPlay = document.getElementById('btnPlay'), btnSpeed = document.getElementById('btnSpeed');
+function updateButtons() {
+  btnPlay.textContent = playing ? 'Παύση' : 'Αναπαραγωγή';
+  btnSpeed.classList.toggle('on', speed === 2);
+}
+function select(k) {
+  current = (k + STATES.length) % STATES.length;
+  const S = STATES[current];
+  document.querySelectorAll('#segS button').forEach(b => b.classList.toggle('on', +b.dataset.k === current));
+  hintEl.innerHTML = hintHTML(current);
+  setPanel(S);
+  const c = current;
+  // ορατά αντικείμενα κάθε κατάστασης
+  ring1.visible = c !== 3;
+  ring2.visible = c === 3;
+  axes1.visible = c <= 2 || c === 4;
+  axes2.visible = c === 3;
+  lblA.visible = c <= 4;
+  arcT.visible = lblArc.visible = c === 0;
+  cosBar.visible = sinBar.visible = lblCos.visible = lblSin.visible = c <= 1;
+  axisT.visible = c >= 1;
+  ticksRad.visible = c >= 1 && c <= 4;
+  ticksSec.visible = c === 5;
+  for (const k of [1, 3, 5]) helix[k].visible = (k === 1 && (c === 1 || c === 2 || c === 4)) || (k === c);
+  wall.visible = c >= 2;
+  wallMat.map = c === 5 ? wallTexS : wallTexture.cache || (wallTexture.cache = wallMat.map);
+  wallMat.needsUpdate = true;
+  for (const k of [1, 3, 5]) wallLine[k].visible = (k === 1 && (c === 2 || c === 4)) || (k === c && c >= 2);
+  wallRef.visible = c === 3;
+  floorG.visible = c === 2 || c === 3;
+  for (const k of [2, 3]) floorLine[k].visible = c === k;
+  for (const k in wallTexts) wallTexts[k].forEach(p => { p.visible = +k === c; });
+  floorText.visible = c === 2;
+  extra4.visible = c === 3;
+  for (const k of [4, 5]) {
+    sol[k].g.visible = c === k;
+    for (const s of sol[k].pts) for (const o of s.items) o.visible = false;   // οι ετικέτες στον τοίχο δεν είναι στο g
+  }
+  spring.visible = c === 5;
+  ptP.visible = lblP.visible = c >= 1;
+  ringP.visible = cosP.visible = sinP.visible = axP.visible = c === 1;
+  shW.visible = prW.visible = c >= 2;
+  lblShW.visible = c >= 2 && c !== 5;     // στο ελατήριο η τιμή του h(t) φαίνεται δίπλα στο παιχνίδι
+  shF.visible = prF.visible = lblShF.visible = c === 2 || c === 3;
+  tNow = 0;
+  playing = true;
+  hold = 0;
+  updateButtons();
+  // προβολή 3D: ο κύκλος της πρώτης κατάστασης φαίνεται σχεδόν από εμπρός, οι άλλες καταστάσεις ολόκληρες
+  if (viewReady && !touched && !renderer.xr.isPresenting) homeView();
+}
+let viewReady = false;
+wallTexture.cache = wallMat.map;
+document.querySelectorAll('#segS button').forEach(b => b.onclick = () => select(+b.dataset.k));
+function next() { select(current + 1); }
+function play() {
+  const S = STATES[current];
+  if (playing) playing = false;
+  else { if (tNow >= S.tEnd - 1e-9) tNow = 0; playing = true; hold = 0; }
+  updateButtons();
+}
+btnPlay.onclick = play;
+document.getElementById('btnReset').onclick = () => { tNow = 0; playing = false; hold = 0; updateButtons(); };
+btnSpeed.onclick = () => { speed = speed === 2 ? 1 : 2; updateButtons(); };
+
+function step(dt) {
+  const S = STATES[current], c = current;
+  if (playing) {
+    tNow += dt * speed;
+    if (tNow >= S.tEnd) { tNow = S.tEnd; playing = false; hold = 0; updateButtons(); }
+  } else if (renderer.xr.isPresenting && tNow >= S.tEnd - 1e-9) {
+    // στο XR δεν υπάρχουν κουμπιά: η κατάσταση ξαναπαίζει από την αρχή 5 s αφού τελειώσει
+    hold += dt;
+    if (hold > 5) { tNow = 0; playing = true; hold = 0; updateButtons(); }
+  }
+  const t = tNow, end = t >= S.tEnd - 1e-9;
+  // ο χρόνος: σε rad (και μοίρες στον κύκλο) ή σε s (ελατήριο)
+  if (c === 0) setText(timeLabel, t < 1e-9 ? 't = 0 rad (0°)' : `t ≈ ${num(t)} rad (${Math.round(t * 180 / Math.PI)}°)`, INK);
+  else if (c === 5) setText(timeLabel, t < 1e-9 ? 't = 0 s' : `t ≈ ${num(t)} s`, INK);
+  else setText(timeLabel, t < 1e-9 ? 't = 0 rad' : `t ≈ ${num(t)} rad`, INK);
+  // M στον κύκλο μπροστά
+  const m = pos(c, t, 0);
+  ptM.position.copy(m);
+  setBar(OM, V(0, YC, 0), m, 0.16);
+  lblM.position.copy(m).add(V(m.x >= 0 ? 1.6 : -1.6, 1.4, 0.3));
+  if (c <= 1) {
+    setBar(cosBar, V(0, YC, 0.02), V(m.x, YC, 0.02), 0.38);
+    setBar(sinBar, V(m.x, YC, 0.02), V(m.x, m.y, 0.02), 0.38);
+    lblCos.position.set(m.x / 2, YC + (m.y >= YC ? -1.7 : 1.7), 0.4);
+    lblSin.position.set(m.x + (m.x >= 0 ? 4.6 : -4.6), (YC + m.y) / 2, 0.4);
+    setText(lblCos, `συνt ≈ ${num(Math.cos(t))}`, TXT.C);
+    setText(lblSin, `ημt ≈ ${num(Math.sin(t))}`, TXT.S);
+  }
+  if (c === 0) {
+    reveal(arcT, t);
+    lblArc.visible = t > 0.4;
+    lblArc.position.set(3.1 * Math.cos(t / 2), YC + 3.1 * Math.sin(t / 2), 0.3);
+  }
+  if (c === 0) return;
+  // P στην έλικα
+  const p = pos(c, t);
+  ptP.position.copy(p);
+  lblP.position.copy(p).add(V(p.x >= 0 ? 1.6 : -1.6, 1.4, 0));
+  const hx = c === 1 || c === 2 || c === 4 ? 1 : c;
+  reveal(helix[hx], t);
+  if (c === 1) {
+    ringP.position.set(0, YC, p.z);
+    setBar(axP, V(-R - 1, YC, p.z), V(R + 1, YC, p.z), 0.1);
+    setBar(cosP, V(0, YC, p.z), V(p.x, YC, p.z), 0.3);
+    setBar(sinP, V(p.x, YC, p.z), p, 0.3);
+    ringP.visible = axP.visible = t > 0.05;
+  }
+  if (c >= 2) {
+    const w = V(XW + 0.4, p.y, p.z);
+    shW.position.copy(w);
+    setBar(prW, p, w, 0.08);
+    reveal(wallLine[hx], t);
+    if (c === 3) reveal(wallRef, TMAX);
+    const val = c === 5 ? `h(t) ≈ ${num((p.y) / SM)} m` : c === 3 ? `2ημ(2t) ≈ ${num(2 * Math.sin(2 * t))}` : `ημt ≈ ${num(Math.sin(t))}`;
+    setText(lblShW, val, c === 5 ? TXT.O : TXT.S);
+    lblShW.position.copy(w).add(V(4.2, 1.6, 0));
+  }
+  if (c === 2 || c === 3) {
+    const f = V(p.x, 0.35, p.z);
+    shF.position.copy(f);
+    setBar(prF, p, f, 0.08);
+    reveal(floorLine[c], t);
+    setText(lblShF, c === 3 ? `2συν(2t) ≈ ${num(2 * Math.cos(2 * t))}` : `συνt ≈ ${num(Math.cos(t))}`, TXT.C);
+    lblShF.position.copy(f).add(V(0, 1.7, 0));
+  }
+  if (c === 4 || c === 5) for (const s of sol[c].pts) for (const o of s.items) o.visible = t >= s.t - 1e-9;
+  if (c === 5) {
+    const y = p.y;
+    toy.position.set(XS, y, 0);
+    setCoil(Math.max(TOP - (y + RT), 0.5));
+    setBar(link, V(m.x, y, 0.1), V(XS - RT, y, 0.1), 0.09);
+    setText(lblH, `h(t) ≈ ${num(y / SM)} m`, TXT.O);
+    lblH.position.set(XS - 6.2, y + 2.2, 0.6);
+  }
+}
+
+// ο πίνακας γυρίζει προς τον θεατή (στο XR μόνο γύρω από τον κατακόρυφο άξονα)
+const eyeW = new THREE.Vector3(), pw = new THREE.Vector3(), camR = new THREE.Vector3(), camU = new THREE.Vector3();
+const qP = new THREE.Quaternion(), qY = new THREE.Quaternion();
+function faceViewer(cam, xr) {
+  cam.getWorldPosition(eyeW);
+  world.getWorldQuaternion(qP).invert();
+  if (xr) {
+    panel.getWorldPosition(pw);
+    qY.setFromAxisAngle(UP, Math.atan2(eyeW.x - pw.x, eyeW.z - pw.z));
+    panel.quaternion.copy(qP).multiply(qY);
+  } else {
+    panel.quaternion.copy(qP).multiply(cam.quaternion);
+    camR.setFromMatrixColumn(cam.matrixWorld, 0).normalize();
+    camU.setFromMatrixColumn(cam.matrixWorld, 1).normalize();
+    if (side) panel.position.copy(SIDE).addScaledVector(camR, -PW / 2).addScaledVector(camU, -panel.scale.y / 2);
+    else panel.position.copy(ANCHOR).addScaledVector(camU, panel.scale.y / 2);
+  }
+}
+
+// ------------------------------------------------------------------ πλαίσιο της προβολής 3D
+// Η κάμερα κοιτά από εμπρός, από δεξιά και από ψηλά, ώστε να φαίνονται ο κύκλος, η έλικα σε βάθος και ο τοίχος.
+const VIEW_DIR = V(Math.sin(rad(AZ)) * Math.cos(rad(EL)), Math.sin(rad(EL)), Math.cos(rad(AZ)) * Math.cos(rad(EL))).normalize();
+const FIT = [], FIT0 = [];
+for (const x of [FX0, FX1]) for (const y of [0, FY1]) for (const z of [ZF, ZB]) FIT.push(V(x, y, z));
+for (const x of [FX0, FX1]) for (const y of [0, YC + 2 * R + 6.5]) for (const z of [-1, ZF]) FIT0.push(V(x, y, z));
+const VIEW0 = V(Math.sin(rad(16)) * Math.cos(rad(12)), Math.sin(rad(12)), Math.cos(rad(16)) * Math.cos(rad(12))).normalize();
+const viewDir = () => current === 0 ? VIEW0 : VIEW_DIR;
+const PANEL_MAX = Math.max(...STATES.map(S => S.lines.length));
+let barBottom = 62, dockTop = 600, frameH = 800, touched = false;
+controls.addEventListener('start', () => { touched = true; });
+function dockTopMax() {
+  const dock = document.getElementById('dock'), keep = hintEl.innerHTML;
+  let top = dock.getBoundingClientRect().top;
+  for (let k = 0; k < STATES.length; k++) { hintEl.innerHTML = hintHTML(k); top = Math.min(top, dock.getBoundingClientRect().top); }
+  hintEl.innerHTML = keep;
+  return top;
+}
+function layoutView() {
+  const W = window.innerWidth, Hh = window.innerHeight;
+  barBottom = Math.round(document.getElementById('bar').getBoundingClientRect().bottom);
+  dockTop = Math.round(dockTopMax());
+  const dy = Math.max(0, Math.round(Hh / 2 - (barBottom + dockTop) / 2));
+  frameH = Hh + 2 * dy;
+  camera.fov = 2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(rad(FOV / 2)) * frameH / Hh));
+  camera.aspect = W / frameH;
+  if (dy) camera.setViewOffset(W, frameH, 0, 2 * dy, W, Hh); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  if (!renderer.xr.isPresenting) setLabelScale(W / Hh < 1 ? 1.5 : 1.3);
+}
+// ο πίνακας μπαίνει πάνω από τη σκηνή ή αριστερά της, όπου η σκηνή βγαίνει μεγαλύτερη
+function fitView(sd) {
+  side = sd;
+  const W = window.innerWidth, Hh = window.innerHeight;
+  const yTop = 1 - 2 * (barBottom + 8) / Hh, yBot = 1 - 2 * (dockTop - 8) / Hh;
+  const yMid = (yTop + yBot) / 2, hy = 0.95 * (yTop - yBot) / 2, hx = 0.95;
+  const tgt = current === 0 ? world.localToWorld(V(0, YC, 0)) : world.localToWorld(V(SET_CX, 18, SET_CZ));
+  const right = new THREE.Vector3(), up = new THREE.Vector3(), corner = new THREE.Vector3();
+  let D = 1.8;
+  for (let it = 0; it < 14; it++) {
+    camera.position.copy(viewDir()).multiplyScalar(D).add(tgt);
+    camera.lookAt(tgt);
+    camera.updateMatrixWorld();
+    faceViewer(camera, false);
+    scene.updateMatrixWorld(true);
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    const add = q => { q.project(camera); x0 = Math.min(x0, q.x); x1 = Math.max(x1, q.x); y0 = Math.min(y0, q.y); y1 = Math.max(y1, q.y); };
+    for (const c of current === 0 ? FIT0 : FIT) add(world.localToWorld(c.clone()));
+    for (const [u, v] of [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]]) add(panel.localToWorld(corner.set(u, v, 0)));
+    const hh = D * Math.tan(rad(camera.fov / 2)) * Hh / frameH, ww = D * Math.tan(rad(camera.fov / 2)) * W / frameH;
+    right.setFromMatrixColumn(camera.matrixWorld, 0);
+    up.setFromMatrixColumn(camera.matrixWorld, 1);
+    tgt.addScaledVector(right, (x0 + x1) / 2 * ww).addScaledVector(up, ((y0 + y1) / 2 - yMid) * hh);
+    const r = Math.max((x1 - x0) / 2 / hx, (y1 - y0) / 2 / Math.max(hy, 0.05));
+    D = THREE.MathUtils.clamp(D * r, controls.minDistance, controls.maxDistance);
+  }
+  return { D, tgt, sd };
+}
+function homeView() {
+  const keep = panel.scale.clone();
+  panel.scale.set(PW, PW * panelH(PANEL_MAX) / PTW, 1);
+  const a = fitView(false), b = fitView(true), best = b.D < a.D * 0.97 ? b : a;
+  side = best.sd;
+  camera.position.copy(viewDir()).multiplyScalar(best.D).add(best.tgt);
+  controls.target.copy(best.tgt);
+  controls.update();
+  panel.scale.copy(keep);
+  faceViewer(camera, false);
+}
+function setLabelScale(k) {
+  world.traverse(o => { if (o.userData.scalable) { o.userData.k = k; fitLabel(o); } });
+}
+
+{
+  const q = parseInt(new URLSearchParams(location.search).get('k'), 10);
+  select(Number.isFinite(q) && q >= 0 && q < STATES.length ? q : 0);
+}
+step(0);
+layoutView();
+homeView();
+viewReady = true;
+
+// ------------------------------------------------------------------ XR
+const btnAR = document.getElementById('btnAR'), btnVR = document.getElementById('btnVR');
+const note = document.getElementById('note');
+let placed = false, floorRef = true;
+async function checkXR() {
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+    return;
+  }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+  }
+}
+checkXR().then(() => { layoutView(); if (!touched) homeView(); });
+
+function resetView() {
+  camera.near = 0.01;
+  camera.far = 60;
+  root.position.set(0, 0, 0);
+  root.quaternion.identity();
+  root.scale.setScalar(1);
+  room.visible = false;
+  scene.background = null;
+  layoutView();
+  homeView();
+  touched = false;
+}
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    camera.near = 0.02;
+    camera.far = 50;
+    camera.updateProjectionMatrix();
+    await renderer.xr.setSession(session);
+    placed = false;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    room.visible = opaque;
+    scene.background = opaque ? new THREE.Color(0x0e1420) : null;
+    // μέσα στα γυαλιά δεν υπάρχουν κουμπιά για τον χρόνο: η κίνηση συνεχίζει
+    if (!playing && tNow < STATES[current].tEnd - 1e-9) { playing = true; updateButtons(); }
+    session.addEventListener('end', () => { resetView(); });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+// στην πρώτη εικόνα του XR, η σκηνή τοποθετείται μπροστά από τον χρήστη (το κέντρο της 1,2 m μακριά, ο κύκλος περίπου
+// 0,8 m), στο ύψος ενός θρανίου, πάντα κάτω από τα μάτια
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const floorY = floorRef ? 0 : p.y - 1.6;
+  const y = THREE.MathUtils.clamp(floorY + TABLE, p.y - 0.9, p.y - 0.4);
+  const yaw = Math.atan2(-dir.x, -dir.z);
+  root.position.set(p.x + dir.x * DIST, y, p.z + dir.z * DIST);
+  root.rotation.set(0, yaw - rad(AZ), 0);     // όπως στην προβολή 3D: ο κύκλος αριστερά, η έλικα προς τα δεξιά
+  root.scale.setScalar(1);
+  const desk = room.getObjectByName('desk');
+  desk.position.set(root.position.x, y - 0.029, root.position.z);
+  desk.rotation.y = yaw - rad(AZ);
+  room.getObjectByName('floor').position.y = floorY;
+  setLabelScale(1);
+  panelXR();
+  placed = true;
+}
+
+// χειριστήρια: σύντομο πάτημα (σκανδάλη ή τσίμπημα) = επόμενη κατάσταση, παρατεταμένο πάτημα πάνω στη σκηνή = μετακίνηση,
+// μοχλός = μέγεθος. Ένα πάτημα έως 0,8 s που δεν έπιασε τη σκηνή μετρά επίσης ως «επόμενη κατάσταση».
+const hit = new THREE.Mesh(new THREE.BoxGeometry(46, 44, 90), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+hit.position.set(SET_CX, 20, SET_CZ);
+hit.visible = false;
+world.add(hit);
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    if (ray.intersectObject(hit, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    const held = performance.now() - ctl.userData.t0, grabbed = ctl.userData.grab;
+    if (grabbed) { scene.attach(root); ctl.userData.grab = false; }
+    if (held < 280 || (!grabbed && held < 800)) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+const ctls = [0, 1, 2, 3].map(makeController);
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  layoutView();
+  if (!touched) homeView();
+});
+
+let last = performance.now();
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const raw = (now - last) / 1000;
+  const dt = raw < 1 ? raw : 0;
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  step(dt);
+  if (renderer.xr.isPresenting) {
+    faceViewer(renderer.xr.getCamera(), true);
+    ctls.forEach(c => {
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if (gp && gp.axes && gp.axes.length) {
+        const ax = gp.axes[3] !== undefined ? gp.axes[3] : gp.axes[1];
+        if (Math.abs(ax) > 0.2) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ax * Math.min(dt, 0.1) * 0.9), 0.5, 3));
+      }
+    });
+  } else {
+    controls.update();
+    faceViewer(camera, false);
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

@@ -65,7 +65,8 @@ const META={
   'pyramida-thali':['Η σκιά της πυραμίδας: ο Θαλής και τα όμοια τρίγωνα','Γ΄ Γυμνασίου, Α΄ Λυκείου','#f59e0b'],
   kalathi:['Το καλάθι: τρεις βολές, τρεις διακρίνουσες','Α΄ Λυκείου','#f97316'],
   'kouti-diaireton':['Το κουτί των διαιρετών: ΜΚΔ και ΕΚΠ','Α΄ Γυμνασίου','#2E9E4F'],
-  'docheia-nerou':['Τα δοχεία γεμίζουν: τρία δοχεία, ίδια βρύση','Β΄ Γυμνασίου','#5B9BD5']
+  'docheia-nerou':['Τα δοχεία γεμίζουν: τρία δοχεία, ίδια βρύση','Β΄ Γυμνασίου','#5B9BD5'],
+  elika:['Η έλικα και οι σκιές της','Β΄ Λυκείου','#E36C09']
 };
 
 const asked=new URLSearchParams(location.search).get('id');
@@ -311,6 +312,32 @@ if(id==='docheia-nerou'){
   row.appendChild(play);
   const xr=document.createElement('button');
   xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='analoga.html'; };
+  row.appendChild(xr);
+  /* τα κουμπιά πιάνουν το κάτω μέρος, οπότε το μήνυμα για το AR πάει κάτω από τον τίτλο */
+  mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
+}
+
+/* Η έλικα: για 10 s το t πάει από 0 έως 4π (4π/10 rad το δευτερόλεπτο) και για 2 s όλα μένουν σχεδιασμένα.
+   Τα κουμπιά σταματούν την κίνηση όταν το t είναι π/2, π, 3π/2, 2π και 4π. */
+const ELIKA=[['t = π/2',1.25],['t = π',2.5],['t = 3π/2',3.75],['t = 2π',5],['t = 4π',10]];
+if(id==='elika'){
+  mv.removeAttribute('auto-rotate');
+  mv.setAttribute('camera-orbit','0deg 68deg 100%');
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const mark=el=>[...row.children].forEach(b=>b.classList.toggle('on',b===el));
+  for(const [label,t] of ELIKA){
+    const b=document.createElement('button');
+    b.textContent=label;
+    b.onclick=()=>{ mv.currentTime=t; mv.pause(); mark(b); };
+    row.appendChild(b);
+  }
+  const play=document.createElement('button');
+  play.textContent='Συνεχής κίνηση';
+  play.onclick=()=>{ mv.play(); mark(play); };
+  row.appendChild(play);
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='trigonometria.html'; };
   row.appendChild(xr);
   /* τα κουμπιά πιάνουν το κάτω μέρος, οπότε το μήνυμα για το AR πάει κάτω από τον τίτλο */
   mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
