@@ -66,7 +66,8 @@ const META={
   kalathi:['Το καλάθι: τρεις βολές, τρεις διακρίνουσες','Α΄ Λυκείου','#f97316'],
   'kouti-diaireton':['Το κουτί των διαιρετών: ΜΚΔ και ΕΚΠ','Α΄ Γυμνασίου','#2E9E4F'],
   'docheia-nerou':['Τα δοχεία γεμίζουν: τρία δοχεία, ίδια βρύση','Β΄ Γυμνασίου','#5B9BD5'],
-  elika:['Η έλικα και οι σκιές της','Β΄ Λυκείου','#E36C09']
+  elika:['Η έλικα και οι σκιές της','Β΄ Λυκείου','#E36C09'],
+  'epipeda-lysi':['Δύο επίπεδα και η λύση: το γραμμικό σύστημα στον χώρο','Γ΄ Γυμνασίου','#2E75B6']
 };
 
 const asked=new URLSearchParams(location.search).get('id');
@@ -340,6 +341,18 @@ if(id==='elika'){
   xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='trigonometria.html'; };
   row.appendChild(xr);
   /* τα κουμπιά πιάνουν το κάτω μέρος, οπότε το μήνυμα για το AR πάει κάτω από τον τίτλο */
+  mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
+}
+
+/* Τα γραμμικά συστήματα στον χώρο (Γ΄ Γυμνασίου): κάθε εξίσωση ax + by = c ως κατακόρυφο επίπεδο πάνω στην ευθεία της·
+   η τομή των δύο επιπέδων (πορτοκαλί) περνά πάνω από τη λύση (χρυσό σημείο). Στατικό μοντέλο, με σύνδεσμο για τα γυαλιά XR. */
+if(id==='epipeda-lysi'){
+  mv.setAttribute('camera-orbit','28deg 66deg 95%');
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='grammika-systimata.html'; };
+  row.appendChild(xr);
   mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
 }
 
