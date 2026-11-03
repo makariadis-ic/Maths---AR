@@ -16,6 +16,7 @@
     grid-template-columns:repeat(3,minmax(0,1fr))}
   @media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media(max-width:620px){.grid{grid-template-columns:minmax(0,1fr)}}
+  .grid{grid-auto-rows:1fr}
   .card{height:100%}
   .card .meta{flex:1}
   .card{background:rgba(255,255,255,.03);border:1px solid var(--line);border-top:3px solid var(--acc);
@@ -357,7 +358,8 @@
         <div class="qr" data-id="conics" title="Σκάναρέ το με το κινητό"></div>
       </div>
       <a class="cta" href="m.html?id=conics">Άνοιξέ το σε AR ›</a>
-        <div class="card" style="--acc:#a78bfa">
+    </div>
+    <div class="card" style="--acc:#a78bfa">
       <a class="open" href="paragogoi.html">
         <model-viewer src="paragogoi.glb" camera-controls auto-rotate autoplay disable-zoom
           interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
@@ -439,7 +441,7 @@
       </div>
       <a class="cta" href="ekthetiki-log-xr.html">Άνοιξέ το σε AR / VR ›</a>
     </div>
-</div></div>
+</div>
 <div class="how">
   <b>Πώς δουλεύει:</b> σε <b>Android</b> ανοίγει το Scene Viewer (Google) και τοποθετείς το στερεό στον χώρο·
   σε <b>iPhone</b> (Safari) ανοίγει το AR Quick Look. Τα πέντε στερεά εκ περιστροφής έχουν και iOS AR·
