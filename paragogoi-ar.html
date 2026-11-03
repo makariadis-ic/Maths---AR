@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Παράγωγοι: Εφαπτομένη και στιγμιαία ταχύτητα (AR)</title>
+<script type="module" src="https://unpkg.com/@google/model-viewer@3.5.0/dist/model-viewer.min.js"></script>
+<style>
+  html, body { margin: 0; height: 100%; background: #0b1020; color: #e8ecf5;
+               font-family: system-ui, "Segoe UI", sans-serif; }
+  model-viewer { width: 100%; height: 76%; background: #0b1020; --poster-color: transparent; }
+  .hot { background: #1d2a4a; color: #e8ecf5; border: 1px solid #3b4d7a; border-radius: 6px;
+         padding: 4px 8px; font-size: 14px; transform: translate(-50%, -100%); white-space: nowrap; }
+  #bar { display: flex; gap: 10px; padding: 12px; flex-wrap: wrap; }
+  button.c { background: #1d2a4a; color: #e8ecf5; border: 1px solid #3b4d7a; padding: 10px 14px;
+             border-radius: 6px; font-size: 15px; cursor: pointer; }
+  #cap { padding: 0 12px 12px; font-size: 15px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<model-viewer id="mv" src="paragogoi.glb" alt="Η εφαπτομένη της καμπύλης f(x) = x³ − 6x² + 9x + 1 κινείται πάνω στο γράφημα"
+  ar ar-modes="scene-viewer webxr quick-look" ar-scale="auto"
+  camera-controls autoplay touch-action="pan-y" shadow-intensity="0" exposure="1.1">
+
+  <button slot="hotspot-max" class="hot" data-position="-0.12 0.45 0" data-normal="0 0 1">Τοπικό μέγιστο (1, 5)</button>
+  <button slot="hotspot-min" class="hot" data-position="0.12 0.09 0" data-normal="0 0 1">Τοπικό ελάχιστο (3, 1)</button>
+</model-viewer>
+
+<div id="bar">
+  <button class="c" id="toggle">Παύση</button>
+  <button class="c" id="reset">Από την αρχή</button>
+</div>
+
+<div id="cap">
+  Η κλίση της εφαπτομένης στο σημείο P είναι η παράγωγος f′(x). Όταν το P φτάνει στο μέγιστο ή στο ελάχιστο, η εφαπτομένη γίνεται οριζόντια, επειδή f′(x) = 0.
+</div>
+
+<script>
+  const mv = document.getElementById('mv');
+  const toggle = document.getElementById('toggle');
+  let playing = true;
+
+  toggle.addEventListener('click', () => {
+    playing = !playing;
+    if (playing) { mv.play(); toggle.textContent = 'Παύση'; }
+    else         { mv.pause(); toggle.textContent = 'Συνέχεια'; }
+  });
+
+  document.getElementById('reset').addEventListener('click', () => {
+    mv.currentTime = 0;
+    mv.play();
+    playing = true;
+    toggle.textContent = 'Παύση';
+  });
+</script>
+</body>
+</html>

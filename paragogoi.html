@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Παράγωγοι και εφαρμογές: Εφαπτομένη, Ταχύτητα, Ρυθμός, Ακρότατα</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0b1020; color: #e8ecf5;
+               font-family: system-ui, "Segoe UI", sans-serif; overflow: hidden; }
+  #status { position: fixed; left: 12px; top: 12px; font-size: 14px; opacity: .85; z-index: 2; }
+  #enter  { position: fixed; right: 12px; top: 12px; z-index: 2; }
+  #ui     { position: fixed; left: 12px; bottom: 12px; display: flex; gap: 8px; flex-wrap: wrap; z-index: 2; }
+  button  { background: #1d2a4a; color: #e8ecf5; border: 1px solid #3b4d7a; padding: 10px 14px;
+            border-radius: 6px; font-size: 15px; cursor: pointer; }
+  button.on { background: #2f4f8f; }
+  button[hidden] { display: none; }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js" } }
+</script>
+</head>
+<body>
+<div id="status"></div>
+<button id="enter" hidden></button>
+<div id="ui"></div>
+
+<script type="module">
+import * as THREE from 'three';
+
+/* ---------- Μαθηματικό μοντέλο ---------- */
+// f(x) = x³ − 6x² + 9x + 1,  f′(x) = 3x² − 12x + 9 = 3(x − 1)(x − 3)
+// Τοπικό μέγιστο στο x = 1 (f = 5), τοπικό ελάχιστο στο x = 3 (f = 1).
+const f  = x => x ** 3 - 6 * x * x + 9 * x + 1;
+const fp = x => 3 * x * x - 12 * x + 9;
+
+// Χαρτογράφηση μονάδων γραφήματος σε μέτρα στον κόσμο (AR/VR)
+const SX = 0.22, SY = 0.16;     // μέτρα ανά μονάδα
+const CX = 2, CY = 3;           // κέντρο του γραφήματος
+const toW = (x, y) => new THREE.Vector3((x - CX) * SX, (y - CY) * SY, 0);
+
+const LABELS = [
+  'Η καμπύλη',
+  'Εφαπτομένη',
+  'Στιγμιαία ταχύτητα',
+  'Ρυθμός μεταβολής',
+  'Μέγιστο και ελάχιστο'
+];
+
+let state = 0;
+const statusEl = document.getElementById('status');
+const uiEl = document.getElementById('ui');
+
+/* ---------- Σκηνή ---------- */
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(window.devicePixelRatio);
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.xr.enabled = true;
+document.body.appendChild(renderer.domElement);
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x0b1020);     // αφαιρείται μέσα σε AR
+
+const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 50);
+camera.position.set(0, 1.1, 0);                   // προεπισκόπηση σε υπολογιστή
+
+const GROUP_POS = new THREE.Vector3(0, 1.1, -1.2);
+const root = new THREE.Group();
+root.position.copy(GROUP_POS);
+scene.add(root);
+
+const graph = new THREE.Group();   // στατικά: καμπύλη, άξονες
+const dyn   = new THREE.Group();   // δυναμικά: εφαπτομένη, τέμνουσα
+const ext   = new THREE.Group();   // ακρότατα
+root.add(graph, dyn, ext);
+
+function tube(points, r, color) {
+  const curve = new THREE.CatmullRomCurve3(points);
+  const geo = new THREE.TubeGeometry(curve, Math.max(8, points.length * 6), r, 8, false);
+  return new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ color }));
+}
+
+function sphere(p, r, color) {
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), new THREE.MeshBasicMaterial({ color }));
+  m.position.copy(p);
+  return m;
+}
+
+function label(text, color = '#ffffff') {
+  const c = document.createElement('canvas');
+  c.width = 512; c.height = 128;
+  const g = c.getContext('2d');
+  g.font = '56px system-ui, sans-serif';
+  g.fillStyle = color;
+  g.fillText(text, 10, 84);
+  const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthTest: false }));
+  s.scale.set(0.2, 0.05, 1);
+  return s;
+}
+
+// Άξονες
+graph.add(tube([toW(-0.2, 0), toW(4.3, 0)], 0.003, 0x7d8aa6));
+graph.add(tube([toW(-0.2, 0), toW(-0.2, 5.6)], 0.003, 0x7d8aa6));
+
+// Καμπύλη y = f(x) για x στο [0, 4]
+const curvePts = [];
+for (let x = 0; x <= 4.0001; x += 0.05) curvePts.push(toW(x, f(x)));
+graph.add(tube(curvePts, 0.005, 0x6ea8ff));
+
+// Ακρότατα
+{
+  const max = sphere(toW(1, 5), 0.014, 0xff7a59);
+  const min = sphere(toW(3, 1), 0.014, 0x3ddc97);
+  const lMax = label('Τοπικό μέγιστο (1, 5)', '#ff7a59'); lMax.position.copy(toW(1, 5)).add(new THREE.Vector3(0, 0.04, 0));
+  const lMin = label('Τοπικό ελάχιστο (3, 1)', '#3ddc97'); lMin.position.copy(toW(3, 1)).add(new THREE.Vector3(0, -0.05, 0));
+  ext.add(max, min, lMax, lMin);
+  ext.visible = false;
+}
+
+// Σημείο P πάνω στην καμπύλη
+const P = sphere(new THREE.Vector3(), 0.014, 0xffb020);
+root.add(P);
+
+// Πίνακας κειμένου
+const pc = document.createElement('canvas');
+pc.width = 1024; pc.height = 420;
+const pctx = pc.getContext('2d');
+const ptex = new THREE.CanvasTexture(pc);
+const panel = new THREE.Mesh(
+  new THREE.PlaneGeometry(0.6, 0.246),
+  new THREE.MeshBasicMaterial({ map: ptex, transparent: true })
+);
+panel.position.set(0.72, 0.2, 0);
+root.add(panel);
+
+let lastPanelKey = '';
+function drawPanel(lines) {
+  const key = lines.join('|');
+  if (key === lastPanelKey) return;
+  lastPanelKey = key;
+  pctx.fillStyle = 'rgba(11, 16, 32, 0.9)';
+  pctx.fillRect(0, 0, pc.width, pc.height);
+  pctx.fillStyle = '#ffb020';
+  pctx.font = 'bold 54px system-ui, sans-serif';
+  pctx.fillText(lines[0], 40, 80);
+  pctx.fillStyle = '#e8ecf5';
+  pctx.font = '40px system-ui, sans-serif';
+  lines.slice(1).forEach((line, i) => pctx.fillText(line, 40, 150 + i * 62));
+  ptex.needsUpdate = true;
+}
+
+function clearDyn() {
+  while (dyn.children.length) {
+    const o = dyn.children.pop();
+    o.traverse(c => { if (c.geometry) c.geometry.dispose(); if (c.material) c.material.dispose(); });
+  }
+}
+
+/* ---------- Κατάσταση και κουμπιά ---------- */
+const buttons = LABELS.map((txt, i) => {
+  const b = document.createElement('button');
+  b.textContent = txt;
+  b.onclick = () => setState(i);
+  uiEl.appendChild(b);
+  return b;
+});
+
+function setState(i) {
+  state = ((i % 5) + 5) % 5;
+  buttons.forEach((b, j) => b.classList.toggle('on', j === state));
+  statusEl.textContent = (state + 1) + '. ' + LABELS[state];
+}
+
+/* ---------- Κίνηση ---------- */
+const clock = new THREE.Clock();
+
+function frame() {
+  const t = clock.getElapsedTime();
+  const x = 2 + 1.9 * Math.sin(0.35 * t);     // 0.1 ≤ x ≤ 3.9
+  const y = f(x);
+  const s = fp(x);
+  P.position.copy(toW(x, y));
+
+  clearDyn();
+  ext.visible = state === 4;
+
+  let lines;
+  if (state === 0) {
+    lines = [
+      'Η συνάρτηση',
+      'f(x) = x³ − 6x² + 9x + 1',
+      `Σημείο P: x = ${x.toFixed(2)}, f(x) = ${y.toFixed(2)}`
+    ];
+  }
+
+  if (state === 1 || state === 2 || state === 4) {
+    const L = 0.8;
+    dyn.add(tube([toW(x - L, y - L * s), toW(x + L, y + L * s)], 0.003, 0xffb020));
+  }
+
+  if (state === 1) {
+    lines = [
+      'Εφαπτομένη της καμπύλης',
+      'Η κλίση της εφαπτομένης είναι f′(x)',
+      `f′(${x.toFixed(2)}) = ${s.toFixed(2)}`
+    ];
+  }
+
+  if (state === 2) {
+    lines = [
+      'Στιγμιαία ταχύτητα',
+      'Θέση s(t) = t³ − 6t² + 9t + 1, με t = x',
+      `Ταχύτητα υ(t) = s′(t) = ${s.toFixed(2)}`
+    ];
+  }
+
+  if (state === 3) {
+    // Η τέμνουσα από το P στο Q γίνεται εφαπτομένη όταν h → 0
+    const h = 0.04 + 1.2 * (0.5 + 0.5 * Math.cos(0.5 * t));
+    const xb = x + h, yb = f(xb);
+    const A = toW(x, y), B = toW(xb, yb);
+    dyn.add(tube([A, B], 0.003, 0x3ddc97));
+    dyn.add(tube([A, toW(xb, y)], 0.002, 0x7d8aa6));           // Δx = h
+    dyn.add(tube([toW(xb, y), toW(xb, yb)], 0.002, 0xffb020)); // Δy = f(x + h) − f(x)
+    dyn.add(sphere(B, 0.01, 0x3ddc97));
+    const mean = (yb - y) / h;
+    lines = [
+      'Ρυθμός μεταβολής',
+      'Μέσος ρυθμός: (f(x + h) − f(x)) / h',
+      `h = ${h.toFixed(2)}, μέσος ρυθμός = ${mean.toFixed(2)}`,
+      `Όταν h → 0, προκύπτει f′(x) = ${s.toFixed(2)}`
+    ];
+  }
+
+  if (state === 4) {
+    lines = [
+      'Μέγιστο και ελάχιστο',
+      'f′(x) = 0 για x = 1 και x = 3',
+      'Μέγιστο f(1) = 5, ελάχιστο f(3) = 1'
+    ];
+  }
+
+  drawPanel(lines);
+  statusEl.textContent = (state + 1) + '. ' + LABELS[state];
+
+  renderer.render(scene, camera);
+}
+renderer.setAnimationLoop(frame);
+
+/* ---------- Είσοδος σε AR ή VR (WebXR) ---------- */
+const enterBtn = document.getElementById('enter');
+
+renderer.xr.addEventListener('sessionstart', () => {
+  scene.background = null;                       // διαφανές φόντο στο πραγματικό χώρο
+  const session = renderer.xr.getSession();
+  // Σύντομο πάτημα (trigger ή pinch) αλλάζει κατάσταση
+  session.addEventListener('select', () => setState(state + 1));
+});
+
+renderer.xr.addEventListener('sessionend', () => {
+  scene.background = new THREE.Color(0x0b1020);
+});
+
+async function initXR() {
+  if (!navigator.xr) {
+    statusEl.textContent = 'Προεπισκόπηση σε υπολογιστή. Οι κατάσταση αλλάζουν με τα κουμπιά.';
+    return;
+  }
+  let mode = null;
+  if (await navigator.xr.isSessionSupported('immersive-ar')) mode = 'immersive-ar';
+  else if (await navigator.xr.isSessionSupported('immersive-vr')) mode = 'immersive-vr';
+
+  if (!mode) {
+    statusEl.textContent = 'Η συσκευή δεν υποστηρίζει WebXR. Προεπισκόπηση σε υπολογιστή.';
+    return;
+  }
+
+  enterBtn.textContent = mode === 'immersive-ar' ? 'Είσοδος σε AR' : 'Είσοδος σε VR';
+  enterBtn.hidden = false;
+  enterBtn.onclick = async () => {
+    const session = await navigator.xr.requestSession(mode, {
+      optionalFeatures: ['local-floor', 'bounded-floor', 'hand-tracking']
+    });
+    await renderer.xr.setSession(session);
+  };
+}
+
+/* ---------- Αρχική κατάσταση, πλήκτρα και αλλαγή μεγέθους ---------- */
+const k0 = parseInt(new URLSearchParams(window.location.search).get('k'), 10);
+setState(Number.isNaN(k0) ? 0 : k0);
+
+window.addEventListener('keydown', e => {
+  if (e.key >= '1' && e.key <= '5') setState(parseInt(e.key, 10) - 1);
+  if (e.key === 'ArrowRight') setState(state + 1);
+  if (e.key === 'ArrowLeft') setState(state - 1);
+});
+
+window.addEventListener('resize', () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+initXR();
+</script>
+</body>
+</html>
