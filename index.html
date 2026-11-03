@@ -13,7 +13,11 @@
   h1{font-size:clamp(24px,4.5vw,36px);margin:8px 0 6px;letter-spacing:-.02em}
   header p{color:var(--dim);font-size:14px;line-height:1.6;max-width:640px;margin:0}
   .grid{max-width:1080px;margin:14px auto 60px;padding:0 20px;display:grid;gap:16px;
-    grid-template-columns:repeat(auto-fill,minmax(300px,1fr))}
+    grid-template-columns:repeat(3,minmax(0,1fr))}
+  @media(max-width:920px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media(max-width:620px){.grid{grid-template-columns:minmax(0,1fr)}}
+  .card{height:100%}
+  .card .meta{flex:1}
   .card{background:rgba(255,255,255,.03);border:1px solid var(--line);border-top:3px solid var(--acc);
     border-radius:16px;overflow:hidden;display:flex;flex-direction:column}
   .card .open{display:block}

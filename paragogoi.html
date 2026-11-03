@@ -85,15 +85,21 @@ function sphere(p, r, color) {
   return m;
 }
 
+// Η ετικέτα μετριέται πρώτα, ώστε το κείμενο να μην κόβεται στο τέλος
 function label(text, color = '#ffffff') {
+  const font = '56px system-ui, sans-serif';
   const c = document.createElement('canvas');
-  c.width = 512; c.height = 128;
   const g = c.getContext('2d');
-  g.font = '56px system-ui, sans-serif';
+  g.font = font;
+  const w = Math.ceil(g.measureText(text).width) + 24;
+  const H = 88;
+  c.width = w; c.height = H;
+  g.font = font;
   g.fillStyle = color;
-  g.fillText(text, 10, 84);
+  g.fillText(text, 12, 66);
   const s = new THREE.Sprite(new THREE.SpriteMaterial({ map: new THREE.CanvasTexture(c), transparent: true, depthTest: false }));
-  s.scale.set(0.2, 0.05, 1);
+  const h = 0.05;
+  s.scale.set(h * w / H, h, 1);
   return s;
 }
 
@@ -119,6 +125,16 @@ graph.add(tube(curvePts, 0.005, 0x6ea8ff));
 // Σημείο P πάνω στην καμπύλη
 const P = sphere(new THREE.Vector3(), 0.014, 0xffb020);
 root.add(P);
+
+// Σταθερό σημείο A(2, 3) για τη στιγμιαία ταχύτητα (μόνο στην κατάσταση 2)
+const fixed = new THREE.Group();
+{
+  const lA = label('A(2, 3)', '#3ddc97');
+  lA.position.copy(toW(2, f(2))).add(new THREE.Vector3(0, 0.05, 0));
+  fixed.add(sphere(toW(2, f(2)), 0.014, 0x3ddc97), lA);
+  fixed.visible = false;
+  root.add(fixed);
+}
 
 // Πίνακας κειμένου
 const pc = document.createElement('canvas');
@@ -175,10 +191,12 @@ const clock = new THREE.Clock();
 
 function frame() {
   const t = clock.getElapsedTime();
-  const x = 2 + 1.9 * Math.sin(0.35 * t);     // 0.1 ≤ x ≤ 3.9
+  // Στην κατάσταση 2 το P πλησιάζει το σταθερό σημείο A(2, 3) και απομακρύνεται, με x = 2 + 1,6 cos(0,6t)
+  const x = state === 2 ? 2 + 1.6 * Math.cos(0.6 * t) : 2 + 1.9 * Math.sin(0.35 * t);
   const y = f(x);
   const s = fp(x);
   P.position.copy(toW(x, y));
+  fixed.visible = state === 2;
 
   clearDyn();
   ext.visible = state === 4;
@@ -192,7 +210,7 @@ function frame() {
     ];
   }
 
-  if (state === 1 || state === 2 || state === 4) {
+  if (state === 1 || state === 4) {
     const L = 0.8;
     dyn.add(tube([toW(x - L, y - L * s), toW(x + L, y + L * s)], 0.003, 0xffb020));
   }
@@ -206,11 +224,27 @@ function frame() {
   }
 
   if (state === 2) {
-    lines = [
-      'Στιγμιαία ταχύτητα',
-      'Θέση s(t) = t³ − 6t² + 9t + 1, με t = x',
-      `Ταχύτητα υ(t) = s′(t) = ${s.toFixed(2)}`
-    ];
+    const a = 2, ya = f(a), sa = fp(a), h = x - a;
+    if (Math.abs(h) >= 0.03) {
+      // Χορδή από το A στο P: μέση ταχύτητα
+      const mean = (y - ya) / h;
+      dyn.add(tube([toW(a, ya), toW(x, y)], 0.003, 0x3ddc97));
+      lines = [
+        'Στιγμιαία ταχύτητα στο A(2, 3)',
+        `Μέση ταχύτητα από το P στο A: ${mean.toFixed(2)}`,
+        `(f(x) − f(2)) / (x − 2), με x = ${x.toFixed(2)}`,
+        'Όταν P → A, η χορδή γίνεται εφαπτομένη'
+      ];
+    } else {
+      // Το P έφτασε στο A: η χορδή έγινε εφαπτομένη
+      const L = 0.8;
+      dyn.add(tube([toW(a - L, ya - L * sa), toW(a + L, ya + L * sa)], 0.003, 0xffb020));
+      lines = [
+        'Στιγμιαία ταχύτητα στο A(2, 3)',
+        'Το P έφτασε στο A, η χορδή έγινε εφαπτομένη',
+        `Στιγμιαία ταχύτητα: f′(2) = ${sa.toFixed(2)}`.replace('-', '−')
+      ];
+    }
   }
 
   if (state === 3) {
