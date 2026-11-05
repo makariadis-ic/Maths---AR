@@ -67,7 +67,8 @@ const META={
   'kouti-diaireton':['Το κουτί των διαιρετών: ΜΚΔ και ΕΚΠ','Α΄ Γυμνασίου','#2E9E4F'],
   'docheia-nerou':['Τα δοχεία γεμίζουν: τρία δοχεία, ίδια βρύση','Β΄ Γυμνασίου','#5B9BD5'],
   elika:['Η έλικα και οι σκιές της','Β΄ Λυκείου','#E36C09'],
-  'epipeda-lysi':['Δύο επίπεδα και η λύση: το γραμμικό σύστημα στον χώρο','Γ΄ Γυμνασίου','#2E75B6']
+  'epipeda-lysi':['Δύο επίπεδα και η λύση: το γραμμικό σύστημα στον χώρο','Γ΄ Γυμνασίου','#2E75B6'],
+  oria:['Ο ορισμός του ορίου: ε και δ','Γ΄ Λυκείου','#1565C0']
 };
 
 const asked=new URLSearchParams(location.search).get('id');
@@ -341,6 +342,31 @@ if(id==='elika'){
   xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='trigonometria.html'; };
   row.appendChild(xr);
   /* τα κουμπιά πιάνουν το κάτω μέρος, οπότε το μήνυμα για το AR πάει κάτω από τον τίτλο */
+  mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
+}
+
+/* Ο ορισμός του ορίου (Γ΄ Λυκείου): f(x) = (x³ − 8)/(x − 2), x₀ = 2, l = 12. Για 12 s το ε πάει από 6 έως 0,72 και το δ = min{1, ε/7}
+   ακολουθεί· τα δύο πορτοκαλί σημεία, στα άκρα της ζώνης δ, μένουν πάντα μέσα στην πράσινη ζώνη ε. Για 2 s όλα μένουν ακίνητα. */
+const ORIA=[['ε = 6, δ ≈ 0,86',0.05],['ε = 3, δ ≈ 0,43',3.92],['ε = 1, δ ≈ 0,14',10.14],['ε ≈ 0,72, δ ≈ 0,10',12]];
+if(id==='oria'){
+  mv.removeAttribute('auto-rotate');
+  mv.setAttribute('camera-orbit','12deg 72deg 100%');
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const mark=el=>[...row.children].forEach(b=>b.classList.toggle('on',b===el));
+  for(const [label,t] of ORIA){
+    const b=document.createElement('button');
+    b.textContent=label;
+    b.onclick=()=>{ mv.currentTime=t; mv.pause(); mark(b); };
+    row.appendChild(b);
+  }
+  const play=document.createElement('button');
+  play.textContent='Συνεχής κίνηση';
+  play.onclick=()=>{ mv.play(); mark(play); };
+  row.appendChild(play);
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='oria.html'; };
+  row.appendChild(xr);
   mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
 }
 
