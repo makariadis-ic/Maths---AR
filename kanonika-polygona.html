@@ -1,0 +1,1179 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Κανονικά πολύγωνα — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#1565C0}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px;white-space:nowrap}
+  #bar h1{font-size:15px;margin:0;font-weight:640;white-space:nowrap}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.35}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#fff;background:var(--acc);border-color:transparent}
+  #btnPlay{min-width:132px}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:860px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:720px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(80vw,110vh);height:auto}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segS,.nogl #segT,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #btnPlay{min-width:112px} #hint{font-size:11.5px}
+    #bar{gap:10px;padding:10px 12px} #bar h1{font-size:14px} #bar .lv{font-size:10.5px} #bar .lv span{display:block} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<rect x="10" y="10" width="460" height="260" fill="#ffffff" stroke="#A6A6A6" stroke-width="2"/>
+<circle cx="240" cy="140" r="110" fill="none" stroke="#6A1B9A" stroke-width="3"/>
+<polygon points="185,235.26 295,235.26 350,140 295,44.74 185,44.74 130,140" fill="#1565C0" fill-opacity=".12" stroke="#1565C0" stroke-width="5"/>
+<polygon points="240,140 240,235.26 185,235.26" fill="#B7791F" fill-opacity=".35"/>
+<line x1="240" y1="140" x2="185" y2="235.26" stroke="#6A1B9A" stroke-width="5"/>
+<line x1="240" y1="140" x2="240" y2="235.26" stroke="#2E7D32" stroke-width="5"/>
+<line x1="185" y1="235.26" x2="240" y2="235.26" stroke="#1565C0" stroke-width="7"/>
+<text x="198" y="186" font-size="17" font-style="italic" fill="#6A1B9A">R</text>
+<text x="247" y="194" font-size="17" font-style="italic" fill="#2E7D32">α</text>
+<text x="240" y="140" dy="-10" font-size="15" fill="#262626" text-anchor="middle">O</text>
+<text x="240" y="292" font-size="15" font-weight="700" fill="#eaf1f8" text-anchor="middle">α_ν² + λ_ν²/4 = R²,  Ε_ν = ½ P_ν α_ν</text>
+</svg>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Κανονικά πολύγωνα</h1>
+  <span class="lv"><span>Γεωμετρία Β΄ Λυκείου</span> <span>Κεφάλαιο 11, § 11.1–11.3</span></span>
+</div>
+<div id="dock">
+  <div class="seg" id="segS">
+    <button data-k="0" class="on">Ορισμός</button>
+    <button data-k="1">Γωνίες</button>
+    <button data-k="2">Κύκλοι</button>
+    <button data-k="3">Στοιχεία</button>
+    <button data-k="4">Εμβαδόν</button>
+    <button data-k="5">Εξάγωνο</button>
+    <button data-k="6">Διπλασιασμός</button>
+    <button data-k="7">Πλακόστρωση</button>
+    <button data-k="8">Κηρήθρα</button>
+  </div>
+  <div class="seg" id="segT">
+    <button id="btnPlay">Παύση</button>
+    <button id="btnReset">Επαναφορά</button>
+    <button id="btnSpeed">2×</button>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο «Κανονικά πολύγωνα» (Ευκλείδεια Γεωμετρία Β΄ Λυκείου, Κεφάλαιο 11, § 11.1 έως § 11.3): εννέα καταστάσεις,
+// όπως οι εφαρμογές GeoGebra του σεναρίου. Κέντρο Καινοτομίας Θεσσαλίας.
+// Κάθε κατάσταση είναι ένας λευκός πίνακας πάνω σε μια βάση. Τα πολύγωνα είναι πλακίδια με πάχος λίγο μπροστά από τον
+// πίνακα και οι πλευρές, οι ακτίνες και τα αποστήματα είναι ράβδοι, ώστε όταν ο θεατής κινείται να ξεχωρίζουν τα επίπεδα.
+// Τα χρώματα είναι τα ίδια με τις εφαρμογές GeoGebra: το κανονικό πολύγωνο μπλε, η ακτίνα R και ο περιγεγραμμένος κύκλος
+// μωβ, το απόστημα α_ν πράσινο, η γωνία φ_ν κόκκινη, η κεντρική γωνία ω_ν γαλαζοπράσινη, το περιγεγραμμένο πολύγωνο καφέ,
+// ό,τι αλλάζει πορτοκαλί. Μονάδα μήκους της σκηνής: 1 cm. Ο πίνακας έχει πλάτος 48 cm και ύψος 30 cm.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const CM = 0.012;                       // 1 cm της σκηνής σε μέτρα (ο πίνακας: 0,58 m πλάτος)
+const BX0 = -24, BX1 = 24, BY0 = 4, BY1 = 34;   // ο πίνακας
+const PANEL_Y = 36.5;                   // η κάτω πλευρά του πίνακα τίτλου
+const TABLE = 0.78, DIST = 1.15;        // XR: ύψος θρανίου και απόσταση της σκηνής από τον χρήστη (m)
+const AZ = 16, EL = 14;                 // η σκηνή φαίνεται από εμπρός-δεξιά (16°) και από ψηλά (14°)
+const FOV = 26;
+const PX = 30;                          // pixels ανά cm στην υφή του πίνακα
+const CX = 0, CY = 19;                  // το κέντρο του πίνακα (cm)
+
+const COL = { B: '#1565C0', R: '#C62828', O: '#EF6C00', G: '#2E7D32', P: '#6A1B9A', K: '#616161', N: '#17365D', T: '#00838F', Br: '#8D4E2A', Au: '#B7791F' };
+const TXT = { B: '#7FB2E5', R: '#EF8A84', O: '#F7A864', G: '#7FD18A', P: '#C59BE0', K: '#cbd5e1', N: '#9fb8d8', T: '#6FD3DC', Br: '#D9A37E', Au: '#E8C27A' };
+const INK = '#eaf1f8', KEIMENO = '#262626';
+
+const rad = THREE.MathUtils.degToRad;
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const UP = V(0, 1, 0);
+const num = (x, d = 2) => { const s = (Math.abs(x) < 0.5 * 10 ** -d ? 0 : x + Math.sign(x) * 1e-9).toFixed(d); return s.replace('.', ',').replace('-', '−'); };
+const smooth = x => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
+const approx = v => { const r = Math.round(v * 100) / 100; return Math.abs(v - r) < 1e-9 ? '= ' + tl(r) : '≈ ' + num(v); };
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 0.01, 60);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.minDistance = 0.3;
+controls.maxDistance = 5;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a3446, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(0.8, 1.6, 1.2);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xbcd8ff, 0.5);
+fill.position.set(-1, 0.5, -1);
+scene.add(fill);
+
+// δάπεδο και θρανίο μόνο σε αδιαφανή λειτουργία (VR)
+const room = new THREE.Group();
+room.visible = false;
+scene.add(room);
+{
+  const floor = new THREE.Group();
+  floor.name = 'floor';
+  room.add(floor);
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x1b2433, roughness: 0.95, depthWrite: false }));
+  disc.rotation.x = -Math.PI / 2;
+  disc.renderOrder = -2;
+  floor.add(disc);
+  const grid = new THREE.GridHelper(12, 24, 0x3b4a63, 0x27324a);
+  grid.material.depthWrite = false;
+  grid.renderOrder = -1;
+  grid.position.y = 0.002;
+  floor.add(grid);
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.04, 0.5), new THREE.MeshStandardMaterial({ color: 0x6b4f3a, roughness: 0.7 }));
+  desk.name = 'desk';
+  room.add(desk);
+}
+
+const root = new THREE.Group();
+scene.add(root);
+const world = new THREE.Group();         // η σκηνή σε εκατοστά
+world.scale.setScalar(CM);
+root.add(world);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+const FONT = '"Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Arial, sans-serif';
+function roundRect(ctx, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+  ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath();
+}
+function canvasTexture(cv) {
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+// στοιχειοθεσία των κειμένων: _{…} δείκτης, ^{…} εκθέτης, ∫{α}{β} ολοκλήρωμα με άκρα, ]{α}{β} αγκύλη με άκρα,
+// π.χ. '∫{0}{1} x e^{x} dx = [x e^{x}]{0}{1} − …'
+function parseRich(s) {
+  const out = [];
+  let i = 0, buf = '';
+  const flush = () => { if (buf) { out.push({ t: 'n', s: buf }); buf = ''; } };
+  const group = () => {
+    let depth = 0, j = i;
+    for (; j < s.length; j++) { if (s[j] === '{') depth++; else if (s[j] === '}' && --depth === 0) break; }
+    const c = s.slice(i + 1, j);
+    i = j + 1;
+    return c;
+  };
+  while (i < s.length) {
+    const ch = s[i];
+    if ((ch === '_' || ch === '^') && s[i + 1] === '{') { flush(); i++; out.push({ t: ch === '_' ? 'sub' : 'sup', s: group() }); }
+    else if ((ch === '∫' || ch === ']') && s[i + 1] === '{') { flush(); i++; const lo = group(), hi = group(); out.push({ t: ch === '∫' ? 'int' : 'br', lo, hi }); }
+    else { buf += ch; i++; }
+  }
+  flush();
+  return out;
+}
+const isTall = s => /[∫\]]\{/.test(s);
+function richLayout(ctx, s, size, weight) {
+  const F = k => `${weight} ${Math.round(size * k)}px ${FONT}`;
+  const W = (t, k) => { ctx.font = F(k); return ctx.measureText(t).width; };
+  const parts = [];
+  let x = 0;
+  for (const r of parseRich(s)) {
+    if (r.t === 'n') { parts.push({ s: r.s, x, dy: 0, k: 1 }); x += W(r.s, 1); }
+    else if (r.t === 'sub' || r.t === 'sup') {
+      parts.push({ s: r.s, x: x + size * 0.02, dy: r.t === 'sub' ? size * 0.3 : -size * 0.38, k: 0.7 });
+      x += W(r.s, 0.7) + size * 0.06;
+    } else if (r.t === 'int') {
+      const wi = W('∫', 1.45);
+      parts.push({ s: '∫', x, dy: -size * 0.04, k: 1.45 });
+      parts.push({ s: r.hi, x: x + wi * 0.92, dy: -size * 0.62, k: 0.75 });
+      parts.push({ s: r.lo, x: x + wi * 0.4, dy: size * 0.62, k: 0.75 });
+      x += Math.max(wi * 0.92 + W(r.hi, 0.75), wi * 0.4 + W(r.lo, 0.75)) + size * 0.14;
+    } else {
+      const wb = W(']', 1);
+      parts.push({ s: ']', x, dy: 0, k: 1 });
+      const xl = x + wb + size * 0.04;
+      parts.push({ s: r.hi, x: xl, dy: -size * 0.55, k: 0.75 });
+      parts.push({ s: r.lo, x: xl, dy: size * 0.55, k: 0.75 });
+      x = xl + Math.max(W(r.hi, 0.75), W(r.lo, 0.75)) + size * 0.08;
+    }
+  }
+  return { w: x, parts, F };
+}
+function richDraw(ctx, L, x0, y, stroke) {      // stroke: πάχος του περιγράμματος για το κανονικό μέγεθος
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  for (const p of L.parts) {
+    ctx.font = L.F(p.k);
+    if (stroke) { ctx.lineWidth = stroke * Math.min(p.k, 1); ctx.strokeText(p.s, x0 + p.x, y + p.dy); } else ctx.fillText(p.s, x0 + p.x, y + p.dy);
+  }
+}
+const measureCtx = document.createElement('canvas').getContext('2d');
+// ετικέτα με περίγραμμα, πάντα στραμμένη προς τον θεατή· η υφή έχει πλάτος για το μεγαλύτερο κείμενο (template) και
+// μεγαλώνει, αν χρειαστεί, για μεγαλύτερο κείμενο
+const LS = 120, LPAD = 40;
+function labelCanvas(sp, w, h) {
+  const u = sp.userData;
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  if (u.tex) u.tex.dispose();
+  Object.assign(u, { cv, ctx: cv.getContext('2d'), tex: canvasTexture(cv), aspect: w / h, h: u.base * h / (LS * 1.5) });
+  sp.material.map = u.tex;
+  sp.material.needsUpdate = true;
+  fitLabel(sp);
+}
+function label(text, color, height, template) {
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthWrite: false, depthTest: false }));
+  sp.renderOrder = 8;
+  const t = template || text, L = richLayout(measureCtx, t, LS, 700);
+  sp.userData = { base: height * (isTall(t) ? 1.12 : 1), k: 1, text: null, color: null, scalable: true };
+  labelCanvas(sp, Math.ceil(L.w) + 2 * LPAD, Math.ceil(LS * (isTall(t) ? 2.2 : 1.5)));
+  setText(sp, text, color);
+  return sp;
+}
+function setText(sp, text, color) {
+  const u = sp.userData;
+  if (u.text === text && u.color === color) return;
+  u.text = text; u.color = color;
+  const L = richLayout(measureCtx, text, LS, 700);
+  const w = Math.ceil(L.w) + 2 * LPAD, h = Math.ceil(LS * (isTall(text) ? 2.2 : 1.5));
+  if (w > u.cv.width || h > u.cv.height) labelCanvas(sp, Math.max(w, u.cv.width), Math.max(h, u.cv.height));
+  const { cv, ctx } = u;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(14,20,32,.9)';
+  ctx.fillStyle = color;
+  const x0 = (cv.width - L.w) / 2, y = cv.height / 2;
+  richDraw(ctx, L, x0, y, 22);
+  richDraw(ctx, L, x0, y, 0);
+  u.tex.needsUpdate = true;
+}
+function fitLabel(sp) { const u = sp.userData, s = u.h * u.k; sp.scale.set(s * u.aspect, s, 1); }
+
+// ------------------------------------------------------------------ βοηθητικά γεωμετρίας
+const plateGeo = new THREE.PlaneGeometry(1, 1);
+const unitBox = new THREE.BoxGeometry(1, 1, 1);
+function kouti(sx, sy, sz, c, mat) {
+  const m = new THREE.Mesh(unitBox, mat);
+  m.scale.set(sx, sy, sz);
+  m.position.copy(c);
+  return m;
+}
+const unitCyl = new THREE.CylinderGeometry(1, 1, 1, 12, 1);
+function setBar(m, a, b, r) {
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  const d = b.clone().sub(a), l = d.length();
+  if (l > 1e-6) m.quaternion.setFromUnitVectors(UP, d.multiplyScalar(1 / l));
+  m.scale.set(r, Math.max(l, 1e-4), r);
+  m.visible = l > 0.05;
+}
+function bar(a, b, r, mat) { const m = new THREE.Mesh(unitCyl, mat); setBar(m, a, b, r); return m; }
+function dashedBar(a, b, r, mat, dash = 1.0, gap = 0.7) {
+  const g = new THREE.Group(), d = b.clone().sub(a), l = d.length();
+  for (let s = 0; s < l; s += dash + gap) {
+    const e = Math.min(s + dash, l);
+    g.add(bar(a.clone().addScaledVector(d, s / l), a.clone().addScaledVector(d, e / l), r, mat));
+  }
+  return g;
+}
+const ballGeo = new THREE.SphereGeometry(1, 24, 16);
+function ball(r, mat) { const m = new THREE.Mesh(ballGeo, mat); m.scale.setScalar(r); return m; }
+// σωλήνας κατά μήκος της καμπύλης fn(t), t από t0 έως t1· με reveal φαίνεται μόνο το κομμάτι ως το t
+class FnCurve extends THREE.Curve {
+  constructor(fn, t0, t1) { super(); this.fn = fn; this.t0 = t0; this.t1 = t1; }
+  getPoint(u, target = new THREE.Vector3()) { return target.copy(this.fn(this.t0 + (this.t1 - this.t0) * u)); }
+  getPointAt(u, target) { return this.getPoint(u, target); }
+  getTangentAt(u, target) { return this.getTangent(u, target); }
+}
+function tube(fn, t0, t1, seg, r, mat, rs = 6) {
+  const m = new THREE.Mesh(new THREE.TubeGeometry(new FnCurve(fn, t0, t1), seg, r, rs, false), mat);
+  m.userData.tube = { seg, rs, t0, t1, r, fn };
+  return m;
+}
+function reveal(m, t) {
+  const u = m.userData.tube, f = THREE.MathUtils.clamp((t - u.t0) / (u.t1 - u.t0), 0, 1);
+  m.geometry.setDrawRange(0, Math.round(f * u.seg) * u.rs * 6);
+}
+function retube(m, a, b) {              // αλλάζει το διάστημα του σωλήνα (για καμπύλες που κινούνται)
+  const u = m.userData.tube;
+  m.visible = b - a > 1e-4;
+  if (!m.visible) return;
+  m.geometry.dispose();
+  m.geometry = new THREE.TubeGeometry(new FnCurve(u.fn, a, b), u.seg, u.r, u.rs, false);
+}
+
+// ------------------------------------------------------------------ υλικά
+const flat = {}, lit = {};
+const bm = (c, op = 1) => flat[c + op] || (flat[c + op] = new THREE.MeshBasicMaterial({
+  color: c, transparent: op < 1, opacity: op, depthWrite: op >= 1, side: THREE.DoubleSide }));
+const glow = c => lit[c] || (lit[c] = new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.3, roughness: 0.45 }));
+const M = {
+  vasi: new THREE.MeshStandardMaterial({ color: 0xe5e7eb, roughness: 0.85 }),
+  toixos: new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.9 })
+};
+
+
+// ------------------------------------------------------------------ ο πίνακας: λευκό χαρτί με πλαίσιο
+const tl = v => String(+v.toFixed(3)).replace('.', ',').replace('-', '−');
+function boardTexture() {
+  const cv = document.createElement('canvas');
+  cv.width = (BX1 - BX0) * PX; cv.height = (BY1 - BY0) * PX;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.strokeStyle = '#A6A6A6'; ctx.lineWidth = 4;
+  ctx.strokeRect(2, 2, cv.width - 4, cv.height - 4);
+  return canvasTexture(cv);
+}
+
+// ------------------------------------------------------------------ εργαλεία για τα πολύγωνα (συντεταγμένες του πίνακα σε cm)
+const TAU = 2 * Math.PI;
+const V2 = (x, y) => new THREE.Vector2(x, y);
+// κανονικό n-γωνο με κέντρο (cx, cy), ακτίνα R και πρώτη κορυφή στη γωνία a0
+const ngon = (n, R, cx, cy, a0) => Array.from({ length: n }, (_, k) => V2(cx + R * Math.cos(a0 + k * TAU / n), cy + R * Math.sin(a0 + k * TAU / n)));
+// κανονικό n-γωνο με μία πλευρά οριζόντια κάτω
+const ngonFlat = (n, R, cx, cy) => ngon(n, R, cx, cy, -Math.PI / 2 - Math.PI / n);
+// κανονικό n-γωνο με κορυφή P, πρώτη πλευρά προς τη γωνία th και πλευρά s (αριστερόστροφα)
+function ngonAt(n, P, th, s) {
+  const out = [P.clone()];
+  let x = P.x, y = P.y;
+  for (let m = 0; m < n - 1; m++) { x += s * Math.cos(th + m * TAU / n); y += s * Math.sin(th + m * TAU / n); out.push(V2(x, y)); }
+  return out;
+}
+const lerp2 = (a, b, t) => V2(a.x + (b.x - a.x) * t, a.y + (b.y - a.y) * t);
+
+function pkit(g) {
+  const K = {};
+  const P3 = (p, z) => V(p.x, p.y, z);
+  // ράβδοι κατά μήκος των πλευρών (κλειστή τεθλασμένη): K.edges(color, r) → .set(points, z, frac)
+  K.edges = (color, r = 0.22, op = 1) => {
+    const pool = [], mat = op < 1 ? bm(COL[color], op) : glow(COL[color]);
+    return {
+      pool,
+      set(pts, z = 0.9, frac = 1, closed = true) {
+        const n = closed ? pts.length : pts.length - 1;
+        while (pool.length < n) { const b = bar(V(0, 0, 0), V(1, 0, 0), r, mat); g.add(b); pool.push(b); }
+        const f = frac * n;
+        pool.forEach((b, i) => {
+          if (i >= n || f <= i) { b.visible = false; return; }
+          const a = pts[i], c = pts[(i + 1) % pts.length], e = Math.min(1, f - i);
+          setBar(b, P3(a, z), P3(lerp2(a, c, e), z), r);
+        });
+      },
+      hide() { pool.forEach(b => { b.visible = false; }); }
+    };
+  };
+  K.seg = (color, r = 0.22) => { const b = bar(V(0, 0, 0), V(1, 0, 0), r, glow(COL[color])); g.add(b); return b; };
+  K.setSeg = (b, a, c, z = 0.9, r) => setBar(b, P3(a, z), P3(c, z), r === undefined ? b.scale.x : r);
+  K.dash = (a, c, color, r = 0.12, z = 0.7) => { const d = dashedBar(P3(a, z), P3(c, z), r, bm(COL[color])); g.add(d); return d; };
+  // πλακίδιο με πάχος: K.slab(color, op, depth) → .set(points, z0)
+  K.slab = (color, op = 0.35, depth = 0.5, lit_ = false) => {
+    const mesh = new THREE.Mesh(new THREE.BufferGeometry(), lit_ ? glow(COL[color]) : bm(COL[color], op));
+    mesh.renderOrder = 2;
+    g.add(mesh);
+    let key = '';
+    mesh.userData.set = (pts, z0 = 0.2) => {
+      const k = pts.map(p => p.x.toFixed(3) + ',' + p.y.toFixed(3)).join(';');
+      if (k !== key) {
+        key = k;
+        const sh = new THREE.Shape(pts);
+        mesh.geometry.dispose();
+        mesh.geometry = new THREE.ExtrudeGeometry(sh, { depth, bevelEnabled: false });
+      }
+      mesh.position.z = z0;
+      mesh.visible = true;
+    };
+    mesh.visible = false;
+    return mesh;
+  };
+  // πλακίδιο με σταθερό τοπικό σχήμα: η κίνηση γίνεται με position και rotation.z
+  K.tile = (color, local, op = 0.5, depth = 0.45) => {
+    const m = new THREE.Mesh(new THREE.ExtrudeGeometry(new THREE.Shape(local), { depth, bevelEnabled: false }), bm(COL[color], op));
+    m.renderOrder = 2;
+    g.add(m);
+    return m;
+  };
+  // τοιχώματα κυψέλης: πολύγωνο με τρύπα, ύψος h (scale.z)
+  K.cell = (pts, wall, color) => {
+    const sh = new THREE.Shape(pts);
+    const c = pts.reduce((s, p) => s.add(p), V2(0, 0)).multiplyScalar(1 / pts.length);
+    const inner = pts.map(p => { const d = p.clone().sub(c); const L = d.length(); return c.clone().add(d.multiplyScalar((L - wall / Math.cos(Math.PI / pts.length)) / L)); });
+    sh.holes.push(new THREE.Path(inner.slice().reverse()));
+    const m = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 1, bevelEnabled: false }), glow(COL[color]));
+    m.position.z = 0.15;
+    g.add(m);
+    return m;
+  };
+  K.ring = (color, R, cx, cy, r = 0.18, z = 0.6, op = 1) => {
+    const m = new THREE.Mesh(new THREE.TorusGeometry(R, r, 8, 120), op < 1 ? bm(COL[color], op) : glow(COL[color]));
+    m.position.set(cx, cy, z);
+    g.add(m);
+    return m;
+  };
+  K.arc = (color, r = 0.16) => {   // τόξο: .set(cx, cy, R, a0, a1, z)
+    const m = new THREE.Mesh(new THREE.BufferGeometry(), glow(COL[color]));
+    g.add(m);
+    let key = '';
+    m.userData.set = (cx, cy, R, a0, a1, z = 0.8) => {
+      const k = [R, a1 - a0].map(v => v.toFixed(4)).join(',');
+      if (k !== key) { key = k; m.geometry.dispose(); m.geometry = new THREE.TorusGeometry(R, r, 6, 64, Math.max(a1 - a0, 1e-3)); }
+      m.position.set(cx, cy, z); m.rotation.z = a0; m.visible = a1 - a0 > 1e-3;
+    };
+    m.visible = false;
+    return m;
+  };
+  K.sector = (color, op = 0.45) => {   // κυκλικός τομέας: .set(cx, cy, R, a0, a1, z)
+    const m = new THREE.Mesh(new THREE.BufferGeometry(), bm(COL[color], op));
+    m.renderOrder = 4;
+    g.add(m);
+    let key = '';
+    m.userData.set = (cx, cy, R, a0, a1, z = 1.3) => {
+      const k = [R, a0, a1].map(v => v.toFixed(4)).join(',');
+      if (k !== key) { key = k; m.geometry.dispose(); m.geometry = new THREE.CircleGeometry(R, 48, a0, Math.max(a1 - a0, 1e-3)); }
+      m.position.set(cx, cy, z); m.visible = a1 - a0 > 1e-3;
+    };
+    m.visible = false;
+    return m;
+  };
+  // γωνία στην κορυφή B ανάμεσα στις BA και BC (η μικρότερη από τις δύο)
+  K.angleAt = (sec, A, B, C, R, z) => {
+    let a0 = Math.atan2(A.y - B.y, A.x - B.x), a1 = Math.atan2(C.y - B.y, C.x - B.x);
+    let d = a1 - a0; while (d < 0) d += TAU; while (d >= TAU) d -= TAU;
+    if (d > Math.PI) { const t = a0; a0 = a1; a1 = t; d = TAU - d; }
+    sec.userData.set(B.x, B.y, R, a0, a0 + d, z);
+  };
+  K.ball = (color, r = 0.5, z = 1) => { const b = ball(r, glow(COL[color])); b.position.z = z; g.add(b); return b; };
+  K.put = (o, p, z) => { o.position.set(p.x, p.y, z === undefined ? o.position.z : z); };
+  K.text = (color, template, h = 1.5) => { const l = label(template, TXT[color], h, template); l.userData.col = TXT[color]; l.position.z = 2.4; g.add(l); return l; };
+  K.say = (l, s, color) => setText(l, s, color ? TXT[color] : l.userData.col);
+  K.at = (l, p, z = 2.4) => { l.position.set(p.x, p.y, z); };
+  // μικρές γραμμές ίσων πλευρών (ticks) στο μέσο της πλευράς AB
+  K.ticks = (color, nMax = 2) => {
+    const bars = [];
+    for (let i = 0; i < nMax; i++) { const b = bar(V(0, 0, 0), V(1, 0, 0), 0.13, glow(COL[color])); g.add(b); bars.push(b); }
+    return {
+      set(A, B, n, z = 1.0, L = 1.1) {
+        const d = B.clone().sub(A), len = d.length(); d.multiplyScalar(1 / len);
+        const nrm = V2(-d.y, d.x), M = lerp2(A, B, 0.5);
+        bars.forEach((b, i) => {
+          if (i >= n) { b.visible = false; return; }
+          const off = (i - (n - 1) / 2) * 0.45;
+          const c = M.clone().addScaledVector(d, off);
+          setBar(b, V(c.x - nrm.x * L / 2, c.y - nrm.y * L / 2, z), V(c.x + nrm.x * L / 2, c.y + nrm.y * L / 2, z), 0.13);
+        });
+      }
+    };
+  };
+  return K;
+}
+const degTxt = v => { const r = Math.round(v * 100) / 100; return Math.abs(v - r) < 1e-9 ? tl(r) + '°' : num(v) + '°'; };
+const eqDeg = v => { const r = Math.round(v * 100) / 100; return (Math.abs(v - r) < 1e-9 ? '= ' : '≈ ') + degTxt(v); };
+const ΟΝ = { 3: 'Ισόπλευρο τρίγωνο', 4: 'Τετράγωνο', 5: 'Κανονικό πεντάγωνο', 6: 'Κανονικό εξάγωνο', 7: 'Κανονικό επτάγωνο',
+  8: 'Κανονικό οκτάγωνο', 9: 'Κανονικό εννεάγωνο', 10: 'Κανονικό δεκάγωνο', 12: 'Κανονικό δωδεκάγωνο' };
+const onoma = n => ΟΝ[n] || `Κανονικό ${n}-γωνο`;
+
+// ------------------------------------------------------------------ οι εννέα καταστάσεις
+const PI = Math.PI;
+const STATES = [
+  // 1. Ορισμός: ρόμβος και ορθογώνιο που γίνονται τετράγωνα
+  { dur: 12, title: 'Ο ρόμβος, το ορθογώνιο και το τετράγωνο',
+    lines: [['Κανονικό πολύγωνο: όλες οι πλευρές ίσες και όλες οι γωνίες ίσες'],
+      ['Ρόμβος: ίσες πλευρές, όχι όμως πάντα ίσες γωνίες', 'B'],
+      ['Ορθογώνιο: ίσες γωνίες, όχι όμως πάντα ίσες πλευρές', 'G'],
+      ['Κανονικό τετράπλευρο είναι μόνο το τετράγωνο', 'O']],
+    hint: '<b>Ορισμός (§ 11.1):</b> ένα πολύγωνο λέγεται κανονικό, όταν έχει όλες τις πλευρές του ίσες και όλες τις γωνίες του ίσες. Ο ρόμβος ΑΒΓΔ έχει ίσες πλευρές, αλλά οι γωνίες του είναι ίσες μόνο όταν Â = 90°. Το ορθογώνιο ΕΖΗΘ έχει ίσες γωνίες, αλλά οι πλευρές του είναι ίσες μόνο όταν ΕΖ = ΖΗ. Και στις δύο περιπτώσεις το κανονικό τετράπλευρο είναι το τετράγωνο. Είναι η ενδεικτική δραστηριότητα των Οδηγιών Διδασκαλίας 2026-27 για τις § 11.1–11.2.',
+    build(g) {
+      const K = pkit(g);
+      const a = 9.5, h = 8.4, C1 = V2(-12, CY + 1), C2 = V2(12, CY + 1);
+      const eR = K.edges('B', 0.26), eQ = K.edges('B', 0.26);
+      const fR = K.slab('B', 0.22, 0.3), fQ = K.slab('B', 0.22, 0.3);
+      const sA = [K.sector('R'), K.sector('T'), K.sector('R'), K.sector('T')], sQ = [0, 1, 2, 3].map(() => K.sector('R'));
+      const tR = [0, 1, 2, 3].map(() => K.ticks('B')), tQ = [0, 1, 2, 3].map(() => K.ticks('B'));
+      const lA = K.text('R', 'Â = 90°'), lR = K.text('B', 'Ρόμβος ΑΒΓΔ'), lQ = K.text('B', 'Ορθογώνιο ΕΖΗΘ'), lW = K.text('O', 'ΕΖ = ΖΗ = ΗΘ = ΘΕ');
+      const names = ['Α', 'Β', 'Γ', 'Δ', 'Ε', 'Ζ', 'Η', 'Θ'].map(c => K.text('K', c, 1.2));
+      return u => {
+        const s = smooth(u / 0.62), th = rad(55 + 35 * s), w = 15 - (15 - h) * s, sq = s > 0.999;
+        const R = [V2(C1.x - a * Math.cos(th / 2), C1.y), V2(C1.x, C1.y - a * Math.sin(th / 2)), V2(C1.x + a * Math.cos(th / 2), C1.y), V2(C1.x, C1.y + a * Math.sin(th / 2))];
+        const Q = [V2(C2.x - w / 2, C2.y - h / 2), V2(C2.x + w / 2, C2.y - h / 2), V2(C2.x + w / 2, C2.y + h / 2), V2(C2.x - w / 2, C2.y + h / 2)];
+        eR.set(R); eQ.set(Q); fR.userData.set(R); fQ.userData.set(Q);
+        for (let i = 0; i < 4; i++) {
+          K.angleAt(sA[i], R[(i + 3) % 4], R[i], R[(i + 1) % 4], 1.9, 1.3);
+          sA[i].material = bm(COL[sq || i % 2 === 0 ? 'R' : 'T'], 0.45);
+          K.angleAt(sQ[i], Q[(i + 3) % 4], Q[i], Q[(i + 1) % 4], 1.3, 1.3);
+          tR[i].set(R[i], R[(i + 1) % 4], 1);
+          tQ[i].set(Q[i], Q[(i + 1) % 4], sq || i % 2 === 1 ? 1 : 2);
+        }
+        R.forEach((p, i) => K.at(names[i], lerp2(C1, p, 1 + 1.6 / p.distanceTo(C1))));
+        Q.forEach((p, i) => K.at(names[4 + i], lerp2(C2, p, 1 + 1.4 / p.distanceTo(C2))));
+        K.say(lA, `Â = ${Math.round(th * 180 / PI)}°`);
+        K.at(lA, V2(C1.x - 8.2, C1.y + 7.2));
+        K.say(lR, sq ? 'Τετράγωνο' : 'Ρόμβος ΑΒΓΔ', sq ? 'O' : 'B');
+        K.say(lQ, sq ? 'Τετράγωνο' : 'Ορθογώνιο ΕΖΗΘ', sq ? 'O' : 'B');
+        K.at(lR, V2(C1.x, CY - 10.4)); K.at(lQ, V2(C2.x, CY - 10.4));
+        lW.visible = sq;
+        K.at(lW, V2(C2.x, C2.y + h / 2 + 2.6));
+      };
+    } },
+
+  // 2. Η γωνία φ_ν και η κεντρική γωνία ω_ν, για ν = 3 έως 9
+  { dur: 14, title: 'Η γωνία φ_{ν} και η κεντρική γωνία ω_{ν}',
+    lines: [['φ_{ν} = 180° − 360°/ν', 'R'], ['ω_{ν} = 360°/ν', 'T'], ['φ_{ν} + ω_{ν} = 180°']],
+    hint: '<b>Γωνίες κανονικού πολυγώνου (§ 11.1–11.2):</b> το άθροισμα των γωνιών κυρτού ν-γώνου είναι (ν − 2) · 180°, άρα κάθε γωνία του κανονικού ν-γώνου είναι φ<sub>ν</sub> = 180° − 360°/ν (κόκκινη). Η κεντρική γωνία, υπό την οποία φαίνεται κάθε πλευρά από το κέντρο O, είναι ω<sub>ν</sub> = 360°/ν (γαλαζοπράσινη). Γι’ αυτό φ<sub>ν</sub> + ω<sub>ν</sub> = 180°. Το ν αλλάζει από 3 έως 9.',
+    build(g) {
+      const K = pkit(g), R = 10, O = V2(CX, CY - 0.5);
+      const e = K.edges('B', 0.26), f = K.slab('B', 0.14, 0.3);
+      const sF = K.sector('R'), sW = K.sector('T');
+      const r1 = K.seg('T', 0.16), r2 = K.seg('T', 0.16);
+      const cO = K.ball('K', 0.42);
+      K.put(cO, O, 1);
+      const lN = K.text('O', 'Κανονικό πεντάγωνο'), lF = K.text('R', 'φ_{5} = 108°'), lW = K.text('T', 'ω_{5} = 72°');
+      return u => {
+        const n = Math.min(9, 3 + Math.floor(u * 7.6));
+        const pts = ngonFlat(n, R, O.x, O.y);
+        e.set(pts); f.userData.set(pts);
+        K.angleAt(sF, pts[2], pts[1], pts[0], 2.6, 1.3);
+        K.angleAt(sW, pts[0], O, pts[1], 2.8, 1.25);
+        K.setSeg(r1, O, pts[0], 1.1); K.setSeg(r2, O, pts[1], 1.1);
+        K.say(lN, onoma(n)); K.at(lN, V2(O.x, O.y + R + 2.4));
+        K.say(lF, `φ_{${n}} ${eqDeg(180 - 360 / n)}`);
+        K.at(lF, V2(pts[1].x + 6.2, pts[1].y + 1.2));
+        K.say(lW, `ω_{${n}} ${eqDeg(360 / n)}`);
+        K.at(lW, V2(O.x, O.y - 4.4));
+      };
+    } },
+
+  // 3. Εγγεγραμμένο και περιγεγραμμένο κανονικό ν-γωνο (ν = 3 έως 8)
+  { dur: 16, title: 'Εγγεγραμμένο και περιγεγραμμένο κανονικό ν-γωνο',
+    lines: [['Τα σημεία Α_{1}, …, Α_{ν} χωρίζουν τον κύκλο σε ν ίσα τόξα', 'P'],
+      ['Οι χορδές: κανονικό ν-γωνο εγγεγραμμένο στον κύκλο', 'B'],
+      ['Οι εφαπτόμενες: κανονικό ν-γωνο περιγεγραμμένο στον κύκλο', 'Br'],
+      ['Θεώρημα Ι: κάθε κανονικό πολύγωνο εγγράφεται σε κύκλο και περιγράφεται σε άλλον']],
+    hint: '<b>Διαίρεση του κύκλου σε ν ίσα τόξα (§ 11.2):</b> αν τα σημεία Α<sub>1</sub>, Α<sub>2</sub>, …, Α<sub>ν</sub> χωρίζουν έναν κύκλο σε ν ίσα τόξα, τότε οι χορδές Α<sub>1</sub>Α<sub>2</sub>, Α<sub>2</sub>Α<sub>3</sub>, … σχηματίζουν κανονικό ν-γωνο εγγεγραμμένο στον κύκλο (μπλε), και οι εφαπτόμενες στα σημεία αυτά σχηματίζουν κανονικό ν-γωνο περιγεγραμμένο στον κύκλο (καφέ). Αντίστροφα, κάθε κανονικό πολύγωνο εγγράφεται σε έναν κύκλο και περιγράφεται σε έναν άλλον, ομόκεντρο (Θεώρημα Ι). Το ν αλλάζει από 3 έως 8.',
+    build(g) {
+      const K = pkit(g), O = V2(CX, CY - 2.2);
+      const ring = K.ring('P', 1, O.x, O.y, 0.02, 0.6);
+      const cO = K.ball('K', 0.4); K.put(cO, O, 1);
+      const eI = K.edges('B', 0.24), eT = K.edges('Br', 0.2), fI = K.slab('B', 0.16, 0.3);
+      const dots = Array.from({ length: 8 }, () => K.ball('K', 0.42, 1.1));
+      const lN = K.text('O', 'ν = 3');
+      return u => {
+        const ph = Math.min(5, Math.floor(u * 6)), n = 3 + ph, fph = (u * 6 - ph);
+        const R = n === 3 ? 6.4 : n === 4 ? 8.2 : 8.6;
+        ring.scale.set(R, R, 8);
+        const A = ngon(n, R, O.x, O.y, -PI / 2), w = TAU / n;
+        const T = Array.from({ length: n }, (_, k) => V2(O.x + R / Math.cos(w / 2) * Math.cos(-PI / 2 + k * w + w / 2), O.y + R / Math.cos(w / 2) * Math.sin(-PI / 2 + k * w + w / 2)));
+        dots.forEach((d, k) => { d.visible = k < n && fph > 0.02 + 0.1 * k / n; if (k < n) K.put(d, A[k]); });
+        const fc = smooth((fph - 0.15) / 0.3);
+        if (fc > 0) { eI.set(A, 0.9, fc); fI.userData.set(A); fI.visible = fc >= 1; } else { eI.hide(); fI.visible = false; }
+        const ft = smooth((fph - 0.5) / 0.3);
+        if (ft > 0) { const Tl = [T[n - 1], ...T.slice(0, n - 1)]; eT.set(Tl, 0.75, ft); } else eT.hide();
+        K.say(lN, `ν = ${n}`); K.at(lN, V2(O.x - 17, O.y + 9));
+      };
+    } },
+
+  // 4. Τα στοιχεία: ακτίνα, απόστημα, πλευρά, κεντρική γωνία (κανονικό εξάγωνο)
+  { dur: 12, title: 'Τα στοιχεία κανονικού πολυγώνου',
+    lines: [['Ακτίνα R, απόστημα α_{ν}, πλευρά λ_{ν}, κεντρική γωνία ω_{ν}'],
+      ['Στο ορθογώνιο τρίγωνο ΟΜΑ: α_{ν}² + λ_{ν}²/4 = R²', 'Au'],
+      ['P_{ν} = νλ_{ν}, Ε_{ν} = ½P_{ν}α_{ν}', 'B']],
+    hint: '<b>Στοιχεία κανονικού πολυγώνου (§ 11.2, Θεώρημα ΙΙ):</b> κέντρο O, ακτίνα R = ΟΑ (η ακτίνα του περιγεγραμμένου κύκλου), απόστημα α<sub>ν</sub> = ΟΜ (η απόσταση του κέντρου από μια πλευρά, ακτίνα του εγγεγραμμένου κύκλου), πλευρά λ<sub>ν</sub> = ΑΒ και κεντρική γωνία ω<sub>ν</sub> = 360°/ν. Στο ορθογώνιο τρίγωνο ΟΜΑ (χρυσό), με ΜΑ = λ<sub>ν</sub>/2, το Πυθαγόρειο θεώρημα δίνει α<sub>ν</sub>² + λ<sub>ν</sub>²/4 = R². Η περίμετρος είναι P<sub>ν</sub> = νλ<sub>ν</sub> και το εμβαδόν Ε<sub>ν</sub> = ½P<sub>ν</sub>α<sub>ν</sub>. Στο κανονικό εξάγωνο με R = 10 cm: λ<sub>6</sub> = 10 cm, α<sub>6</sub> = 5√3 ≈ 8,66 cm.',
+    build(g) {
+      const K = pkit(g), R = 10, O = V2(CX - 5, CY);
+      const pts = ngonFlat(6, R, O.x, O.y), A = pts[0], B = pts[1], M = lerp2(A, B, 0.5);
+      K.ring('P', R, O.x, O.y, 0.12, 0.5, 0.6);
+      const e = K.edges('B', 0.24); e.set(pts);
+      K.slab('B', 0.12, 0.3).userData.set(pts);
+      const ab = K.seg('B', 0.36);
+      const rOA = K.seg('P', 0.3), rOB = K.seg('P', 0.18), rOM = K.seg('G', 0.3), sW = K.sector('T');
+      const tri = K.slab('Au', 0.55, 0.5);
+      const cO = K.ball('K', 0.42); K.put(cO, O, 1.2);
+      const lR = K.text('P', 'R'), lA = K.text('G', 'α_{6}'), lL = K.text('B', 'λ_{6}/2'), lW = K.text('T', 'ω_{6} = 60°');
+      const lO = K.text('K', 'O', 1.2), lAp = K.text('K', 'Α', 1.2), lB = K.text('K', 'Β', 1.2), lM = K.text('K', 'Μ', 1.2);
+      const lEq = K.text('Au', 'α_{6}² + λ_{6}²/4 = R²');
+      K.at(lO, V2(O.x - 1.3, O.y + 1.1)); K.at(lAp, V2(A.x - 1.1, A.y - 1.2)); K.at(lB, V2(B.x + 1.1, B.y - 1.2)); K.at(lM, V2(M.x, M.y - 1.5));
+      return u => {
+        const s1 = smooth(u / 0.25), s2 = smooth((u - 0.25) / 0.2), s3 = smooth((u - 0.5) / 0.25);
+        K.setSeg(ab, A, B, 1.0);
+        K.setSeg(rOA, O, lerp2(O, A, Math.max(s1, 1e-3)), 1.25); rOA.visible = s1 > 0.01;
+        K.setSeg(rOB, O, lerp2(O, B, Math.max(s1, 1e-3)), 1.0); rOB.visible = s1 > 0.01;
+        if (s1 > 0.99) K.angleAt(sW, A, O, B, 2.6, 1.2); else sW.visible = false;
+        K.setSeg(rOM, O, lerp2(O, M, Math.max(s2, 1e-3)), 1.3); rOM.visible = s2 > 0.01;
+        tri.userData.set([O, M, A], 0.3 + 3.2 * s3); tri.visible = s3 > 0.01;
+        lR.visible = s1 > 0.5; K.at(lR, V2((O.x + A.x) / 2 - 1.6, (O.y + A.y) / 2 + 0.6), 2.4 + 3.2 * s3);
+        lW.visible = s1 > 0.99; K.at(lW, V2(O.x + 4.2, O.y - 2.2));
+        lA.visible = s2 > 0.5; K.at(lA, V2(O.x + 1.6, (O.y + M.y) / 2), 2.4 + 3.2 * s3);
+        lL.visible = s3 > 0.3; K.at(lL, V2((A.x + M.x) / 2, M.y - 1.7), 2.4 + 3.2 * s3);
+        lEq.visible = s3 > 0.7; K.at(lEq, V2(O.x + 16.5, O.y + 2));
+      };
+    } },
+
+  // 5. Το εμβαδόν: τα ν τρίγωνα του κανονικού οκταγώνου σε σειρά
+  { dur: 13, title: 'Το εμβαδόν κανονικού πολυγώνου: Ε_{ν} = ½P_{ν}α_{ν}',
+    lines: [['Το κανονικό ν-γωνο χωρίζεται σε ν ίσα ισοσκελή τρίγωνα'],
+      ['Κάθε τρίγωνο έχει βάση λ_{ν} και ύψος α_{ν}', 'B'],
+      ['Σε σειρά: παραλληλόγραμμο με βάση P_{ν}/2 και ύψος α_{ν}', 'G'],
+      ['Ε_{ν} = ν · ½λ_{ν}α_{ν} = ½P_{ν}α_{ν}', 'O']],
+    hint: '<b>Εμβαδόν κανονικού πολυγώνου (§ 11.2):</b> οι ακτίνες χωρίζουν το κανονικό οκτάγωνο σε 8 ίσα ισοσκελή τρίγωνα ΟΑΒ με βάση λ<sub>8</sub> και ύψος το απόστημα α<sub>8</sub>, οπότε Ε<sub>8</sub> = 8 · ½λ<sub>8</sub>α<sub>8</sub> = ½P<sub>8</sub>α<sub>8</sub>. Τα τρίγωνα σηκώνονται από τον πίνακα και μπαίνουν σε σειρά, εναλλάξ προς τα πάνω και προς τα κάτω: σχηματίζουν παραλληλόγραμμο με βάση 4λ<sub>8</sub> = P<sub>8</sub>/2 και ύψος α<sub>8</sub>. Το ίδιο ισχύει για κάθε κανονικό ν-γωνο.',
+    build(g) {
+      const K = pkit(g), n = 8, R = 7.2, O = V2(CX, CY + 7.6), w = TAU / n;
+      const al = R * Math.cos(w / 2), la = 2 * R * Math.sin(w / 2), y0 = 8.6, x0 = -(n + 1) * la / 4;
+      const ghost = K.edges('B', 0.1, 0.5); ghost.set(ngonFlat(n, R, O.x, O.y), 0.35);
+      const tris = [], local = [V2(0, al), V2(-la / 2, 0), V2(la / 2, 0)];
+      for (let k = 0; k < n; k++) tris.push({ sl: K.tile(k % 2 ? 'T' : 'B', local), ed: K.edges(k % 2 ? 'T' : 'B', 0.13) });
+      const cO = K.ball('K', 0.4); K.put(cO, O, 1.3);
+      const lB = K.text('B', 'P_{8}/2 = 4λ_{8}'), lH = K.text('G', 'α_{8}'), lE = K.text('O', 'Ε_{8} = ½P_{8}α_{8}');
+      const hb = K.seg('G', 0.16);
+      return u => {
+        for (let k = 0; k < n; k++) {
+          const s = smooth((u - 0.08 - 0.045 * k) / 0.42);
+          const Mk = V2(O.x + al * Math.cos(-PI / 2 + k * w), O.y + al * Math.sin(-PI / 2 + k * w));
+          const odd = k % 2, Qk = V2(x0 + (Math.floor(k / 2) + 0.5 + odd / 2) * la, y0 + odd * al);
+          let psi0 = PI / 2 + k * w, psi1 = odd ? -PI / 2 : PI / 2, d = psi1 - psi0;
+          d -= TAU * Math.floor((d + PI) / TAU);
+          const psi = psi0 + s * d, mid = lerp2(Mk, Qk, s);
+          const ux = Math.cos(psi), uy = Math.sin(psi);
+          const apex = V2(mid.x + al * ux, mid.y + al * uy), b1 = V2(mid.x + la / 2 * uy, mid.y - la / 2 * ux), b2 = V2(mid.x - la / 2 * uy, mid.y + la / 2 * ux);
+          const z = 0.3 + 4.5 * Math.sin(PI * s);
+          tris[k].sl.position.set(mid.x, mid.y, z);
+          tris[k].sl.rotation.z = psi - PI / 2;
+          tris[k].ed.set([apex, b1, b2], z + 0.5);
+        }
+        const done = u > 0.72;
+        K.setSeg(hb, V2(x0 - 0.9, y0), V2(x0 - 0.9, y0 + al), 0.8);
+        lB.visible = lH.visible = hb.visible = done; lE.visible = u > 0.8;
+        K.at(lB, V2(x0 + 2.25 * la, y0 - 1.35));
+        K.at(lH, V2(x0 - 2.4, y0 + al / 2));
+        K.at(lE, V2(16.5, y0 + al + 2.2));
+      };
+    } },
+
+  // 6. Εγγραφή κανονικού εξαγώνου και ισόπλευρου τριγώνου με τον διαβήτη
+  { dur: 16, title: 'Εγγραφή κανονικού εξαγώνου και ισόπλευρου τριγώνου',
+    lines: [['Με άνοιγμα διαβήτη R χωρίζουμε τον κύκλο σε 6 ίσα τόξα', 'O'],
+      ['Κανονικό εξάγωνο: λ_{6} = R, α_{6} = R√3/2', 'B'],
+      ['Ισόπλευρο τρίγωνο ΑΓΕ: λ_{3} = R√3, α_{3} = R/2', 'R']],
+    hint: '<b>Εγγραφή βασικών κανονικών πολυγώνων (§ 11.3):</b> το τρίγωνο ΟΑΒ με ΑΒ = R είναι ισόπλευρο, άρα το τόξο ΑΒ είναι 60° και με άνοιγμα διαβήτη ίσο με R ο κύκλος χωρίζεται σε 6 ίσα τόξα: κανονικό εξάγωνο με λ<sub>6</sub> = R και α<sub>6</sub> = R√3/2. Αν ενώσουμε τις κορυφές ανά μία, παίρνουμε το ισόπλευρο τρίγωνο ΑΓΕ. Στο ορθογώνιο τρίγωνο ΑΓΔ (η ΑΔ είναι διάμετρος) βρίσκουμε λ<sub>3</sub> = R√3 και α<sub>3</sub> = R/2. Με δύο κάθετες διαμέτρους εγγράφεται το τετράγωνο: λ<sub>4</sub> = R√2, α<sub>4</sub> = R√2/2.',
+    build(g) {
+      const K = pkit(g), R = 9.6, O = V2(CX, CY - 0.4);
+      K.ring('P', R, O.x, O.y, 0.16, 0.55);
+      const cO = K.ball('K', 0.4); K.put(cO, O, 1);
+      const H = ngon(6, R, O.x, O.y, PI / 2);
+      const dots = H.map(() => K.ball('K', 0.48, 1.2));
+      const arcs = H.slice(0, 5).map(() => K.arc('O', 0.14));
+      const eH = K.edges('B', 0.26), fH = K.slab('B', 0.13, 0.3), eT = K.edges('R', 0.26), fT = K.slab('R', 0.16, 0.3);
+      const lab = ['Α', 'Β', 'Γ', 'Δ', 'Ε', 'Ζ'].map(c => K.text('K', c, 1.25));
+      H.forEach((p, k) => K.at(lab[k], lerp2(O, p, 1 + 1.6 / R)));
+      const l6 = K.text('B', 'λ_{6} = R'), l3 = K.text('R', 'λ_{3} = R√3');
+      return u => {
+        dots.forEach((d, k) => { const on = k === 0 ? u > 0.02 : u > 0.08 + 0.1 * k - 0.02; d.visible = on; K.put(d, H[k]); lab[k].visible = on; });
+        arcs.forEach((a, k) => {
+          const s = smooth((u - 0.08 - 0.1 * k) / 0.07);
+          const c = H[k], dir = Math.atan2(H[k + 1].y - c.y, H[k + 1].x - c.x);
+          if (s > 0 && u < 0.62) a.userData.set(c.x, c.y, R, dir - rad(16), dir - rad(16) + rad(32) * s, 0.9); else a.visible = false;
+        });
+        const fh = smooth((u - 0.6) / 0.15);
+        if (fh > 0) { eH.set(H, 0.9, fh); fH.userData.set(H); fH.visible = fh >= 1; } else { eH.hide(); fH.visible = false; }
+        const ft = smooth((u - 0.76) / 0.12), T = [H[0], H[2], H[4]];
+        if (ft > 0) { eT.set(T, 1.35, ft); fT.userData.set(T, 0.65); fT.visible = ft >= 1; } else { eT.hide(); fT.visible = false; }
+        l6.visible = fh >= 1; K.at(l6, V2(O.x - 15.5, O.y + 6.5));
+        l3.visible = ft >= 1; K.at(l3, V2(O.x - 15.5, O.y + 3.8));
+      };
+    } },
+
+  // 7. Διπλασιασμός των πλευρών: 6, 12, 24, 48, 96
+  { dur: 15, title: 'Διπλασιασμός των πλευρών: από το εξάγωνο στο 96-γωνο',
+    lines: [['λ_{2ν}² = 2R² − 2Rα_{ν} (Εφαρμογή 3 της § 11.3)', 'R'],
+      ['Εγγεγραμμένο (μπλε) και περιγεγραμμένο (καφέ) κανονικό ν-γωνο', 'B'],
+      ['Ο Αρχιμήδης έφτασε με διπλασιασμούς ως το κανονικό 96-γωνο'],
+      ['Οι περίμετροι πλησιάζουν το μήκος του κύκλου (§ 11.4)', 'P']],
+    hint: '<b>Διπλασιασμός του πλήθους των πλευρών (§ 11.3, Εφαρμογή 3):</b> αν Μ είναι το μέσο του τόξου ΑΒ, η πλευρά λ<sub>2ν</sub> = ΑΜ του κανονικού 2ν-γώνου δίνεται από τη σχέση λ<sub>2ν</sub>² = 2R² − 2Rα<sub>ν</sub>. Ξεκινώντας από το κανονικό εξάγωνο φτάνουμε στα κανονικά 12-, 24-, 48- και 96-γωνα, όπως ο Αρχιμήδης. Οι περίμετροι του εγγεγραμμένου (P<sub>ν</sub>) και του περιγεγραμμένου (P΄<sub>ν</sub>) πολυγώνου πλησιάζουν από κάτω και από πάνω το μήκος του κύκλου, που θα δούμε στην § 11.4.',
+    build(g) {
+      const K = pkit(g), R = 10, O = V2(CX - 7, CY);
+      K.ring('P', R, O.x, O.y, 0.12, 0.5, 0.8);
+      const eI = K.edges('B', 0.15), eT = K.edges('Br', 0.13);
+      const lN = K.text('O', 'ν = 6'), lP = K.text('B', 'P_{6} = 6R'), lQ = K.text('Br', 'P΄_{6} ≈ 6,93R');
+      let last = -1;
+      return u => {
+        const i = Math.min(4, Math.floor(u * 5.6)), n = 6 * 2 ** i;
+        if (i !== last) {
+          last = i;
+          const w = TAU / n, I = ngon(n, R, O.x, O.y, PI / 2), T = ngon(n, R / Math.cos(w / 2), O.x, O.y, PI / 2 + w / 2);
+          eI.set(I, 0.9); eT.set(T, 0.7);
+          const p = 2 * n * Math.sin(PI / n), q = 2 * n * Math.tan(PI / n);
+          K.say(lN, `ν = ${n}`);
+          K.say(lP, n === 6 ? 'P_{6} = 6R' : `P_{${n}} ≈ ${num(p)}R`);
+          K.say(lQ, `P΄_{${n}} ≈ ${num(q)}R`);
+        }
+        K.at(lN, V2(15, CY + 6)); K.at(lP, V2(15, CY + 2.5)); K.at(lQ, V2(15, CY - 1));
+      };
+    } },
+
+  // 8. Πλακόστρωση γύρω από μια κορυφή: ν = 3, 4, 6 καλύπτουν, ν = 5 αφήνει κενό
+  { dur: 18, title: 'Πλακόστρωση με κανονικά πολύγωνα',
+    lines: [['Γύρω από μια κορυφή χωρούν k πολύγωνα, αν kφ_{ν} = 360°'],
+      ['6φ_{3} = 4φ_{4} = 3φ_{6} = 360°: τρίγωνα, τετράγωνα, εξάγωνα', 'B'],
+      ['3φ_{5} = 324°: με πεντάγωνα μένει κενό 36°', 'R']],
+    hint: '<b>Πλακόστρωση δαπέδου (Οδηγίες 2026-27, § 11.1–11.2):</b> για να καλύπτουν k ίσα κανονικά ν-γωνα το επίπεδο γύρω από μια κορυφή, πρέπει kφ<sub>ν</sub> = 360°, δηλαδή k = 2ν/(ν − 2). Αυτό είναι ακέραιος μόνο για ν = 3, 4 και 6: έξι ισόπλευρα τρίγωνα, τέσσερα τετράγωνα ή τρία κανονικά εξάγωνα. Με κανονικά πεντάγωνα, τρία καλύπτουν 3 · 108° = 324° και μένει κενό 36°, ενώ ένα τέταρτο θα επικαλυπτόταν με τα άλλα.',
+    build(g) {
+      const K = pkit(g), P = V2(CX, CY - 1);
+      const phases = [[3, 6.8], [4, 6.6], [6, 5.6], [5, 6.2]];
+      const tiles = Array.from({ length: 6 }, (_, j) => ({ sl: K.slab(j % 2 ? 'T' : 'B', 0.55, 0.6), ed: K.edges(j % 2 ? 'T' : 'B', 0.14) }));
+      const extra = { sl: K.slab('R', 0.25, 0.6), ed: K.edges('R', 0.14) };
+      const gap = K.sector('R', 0.55);
+      const cP = K.ball('K', 0.45); K.put(cP, P, 1.5);
+      const lT = K.text('O', '6φ_{3} = 360°');
+      return u => {
+        const ph = Math.min(3, Math.floor(u * 4)), f = u * 4 - ph, [n, s] = phases[ph];
+        const phi = PI - TAU / n, k = Math.floor(TAU / phi + 1e-9);
+        tiles.forEach((t, j) => {
+          if (j >= k) { t.sl.visible = false; t.ed.hide(); return; }
+          const d = smooth((f - 0.05 - 0.12 * j) / 0.18), z = 0.3 + 9 * (1 - d);
+          const pts = ngonAt(n, P, j * phi, s);
+          t.sl.userData.set(pts, z); t.ed.set(pts, z + 0.62);
+          t.sl.visible = d > 0;
+          if (d <= 0) t.ed.hide();
+        });
+        const late = n === 5 && f > 0.62;
+        if (late) gap.userData.set(P.x, P.y, 3.6, k * phi, TAU, 1.6); else gap.visible = false;
+        const ex = n === 5 ? smooth((f - 0.72) / 0.15) : 0;
+        if (ex > 0) { const pts = ngonAt(n, P, k * phi, s); extra.sl.userData.set(pts, 4.5); extra.ed.set(pts, 5.1); extra.sl.visible = true; }
+        else { extra.sl.visible = false; extra.ed.hide(); }
+        const tx = n === 5 ? (f > 0.62 ? '3φ_{5} = 324°: κενό 36°' : `3φ_{5} = 324°`) : `${k}φ_{${n}} = 360°`;
+        K.say(lT, tx, n === 5 ? 'R' : 'O');
+        lT.visible = f > 0.1 + 0.12 * k;
+        K.at(lT, V2(P.x + 14.5, P.y + 11));
+      };
+    } },
+
+  // 9. Η κηρήθρα: για ίσο εμβαδόν, το κανονικό εξάγωνο έχει τη μικρότερη περίμετρο
+  { dur: 12, title: 'Η κηρήθρα: ίσο εμβαδόν, μικρότερη περίμετρος',
+    lines: [['Τρεις κυψέλες με το ίδιο εμβαδόν βάσης Ε και το ίδιο ύψος'],
+      ['P_{3} ≈ 4,56√Ε, P_{4} = 4√Ε, P_{6} ≈ 3,72√Ε', 'Au'],
+      ['Από τα τρία, το κανονικό εξάγωνο θέλει τα λιγότερα τοιχώματα', 'O']],
+    hint: '<b>Τα κανονικά πολύγωνα στη φύση:</b> από τα τρία κανονικά πολύγωνα που πλακοστρώνουν μόνα τους το επίπεδο, για το ίδιο εμβαδόν Ε το ισόπλευρο τρίγωνο έχει περίμετρο P<sub>3</sub> ≈ 4,56√Ε, το τετράγωνο P<sub>4</sub> = 4√Ε και το κανονικό εξάγωνο P<sub>6</sub> ≈ 3,72√Ε (από τη σχέση Ε<sub>ν</sub> = ½P<sub>ν</sub>α<sub>ν</sub>). Οι εξάγωνες κυψέλες της κηρήθρας κλείνουν τον ίδιο χώρο με τα λιγότερα τοιχώματα. Ο Thomas Hales απέδειξε το 1999 ότι το πλέγμα των κανονικών εξαγώνων χωρίζει το επίπεδο σε μέρη ίσου εμβαδού με τη μικρότερη συνολική περίμετρο.',
+    build(g) {
+      const K = pkit(g), E = 30, y = CY - 3.5;
+      const l3 = Math.sqrt(4 * E / Math.sqrt(3)), l4 = Math.sqrt(E), l6 = Math.sqrt(2 * E / (3 * Math.sqrt(3)));
+      const c3 = K.cell(ngonFlat(3, l3 / Math.sqrt(3), -16.5, y - 0.6), 0.32, 'B');
+      const c4 = K.cell(ngonFlat(4, l4 / Math.sqrt(2), -7.5, y), 0.32, 'T');
+      const c6 = K.cell(ngonFlat(6, l6, 0.5, y), 0.32, 'Au');
+      // μικρή κηρήθρα: 7 κυψέλες
+      const s7 = 2.5, hc = V2(15.5, CY + 2.5), comb = [];
+      const centers = [V2(0, 0)];
+      for (let k = 0; k < 6; k++) centers.push(V2(Math.sqrt(3) * s7 * Math.cos(PI / 6 + k * PI / 3), Math.sqrt(3) * s7 * Math.sin(PI / 6 + k * PI / 3)));
+      for (const c of centers) comb.push(K.cell(ngon(6, s7, hc.x + c.x, hc.y + c.y, 0), 0.26, 'Au'));
+      const L3 = K.text('B', 'P_{3} ≈ 4,56√Ε'), L4 = K.text('T', 'P_{4} = 4√Ε'), L6 = K.text('Au', 'P_{6} ≈ 3,72√Ε'), LK = K.text('Au', 'Κηρήθρα');
+      K.at(L3, V2(-16.5, y - 6.4)); K.at(L4, V2(-7.5, y - 6.4)); K.at(L6, V2(0.5, y - 6.4)); K.at(LK, V2(hc.x, hc.y - 9.2));
+      return u => {
+        const h = 0.01 + 5 * smooth(u / 0.45);
+        for (const c of [c3, c4, c6, ...comb]) c.scale.z = h;
+        L3.visible = L4.visible = L6.visible = u > 0.5; LK.visible = u > 0.3;
+      };
+    } }
+];
+const hintHTML = k => STATES[k].hint.replace(/ (=|×|·|→|≈|:|\+|−|±|≤|≠|⇒|&lt;|&gt;) /g, '\u00a0$1 ')
+  .replace(/(\d) (cm|m|s|rad|°)(?!\p{L})/gu, '$1\u00a0$2');
+
+// ------------------------------------------------------------------ ο πίνακας, η βάση και οι καταστάσεις στη σκηνή
+world.add(kouti(54, 4, 8, V(0, 2, 2.8), M.vasi));
+world.add(kouti(49, 31, 1.2, V(0, 19, -0.62), M.toixos));
+const boardMat = new THREE.MeshBasicMaterial({ map: boardTexture() });
+{
+  const p = new THREE.Mesh(plateGeo, boardMat);
+  p.scale.set(BX1 - BX0, BY1 - BY0, 1);
+  p.position.set(0, (BY0 + BY1) / 2, 0.02);
+  world.add(p);
+}
+for (const S of STATES) {
+  S.g = new THREE.Group();
+  S.g.visible = false;
+  world.add(S.g);
+  S.upd = S.build(S.g);
+}
+
+// ------------------------------------------------------------------ πίνακας με τον τίτλο και τις γραμμές
+const PTW = 1600, PW = 54;               // πλάτος της υφής (px) και του πίνακα (cm)
+const panelH = n => 60 + 72 + 34 + n * 104 + 36;
+const ANCHOR = V(0, PANEL_Y, 1.5);
+const FY1 = 37;
+const SIDE = V(BX0 - 3, FY1, 1.5);
+let side = false;
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, depthTest: false, side: THREE.DoubleSide }));
+panel.renderOrder = 20;
+world.add(panel);
+let panelKey = '';
+function setPanel(S) {
+  const key = S.title;
+  if (key === panelKey) return;
+  panelKey = key;
+  const h = panelH(S.lines.length);
+  const cv = document.createElement('canvas');
+  cv.width = PTW; cv.height = h;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = 'rgb(14,20,32)';
+  roundRect(ctx, PTW, h, 40);
+  ctx.fill();
+  const line = (t, y, size, weight, color) => {
+    let z = size, L = richLayout(ctx, t, z, weight);
+    while (z > 20 && L.w > PTW - 120) { z -= 2; L = richLayout(ctx, t, z, weight); }
+    ctx.fillStyle = color;
+    richDraw(ctx, L, (PTW - L.w) / 2, y, 0);
+  };
+  line(S.title, 60 + 36, 60, 700, INK);
+  S.lines.forEach(([t, c], i) => line(t, 60 + 72 + 34 + 52 + i * 104, 50, 600, c ? TXT[c] : INK));
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = canvasTexture(cv);
+  panel.material.needsUpdate = true;
+  panel.scale.set(PW, PW * h / PTW, 1);
+  panelXR();
+}
+function panelXR() { panel.position.copy(ANCHOR).addScaledVector(UP, panel.scale.y / 2); }
+
+// ------------------------------------------------------------------ κατάσταση και χρόνος
+const Q = new URLSearchParams(location.search);
+const FREEZE = parseFloat(Q.get('u'));    // olokliromata.html?k=4&u=0.5: σταματά την κατάσταση στο μισό της κίνησης
+let current = 0, tNow = 0, playing = false, speed = 1, hold = 0;
+const hintEl = document.getElementById('hint');
+const btnPlay = document.getElementById('btnPlay'), btnSpeed = document.getElementById('btnSpeed');
+function updateButtons() {
+  btnPlay.textContent = playing ? 'Παύση' : 'Αναπαραγωγή';
+  btnSpeed.classList.toggle('on', speed === 2);
+}
+function select(k) {
+  current = (k + STATES.length) % STATES.length;
+  const S = STATES[current];
+  document.querySelectorAll('#segS button').forEach(b => b.classList.toggle('on', +b.dataset.k === current));
+  hintEl.innerHTML = hintHTML(current);
+  setPanel(S);
+  STATES.forEach((s, i) => { s.g.visible = i === current; });
+  tNow = 0;
+  playing = true;
+  hold = 0;
+  if (Number.isFinite(FREEZE)) { tNow = FREEZE * S.dur; playing = false; }
+  updateButtons();
+  if (viewReady && !touched && !renderer.xr.isPresenting) homeView();
+}
+let viewReady = false;
+document.querySelectorAll('#segS button').forEach(b => b.onclick = () => select(+b.dataset.k));
+function next() { select(current + 1); }
+btnPlay.onclick = () => {
+  const S = STATES[current];
+  if (playing) playing = false;
+  else { if (tNow >= S.dur - 1e-9) tNow = 0; playing = true; hold = 0; }
+  updateButtons();
+};
+document.getElementById('btnReset').onclick = () => { tNow = 0; playing = false; hold = 0; updateButtons(); };
+btnSpeed.onclick = () => { speed = speed === 2 ? 1 : 2; updateButtons(); };
+
+function step(dt) {
+  const S = STATES[current];
+  if (playing) {
+    tNow += dt * speed;
+    if (tNow >= S.dur) { tNow = S.dur; playing = false; hold = 0; updateButtons(); }
+  } else if (renderer.xr.isPresenting && tNow >= S.dur - 1e-9) {
+    // στο XR δεν υπάρχουν κουμπιά: η κατάσταση ξαναπαίζει από την αρχή 5 s αφού τελειώσει
+    hold += dt;
+    if (hold > 5) { tNow = 0; playing = true; hold = 0; updateButtons(); }
+  }
+  S.upd(Math.min(tNow / S.dur, 1) * 0.9999);
+}
+
+// ο πίνακας γυρίζει προς τον θεατή (στο XR μόνο γύρω από τον κατακόρυφο άξονα)
+const eyeW = new THREE.Vector3(), pw = new THREE.Vector3(), camR = new THREE.Vector3(), camU = new THREE.Vector3();
+const qP = new THREE.Quaternion(), qY = new THREE.Quaternion();
+function faceViewer(cam, xr) {
+  cam.getWorldPosition(eyeW);
+  world.getWorldQuaternion(qP).invert();
+  if (xr) {
+    panel.getWorldPosition(pw);
+    qY.setFromAxisAngle(UP, Math.atan2(eyeW.x - pw.x, eyeW.z - pw.z));
+    panel.quaternion.copy(qP).multiply(qY);
+  } else {
+    panel.quaternion.copy(qP).multiply(cam.quaternion);
+    camR.setFromMatrixColumn(cam.matrixWorld, 0).normalize();
+    camU.setFromMatrixColumn(cam.matrixWorld, 1).normalize();
+    if (side) panel.position.copy(SIDE).addScaledVector(camR, -PW / 2).addScaledVector(camU, -panel.scale.y / 2);
+    else panel.position.copy(ANCHOR).addScaledVector(camU, panel.scale.y / 2);
+  }
+}
+
+// ------------------------------------------------------------------ πλαίσιο της προβολής 3D
+const VIEW_DIR = V(Math.sin(rad(AZ)) * Math.cos(rad(EL)), Math.sin(rad(EL)), Math.cos(rad(AZ)) * Math.cos(rad(EL))).normalize();
+const FIT = [];
+for (const x of [BX0, BX1]) for (const y of [0, FY1]) for (const z of [-1, 8]) FIT.push(V(x, y, z));
+const PANEL_MAX = Math.max(...STATES.map(S => S.lines.length));
+let barBottom = 62, dockTop = 600, frameH = 800, touched = false;
+controls.addEventListener('start', () => { touched = true; });
+function dockTopMax() {
+  const dock = document.getElementById('dock'), keep = hintEl.innerHTML;
+  let top = dock.getBoundingClientRect().top;
+  for (let k = 0; k < STATES.length; k++) { hintEl.innerHTML = hintHTML(k); top = Math.min(top, dock.getBoundingClientRect().top); }
+  hintEl.innerHTML = keep;
+  return top;
+}
+function layoutView() {
+  const W = window.innerWidth, Hh = window.innerHeight;
+  barBottom = Math.round(document.getElementById('bar').getBoundingClientRect().bottom);
+  dockTop = Math.round(dockTopMax());
+  const dy = Math.max(0, Math.round(Hh / 2 - (barBottom + dockTop) / 2));
+  frameH = Hh + 2 * dy;
+  camera.fov = 2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(rad(FOV / 2)) * frameH / Hh));
+  camera.aspect = W / frameH;
+  if (dy) camera.setViewOffset(W, frameH, 0, 2 * dy, W, Hh); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  if (!renderer.xr.isPresenting) setLabelScale(W / Hh < 1 ? 1.5 : 1.25);
+}
+// ο πίνακας τίτλου μπαίνει πάνω από τη σκηνή ή αριστερά της, όπου η σκηνή βγαίνει μεγαλύτερη
+function fitView(sd) {
+  side = sd;
+  const W = window.innerWidth, Hh = window.innerHeight;
+  const yTop = 1 - 2 * (barBottom + 8) / Hh, yBot = 1 - 2 * (dockTop - 8) / Hh;
+  const yMid = (yTop + yBot) / 2, hy = 0.95 * (yTop - yBot) / 2, hx = 0.95;
+  const tgt = world.localToWorld(V(0, 19, 0));
+  const right = new THREE.Vector3(), up = new THREE.Vector3(), corner = new THREE.Vector3();
+  let D = 1.6;
+  for (let it = 0; it < 14; it++) {
+    camera.position.copy(VIEW_DIR).multiplyScalar(D).add(tgt);
+    camera.lookAt(tgt);
+    camera.updateMatrixWorld();
+    faceViewer(camera, false);
+    scene.updateMatrixWorld(true);
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    const add = q => { q.project(camera); x0 = Math.min(x0, q.x); x1 = Math.max(x1, q.x); y0 = Math.min(y0, q.y); y1 = Math.max(y1, q.y); };
+    for (const c of FIT) add(world.localToWorld(c.clone()));
+    for (const [u, v] of [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]]) add(panel.localToWorld(corner.set(u, v, 0)));
+    const hh = D * Math.tan(rad(camera.fov / 2)) * Hh / frameH, ww = D * Math.tan(rad(camera.fov / 2)) * W / frameH;
+    right.setFromMatrixColumn(camera.matrixWorld, 0);
+    up.setFromMatrixColumn(camera.matrixWorld, 1);
+    tgt.addScaledVector(right, (x0 + x1) / 2 * ww).addScaledVector(up, ((y0 + y1) / 2 - yMid) * hh);
+    const r = Math.max((x1 - x0) / 2 / hx, (y1 - y0) / 2 / Math.max(hy, 0.05));
+    D = THREE.MathUtils.clamp(D * r, controls.minDistance, controls.maxDistance);
+  }
+  return { D, tgt, sd };
+}
+function homeView() {
+  const keep = panel.scale.clone();
+  panel.scale.set(PW, PW * panelH(PANEL_MAX) / PTW, 1);
+  const a = fitView(false), b = fitView(true), best = b.D < a.D * 0.97 ? b : a;
+  side = best.sd;
+  camera.position.copy(VIEW_DIR).multiplyScalar(best.D).add(best.tgt);
+  controls.target.copy(best.tgt);
+  controls.update();
+  panel.scale.copy(keep);
+  faceViewer(camera, false);
+}
+function setLabelScale(k) {
+  world.traverse(o => { if (o.userData.scalable) { o.userData.k = k; fitLabel(o); } });
+}
+
+{
+  const q = parseInt(Q.get('k'), 10);
+  select(Number.isFinite(q) && q >= 0 && q < STATES.length ? q : 0);
+}
+step(0);
+layoutView();
+homeView();
+viewReady = true;
+
+// ------------------------------------------------------------------ XR
+const btnAR = document.getElementById('btnAR'), btnVR = document.getElementById('btnVR');
+const note = document.getElementById('note');
+let placed = false, floorRef = true;
+async function checkXR() {
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+    return;
+  }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+  }
+}
+checkXR().then(() => { layoutView(); if (!touched) homeView(); });
+
+function resetView() {
+  camera.near = 0.01;
+  camera.far = 60;
+  root.position.set(0, 0, 0);
+  root.quaternion.identity();
+  root.scale.setScalar(1);
+  room.visible = false;
+  scene.background = null;
+  layoutView();
+  homeView();
+  touched = false;
+}
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    camera.near = 0.02;
+    camera.far = 50;
+    camera.updateProjectionMatrix();
+    await renderer.xr.setSession(session);
+    placed = false;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    room.visible = opaque;
+    scene.background = opaque ? new THREE.Color(0x0e1420) : null;
+    // μέσα στα γυαλιά δεν υπάρχουν κουμπιά για τον χρόνο: η κίνηση συνεχίζει
+    if (!playing && tNow < STATES[current].dur - 1e-9) { playing = true; updateButtons(); }
+    session.addEventListener('end', () => { resetView(); });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+// στην πρώτη εικόνα του XR, η σκηνή τοποθετείται μπροστά από τον χρήστη (το κέντρο της 1,15 m μακριά), στο ύψος ενός
+// θρανίου, πάντα κάτω από τα μάτια
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const floorY = floorRef ? 0 : p.y - 1.6;
+  const y = THREE.MathUtils.clamp(floorY + TABLE, p.y - 0.9, p.y - 0.4);
+  const yaw = Math.atan2(-dir.x, -dir.z);
+  root.position.set(p.x + dir.x * DIST, y, p.z + dir.z * DIST);
+  root.rotation.set(0, yaw - rad(AZ), 0);
+  root.scale.setScalar(1);
+  const desk = room.getObjectByName('desk');
+  desk.position.set(root.position.x, y - 0.029, root.position.z);
+  desk.rotation.y = yaw - rad(AZ);
+  room.getObjectByName('floor').position.y = floorY;
+  setLabelScale(1);
+  panelXR();
+  placed = true;
+}
+
+// χειριστήρια: σύντομο πάτημα (σκανδάλη ή τσίμπημα) = επόμενη κατάσταση, παρατεταμένο πάτημα πάνω στη σκηνή = μεταφορά,
+// μοχλός = μέγεθος. Ένα πάτημα έως 0,8 s που δεν έπιασε τη σκηνή μετρά επίσης ως «επόμενη κατάσταση».
+const hit = new THREE.Mesh(new THREE.BoxGeometry(54, 44, 12), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+hit.position.set(0, 22, 3);
+hit.visible = false;
+world.add(hit);
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    if (ray.intersectObject(hit, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    const held = performance.now() - ctl.userData.t0, grabbed = ctl.userData.grab;
+    if (grabbed) { scene.attach(root); ctl.userData.grab = false; }
+    if (held < 280 || (!grabbed && held < 800)) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+const ctls = [0, 1, 2, 3].map(makeController);
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  layoutView();
+  if (!touched) homeView();
+});
+
+let last = performance.now();
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const raw = (now - last) / 1000;
+  const dt = raw < 1 ? raw : 0;
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  step(dt);
+  if (renderer.xr.isPresenting) {
+    faceViewer(renderer.xr.getCamera(), true);
+    ctls.forEach(c => {
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if (gp && gp.axes && gp.axes.length) {
+        const ax = gp.axes[3] !== undefined ? gp.axes[3] : gp.axes[1];
+        if (Math.abs(ax) > 0.2) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ax * Math.min(dt, 0.1) * 0.9), 0.5, 3));
+      }
+    });
+  } else {
+    controls.update();
+    faceViewer(camera, false);
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

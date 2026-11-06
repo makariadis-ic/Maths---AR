@@ -69,7 +69,8 @@ const META={
   elika:['Η έλικα και οι σκιές της','Β΄ Λυκείου','#E36C09'],
   'epipeda-lysi':['Δύο επίπεδα και η λύση: το γραμμικό σύστημα στον χώρο','Γ΄ Γυμνασίου','#2E75B6'],
   oria:['Ο ορισμός του ορίου: ε και δ','Γ΄ Λυκείου','#1565C0'],
-  olokliromata:['Εμβαδόν παραβολικού χωρίου: Ε(Ω) = 1/3','Γ΄ Λυκείου','#2E7D32']
+  olokliromata:['Εμβαδόν παραβολικού χωρίου: Ε(Ω) = 1/3','Γ΄ Λυκείου','#2E7D32'],
+  'kanonika-polygona':['Κανονικό οκτάγωνο: Ε₈ = ½P₈α₈','Β΄ Λυκείου','#26A69A']
 };
 
 const asked=new URLSearchParams(location.search).get('id');
@@ -405,6 +406,32 @@ if(id==='olokliromata'){
   row.appendChild(play);
   const xr=document.createElement('button');
   xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='olokliromata.html'; };
+  row.appendChild(xr);
+  mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
+}
+
+/* Κανονικά πολύγωνα (Γεωμετρία Β΄ Λυκείου, § 11.2): το κανονικό οκτάγωνο χωρίζεται σε 8 ίσα ισοσκελή τρίγωνα,
+   που μπαίνουν σε σειρά εναλλάξ προς τα πάνω και προς τα κάτω. Γίνεται παραλληλόγραμμο με βάση P₈/2 = 4λ₈ και ύψος α₈,
+   άρα Ε₈ = ½P₈α₈. Κύκλος 15 s: οκτάγωνο ως το 1,5 s, ξεδίπλωμα ως το 6,35 s, παραλληλόγραμμο ως το 9,5 s, επιστροφή. */
+const KANON=[['Οκτάγωνο',0.7],['Μετακίνηση',4.2],['Παραλληλόγραμμο',8]];
+if(id==='kanonika-polygona'){
+  mv.removeAttribute('auto-rotate');
+  mv.setAttribute('camera-orbit','0deg 42deg 100%');
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const mark=el=>[...row.children].forEach(b=>b.classList.toggle('on',b===el));
+  for(const [label,t] of KANON){
+    const b=document.createElement('button');
+    b.textContent=label;
+    b.onclick=()=>{ mv.currentTime=t; mv.pause(); mark(b); };
+    row.appendChild(b);
+  }
+  const play=document.createElement('button');
+  play.textContent='Συνεχής κίνηση';
+  play.onclick=()=>{ mv.play(); mark(play); };
+  row.appendChild(play);
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='kanonika-polygona.html'; };
   row.appendChild(xr);
   mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
 }
