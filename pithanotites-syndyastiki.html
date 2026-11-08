@@ -1,0 +1,1509 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Πιθανότητες και Συνδυαστική — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#6A1B9A}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px;white-space:nowrap}
+  #bar h1{font-size:15px;margin:0;font-weight:640;white-space:nowrap}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.35}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#fff;background:var(--acc);border-color:transparent}
+  #btnPlay{min-width:132px}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:860px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:720px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(80vw,110vh);height:auto}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segS,.nogl #segT,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #btnPlay{min-width:112px} #hint{font-size:11.5px}
+    #bar{gap:10px;padding:10px 12px} #bar h1{font-size:14px} #bar .lv{font-size:10.5px} #bar .lv span{display:block} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<rect x="10" y="10" width="460" height="260" fill="#ffffff" stroke="#A6A6A6" stroke-width="2"/>
+<rect x="214" y="26" width="52" height="28" rx="3" fill="#17365D"/><text x="240" y="46" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="185" y="60" width="52" height="28" rx="3" fill="#17365D"/><text x="211" y="80" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="243" y="60" width="52" height="28" rx="3" fill="#17365D"/><text x="269" y="80" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="156" y="94" width="52" height="28" rx="3" fill="#17365D"/><text x="182" y="114" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="214" y="94" width="52" height="28" rx="3" fill="#17365D"/><text x="240" y="114" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+<rect x="272" y="94" width="52" height="28" rx="3" fill="#17365D"/><text x="298" y="114" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="127" y="128" width="52" height="28" rx="3" fill="#17365D"/><text x="153" y="148" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="185" y="128" width="52" height="28" rx="3" fill="#17365D"/><text x="211" y="148" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+<rect x="243" y="128" width="52" height="28" rx="3" fill="#17365D"/><text x="269" y="148" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+<rect x="301" y="128" width="52" height="28" rx="3" fill="#17365D"/><text x="327" y="148" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="98" y="162" width="52" height="28" rx="3" fill="#17365D"/><text x="124" y="182" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="156" y="162" width="52" height="28" rx="3" fill="#17365D"/><text x="182" y="182" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">4</text>
+<rect x="214" y="162" width="52" height="28" rx="3" fill="#17365D"/><text x="240" y="182" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">6</text>
+<rect x="272" y="162" width="52" height="28" rx="3" fill="#17365D"/><text x="298" y="182" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">4</text>
+<rect x="330" y="162" width="52" height="28" rx="3" fill="#17365D"/><text x="356" y="182" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="69" y="196" width="52" height="28" rx="3" fill="#17365D"/><text x="95" y="216" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="127" y="196" width="52" height="28" rx="3" fill="#1565C0"/><text x="153" y="216" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">5</text>
+<rect x="185" y="196" width="52" height="28" rx="3" fill="#1565C0"/><text x="211" y="216" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">10</text>
+<rect x="243" y="196" width="52" height="28" rx="3" fill="#17365D"/><text x="269" y="216" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">10</text>
+<rect x="301" y="196" width="52" height="28" rx="3" fill="#17365D"/><text x="327" y="216" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">5</text>
+<rect x="359" y="196" width="52" height="28" rx="3" fill="#17365D"/><text x="385" y="216" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="40" y="230" width="52" height="28" rx="3" fill="#17365D"/><text x="66" y="250" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<rect x="98" y="230" width="52" height="28" rx="3" fill="#17365D"/><text x="124" y="250" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">6</text>
+<rect x="156" y="230" width="52" height="28" rx="3" fill="#EF6C00"/><text x="182" y="250" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">15</text>
+<rect x="214" y="230" width="52" height="28" rx="3" fill="#17365D"/><text x="240" y="250" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">20</text>
+<rect x="272" y="230" width="52" height="28" rx="3" fill="#17365D"/><text x="298" y="250" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">15</text>
+<rect x="330" y="230" width="52" height="28" rx="3" fill="#17365D"/><text x="356" y="250" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">6</text>
+<rect x="388" y="230" width="52" height="28" rx="3" fill="#17365D"/><text x="414" y="250" font-size="17" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<text x="240" y="292" font-size="15" font-weight="700" fill="#eaf1f8" text-anchor="middle">C(6, 2) = C(5, 1) + C(5, 2) = 5 + 10 = 15</text>
+</svg>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Πιθανότητες και Συνδυαστική</h1>
+  <span class="lv"><span>Γ΄ Λυκείου, Γενική Παιδεία</span> <span>§1.1–1.4</span></span>
+</div>
+<div id="dock">
+  <div class="seg" id="segS">
+    <button data-k="0" class="on">Πράξεις</button>
+    <button data-k="1">Κλασικός</button>
+    <button data-k="2">Συχνότητα</button>
+    <button data-k="3">Αξιώματα</button>
+    <button data-k="4">Προσθετικός</button>
+    <button data-k="5">Απαρίθμηση</button>
+    <button data-k="6">Διατάξεις</button>
+    <button data-k="7">Συνδυασμοί</button>
+    <button data-k="8">Πιθανότητες</button>
+    <button data-k="9">Pascal</button>
+  </div>
+  <div class="seg" id="segT">
+    <button id="btnPlay">Παύση</button>
+    <button id="btnReset">Επαναφορά</button>
+    <button id="btnSpeed">2×</button>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο «Πιθανότητες και Συνδυαστική» (Μαθηματικά Γενικής Παιδείας Γ΄ Λυκείου, Κεφάλαιο 1, §1.1 έως §1.4): δέκα
+// καταστάσεις, όπως οι εφαρμογές GeoGebra του σεναρίου (πρόθεμα lp και sy). Κέντρο Καινοτομίας Θεσσαλίας.
+// Κάθε κατάσταση είναι ένας πίνακας (με άξονες στα γραφήματα, χωρίς άξονες στα υπόλοιπα) πάνω σε μια βάση. Οι αριθμοί,
+// τα ενδεχόμενα και τα πλήθη είναι αντικείμενα με πάχος που υψώνονται όταν ανήκουν στο ενδεχόμενο ή στο αποτέλεσμα που
+// εξηγείται. Χρώματα όπως στις εφαρμογές GeoGebra: Α και κύρια μεγέθη μπλε, Β και δεύτερη ομάδα μωβ, ό,τι αλλάζει
+// πορτοκαλί, ευνοϊκά αποτελέσματα πράσινα, κόκκινο για τις κόκκινες μπάλες.
+// Μονάδα μήκους της σκηνής: 1 cm. Ο πίνακας έχει πλάτος 48 cm και ύψος 30 cm.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const CM = 0.012;                       // 1 cm της σκηνής σε μέτρα (ο πίνακας: 0,58 m πλάτος)
+const BX0 = -24, BX1 = 24, BY0 = 4, BY1 = 34;   // ο πίνακας
+const WY0 = 6, WY1 = 32;                // το ύψος του πεδίου της γραφικής παράστασης πάνω στον πίνακα
+const PANEL_Y = 36.5;                   // η κάτω πλευρά του πίνακα τίτλου
+const TABLE = 0.78, DIST = 1.15;        // XR: ύψος θρανίου και απόσταση της σκηνής από τον χρήστη (m)
+const AZ = 18, EL = 12;                 // η σκηνή φαίνεται από εμπρός-δεξιά (18°) και από ψηλά (12°)
+const FOV = 26;
+const PX = 30;                          // pixels ανά cm στην υφή του πίνακα
+
+const COL = { B: '#1565C0', R: '#C62828', O: '#EF6C00', G: '#2E7D32', P: '#6A1B9A', K: '#616161', N: '#17365D', Y: '#A67C00' };
+const TXT = { B: '#7FB2E5', R: '#EF8A84', O: '#F7A864', G: '#7FD18A', P: '#C59BE0', K: '#cbd5e1', N: '#9fb8d8', Y: '#E3BE63' };
+const INK = '#eaf1f8', KEIMENO = '#262626';
+
+const rad = THREE.MathUtils.degToRad;
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const UP = V(0, 1, 0);
+const num = (x, d = 2) => { const s = (Math.abs(x) < 0.5 * 10 ** -d ? 0 : x + Math.sign(x) * 1e-9).toFixed(d); return s.replace('.', ',').replace('-', '−'); };
+const smooth = x => { x = Math.min(1, Math.max(0, x)); return x * x * (3 - 2 * x); };
+const approx = v => { const r = Math.round(v * 100) / 100; return Math.abs(v - r) < 1e-9 ? '= ' + tl(r) : '≈ ' + num(v); };
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 0.01, 60);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.minDistance = 0.3;
+controls.maxDistance = 5;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a3446, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(0.8, 1.6, 1.2);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xbcd8ff, 0.5);
+fill.position.set(-1, 0.5, -1);
+scene.add(fill);
+
+// δάπεδο και θρανίο μόνο σε αδιαφανή λειτουργία (VR)
+const room = new THREE.Group();
+room.visible = false;
+scene.add(room);
+{
+  const floor = new THREE.Group();
+  floor.name = 'floor';
+  room.add(floor);
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x1b2433, roughness: 0.95, depthWrite: false }));
+  disc.rotation.x = -Math.PI / 2;
+  disc.renderOrder = -2;
+  floor.add(disc);
+  const grid = new THREE.GridHelper(12, 24, 0x3b4a63, 0x27324a);
+  grid.material.depthWrite = false;
+  grid.renderOrder = -1;
+  grid.position.y = 0.002;
+  floor.add(grid);
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.04, 0.5), new THREE.MeshStandardMaterial({ color: 0x6b4f3a, roughness: 0.7 }));
+  desk.name = 'desk';
+  room.add(desk);
+}
+
+const root = new THREE.Group();
+scene.add(root);
+const world = new THREE.Group();         // η σκηνή σε εκατοστά
+world.scale.setScalar(CM);
+root.add(world);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+const FONT = '"Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Arial, sans-serif';
+function roundRect(ctx, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+  ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath();
+}
+function canvasTexture(cv) {
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+// στοιχειοθεσία των κειμένων: _{…} δείκτης, ^{…} εκθέτης, ∫{α}{β} ολοκλήρωμα με άκρα, ]{α}{β} αγκύλη με άκρα,
+// π.χ. '∫{0}{1} x e^{x} dx = [x e^{x}]{0}{1} − …'
+function parseRich(s) {
+  const out = [];
+  let i = 0, buf = '';
+  const flush = () => { if (buf) { out.push({ t: 'n', s: buf }); buf = ''; } };
+  const group = () => {
+    let depth = 0, j = i;
+    for (; j < s.length; j++) { if (s[j] === '{') depth++; else if (s[j] === '}' && --depth === 0) break; }
+    const c = s.slice(i + 1, j);
+    i = j + 1;
+    return c;
+  };
+  while (i < s.length) {
+    const ch = s[i];
+    if ((ch === '_' || ch === '^') && s[i + 1] === '{') { flush(); i++; out.push({ t: ch === '_' ? 'sub' : 'sup', s: group() }); }
+    else if ((ch === '∫' || ch === ']') && s[i + 1] === '{') { flush(); i++; const lo = group(), hi = group(); out.push({ t: ch === '∫' ? 'int' : 'br', lo, hi }); }
+    else { buf += ch; i++; }
+  }
+  flush();
+  return out;
+}
+const isTall = s => /[∫\]]\{/.test(s);
+function richLayout(ctx, s, size, weight) {
+  const F = k => `${weight} ${Math.round(size * k)}px ${FONT}`;
+  const W = (t, k) => { ctx.font = F(k); return ctx.measureText(t).width; };
+  const parts = [];
+  let x = 0;
+  for (const r of parseRich(s)) {
+    if (r.t === 'n') { parts.push({ s: r.s, x, dy: 0, k: 1 }); x += W(r.s, 1); }
+    else if (r.t === 'sub' || r.t === 'sup') {
+      parts.push({ s: r.s, x: x + size * 0.02, dy: r.t === 'sub' ? size * 0.3 : -size * 0.38, k: 0.7 });
+      x += W(r.s, 0.7) + size * 0.06;
+    } else if (r.t === 'int') {
+      const wi = W('∫', 1.45);
+      parts.push({ s: '∫', x, dy: -size * 0.04, k: 1.45 });
+      parts.push({ s: r.hi, x: x + wi * 0.92, dy: -size * 0.62, k: 0.75 });
+      parts.push({ s: r.lo, x: x + wi * 0.4, dy: size * 0.62, k: 0.75 });
+      x += Math.max(wi * 0.92 + W(r.hi, 0.75), wi * 0.4 + W(r.lo, 0.75)) + size * 0.14;
+    } else {
+      const wb = W(']', 1);
+      parts.push({ s: ']', x, dy: 0, k: 1 });
+      const xl = x + wb + size * 0.04;
+      parts.push({ s: r.hi, x: xl, dy: -size * 0.55, k: 0.75 });
+      parts.push({ s: r.lo, x: xl, dy: size * 0.55, k: 0.75 });
+      x = xl + Math.max(W(r.hi, 0.75), W(r.lo, 0.75)) + size * 0.08;
+    }
+  }
+  return { w: x, parts, F };
+}
+function richDraw(ctx, L, x0, y, stroke) {      // stroke: πάχος του περιγράμματος για το κανονικό μέγεθος
+  ctx.textAlign = 'left';
+  ctx.textBaseline = 'middle';
+  for (const p of L.parts) {
+    ctx.font = L.F(p.k);
+    if (stroke) { ctx.lineWidth = stroke * Math.min(p.k, 1); ctx.strokeText(p.s, x0 + p.x, y + p.dy); } else ctx.fillText(p.s, x0 + p.x, y + p.dy);
+  }
+}
+const measureCtx = document.createElement('canvas').getContext('2d');
+// ετικέτα με περίγραμμα, πάντα στραμμένη προς τον θεατή· η υφή έχει πλάτος για το μεγαλύτερο κείμενο (template) και
+// μεγαλώνει, αν χρειαστεί, για μεγαλύτερο κείμενο
+const LS = 120, LPAD = 40;
+function labelCanvas(sp, w, h) {
+  const u = sp.userData;
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  if (u.tex) u.tex.dispose();
+  Object.assign(u, { cv, ctx: cv.getContext('2d'), tex: canvasTexture(cv), aspect: w / h, h: u.base * h / (LS * 1.5) });
+  sp.material.map = u.tex;
+  sp.material.needsUpdate = true;
+  fitLabel(sp);
+}
+function label(text, color, height, template) {
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthWrite: false, depthTest: false }));
+  sp.renderOrder = 8;
+  const t = template || text, L = richLayout(measureCtx, t, LS, 700);
+  sp.userData = { base: height * (isTall(t) ? 1.12 : 1), k: 1, text: null, color: null, scalable: true };
+  labelCanvas(sp, Math.ceil(L.w) + 2 * LPAD, Math.ceil(LS * (isTall(t) ? 2.2 : 1.5)));
+  setText(sp, text, color);
+  return sp;
+}
+function setText(sp, text, color) {
+  const u = sp.userData;
+  if (u.text === text && u.color === color) return;
+  u.text = text; u.color = color;
+  const L = richLayout(measureCtx, text, LS, 700);
+  const w = Math.ceil(L.w) + 2 * LPAD, h = Math.ceil(LS * (isTall(text) ? 2.2 : 1.5));
+  if (w > u.cv.width || h > u.cv.height) labelCanvas(sp, Math.max(w, u.cv.width), Math.max(h, u.cv.height));
+  const { cv, ctx } = u;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.lineJoin = 'round';
+  ctx.strokeStyle = 'rgba(14,20,32,.9)';
+  ctx.fillStyle = color;
+  const x0 = (cv.width - L.w) / 2, y = cv.height / 2;
+  richDraw(ctx, L, x0, y, 22);
+  richDraw(ctx, L, x0, y, 0);
+  u.tex.needsUpdate = true;
+}
+function fitLabel(sp) { const u = sp.userData, s = u.h * u.k; sp.scale.set(s * u.aspect, s, 1); }
+
+// ------------------------------------------------------------------ βοηθητικά γεωμετρίας
+const plateGeo = new THREE.PlaneGeometry(1, 1);
+const unitBox = new THREE.BoxGeometry(1, 1, 1);
+function kouti(sx, sy, sz, c, mat) {
+  const m = new THREE.Mesh(unitBox, mat);
+  m.scale.set(sx, sy, sz);
+  m.position.copy(c);
+  return m;
+}
+const unitCyl = new THREE.CylinderGeometry(1, 1, 1, 12, 1);
+function setBar(m, a, b, r) {
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  const d = b.clone().sub(a), l = d.length();
+  if (l > 1e-6) m.quaternion.setFromUnitVectors(UP, d.multiplyScalar(1 / l));
+  m.scale.set(r, Math.max(l, 1e-4), r);
+  m.visible = l > 0.05;
+}
+function bar(a, b, r, mat) { const m = new THREE.Mesh(unitCyl, mat); setBar(m, a, b, r); return m; }
+function dashedBar(a, b, r, mat, dash = 1.0, gap = 0.7) {
+  const g = new THREE.Group(), d = b.clone().sub(a), l = d.length();
+  for (let s = 0; s < l; s += dash + gap) {
+    const e = Math.min(s + dash, l);
+    g.add(bar(a.clone().addScaledVector(d, s / l), a.clone().addScaledVector(d, e / l), r, mat));
+  }
+  return g;
+}
+const ballGeo = new THREE.SphereGeometry(1, 24, 16);
+function ball(r, mat) { const m = new THREE.Mesh(ballGeo, mat); m.scale.setScalar(r); return m; }
+// σωλήνας κατά μήκος της καμπύλης fn(t), t από t0 έως t1· με reveal φαίνεται μόνο το κομμάτι ως το t
+class FnCurve extends THREE.Curve {
+  constructor(fn, t0, t1) { super(); this.fn = fn; this.t0 = t0; this.t1 = t1; }
+  getPoint(u, target = new THREE.Vector3()) { return target.copy(this.fn(this.t0 + (this.t1 - this.t0) * u)); }
+  getPointAt(u, target) { return this.getPoint(u, target); }
+  getTangentAt(u, target) { return this.getTangent(u, target); }
+}
+function tube(fn, t0, t1, seg, r, mat, rs = 6) {
+  const m = new THREE.Mesh(new THREE.TubeGeometry(new FnCurve(fn, t0, t1), seg, r, rs, false), mat);
+  m.userData.tube = { seg, rs, t0, t1, r, fn };
+  return m;
+}
+function reveal(m, t) {
+  const u = m.userData.tube, f = THREE.MathUtils.clamp((t - u.t0) / (u.t1 - u.t0), 0, 1);
+  m.geometry.setDrawRange(0, Math.round(f * u.seg) * u.rs * 6);
+}
+function retube(m, a, b) {              // αλλάζει το διάστημα του σωλήνα (για καμπύλες που κινούνται)
+  const u = m.userData.tube;
+  m.visible = b - a > 1e-4;
+  if (!m.visible) return;
+  m.geometry.dispose();
+  m.geometry = new THREE.TubeGeometry(new FnCurve(u.fn, a, b), u.seg, u.r, u.rs, false);
+}
+
+// ------------------------------------------------------------------ υλικά
+const flat = {}, lit = {};
+const bm = (c, op = 1) => flat[c + op] || (flat[c + op] = new THREE.MeshBasicMaterial({
+  color: c, transparent: op < 1, opacity: op, depthWrite: op >= 1, side: THREE.DoubleSide }));
+const glow = c => lit[c] || (lit[c] = new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.3, roughness: 0.45 }));
+const M = {
+  vasi: new THREE.MeshStandardMaterial({ color: 0xe5e7eb, roughness: 0.85 }),
+  toixos: new THREE.MeshStandardMaterial({ color: 0xf1f5f9, roughness: 0.9 })
+};
+
+// ------------------------------------------------------------------ ο πίνακας: χαρτί με άξονες, ανά κατάσταση
+// spec: xmin, xmax, ymin, ymax (το πεδίο της γραφικής παράστασης), bx0, bx1 (πού πέφτει στον πίνακα), xt, yt (υποδιαιρέσεις:
+// αριθμοί ή ζεύγη [τιμή, κείμενο]), xl, yl (ονόματα αξόνων, αλλιώς x και y), extras (σχέδιο στην υφή, σε συντεταγμένες πίνακα)
+function mapper(S) {
+  return {
+    X: x => S.bx0 + (x - S.xmin) / (S.xmax - S.xmin) * (S.bx1 - S.bx0),
+    Y: y => WY0 + (y - S.ymin) / (S.ymax - S.ymin) * (WY1 - WY0)
+  };
+}
+const tl = v => String(+v.toFixed(3)).replace('.', ',').replace('-', '−');
+function boardTexture(S) {
+  const { X, Y } = S.m;
+  const cv = document.createElement('canvas');
+  cv.width = (BX1 - BX0) * PX; cv.height = (BY1 - BY0) * PX;
+  const ctx = cv.getContext('2d');
+  const cx = bx => (bx - BX0) * PX, cy = by => (BY1 - by) * PX;
+  ctx.fillStyle = '#ffffff';
+  ctx.fillRect(0, 0, cv.width, cv.height);
+  ctx.strokeStyle = '#A6A6A6'; ctx.lineWidth = 4;
+  ctx.strokeRect(2, 2, cv.width - 4, cv.height - 4);
+  const seg = (a, b, c, d) => { ctx.beginPath(); ctx.moveTo(a, b); ctx.lineTo(c, d); ctx.stroke(); };
+  const tick = t => Array.isArray(t) ? t : [t, tl(t)];
+  const xa = Y(Math.min(Math.max(0, S.ymin), S.ymax)), ya = X(Math.min(Math.max(0, S.xmin), S.xmax));
+  ctx.strokeStyle = '#EDEDED'; ctx.lineWidth = 2;
+  for (const t of S.xt) seg(cx(X(tick(t)[0])), cy(Y(S.ymin)), cx(X(tick(t)[0])), cy(Y(S.ymax)));
+  for (const t of S.yt) seg(cx(X(S.xmin)), cy(Y(tick(t)[0])), cx(X(S.xmax)), cy(Y(tick(t)[0])));
+  if (!S.bare) {
+    ctx.strokeStyle = '#D5D5D5'; ctx.lineWidth = 3;
+    ctx.strokeRect(cx(X(S.xmin)), cy(Y(S.ymax)), cx(X(S.xmax)) - cx(X(S.xmin)), cy(Y(S.ymin)) - cy(Y(S.ymax)));
+  }
+  if (S.extras) S.extras(ctx, cx, cy);
+  if (S.bare) return canvasTexture(cv);        // πίνακας χωρίς άξονες (Venn, δέντρο, πλακίδια)
+  ctx.strokeStyle = KEIMENO; ctx.fillStyle = KEIMENO; ctx.lineWidth = 4;
+  const x0 = X(S.xmin) - 0.5, x1 = X(S.xmax) + 1.4, y0 = Y(S.ymin) - 0.5, y1 = Y(S.ymax) + 1.4;
+  seg(cx(x0), cy(xa), cx(x1), cy(xa));
+  seg(cx(ya), cy(y0), cx(ya), cy(y1));
+  const arrow = (x, y, dx, dy) => { ctx.beginPath(); ctx.moveTo(x + dx * 26, y + dy * 26);
+    ctx.lineTo(x - dy * 11, y + dx * 11); ctx.lineTo(x + dy * 11, y - dx * 11); ctx.closePath(); ctx.fill(); };
+  arrow(cx(x1), cy(xa), 1, 0);
+  arrow(cx(ya), cy(y1), 0, -1);
+  ctx.font = `600 38px ${FONT}`;
+  ctx.textAlign = 'center'; ctx.textBaseline = 'top';
+  for (const t of S.xt) {
+    const [v, s] = tick(t), px = cx(X(v));
+    seg(px, cy(xa) - 8, px, cy(xa) + 8);
+    ctx.fillText(s, px, cy(xa) + 12);
+  }
+  ctx.textAlign = 'right'; ctx.textBaseline = 'middle';
+  for (const t of S.yt) {
+    const [v, s] = tick(t), py = cy(Y(v));
+    seg(cx(ya) - 8, py, cx(ya) + 8, py);
+    ctx.fillText(s, cx(ya) - 14, py);
+  }
+  ctx.font = `italic 600 42px ${FONT}`;
+  ctx.textAlign = 'left'; ctx.textBaseline = 'middle';
+  ctx.fillText(S.xl || 'x', cx(x1) + 4, cy(xa) - 26);
+  ctx.fillText(S.yl || 'y', cx(ya) + 18, cy(y1) + 6);
+  return canvasTexture(cv);
+}
+
+// ------------------------------------------------------------------ εργαλεία για κάθε κατάσταση
+// kit(g, m): δημιουργεί αντικείμενα στο group g με συντεταγμένες της γραφικής παράστασης (x, y) μέσω του mapper m
+function kit(g, m) {
+  const P = (x, y, z = 0.9) => V(m.X(x), m.Y(y), z);
+  const K = { P };
+  K.vtube = (vec, a, b, seg, r, color) => { const t = tube(vec, a, b, seg, r, bm(COL[color])); g.add(t); return t; };
+  K.curve = (f, a, b, seg, r, color, z = 0.6) => K.vtube(t => P(t, f(t), z), a, b, seg, r, color);
+  K.dash = (x0, y0, x1, y1, color, r = 0.11, z = 0.5) => { const d = dashedBar(P(x0, y0, z), P(x1, y1, z), r, bm(COL[color])); g.add(d); return d; };
+  K.line = (color, r = 0.12, op = 1) => { const b = bar(V(0, 0, 0), V(1, 0, 0), r, bm(COL[color], op)); g.add(b); return b; };
+  K.setLine = (b, x0, y0, x1, y1, z = 0.8, r) => setBar(b, P(x0, y0, z), P(x1, y1, z), r !== undefined ? r : b.scale.x);
+  K.ball = (color, r = 0.65, z = 0.95) => { const b = ball(r, glow(COL[color])); b.position.z = z; g.add(b); return b; };
+  K.put = (o, x, y, z) => { o.position.copy(P(x, y, z === undefined ? o.position.z : z)); };
+  K.hole = (x, y, color, r = 0.75) => {         // ανοιχτός κύκλος: το σημείο που λείπει
+    const h = new THREE.Group();
+    const d = new THREE.Mesh(new THREE.CircleGeometry(r, 32), bm('#ffffff'));
+    const t = new THREE.Mesh(new THREE.TorusGeometry(r, 0.17, 8, 32), bm(COL[color]));
+    d.position.z = 0.8; t.position.z = 0.82;
+    h.add(d, t);
+    h.position.set(m.X(x), m.Y(y), 0);
+    g.add(h);
+    return h;
+  };
+  K.rect = (color, op = 0.25, z = 1.4) => { const r = new THREE.Mesh(plateGeo, bm(COL[color], op)); r.renderOrder = 3; r.userData.z = z; g.add(r); return r; };
+  K.setRect = (r, x0, y0, x1, y1) => {
+    const a = m.X(x0), b = m.X(x1), c = m.Y(y0), d = m.Y(y1);
+    r.position.set((a + b) / 2, (c + d) / 2, r.userData.z);
+    r.scale.set(Math.max(Math.abs(b - a), 1e-3), Math.max(Math.abs(d - c), 1e-3), 1);
+  };
+  K.text = (color, template, h = 1.5) => { const l = label(template, TXT[color], h, template); l.userData.col = TXT[color]; l.position.z = 2.2; g.add(l); return l; };
+  K.say = (l, s, color) => setText(l, s, color ? TXT[color] : l.userData.col);
+  K.at = (l, x, y) => l.position.copy(P(x, y, 2.2));
+  K.fcurve = (f, a, b, seg, r, color, op = 0.35, z = 0.45) => { const t = tube(s => P(s, f(s), z), a, b, seg, r, bm(COL[color], op)); g.add(t); return t; };
+  // χωρίο ανάμεσα στις lo(x) και hi(x), για x από a έως b: band.userData.set(a, b, lo, hi)
+  K.band = (color, op = 0.4, z = 0.3, parent = g, N = 120) => {
+    const pos = new Float32Array((N + 1) * 6), idx = [];
+    for (let i = 0; i < N; i++) idx.push(2 * i, 2 * i + 2, 2 * i + 1, 2 * i + 1, 2 * i + 2, 2 * i + 3);
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(pos, 3));
+    geo.setIndex(idx);
+    const b = new THREE.Mesh(geo, bm(COL[color], op));
+    b.renderOrder = 2;
+    b.frustumCulled = false;
+    b.visible = false;
+    b.userData.set = (a, c, lo, hi) => {
+      b.visible = Math.abs(c - a) > 1e-4;
+      if (!b.visible) return;
+      for (let i = 0; i <= N; i++) {
+        const x = a + (c - a) * i / N, X = m.X(x);
+        pos.set([X, m.Y(lo(x)), z, X, m.Y(hi(x)), z], 6 * i);
+      }
+      geo.attributes.position.needsUpdate = true;
+    };
+    parent.add(b);
+    return b;
+  };
+  // τουβλάκια (ορθογώνια με πάχος) για τα αθροίσματα: bricks.set([[x0, y0, x1, y1], …])
+  K.bricks = (color, n, z0 = 0.15, z1 = 1.35) => {
+    const pool = [];
+    for (let i = 0; i < n; i++) { const b = new THREE.Mesh(unitBox, glow(COL[color])); b.visible = false; g.add(b); pool.push(b); }
+    return {
+      set(list) {
+        pool.forEach((b, i) => {
+          const r = list[i];
+          if (!r) { b.visible = false; return; }
+          const x0 = m.X(r[0]), x1 = m.X(r[2]), y0 = m.Y(r[1]), y1 = m.Y(r[3]);
+          const w = Math.abs(x1 - x0), h = Math.abs(y1 - y0);
+          b.visible = h > 0.02;
+          b.scale.set(Math.max(w - Math.min(0.12, w * 0.08), 0.01), Math.max(h, 0.01), z1 - z0);
+          b.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+        });
+      }
+    };
+  };
+  return K;
+}
+
+// ------------------------------------------------------------------ κοινά για τις καταστάσεις
+const PI = Math.PI;
+const GCD = (a, b) => (b ? GCD(b, a % b) : Math.abs(a));
+const frac = (n, d) => { const g = GCD(n, d) || 1; return d / g === 1 ? String(n / g) : `${n / g}/${d / g}`; };
+const fact = n => (n <= 1 ? 1 : n * fact(n - 1));
+const nCr = (n, k) => { if (k < 0 || k > n) return 0; let r = 1; for (let i = 1; i <= k; i++) r = r * (n - k + i) / i; return Math.round(r); };
+const nPr = (n, k) => fact(n) / fact(n - k);
+const sstr = a => (a.length ? '{' + a.join(', ') + '}' : '∅');
+const approx3 = v => { const r = Math.round(v * 1000) / 1000; return (Math.abs(v - r) < 1e-9 ? '= ' : '≈ ') + num(v, 3); };
+const lerp = (a, b, s) => a + (b - a) * s;
+const ramp = (t, a, d) => smooth((t - a) / d);          // 0 → 1 στο [a, a + d]
+const mulberry32 = a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; };
+const smc = {};
+const sm = (c, op = 1) => smc[c + op] || (smc[c + op] = new THREE.MeshStandardMaterial({
+  color: c, emissive: c, emissiveIntensity: 0.22, roughness: 0.5, transparent: op < 1, opacity: op, depthWrite: op >= 1 }));
+const unitDisc = new THREE.CylinderGeometry(1, 1, 1, 32, 1).rotateX(PI / 2);      // ο άξονας κατά z
+function disc(g, r, h, mat) { const m = new THREE.Mesh(unitDisc, mat); m.scale.set(r, r, h); g.add(m); return m; }
+function put(m, x, y, z0) { m.position.set(x, y, z0 + m.scale.z / 2); }
+// πλαίσιο, κείμενο και περίγραμμα στην υφή του πίνακα (συντεταγμένες πίνακα, cm)
+const tRect = (ctx, cx, cy, x0, y0, x1, y1, col, lw, fill) => {
+  if (fill) { ctx.fillStyle = fill; ctx.fillRect(cx(x0), cy(y1), cx(x1) - cx(x0), cy(y0) - cy(y1)); }
+  if (col) { ctx.strokeStyle = col; ctx.lineWidth = lw; ctx.strokeRect(cx(x0), cy(y1), cx(x1) - cx(x0), cy(y0) - cy(y1)); }
+};
+const tText = (ctx, cx, cy, s, x, y, size, col, align = 'center', rot = 0) => {
+  ctx.save(); ctx.translate(cx(x), cy(y)); ctx.rotate(rot);
+  ctx.fillStyle = col; ctx.font = `600 ${size}px ${FONT}`; ctx.textAlign = align; ctx.textBaseline = 'middle';
+  ctx.fillText(s, 0, 0); ctx.restore();
+};
+// ένα κείμενο της κατάστασης με δικό του χρώμα (λευκό για τους αριθμούς πάνω σε σκούρα πλακίδια)
+function inkLabel(g, s, h, template) { const l = label(s, INK, h, template || s); l.userData.col = INK; l.position.z = 3; g.add(l); return l; }
+const say = (l, s, color) => setText(l, s, color ? TXT[color] : l.userData.col);
+const bare = (extras) => ({ xmin: -21, xmax: 21, ymin: 6, ymax: 32, xt: [], yt: [], bare: true, extras });
+
+// ------------------------------------------------------------------ οι δέκα καταστάσεις
+const PI2 = 2 * PI;
+// 1. Venn: Ω = {1, …, 12}, Α άρτιοι, Β πολλαπλάσια του 3
+const OM = Array.from({ length: 12 }, (_, i) => i + 1);
+const setA = OM.filter(x => x % 2 === 0), setB = OM.filter(x => x % 3 === 0);
+const VEN = { r: 7.8, d: 10.4, cy: 21, y0: 10, y1: 32, x0: -22, x1: 22 };
+const arcPts = (cx, cy, r, a0, a1, n = 40) => Array.from({ length: n + 1 }, (_, i) => V(cx + r * Math.cos(lerp(a0, a1, i / n)), cy + r * Math.sin(lerp(a0, a1, i / n)), 0));
+const VOPS = [
+  { name: 'Α ∪ Β', word: 'ένωση', set: OM.filter(x => setA.includes(x) || setB.includes(x)) },
+  { name: 'Α ∩ Β', word: 'τομή', set: OM.filter(x => setA.includes(x) && setB.includes(x)) },
+  { name: 'Α′', word: 'συμπλήρωμα του Α', set: OM.filter(x => !setA.includes(x)) },
+  { name: 'Α − Β', word: 'διαφορά', set: OM.filter(x => setA.includes(x) && !setB.includes(x)) }
+];
+const NAB = setA.filter(x => setB.includes(x)).length;
+const FRM_A = frac(setA.length, 12);
+
+// 2. Κλασικός ορισμός: δύο ζάρια (36 ζεύγη) και κουτί με 10 μπάλες
+const DICE = [];
+for (let j = 1; j <= 6; j++) for (let i = 1; i <= 6; i++) DICE.push({ i, j, s: i + j });
+const BALLS = ['R', 'R', 'R', 'R', 'B', 'B', 'B', 'G', 'G', 'G'];
+const CLS = [
+  { text: 'Α: το άθροισμα των ενδείξεων είναι 7', pick: d => d.s === 7 },
+  { text: 'Α: το άθροισμα των ενδείξεων είναι τουλάχιστον 8', pick: d => d.s >= 8 }
+];
+const nC1 = DICE.filter(CLS[0].pick).length, nC2 = DICE.filter(CLS[1].pick).length, nRed = BALLS.filter(b => b === 'R').length;
+
+// 3. Σχετική συχνότητα: ζάρι, Α = άρτιος αριθμός, σταθερός σπόρος
+const RF_N = 400, RF_SEED = 2024;
+const RF = { f: [], hit: [] };
+{
+  const R = mulberry32(RF_SEED);
+  let h = 0;
+  for (let i = 1; i <= RF_N; i++) { if ((Math.floor(R() * 6) + 1) % 2 === 0) h++; RF.hit.push(h); RF.f.push(h / i); }
+}
+
+// 4. Αξιωματικός ορισμός: ζάρι με μεροληψία
+const W0 = [1, 1, 1, 1, 1, 1], W1 = [1, 1, 1, 1, 1, 3];
+const prob = w => { const S = w.reduce((a, b) => a + b, 0); return w.map(x => x / S); };
+const OMEGA_I = ['ω₁', 'ω₂', 'ω₃', 'ω₄', 'ω₅', 'ω₆'];
+
+// 5. Προσθετικός νόμος
+const PA = 0.5, PB = 0.4;
+
+// 6. Δενδροδιάγραμμα: n₁ = 3 μπλούζες, n₂ = 3 παντελόνια, n₃ = 2 ζεύγη παπούτσια, επιλεγμένος τρόπος (μπλούζα 2, παντελόνι 3, παπούτσια 1)
+const N1 = 3, N2 = 3, N3 = 2, PATH = [1, 2, 0];
+// 7. Διατάξεις και μεταθέσεις
+const AN = 5, LET = ['Α', 'Β', 'Γ', 'Δ', 'Ε'], SLX = j => -12 + 6 * j;
+// 8. Συνδυασμοί: όλα τα υποσύνολα k στοιχείων των n, σε λεξικογραφική σειρά
+const CN = 5, CK = 3, COMBS = [];
+(function gen(start, cur) {
+  if (cur.length === CK) { COMBS.push(cur.slice()); return; }
+  for (let i = start; i < CN; i++) { cur.push(i); gen(i + 1, cur); cur.pop(); }
+})(0, []);
+const CH = [0, 2, 4], CHI = COMBS.findIndex(c => c.join() === CH.join());
+const CARD_X = idx => (idx % 5 - 2) * 8.8, CARD_Y = idx => (idx < 5 ? 27.2 : 19.7);
+// 9. Υπεργεωμετρική κατανομή: 5 κόκκινες και 7 λευκές, επιλογή 4
+const HR = 5, HL = 7, HN = 4, HTOT = nCr(HR + HL, HN);
+const HC = Array.from({ length: HN + 1 }, (_, k) => nCr(HR, k) * nCr(HL, HN - k)), HP = HC.map(c => c / HTOT), HN_STR = HC.join(' + ');
+const HPAT = ['R', 'W', 'R', 'W', 'W', 'R', 'W', 'R', 'W', 'W', 'R', 'W'];
+// 10. Τρίγωνο του Pascal με την αναδρομή, γραμμές n = 0..8
+const PN = 8, PASC = [[1]];
+for (let n = 1; n <= PN; n++) PASC.push(Array.from({ length: n + 1 }, (_, k) => (k === 0 || k === n ? 1 : PASC[n - 1][k - 1] + PASC[n - 1][k])));
+const PX_ = (n, k) => (k - n / 2) * 4.3, PY = n => 31.4 - n * 2.7, PEX = [[6, 2], [8, 4]];
+
+const STATES = [
+  { dur: 14, title: 'Πράξεις με ενδεχόμενα στο Ω = {1, 2, …, 12}',
+    lines: [[`Ω = ${sstr(OM)}`, 'K'],
+      [`Α: άρτιοι αριθμοί, Α = ${sstr(setA)}`, 'B'],
+      [`Β: πολλαπλάσια του 3, Β = ${sstr(setB)}`, 'P']],
+    hint: `<b>Πράξεις με ενδεχόμενα (§ 1.1):</b> ο δειγματικός χώρος είναι το Ω = ${sstr(OM)}. Το ενδεχόμενο Α (μπλε κύκλος) περιέχει τους άρτιους, ${sstr(setA)}, και το Β (μωβ κύκλος) τα πολλαπλάσια του 3, ${sstr(setB)}. Η περιοχή της κάθε πράξης υψώνεται με πορτοκαλί χρώμα και τα στοιχεία της γίνονται πράσινα: η <b>ένωση</b> Α ∪ Β (στοιχεία που ανήκουν στο Α ή στο Β), η <b>τομή</b> Α ∩ Β = ${sstr(VOPS[1].set)} (στοιχεία που ανήκουν και στα δύο), το <b>συμπλήρωμα</b> Α′ (στοιχεία του Ω που δεν ανήκουν στο Α) και η <b>διαφορά</b> Α − Β (στοιχεία του Α που δεν ανήκουν στο Β).`,
+    spec: bare((ctx, cx, cy) => {
+      const { r, d, cy: yc } = VEN;
+      tRect(ctx, cx, cy, VEN.x0, VEN.y0, VEN.x1, VEN.y1, '#A6A6A6', 6, '#ffffff');
+      for (const [sgn, col, fill] of [[-1, '#1565C0', 'rgba(21,101,192,.09)'], [1, '#6A1B9A', 'rgba(106,27,154,.09)']]) {
+        ctx.beginPath(); ctx.arc(cx(sgn * d / 2), cy(yc), r * PX, 0, PI2);
+        ctx.fillStyle = fill; ctx.fill(); ctx.strokeStyle = col; ctx.lineWidth = 9; ctx.stroke();
+      }
+      tText(ctx, cx, cy, 'Ω', VEN.x0 + 2.1, VEN.y1 - 1.9, 60, '#616161');
+    }),
+    build(g, m) {
+      const K = kit(g, m);
+      const { r, d, cy: yc } = VEN;
+      const h = Math.sqrt(r * r - d * d / 4), al = Math.atan2(h, d / 2);
+      const A = V(-d / 2, yc, 0), B = V(d / 2, yc, 0);
+      const toShape = pts => new THREE.Shape(pts.map(p => new THREE.Vector2(p.x, p.y)));
+      const circ = c => arcPts(c.x, c.y, r, 0, PI2, 64);
+      const aOut = arcPts(A.x, A.y, r, al, PI2 - al), bOut = arcPts(B.x, B.y, r, PI + al, 3 * PI - al);
+      const uni = aOut.concat(bOut);
+      const rectS = toShape([V(VEN.x0, VEN.y0, 0), V(VEN.x1, VEN.y0, 0), V(VEN.x1, VEN.y1, 0), V(VEN.x0, VEN.y1, 0)]);
+      rectS.holes.push(new THREE.Path(uni.map(p => new THREE.Vector2(p.x, p.y))));
+      const shapes = [
+        [toShape(circ(A)), toShape(circ(B))],
+        [toShape(arcPts(A.x, A.y, r, -al, al).concat(arcPts(B.x, B.y, r, PI - al, PI + al)))],
+        [rectS],
+        [toShape(aOut.concat(arcPts(B.x, B.y, r, PI + al, PI - al)))]
+      ];
+      const slabs = shapes.map(list => {
+        const grp = new THREE.Group();
+        for (const sh of list) grp.add(new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: 1, bevelEnabled: false }), sm('#EF6C00', 0.78)));
+        grp.position.z = 0.12; grp.visible = false; g.add(grp);
+        return grp;
+      });
+      // τα στοιχεία του Ω ως δίσκοι με αριθμό
+      const POS = { 2: [-10.5, 23.8], 4: [-6.2, 23.8], 8: [-10.5, 18.2], 10: [-6.2, 18.2], 6: [0, 23.8], 12: [0, 18.2],
+        3: [6.2, 23.8], 9: [6.2, 18.2], 1: [-17.5, 26], 5: [-17.5, 15.5], 7: [17.5, 26], 11: [17.5, 15.5] };
+      const tok = OM.map(n => {
+        const t = disc(g, 1.45, 0.9, glow(COL.K));
+        const l = inkLabel(g, String(n), 1.55, '12');
+        put(t, POS[n][0], POS[n][1], 0.15);
+        return { n, t, l };
+      });
+      const lA = K.text('B', 'Α', 2.2), lB = K.text('P', 'Β', 2.2);
+      K.at(lA, -13.6, 28.4); K.at(lB, 13.6, 28.4);
+      const l1 = K.text('O', 'Α − Β (διαφορά) = {2, 4, 8, 10}', 1.75), l2 = K.text('G', 'N(Α − Β) = N(Α) − N(Α ∩ Β) = 6 − 2 = 4', 1.6);
+      K.at(l1, 0, 8.2); K.at(l2, 0, 5.9);
+      const P0 = 0.5, PH = 3.375, H = 1.5;
+      const nA = setA.length;
+      const txt = [
+        () => { const s = VOPS[0].set; return [`Α ∪ Β (ένωση) = ${sstr(s)}`, `N(Α ∪ Β) = ${s.length}`]; },
+        () => { const s = VOPS[1].set; return [`Α ∩ Β (τομή) = ${sstr(s)}`, `N(Α ∩ Β) = ${s.length}`]; },
+        () => { const s = VOPS[2].set; return [`Α′ (συμπλήρωμα) = ${sstr(s)}`, `N(Α′) = N(Ω) − N(Α) = 12 − ${nA} = ${s.length}`]; },
+        () => { const s = VOPS[3].set; return [`Α − Β (διαφορά) = ${sstr(s)}`, `N(Α − Β) = N(Α) − N(Α ∩ Β) = ${nA} − ${NAB} = ${s.length}`]; }
+      ];
+      return u => {
+        const t = u * 14, p = Math.min(3, Math.max(0, Math.floor((t - P0) / PH))), tl_ = t - P0 - p * PH;
+        const s = t < P0 ? 0 : ramp(tl_, 0, 0.7) * (1 - ramp(tl_, PH - 0.6, 0.5));
+        slabs.forEach((sl, i) => { sl.visible = i === p && s > 0.01; sl.scale.z = Math.max(s, 0.01) * H; });
+        for (const o of tok) {
+          const inEv = VOPS[p].set.includes(o.n), on = inEv && s > 0.25;
+          o.t.material = on ? glow(COL.G) : glow(COL.K);
+          const z0 = 0.15 + (inEv ? s * H : 0);
+          put(o.t, o.t.position.x, o.t.position.y, z0);
+          o.l.position.set(o.t.position.x, o.t.position.y, z0 + 1.2);
+        }
+        const [a, b] = txt[p]();
+        say(l1, a); say(l2, b);
+      };
+    } },
+
+  { dur: 14, title: 'Κλασικός ορισμός της πιθανότητας',
+    lines: [['Όλα τα αποτελέσματα είναι ισοπίθανα, P(Α) = N(Α)/N(Ω)', 'B'],
+      ['N(Α): ευνοϊκές περιπτώσεις, N(Ω): δυνατές περιπτώσεις', 'G'],
+      [`Δύο ζάρια: N(Ω) = 36, κουτί με ${BALLS.length} μπάλες: N(Ω) = ${BALLS.length}`, 'K']],
+    hint: `<b>Κλασικός ορισμός (§ 1.2):</b> όταν τα αποτελέσματα ενός πειράματος τύχης είναι ισοπίθανα, P(Α) = N(Α)/N(Ω). Στα δύο ζάρια υπάρχουν N(Ω) = 36 ισοπίθανα ζεύγη (i, j), και κάθε κελί γράφει το άθροισμα i + j. Για το «άθροισμα 7» τα ευνοϊκά ζεύγη είναι ${nC1}, άρα P(Α) = ${nC1}/36 = ${frac(nC1, 36)}. Για το «άθροισμα τουλάχιστον 8» είναι ${nC2}, άρα P(Α) = ${nC2}/36 = ${frac(nC2, 36)}. Στο κουτί με ${nRed} κόκκινες, ${BALLS.filter(b => b === 'B').length} μπλε και ${BALLS.filter(b => b === 'G').length} πράσινες μπάλες, για το «κόκκινη» είναι P(Α) = ${nRed}/${BALLS.length} = ${frac(nRed, BALLS.length)}. Τα ευνοϊκά αποτελέσματα υψώνονται.`,
+    spec: bare((ctx, cx, cy) => {
+      const c = 3.2, gx = -19.4, top = 28.2;
+      for (const d of DICE) {
+        const x0 = gx + (d.i - 1) * c, y1 = top - (d.j - 1) * c;
+        tRect(ctx, cx, cy, x0, y1 - c, x0 + c, y1, '#BDBDBD', 3, '#fafafa');
+        tText(ctx, cx, cy, String(d.s), x0 + c / 2, y1 - c / 2, 40, '#9e9e9e');
+      }
+      for (let k = 1; k <= 6; k++) {
+        tText(ctx, cx, cy, String(k), gx + (k - 0.5) * c, top + 1.3, 40, '#262626');
+        tText(ctx, cx, cy, String(k), gx - 1.4, top - (k - 0.5) * c, 40, '#262626');
+      }
+      tText(ctx, cx, cy, 'Πρώτο ζάρι', gx + 3 * c, top + 3.0, 36, '#616161');
+      tText(ctx, cx, cy, 'Δεύτερο ζάρι', gx - 3.1, top - 3 * c, 36, '#616161', 'center', -PI / 2);
+      tRect(ctx, cx, cy, 3, 12.5, 21.5, 25.5, '#A6A6A6', 6, '#f6f7f9');
+      tText(ctx, cx, cy, 'Δύο ζάρια: 36 ζεύγη (i, j)', gx + 3 * c, 33.0, 38, '#262626');
+      tText(ctx, cx, cy, `Κουτί: ${BALLS.length} μπάλες`, 12.25, 33.0, 38, '#262626');
+    }),
+    build(g, m) {
+      const K = kit(g, m);
+      const c = 3.2, gx = -19.4, top = 28.2;
+      const cell = d => [gx + (d.i - 0.5) * c, top - (d.j - 0.5) * c];
+      const sel = CLS.map(e => DICE.filter(e.pick));
+      const tiles = DICE.map(d => { const b = kouti(c - 0.35, c - 0.35, 1, V(0, 0, 0), sm('#2E7D32', 0.62)); const [x, y] = cell(d); b.position.set(x, y, 0.1); b.scale.z = 0.01; b.visible = false; g.add(b); return b; });
+      const bcol = { R: '#C62828', B: '#1565C0', G: '#2E7D32' };
+      const bx = i => 12.25 + (i % 5 - 2) * 3.3, by = i => (i < 5 ? 21.2 : 16.8);
+      const balls = BALLS.map((k, i) => { const b = ball(1.45, glow(bcol[k])); b.position.set(bx(i), by(i), 1.6); g.add(b); return b; });
+      const lE = K.text('G', 'Α: το άθροισμα των ενδείξεων είναι τουλάχιστον 8', 1.6), lN = K.text('B', 'N(Ω) = 36, N(Α) = 15, P(Α) = N(Α)/N(Ω) = 15/36 = 5/12', 1.6);
+      K.at(lE, 0, 7.8); K.at(lN, 0, 5.5);
+      const S0 = [0.6, 4.8, 9.0], T = (t, i) => t - S0[i];
+      return u => {
+        const t = u * 14;
+        const heights = new Array(36).fill(0);
+        let seg = -1, cnt = 0, tot = 0;
+        for (let e = 0; e < 2; e++) {
+          const n = sel[e].length, step = e === 0 ? 0.4 : 0.17, a = S0[e] + 0.3, fall = S0[e + 1] - 0.55;
+          if (t >= S0[e] && t < S0[e + 1]) { seg = e; tot = n; }
+          sel[e].forEach((d, j) => {
+            const st = a + j * step, hgt = ramp(t, st, 0.4) * (1 - ramp(t, fall, 0.4));
+            const k = DICE.indexOf(d);
+            heights[k] = Math.max(heights[k], hgt);
+            if (e === seg && t >= st + 0.2) cnt++;
+          });
+        }
+        tiles.forEach((b, k) => { b.visible = heights[k] > 0.01; b.scale.z = Math.max(heights[k], 0.01) * 1.5; });
+        const inBox = t >= S0[2];
+        if (inBox) { seg = 2; tot = nRed; }
+        let cntB = 0;
+        balls.forEach((b, i) => {
+          const fav = BALLS[i] === 'R', st = S0[2] + 0.3 + i * 0.4;
+          const e = fav ? ramp(t, st, 0.5) : 0;
+          if (fav && t >= st + 0.25) cntB++;
+          b.position.set(bx(i), by(i) + 6 * e, 1.6 + 1.5 * e);
+        });
+        if (seg === 2) cnt = cntB;
+        if (seg < 0) {
+          say(lE, t < S0[0] ? 'Πείραμα: ρίψη δύο ζαριών' : 'Α: ένα από τα δύο ενδεχόμενα'); say(lN, 'N(Ω) = 36');
+          if (t >= S0[1] - 0.5 && t < S0[1]) { say(lE, CLS[1].text); }
+          return;
+        }
+        const nO = seg === 2 ? BALLS.length : 36;
+        say(lE, seg === 2 ? 'Α: η μπάλα που επιλέγεται είναι κόκκινη' : CLS[seg].text);
+        const done = cnt === tot;
+        say(lN, `N(Ω) = ${nO}, N(Α) = ${cnt}, P(Α) = N(Α)/N(Ω) = ${cnt}/${nO}` + (done ? (frac(cnt, nO) !== `${cnt}/${nO}` ? ` = ${frac(cnt, nO)}` : '') : ''));
+      };
+    } },
+
+  { dur: 14, title: 'Σχετική συχνότητα και πιθανότητα',
+    lines: [['Ρίψη ζαριού, Α: άρτιος αριθμός, P(Α) = 3/6 = 1/2', 'B'],
+      ['Σχετική συχνότητα: f = ν_{Α}/ν (ν ρίψεις, ν_{Α} φορές το Α)', 'O'],
+      [`Σταθερός σπόρος ${RF_SEED}: οι ίδιες ${RF_N} ρίψεις κάθε φορά`, 'K']],
+    hint: `<b>Σχετική συχνότητα (§ 1.2):</b> ρίχνουμε ένα ζάρι και παρατηρούμε το ενδεχόμενο Α: «φέρνουμε άρτιο αριθμό», με P(Α) = 3/6 = 1/2 (μπλε ευθεία). Μετά από ν ρίψεις το Α έχει συμβεί ν<sub>Α</sub> φορές και η σχετική συχνότητα είναι f = ν<sub>Α</sub>/ν (πορτοκαλί καμπύλη). Η κάθετη πορτοκαλί ράβδος δείχνει την απόκλιση |f − P(Α)|. Για λίγες ρίψεις η f ταλαντώνεται πολύ, ενώ για πολλές ρίψεις πλησιάζει την P(Α). Οι ρίψεις προσομοιώνονται με σταθερό σπόρο (${RF_SEED}), άρα είναι οι ίδιες κάθε φορά: μετά από ${RF_N} ρίψεις ν<sub>Α</sub> = ${RF.hit[RF_N - 1]}, f = ${num(RF.f[RF_N - 1], 3)}.`,
+    spec: { xmin: -20, xmax: 415, ymin: -0.12, ymax: 1.08, bx0: -19, bx1: 21, xt: [100, 200, 300, 400], yt: [[0.25, '0,25'], [0.5, '0,5'], [0.75, '0,75'], [1, '1']], xl: 'ν', yl: 'f' },
+    build(g, m) {
+      const K = kit(g, m);
+      const fAt = s => { const i = Math.min(RF_N - 1, Math.max(0, s - 1)), a = Math.floor(i), b = Math.min(RF_N - 1, a + 1); return lerp(RF.f[a], RF.f[b], i - a); };
+      K.vtube(s => K.P(s, 0.5, 0.5), 0, RF_N + 5, 2, 0.17, 'B');
+      const curve = K.curve(fAt, 1, RF_N, RF_N - 1, 0.19, 'O', 1.0);
+      const dev = K.line('O', 0.2), drop = K.line('K', 0.08, 0.7);
+      const mk = K.ball('O', 0.85, 1.4);
+      const lP = K.text('B', 'P(Α) = 0,5', 1.6), l1 = K.text('K', 'ν = 400, ν_{Α} = 200', 1.6), l2 = K.text('O', 'f = ν_{Α}/ν = 0,500', 1.6), l3 = K.text('O', '|f − P(Α)| = 0,000', 1.6);
+      K.at(lP, 345, 0.42); K.at(l1, 285, 0.95); K.at(l2, 285, 0.84); K.at(l3, 285, 0.73);
+      return u => {
+        const t = u * 14, q = Math.min(1, Math.max(0, (t - 0.5) / 12));
+        const nu = Math.max(1, Math.min(RF_N, Math.round(1 + (RF_N - 1) * Math.pow(q, 1.7))));
+        reveal(curve, nu);
+        const f = RF.f[nu - 1];
+        K.setLine(dev, nu, 0.5, nu, f, 1.2, 0.2);
+        K.setLine(drop, nu, 0, nu, Math.min(f, 0.5) - 0.02, 0.6, 0.08);
+        K.put(mk, nu, f);
+        say(l1, `ν = ${nu}, ν_{Α} = ${RF.hit[nu - 1]}`); say(l2, `f = ν_{Α}/ν = ${num(f, 3)}`); say(l3, `|f − P(Α)| = ${num(Math.abs(f - 0.5), 3)}`);
+      };
+    } },
+
+  { dur: 14, title: 'Αξιωματικός ορισμός της πιθανότητας',
+    lines: [['Ω = {ω₁, ω₂, …, ω₆}, P(ωᵢ) = p_{i} ≥ 0 για κάθε i', 'B'],
+      ['P(Ω) = p_{1} + p_{2} + … + p_{6} = 1', 'G'],
+      ['Ενδεχόμενο Α: P(Α) = άθροισμα των p_{i} των ωᵢ του Α', 'O']],
+    hint: `<b>Αξιωματικός ορισμός (§ 1.2):</b> σε κάθε αποτέλεσμα ωᵢ του Ω αντιστοιχίζουμε έναν αριθμό p<sub>i</sub> = P(ωᵢ) ≥ 0 με p<sub>1</sub> + p<sub>2</sub> + … + p<sub>6</sub> = 1. Τα αποτελέσματα δεν χρειάζεται να είναι ισοπίθανα. Η στήλη δεξιά στοιβάζει τα p<sub>i</sub> και έχει πάντα ύψος 1. Πρώτα το ζάρι είναι δίκαιο (p<sub>i</sub> = 1/6), μετά είναι ζάρι με μεροληψία: p<sub>6</sub> = ${frac(3, 8)} και p<sub>1</sub> = … = p<sub>5</sub> = ${frac(1, 8)}, με άθροισμα 5 · ${frac(1, 8)} + ${frac(3, 8)} = 1. Για το ενδεχόμενο Α = ${sstr(['ω₂', 'ω₄', 'ω₆'])} (άρτιος αριθμός) η πιθανότητα είναι P(Α) = p<sub>2</sub> + p<sub>4</sub> + p<sub>6</sub> = ${frac(1, 8)} + ${frac(1, 8)} + ${frac(3, 8)} = ${frac(5, 8)}.`,
+    spec: { xmin: -0.2, xmax: 9.1, ymin: -0.1, ymax: 1.07, bx0: -21, bx1: 21,
+      xt: [[1, 'ω₁'], [2, 'ω₂'], [3, 'ω₃'], [4, 'ω₄'], [5, 'ω₅'], [6, 'ω₆']], yt: [[0.25, '0,25'], [0.5, '0,5'], [0.75, '0,75'], [1, '1']], xl: ' ', yl: 'p' },
+    build(g, m) {
+      const K = kit(g, m);
+      const p0 = prob(W0), p1 = prob(W1), evA = [1, 3, 5];
+      const y0 = m.Y(0), sx = i => m.X(i), SX = m.X(8.2);
+      const bars = p0.map((_, i) => { const b = kouti(2.9, 1, 1.6, V(0, 0, 0), sm(COL.B)); b.position.set(sx(i + 1), y0, 0.1); g.add(b); return b; });
+      const segs = p0.map(() => { const b = kouti(3.6, 1, 1.6, V(0, 0, 0), sm(COL.B)); g.add(b); return b; });
+      const vals = p0.map(() => K.text('B', '3/8', 1.3));
+      K.dash(-0.1, 1, 9.0, 1, 'K', 0.07, 0.3);
+      const lS = K.text('G', 'Σ p_{i} = 1', 1.5), lA = K.text('G', 'P(Α) = 5/8', 1.5), l1 = K.text('K', 'p_{1} + … + p_{6} = 5 · 1/8 + 3/8 = 1', 1.6), l2 = K.text('K', '= 1/8 + 1/8 + 3/8 = 5/8', 1.6);
+      l1.position.set(-8, m.Y(0.86), 2.2); l2.position.set(-8, m.Y(0.74), 2.2);
+      const Hh = m.Y(1) - m.Y(0);
+      const isA = i => evA.includes(i);
+      return u => {
+        const t = u * 14, a = ramp(t, 0.4, 1.4), mo = ramp(t, 4.8, 1.6), sC = ramp(t, 8.4, 1.6);
+        const p = p0.map((v, i) => lerp(v, p1[i], mo));
+        const nat = [], srt = [];
+        { let c = 0; p.forEach((v, i) => { nat[i] = c; c += v; }); c = 0; [0, 2, 4, 1, 3, 5].forEach(i => { srt[i] = c; c += p[i]; }); }
+        p.forEach((v, i) => {
+          const hb = Math.max(v * Hh * a, 0.001), colr = isA(i) && sC > 0.5 ? COL.G : COL.B;
+          bars[i].scale.y = hb; bars[i].position.y = y0 + hb / 2; bars[i].material = sm(colr);
+          const st = lerp(nat[i], srt[i], sC), hs = Math.max(v * Hh * a - 0.16, 0.001);
+          segs[i].scale.y = hs; segs[i].position.set(SX, y0 + a * st * Hh + hs / 2 + 0.08, 0.9); segs[i].material = sm(colr);
+          vals[i].position.set(sx(i + 1), y0 + hb + 1.2, 2.2);
+          vals[i].visible = a > 0.5 && (mo < 0.02 || mo > 0.98);
+          say(vals[i], frac(Math.round(v * 24), 24), colr === COL.G ? 'G' : 'B');
+        });
+        const pa = frac(W1[1] + W1[3] + W1[5], W1.reduce((x, y) => x + y, 0));
+        const phase = t < 4.6 ? 0 : t < 8.2 ? 1 : 2;
+        say(l1, phase === 0 ? `p_{1} + … + p_{6} = 6 · ${frac(1, 6)} = 1` : phase === 1 ? `p_{1} + … + p_{6} = 5 · ${frac(1, 8)} + ${frac(3, 8)} = 1` : 'P(Α) = p_{2} + p_{4} + p_{6}');
+        say(l2, `= ${frac(1, 8)} + ${frac(1, 8)} + ${frac(3, 8)} = ${pa}`);
+        l2.visible = phase === 2;
+        lA.visible = sC > 0.9;
+        lA.position.set(9.6, y0 + (1 + 0.375) / 2 * Hh, 2.2);
+        lS.visible = a > 0.99;
+        lS.position.set(9.5, m.Y(1) + 1.4, 2.2);
+      };
+    } },
+
+  { dur: 14, title: 'Προσθετικός νόμος των πιθανοτήτων',
+    lines: [['Εμβαδά ανάλογα των πιθανοτήτων, εμβαδόν του Ω ίσο με 1', 'K'],
+      [`P(Α) = ${num(PA)}, P(Β) = ${num(PB)}, το Β μετακινείται`, 'B'],
+      ['P(Α ∪ Β) = P(Α) + P(Β) − P(Α ∩ Β)', 'O']],
+    hint: `<b>Προσθετικός νόμος (§ 1.3):</b> το ορθογώνιο Ω έχει εμβαδόν 1 και κάθε ενδεχόμενο είναι ζώνη με εμβαδόν ίσο με την πιθανότητά του: P(Α) = ${num(PA)} (μπλε) και P(Β) = ${num(PB)} (μωβ). Όταν τα Α και Β δεν έχουν κοινά στοιχεία (<b>ασυμβίβαστα</b>, Α ∩ Β = ∅), P(Α ∪ Β) = P(Α) + P(Β) = ${num(PA + PB)}. Όταν επικαλύπτονται, η επικάλυψη Α ∩ Β (πορτοκαλί) προσμετράται δύο φορές στο άθροισμα P(Α) + P(Β), γι' αυτό αφαιρείται: P(Α ∪ Β) = P(Α) + P(Β) − P(Α ∩ Β). Οι δύο ράβδοι κάτω δείχνουν το άθροισμα P(Α) + P(Β) και την P(Α ∪ Β).`,
+    spec: bare((ctx, cx, cy) => {
+      tRect(ctx, cx, cy, -20, 18.5, 20, 29.5, '#A6A6A6', 6, '#ffffff');
+      tText(ctx, cx, cy, 'Ω', 21.2 - 2, 31.0, 40, '#616161');
+      for (const y of [15.2, 11.0]) { ctx.strokeStyle = '#D5D5D5'; ctx.lineWidth = 3; ctx.strokeRect(cx(-20), cy(y + 1.3), 40 * PX, 2.6 * PX); }
+    }),
+    build(g, m) {
+      const K = kit(g, m);
+      const U = 40, X0 = -20, Y0 = 18.5, Y1 = 29.5;
+      const strip = (mat, z0, dz) => { const b = kouti(1, Y1 - Y0 - 0.15, dz, V(0, (Y0 + Y1) / 2, z0 + dz / 2), mat); g.add(b); return b; };
+      const sA = strip(sm(COL.B, 0.85), 0.1, 0.9), sB = strip(sm(COL.P, 0.6), 1.0, 0.9), sAB = strip(sm(COL.O, 0.95), 1.9, 0.7);
+      const bar = (y, mat) => { const b = kouti(1, 2.4, 1.2, V(0, y, 0.7), mat); b.visible = true; g.add(b); return b; };
+      const b1 = [bar(15.2, sm(COL.B)), bar(15.2, sm(COL.P)), bar(15.2, sm(COL.O))];
+      const b2 = [bar(11.0, sm(COL.B)), bar(11.0, sm(COL.P))];
+      const setX = (b, a, c) => { b.scale.x = Math.max((c - a) * U - 0.12, 0.001); b.position.x = X0 + ((a + c) / 2) * U; b.visible = c - a > 1e-6; };
+      const lA = K.text('B', 'Α, P(Α) = 0,50', 1.4), lB = K.text('P', 'Β, P(Β) = 0,40', 1.4);
+      const l1 = K.text('K', 'P(Α) + P(Β) = 0,90', 1.5), l2 = K.text('K', 'P(Α ∪ Β) = 0,70', 1.5);
+      const l3 = K.text('O', 'P(Α ∪ Β) = 0,50 + 0,40 − 0,20 = 0,70', 1.6), l4 = K.text('G', 'P(Α ∩ Β) = 0,20', 1.6);
+      K.at(lA, 0, 32.7); K.at(lB, 0, 31.0); K.at(l3, 0, 8.0); K.at(l4, 0, 5.6);
+      return u => {
+        const t = u * 14;
+        const c = PB * (0.5 * ramp(t, 3.0, 2.0) + 0.5 * ramp(t, 7.8, 2.0));
+        const c2 = Math.round(c * 100) / 100, xB = PA - c2;
+        const setS = (b, a, e) => { b.scale.x = Math.max((e - a) * U - 0.1, 0.001); b.position.x = X0 + ((a + e) / 2) * U; };
+        setS(sA, 0, PA); setS(sB, xB, xB + PB);
+        sAB.visible = c2 > 0.004; if (sAB.visible) setS(sAB, xB, PA);
+        setX(b1[0], 0, PA); setX(b1[1], PA, PA + PB - c2); setX(b1[2], PA + PB - c2, PA + PB);
+        setX(b2[0], 0, PA); setX(b2[1], PA, PA + PB - c2);
+        const un = PA + PB - c2;
+        K.at(lA, X0 + PA / 2 * U, 32.7); K.at(lB, X0 + (xB + PB / 2) * U, 31.0);
+        K.at(l1, X0 + (PA + PB) / 2 * U, 15.2); K.at(l2, X0 + un / 2 * U, 11.0);
+        say(l1, `P(Α) + P(Β) = ${num(PA + PB)}`); say(l2, `P(Α ∪ Β) = ${num(un)}`);
+        say(l4, c2 < 0.004 ? 'Α ∩ Β = ∅: ασυμβίβαστα' : `P(Α ∩ Β) = ${num(c2)}`);
+        say(l3, c2 < 0.004 ? `P(Α ∪ Β) = P(Α) + P(Β) = ${num(PA)} + ${num(PB)} = ${num(un)}` : `P(Α ∪ Β) = ${num(PA)} + ${num(PB)} − ${num(c2)} = ${num(un)}`);
+      };
+    } },
+
+  { dur: 14, title: 'Βασική αρχή απαρίθμησης και δενδροδιάγραμμα',
+    lines: [[`Μπλούζες: n_{1} = ${N1}`, 'B'], [`Παντελόνια: n_{2} = ${N2}`, 'P'], [`Παπούτσια: n_{3} = ${N3}`, 'Y'],
+      [`Πλήθος τρόπων: n_{1} · n_{2} · n_{3} = ${N1} · ${N2} · ${N3} = ${N1 * N2 * N3}`, 'G']],
+    hint: `<b>Βασική αρχή απαρίθμησης (§ 1.4):</b> μια διαδικασία έχει τρία στάδια: επιλογή μπλούζας (n<sub>1</sub> = ${N1} τρόποι), παντελονιού (n<sub>2</sub> = ${N2}) και παπουτσιών (n<sub>3</sub> = ${N3}). Στο δενδροδιάγραμμα κάθε κλάδος από τη ρίζα ως το τέλος είναι ένας τρόπος να ολοκληρωθεί η διαδικασία. Από τη ρίζα φεύγουν ${N1} κλάδοι, από καθέναν ${N2} νέοι, από καθέναν ${N3} νέοι, άρα οι κλάδοι είναι n<sub>1</sub> · n<sub>2</sub> · n<sub>3</sub> = ${N1} · ${N2} · ${N3} = ${N1 * N2 * N3}. Με πορτοκαλί σημειώνεται ένας τρόπος: μπλούζα ${PATH[0] + 1}, παντελόνι ${PATH[1] + 1}, παπούτσια ${PATH[2] + 1}.`,
+    spec: bare((ctx, cx, cy) => { tRect(ctx, cx, cy, -22.5, 11.6, 22.5, 32.8, '#E0E0E0', 4, '#ffffff'); }),
+    build(g, m) {
+      const K = kit(g, m);
+      const LV = [30.8, 25.4, 20.0, 14.6], col = ['K', 'B', 'P', 'Y'];
+      const NL = N1 * N2 * N3, leafX = j => (j - (NL - 1) / 2) * 2.3;
+      const L3 = Array.from({ length: NL }, (_, j) => ({ x: leafX(j), y: LV[3] }));
+      const L2 = Array.from({ length: N1 * N2 }, (_, j) => ({ x: (L3[j * N3].x + L3[j * N3 + N3 - 1].x) / 2, y: LV[2] }));
+      const L1 = Array.from({ length: N1 }, (_, j) => ({ x: (L2[j * N2].x + L2[j * N2 + N2 - 1].x) / 2, y: LV[1] }));
+      const L0 = [{ x: 0, y: LV[0] }];
+      const lv = [L0, L1, L2, L3], par = [null, () => 0, j => Math.floor(j / N2), j => Math.floor(j / N3)];
+      const nodes = [], edges = [];
+      lv.forEach((arr, l) => arr.forEach((n, j) => {
+        const rad = l === 0 ? 0.75 : l === 1 ? 0.75 : 0.6, b = ball(rad, glow(COL[col[l]]));
+        b.position.set(n.x, n.y, 0.9); b.scale.setScalar(0.001); g.add(b);
+        n.b = b; n.rad = rad; n.l = l; nodes.push(n);
+        if (l > 0) {
+          const p = lv[l - 1][par[l](j)], e = bar(V(0, 0, 0), V(1, 0, 0), 0.15, bm(COL[col[l]]));
+          e.position.z = 0.6; e.visible = false; g.add(e);
+          edges.push({ e, p, n, l, j });
+          if (l === 1) { const t = inkLabel(g, String(j + 1), 1.35, '1'); t.position.set(n.x + 1.6, n.y, 3); n.t = t; }
+          else if (l === 2) { const t = inkLabel(g, String(j % N2 + 1), 1.25, '1'); t.position.set(n.x + 1.4, n.y + 0.1, 3); n.t = t; }
+          else { const t = inkLabel(g, String(j % N3 + 1), 1.2, '1'); t.position.set(n.x, n.y - 1.4, 3); n.t = t; }
+          n.t.visible = false;
+        }
+      }));
+      // ο επιλεγμένος τρόπος (πορτοκαλί)
+      const pn = [L1[PATH[0]], L2[PATH[0] * N2 + PATH[1]], L3[(PATH[0] * N2 + PATH[1]) * N3 + PATH[2]]];
+      const chain = [L0[0], ...pn];
+      const pe = chain.slice(1).map(() => { const e = bar(V(0, 0, 0), V(1, 0, 0), 0.27, bm(COL.O)); e.position.z = 0.8; e.visible = false; g.add(e); return e; });
+      const pb = pn.map(n => { const b = ball(n.rad + 0.35, glow(COL.O)); b.position.set(n.x, n.y, 1.3); b.scale.setScalar(0.001); g.add(b); return b; });
+      const lC = K.text('K', 'n_{1} · n_{2} = 3 · 3 = 9 τρόποι', 1.7), lP = K.text('O', 'Ένας τρόπος: μπλούζα 2, παντελόνι 3, παπούτσια 1', 1.55);
+      K.at(lC, 0, 9.4); K.at(lP, 0, 6.9);
+      const T1 = i => 0.6 + i * 0.35, T2 = i => 2.5 + i * 0.22, T3 = i => 5.0 + i * 0.16, TP = [9.0, 9.9, 10.8];
+      const grow = (ed, s) => {
+        const a = V(ed.p.x, ed.p.y, 0), b = V(lerp(ed.p.x, ed.n.x, s), lerp(ed.p.y, ed.n.y, s), 0);
+        setBar(ed.e, a, b, 0.15);
+        ed.e.position.z = 0.6;
+        ed.n.b.scale.setScalar(Math.max(0.001, ed.n.rad * smooth((s - 0.6) / 0.4)));
+        ed.n.t.visible = s > 0.95;
+      };
+      return u => {
+        const t = u * 14;
+        nodes[0].b.scale.setScalar(0.75 * ramp(t, 0.2, 0.4));
+        let c3 = 0;
+        for (const ed of edges) {
+          const st = ed.l === 1 ? T1(ed.j) : ed.l === 2 ? T2(ed.j) : T3(ed.j), d = ed.l === 1 ? 0.8 : ed.l === 2 ? 0.6 : 0.5;
+          const s = Math.min(1, Math.max(0, (t - st) / d));
+          ed.e.visible = s > 0.001; grow(ed, s);
+          if (ed.l === 3 && s >= 1) c3++;
+        }
+        const stage = t < T2(0) ? 1 : t < T3(0) ? 2 : 3;
+        say(lC, stage === 1 ? `n_{1} = ${N1} τρόποι` : stage === 2 ? `n_{1} · n_{2} = ${N1} · ${N2} = ${N1 * N2} τρόποι` : `n_{1} · n_{2} · n_{3} = ${N1} · ${N2} · ${N3} = ${N1 * N2 * N3}` + (c3 < NL ? ` (έως τώρα ${c3})` : ' τρόποι'));
+        chain.slice(1).forEach((n, i) => {
+          const s = ramp(t, TP[i], 0.7), a = chain[i];
+          pe[i].visible = s > 0.001;
+          setBar(pe[i], V(a.x, a.y, 0), V(lerp(a.x, n.x, s), lerp(a.y, n.y, s), 0), 0.27); pe[i].position.z = 0.8;
+          pb[i].scale.setScalar(Math.max(0.001, (n.rad + 0.35) * smooth((s - 0.7) / 0.3)));
+        });
+        lP.visible = t > TP[2] + 0.6;
+        say(lP, `Ένας τρόπος: μπλούζα ${PATH[0] + 1}, παντελόνι ${PATH[1] + 1}, παπούτσια ${PATH[2] + 1}`);
+      };
+    } },
+
+  { dur: 14, title: 'Διατάξεις και μεταθέσεις',
+    lines: [['Αντικείμενα Α, Β, Γ, Δ, Ε (n = 5) σε k θέσεις', 'B'],
+      ['Διατάξεις (n, k) = n · (n − 1) · … · (n − k + 1) = n!/(n − k)!', 'O'],
+      ['Για k = n οι διατάξεις είναι οι μεταθέσεις: n!', 'G']],
+    hint: `<b>Διατάξεις και μεταθέσεις (§ 1.4):</b> από τα n = ${AN} αντικείμενα επιλέγουμε k και τα βάζουμε στη σειρά, σε k κουτάκια θέσεων. Στην πρώτη θέση υπάρχουν ${AN} επιλογές, στη δεύτερη ${AN - 1}, στην τρίτη ${AN - 2}, οπότε για k = 3 οι διατάξεις είναι Διατάξεις (${AN}, 3) = ${AN} · ${AN - 1} · ${AN - 2} = ${nPr(AN, 3)} = ${AN}!/(${AN} − 3)! = ${fact(AN)}/${fact(AN - 3)}. Ο αριθμός κάτω από κάθε κουτάκι είναι το πλήθος των αντικειμένων που έχουν απομείνει. Για k = n = ${AN} (όλα τα αντικείμενα) οι διατάξεις λέγονται <b>μεταθέσεις</b> και είναι ${AN}! = ${fact(AN)}, με 0! = 1.`,
+    spec: bare((ctx, cx, cy) => {
+      tRect(ctx, cx, cy, -17, 22.4, 17, 30.4, '#A6A6A6', 5, '#f6f7f9');
+      tText(ctx, cx, cy, 'Αντικείμενα (n = 5)', 0, 31.6, 36, '#616161');
+      for (let j = 0; j < AN; j++) tText(ctx, cx, cy, 'Θέση ' + (j + 1), SLX(j), 19.9, 34, '#616161');
+      tText(ctx, cx, cy, 'Επιλογές', -20.3, 11.4, 34, '#616161');
+    }),
+    build(g, m) {
+      const K = kit(g, m);
+      const sl = Array.from({ length: AN }, (_, j) => { const b = kouti(5.2, 5.2, 0.6, V(SLX(j), 16, 0.3), sm('#b9d3ee')); g.add(b); return b; });
+      const balls = LET.map((_, i) => { const b = ball(1.95, glow(COL.B)); b.position.set(SLX(i), 26.4, 1.5); g.add(b); return b; });
+      const lets = LET.map(c => inkLabel(g, c, 2.0, 'Ω'));
+      const cnt = Array.from({ length: AN }, (_, j) => K.text('O', '5', 2.1));
+      cnt.forEach((c, j) => K.at(c, SLX(j), 11.4));
+      const l1 = K.text('O', 'Διατάξεις (5, 3) = 5 · 4 · 3 = 60', 1.7), l2 = K.text('G', 'Διατάξεις (5, 3) = 5!/(5 − 3)! = 120/2 = 60', 1.6);
+      K.at(l1, 0, 7.9); K.at(l2, 0, 5.5);
+      const TA = [0.9, 2.5, 4.1], DA = 1.0, SEQ_A = [2, 0, 4], REST = 8.0, BACK = 0.8, TB = [9.0, 9.85, 10.7, 11.55, 12.4], DB = 0.7, SEQ_B = [3, 1, 4, 0, 2];
+      const pool = i => V(SLX(i), 26.4, 1.5), slot = j => V(SLX(j), 16, 1.5);
+      const segs = LET.map((_, i) => {
+        const s = [], ja = SEQ_A.indexOf(i), jb = SEQ_B.indexOf(i);
+        if (ja >= 0) { s.push({ t0: TA[ja], t1: TA[ja] + DA, a: pool(i), b: slot(ja) }); s.push({ t0: REST, t1: REST + BACK, a: slot(ja), b: pool(i), back: true }); }
+        if (jb >= 0) s.push({ t0: TB[jb], t1: TB[jb] + DB, a: pool(i), b: slot(jb) });
+        return s;
+      });
+      return u => {
+        const t = u * 14, inB = t >= REST + BACK;
+        LET.forEach((_, i) => {
+          let pos = pool(i), mv = 0;
+          for (const s of segs[i]) {
+            if (t >= s.t1) pos = s.b.clone();
+            else if (t >= s.t0) { mv = smooth((t - s.t0) / (s.t1 - s.t0)); pos = s.a.clone().lerp(s.b, mv); break; }
+          }
+          const arc = mv > 0 ? Math.sin(PI * mv) : 0;
+          balls[i].position.set(pos.x, pos.y + 2.5 * arc, pos.z + 3.5 * arc);
+          balls[i].material = mv > 0 && mv < 1 ? glow(COL.O) : glow(COL.B);
+          lets[i].position.set(pos.x, pos.y + 2.5 * arc, pos.z + 5.5 * arc + 2.2);
+        });
+        sl.forEach((b, j) => { b.material = sm(j < 3 || inB ? '#b9d3ee' : '#d9d9d9'); });
+        const doneA = TA.filter(x => t >= x + DA).length, doneB = TB.filter(x => t >= x + DB).length;
+        const done = inB ? doneB : t >= REST ? 0 : doneA, kk = inB ? AN : 3;
+        cnt.forEach((c, j) => {
+          const start = inB ? (j === 0 ? REST + BACK : TB[j - 1] + DB) : t >= REST ? Infinity : (j === 0 ? 0.3 : j < 3 ? TA[j - 1] + DA : Infinity);
+          c.visible = t >= start && j < kk && !(t >= REST && t < REST + BACK);
+          say(c, String(AN - j));
+        });
+        const terms = Array.from({ length: kk }, (_, j) => AN - j);
+        if (t >= REST && t < REST + BACK) { l1.visible = l2.visible = false; return; }
+        l1.visible = true;
+        const head = inB ? 'Μεταθέσεις: ' : `Διατάξεις (${AN}, ${kk}) = `;
+        say(l1, done === 0 ? (inB ? `k = n = ${AN} θέσεις` : `k = 3 θέσεις, n = ${AN} αντικείμενα`)
+          : done < kk ? terms.slice(0, done).join(' · ') + ' · …'
+            : head + terms.join(' · ') + (inB ? ` = ${AN}! = ${fact(AN)}` : ` = ${nPr(AN, kk)}`));
+        l2.visible = done === kk && t >= (inB ? TB[4] + DB + 0.3 : TA[2] + DA + 0.4);
+        say(l2, inB ? `Διατάξεις (${AN}, ${AN}) = ${AN}!/0! = ${fact(AN)}/1 = ${fact(AN)}` : `Διατάξεις (${AN}, 3) = ${AN}!/(${AN} − 3)! = ${fact(AN)}/${fact(AN - 3)} = ${nPr(AN, 3)}`);
+      };
+    } },
+
+  { dur: 14, title: 'Συνδυασμοί C(n, k) και υποσύνολα',
+    lines: [['Συνδυασμός ανά k: υποσύνολο k στοιχείων του {Α, Β, Γ, Δ, Ε}', 'B'],
+      ['Κάθε υποσύνολο k στοιχείων αντιστοιχεί σε k! διατάξεις', 'O'],
+      ['C(n, k) = Διατάξεις (n, k)/k! = n!/(k!(n − k)!)', 'G']],
+    hint: `<b>Συνδυασμοί (§ 1.4):</b> συνδυασμός των n = ${CN} στοιχείων ανά k = ${CK} είναι ένα υποσύνολό τους με ${CK} στοιχεία, χωρίς να μας ενδιαφέρει η σειρά. Στα ${COMBS.length} πλαίσια φαίνονται όλα: τα ${CK} στοιχεία του υποσυνόλου με πορτοκαλί και τα υπόλοιπα ${CN - CK} (το συμπλήρωμά του) με μωβ. Κάθε υποσύνολο δίνει ${CK}! = ${fact(CK)} διατάξεις (π.χ. το ${sstr(CH.map(i => LET[i]))}), οπότε C(${CN}, ${CK}) = Διατάξεις (${CN}, ${CK})/${CK}! = ${nPr(CN, CK)}/${fact(CK)} = ${nCr(CN, CK)}. Επίσης C(${CN}, ${CK}) = C(${CN}, ${CN - CK}), αφού κάθε υποσύνολο ${CK} στοιχείων αντιστοιχεί στο συμπλήρωμά του με ${CN - CK} στοιχεία.`,
+    spec: bare((ctx, cx, cy) => {
+      COMBS.forEach((cb, idx) => {
+        const x = CARD_X(idx), y = CARD_Y(idx);
+        tRect(ctx, cx, cy, x - 4.1, y - 3.3, x + 4.1, y + 3.3, '#BDBDBD', 4, '#fafafa');
+        tText(ctx, cx, cy, String(idx + 1), x - 3.4, y + 2.5, 28, '#9e9e9e');
+        LET.forEach((c, j) => tText(ctx, cx, cy, c, x + (j - 2) * 1.5, y - 1.4, 30, '#616161'));
+      });
+    }),
+    build(g, m) {
+      const K = kit(g, m);
+      const hl = kouti(8.9, 7.4, 0.5, V(CARD_X(CHI), CARD_Y(CHI), 0.1), sm(COL.O, 0.7));
+      hl.scale.z = 0.01; g.add(hl);
+      const cards = COMBS.map((cb, idx) => LET.map((_, j) => {
+        const b = ball(0.7, glow(cb.includes(j) ? COL.O : COL.P));
+        b.position.set(CARD_X(idx) + (j - 2) * 1.5, CARD_Y(idx) + 0.7, 1.0); b.scale.setScalar(0.001); g.add(b); return b;
+      }));
+      const l1 = K.text('B', 'Υποσύνολα με 3 στοιχεία: 10', 1.6), l2 = K.text('O', 'Υποσύνολο {Α, Γ, Ε}: 3! = 6 διατάξεις', 1.6), l2b = K.text('O', 'ΑΓΕ  ΑΕΓ  ΓΑΕ  ΓΕΑ  ΕΑΓ  ΕΓΑ', 1.6);
+      const l3 = K.text('G', 'C(5, 3) = Διατάξεις (5, 3)/3! = 60/6 = 10', 1.55), l4 = K.text('P', 'Συμμετρία: C(5, 3) = C(5, 2) = 10', 1.6);
+      K.at(l1, 0, 14.9); K.at(l2, 0, 12.4); K.at(l2b, 0, 9.9); K.at(l3, 0, 7.4); K.at(l4, 0, 5.0);
+      const perms = [[0, 2, 4], [0, 4, 2], [2, 0, 4], [2, 4, 0], [4, 0, 2], [4, 2, 0]].map(p => p.map(i => LET[i]).join(''));
+      return u => {
+        const t = u * 14;
+        let n = 0;
+        cards.forEach((arr, idx) => { const s = ramp(t, 0.5 + idx * 0.45, 0.4); if (s > 0.98) n++; arr.forEach(b => { b.scale.setScalar(Math.max(0.001, 0.7 * s * (1 + 0.35 * ramp(t, 6.2, 0.6) * (idx === CHI ? 1 : 0)))); }); });
+        hl.visible = t > 6.2; hl.scale.z = Math.max(0.01, ramp(t, 6.2, 0.6) * 0.5);
+        say(l1, n < COMBS.length ? `Υποσύνολα με ${CK} στοιχεία: ${n}` : `Υποσύνολα με ${CK} στοιχεία: C(${CN}, ${CK}) = ${n}`);
+        l2.visible = t > 6.6; l2b.visible = t > 6.9;
+        const k = Math.min(perms.length, Math.max(0, Math.floor((t - 6.9) / 0.45) + 1));
+        say(l2b, perms.slice(0, k).join('  '));
+        l3.visible = t > 9.8; l4.visible = t > 11.8;
+      };
+    } },
+
+  { dur: 14, title: 'Συνδυαστική και πιθανότητες',
+    lines: [[`Κουτί: ${HR} κόκκινες, ${HL} λευκές μπάλες, επιλογή ${HN} χωρίς επανάθεση`, 'K'],
+      [`N(Ω) = C(${HR + HL}, ${HN}) = ${HTOT} ισοπίθανες επιλογές`, 'B'],
+      [`κ: πόσες κόκκινες, N(κ) = C(${HR}, κ) · C(${HL}, ${HN} − κ)`, 'O']],
+    hint: `<b>Συνδυαστική και πιθανότητες (§ 1.4):</b> κουτί με ${HR} κόκκινες και ${HL} λευκές μπάλες, από το οποίο επιλέγουμε ${HN} χωρίς επανάθεση. Οι δυνατές επιλογές είναι N(Ω) = C(${HR + HL}, ${HN}) = ${HTOT} και είναι ισοπίθανες. Για να βγουν ακριβώς κ κόκκινες, διαλέγουμε κ από τις ${HR} κόκκινες και ${HN} − κ από τις ${HL} λευκές: N(κ) = C(${HR}, κ) · C(${HL}, ${HN} − κ). Άρα P(κ) = N(κ)/N(Ω), και οι ράβδοι για κ = 0, 1, …, ${HN} έχουν άθροισμα ${HC.reduce((a, b) => a + b, 0)}/${HTOT} = 1. Για κ = 2: P = C(${HR}, 2) · C(${HL}, 2)/C(${HR + HL}, ${HN}) = ${nCr(HR, 2)} · ${nCr(HL, 2)}/${HTOT} = ${nCr(HR, 2) * nCr(HL, 2)}/${HTOT} = ${frac(nCr(HR, 2) * nCr(HL, 2), HTOT)} ${approx3(nCr(HR, 2) * nCr(HL, 2) / HTOT)}.`,
+    spec: { xmin: -0.7, xmax: 4.7, ymin: -0.2, ymax: 0.5, bx0: -3, bx1: 21.5, xt: [0, 1, 2, 3, 4], yt: [[0.1, '0,1'], [0.2, '0,2'], [0.3, '0,3'], [0.4, '0,4']], xl: 'κ', yl: 'P',
+      extras: (ctx, cx, cy) => {
+        tRect(ctx, cx, cy, -22, 12.6, -7.2, 25.4, '#A6A6A6', 5, '#f6f7f9');
+        tRect(ctx, cx, cy, -20.8, 27.2, -5.6, 31, '#BDBDBD', 4, '#fafafa');
+        tText(ctx, cx, cy, 'Επιλογή 4 μπαλών', -13.2, 32.5, 34, '#616161');
+      } },
+    build(g, m) {
+      const K = kit(g, m);
+      const y0 = m.Y(0), Hh = m.Y(0.5) - y0;
+      const bx = i => -18 + (i % 4) * 3.5, by = i => 22.4 - Math.floor(i / 4) * 3.5;
+      const bcol = { R: COL.R, W: '#eceff1' };
+      const box = HPAT.map((k, i) => { const b = ball(1.5, glow(bcol[k])); b.position.set(bx(i), by(i), 1.5); g.add(b); return b; });
+      const tray = Array.from({ length: HN }, (_, i) => { const b = ball(1.2, glow('#eceff1')); b.position.set(-18.2 + i * 3.45 + 0.3, 29.1, 1.5); g.add(b); return b; });
+      const bars = HP.map((_, k) => { const b = kouti(3.2, 1, 1.6, V(0, 0, 0), sm(COL.B)); b.position.set(m.X(k), y0, 0.1); b.scale.y = 0.001; g.add(b); return b; });
+      const vals = HP.map(() => K.text('B', '0,000', 1.2));
+      const l1 = K.text('K', 'P(κ = 2) = C(5, 2) · C(7, 4 − 2)/C(12, 4)', 1.55), l2 = K.text('O', '= 10 · 21/495 = 210/495 = 14/33 ≈ 0,424', 1.55);
+      l1.position.set(0, 8.5, 2.2); l2.position.set(0, 6.0, 2.2);
+      const reds = HPAT.map((k, i) => (k === 'R' ? i : -1)).filter(i => i >= 0), whites = HPAT.map((k, i) => (k === 'W' ? i : -1)).filter(i => i >= 0);
+      const ST = i => 1.2 + 1.7 * i;
+      return u => {
+        const t = u * 14;
+        let cur = -1;
+        for (let k = 0; k < HP.length; k++) if (t >= ST(k)) cur = k;
+        const fin = t >= 10.8, act = fin ? 2 : cur;
+        HP.forEach((p, k) => {
+          const s = ramp(t, ST(k), 0.8), hb = Math.max(0.001, p * Hh * s);
+          bars[k].scale.y = hb; bars[k].position.y = y0 + hb / 2;
+          bars[k].material = sm(k === act && (fin || t < 9.7) ? COL.O : COL.B);
+          vals[k].visible = s > 0.9; vals[k].position.set(m.X(k), y0 + hb + 1.1, 2.2);
+          say(vals[k], num(p, 3), k === act && (fin || t < 9.7) ? 'O' : 'B');
+        });
+        box.forEach(b => { b.scale.setScalar(1); b.position.z = 1.5; });
+        tray.forEach(b => { b.material = glow('#d5dade'); b.scale.setScalar(0.001); });
+        if (act >= 0) {
+          const sel = reds.slice(0, act).concat(whites.slice(0, HN - act));
+          sel.forEach(i => { box[i].position.z = 4.0; box[i].scale.setScalar(1.15); });
+          tray.forEach((b, i) => { b.material = glow(i < act ? COL.R : '#eceff1'); b.scale.setScalar(1); });
+        }
+        if (cur < 0) { l1.visible = true; l2.visible = false; say(l1, `N(Ω) = C(${HR + HL}, ${HN}) = ${HTOT} επιλογές των ${HN} μπαλών`); return; }
+        l2.visible = true;
+        if (t >= 9.7 && t < 10.8) {
+          say(l1, 'Άθροισμα των N(κ), κ = 0, …, 4:'); say(l2, `${HN_STR} = ${HC.reduce((a, b) => a + b, 0)} = C(${HR + HL}, ${HN}), άρα Σ P(κ) = 1`);
+          return;
+        }
+        const k = act, a = nCr(HR, k), b = nCr(HL, HN - k), c = a * b;
+        say(l1, `P(κ = ${k}) = C(${HR}, ${k}) · C(${HL}, ${HN} − ${k})/C(${HR + HL}, ${HN})`);
+        say(l2, `= ${a} · ${b}/${HTOT} = ${c}/${HTOT} = ${frac(c, HTOT)} ${approx3(c / HTOT)}`);
+      };
+    } },
+
+  { dur: 14, title: 'Το τρίγωνο του Pascal',
+    lines: [['Η γραμμή n έχει τους αριθμούς C(n, 0), C(n, 1), …, C(n, n)', 'B'],
+      ['C(n, k) = C(n − 1, k − 1) + C(n − 1, k)', 'O'],
+      ['Κάθε αριθμός είναι το άθροισμα των δύο πάνω του', 'O'],
+      ['Τα άκρα κάθε γραμμής είναι 1: C(n, 0) = C(n, n) = 1', 'K']],
+    hint: `<b>Τρίγωνο του Pascal (επέκταση):</b> στη γραμμή n και στη θέση k (k = 0, 1, …, n) βρίσκεται ο αριθμός C(n, k). Τα άκρα είναι 1, αφού C(n, 0) = C(n, n) = 1. Κάθε άλλος αριθμός είναι το άθροισμα των δύο αριθμών που βρίσκονται πάνω του: C(n, k) = C(n − 1, k − 1) + C(n − 1, k). Στο πρώτο παράδειγμα (μπλε οι δύο αριθμοί που βρίσκονται πάνω από το άθροισμα, πορτοκαλί το άθροισμα): C(${PEX[0][0]}, ${PEX[0][1]}) = C(${PEX[0][0] - 1}, ${PEX[0][1] - 1}) + C(${PEX[0][0] - 1}, ${PEX[0][1]}) = ${PASC[PEX[0][0] - 1][PEX[0][1] - 1]} + ${PASC[PEX[0][0] - 1][PEX[0][1]]} = ${PASC[PEX[0][0]][PEX[0][1]]}. Στο δεύτερο: C(${PEX[1][0]}, ${PEX[1][1]}) = ${PASC[PEX[1][0] - 1][PEX[1][1] - 1]} + ${PASC[PEX[1][0] - 1][PEX[1][1]]} = ${PASC[PEX[1][0]][PEX[1][1]]}. Οι αριθμοί της γραμμής παρατάσσονται συμμετρικά, γιατί C(n, k) = C(n, n − k).`,
+    spec: bare((ctx, cx, cy) => {
+      for (let n = 0; n <= PN; n++) tText(ctx, cx, cy, 'n = ' + n, -21.7, PY(n), 34, '#9e9e9e');
+    }),
+    build(g, m) {
+      const K = kit(g, m);
+      const tiles = [];
+      for (let n = 0; n <= PN; n++) for (let k = 0; k <= n; k++) {
+        const x = PX_(n, k), y = PY(n);
+        const b = kouti(4.0, 2.3, 1, V(x, y, 0), sm('#17365D')); b.scale.z = 0.01; b.visible = false; g.add(b);
+        const l = inkLabel(g, String(PASC[n][k]), 1.35, '126'); l.position.set(x, y, 3.2); l.visible = false;
+        tiles.push({ n, k, b, l, x, y });
+      }
+      const find = (n, k) => tiles.find(o => o.n === n && o.k === k);
+      const arr = PEX.map(([n, k]) => ({ n, k, par: [find(n - 1, k - 1), find(n - 1, k)], tg: find(n, k) }));
+      const links = arr.map(() => [0, 1].map(() => { const e = bar(V(0, 0, 0), V(1, 0, 0), 0.16, bm(COL.O)); e.position.z = 2.0; e.visible = false; g.add(e); return e; }));
+      const lR = K.text('O', 'C(6, 2) = C(5, 1) + C(5, 2) = 5 + 10 = 15', 1.7);
+      K.at(lR, 0, 6.6);
+      const EX0 = [8.8, 11.6];
+      return u => {
+        const t = u * 14;
+        for (const o of tiles) {
+          const s = ramp(t, 0.4 + o.n * 0.8 + Math.abs(o.k - o.n / 2) * 0.03, 0.5);
+          o.b.visible = s > 0.01; o.b.scale.z = Math.max(0.01, s * 1.4); o.b.position.z = o.b.scale.z / 2 + 0.05;
+          o.l.visible = s > 0.6;
+          o.b.material = sm('#17365D');
+        }
+        let ex = -1;
+        EX0.forEach((s0, i) => { if (t >= s0) ex = i; });
+        links.forEach(ls => ls.forEach(e => { e.visible = false; }));
+        if (ex < 0) { lR.visible = false; return; }
+        const a = arr[ex], s = ramp(t, EX0[ex], 0.6), s2 = ramp(t, EX0[ex] + 0.6, 0.6);
+        a.par.forEach(p => { p.b.material = sm(s > 0.5 ? COL.B : '#17365D'); });
+        a.tg.b.material = sm(s2 > 0.5 ? COL.O : '#17365D');
+        a.par.forEach((p, j) => {
+          const e = links[ex][j];
+          e.visible = s2 > 0.01;
+          setBar(e, V(p.x, p.y - 1.15, 0), V(lerp(p.x, a.tg.x, s2), lerp(p.y - 1.15, a.tg.y + 1.2, s2), 0), 0.16); e.position.z = 2.0;
+        });
+        lR.visible = s2 > 0.3;
+        const [n, k] = PEX[ex];
+        say(lR, `C(${n}, ${k}) = C(${n - 1}, ${k - 1}) + C(${n - 1}, ${k}) = ${PASC[n - 1][k - 1]} + ${PASC[n - 1][k]} = ${PASC[n][k]}`);
+      };
+    } }
+];
+const hintHTML = k => STATES[k].hint.replace(/ (=|×|→|≈|:|\+|−|±|≤|≠|⇒|&lt;|&gt;) /g, ' $1 ')
+  .replace(/(\d) (cm|m|s|rad)(?!\p{L})/gu, '$1 $2');
+
+// ------------------------------------------------------------------ ο πίνακας, η βάση και οι καταστάσεις στη σκηνή
+world.add(kouti(54, 4, 8, V(0, 2, 2.8), M.vasi));
+world.add(kouti(49, 31, 1.2, V(0, 19, -0.62), M.toixos));
+const boardMat = new THREE.MeshBasicMaterial();
+{
+  const p = new THREE.Mesh(plateGeo, boardMat);
+  p.scale.set(BX1 - BX0, BY1 - BY0, 1);
+  p.position.set(0, (BY0 + BY1) / 2, 0.02);
+  world.add(p);
+}
+for (const S of STATES) {
+  Object.assign(S.spec, { bx0: S.spec.bx0 ?? -21, bx1: S.spec.bx1 ?? 21 });
+  S.spec.m = mapper(S.spec);
+  S.g = new THREE.Group();
+  S.g.visible = false;
+  world.add(S.g);
+  S.upd = S.build(S.g, S.spec.m);
+}
+
+// ------------------------------------------------------------------ πίνακας με τον τίτλο και τις γραμμές
+const PTW = 1600, PW = 54;               // πλάτος της υφής (px) και του πίνακα (cm)
+const panelH = n => 60 + 72 + 34 + n * 104 + 36;
+const ANCHOR = V(0, PANEL_Y, 1.5);
+const FY1 = 37;
+const SIDE = V(BX0 - 3, FY1, 1.5);
+let side = false;
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, depthTest: false, side: THREE.DoubleSide }));
+panel.renderOrder = 20;
+world.add(panel);
+let panelKey = '';
+function setPanel(S) {
+  const key = S.title;
+  if (key === panelKey) return;
+  panelKey = key;
+  const h = panelH(S.lines.length);
+  const cv = document.createElement('canvas');
+  cv.width = PTW; cv.height = h;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = 'rgb(14,20,32)';
+  roundRect(ctx, PTW, h, 40);
+  ctx.fill();
+  const line = (t, y, size, weight, color) => {
+    let z = size, L = richLayout(ctx, t, z, weight);
+    while (z > 20 && L.w > PTW - 120) { z -= 2; L = richLayout(ctx, t, z, weight); }
+    ctx.fillStyle = color;
+    richDraw(ctx, L, (PTW - L.w) / 2, y, 0);
+  };
+  line(S.title, 60 + 36, 60, 700, INK);
+  S.lines.forEach(([t, c], i) => line(t, 60 + 72 + 34 + 52 + i * 104, 50, 600, c ? TXT[c] : INK));
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = canvasTexture(cv);
+  panel.material.needsUpdate = true;
+  panel.scale.set(PW, PW * h / PTW, 1);
+  panelXR();
+}
+function panelXR() { panel.position.copy(ANCHOR).addScaledVector(UP, panel.scale.y / 2); }
+
+// ------------------------------------------------------------------ κατάσταση και χρόνος
+const Q = new URLSearchParams(location.search);
+const FREEZE = parseFloat(Q.get('u'));    // pithanotites-syndyastiki.html?k=4&u=0.5: σταματά την κατάσταση στο μισό της κίνησης
+let current = 0, tNow = 0, playing = false, speed = 1, hold = 0;
+const hintEl = document.getElementById('hint');
+const btnPlay = document.getElementById('btnPlay'), btnSpeed = document.getElementById('btnSpeed');
+function updateButtons() {
+  btnPlay.textContent = playing ? 'Παύση' : 'Αναπαραγωγή';
+  btnSpeed.classList.toggle('on', speed === 2);
+}
+const boardTex = [];
+function select(k) {
+  current = (k + STATES.length) % STATES.length;
+  const S = STATES[current];
+  document.querySelectorAll('#segS button').forEach(b => b.classList.toggle('on', +b.dataset.k === current));
+  hintEl.innerHTML = hintHTML(current);
+  setPanel(S);
+  STATES.forEach((s, i) => { s.g.visible = i === current; });
+  boardTex[current] = boardTex[current] || boardTexture(S.spec);
+  boardMat.map = boardTex[current];
+  boardMat.needsUpdate = true;
+  tNow = 0;
+  playing = true;
+  hold = 0;
+  if (Number.isFinite(FREEZE)) { tNow = FREEZE * S.dur; playing = false; }
+  updateButtons();
+  if (viewReady && !touched && !renderer.xr.isPresenting) homeView();
+}
+let viewReady = false;
+document.querySelectorAll('#segS button').forEach(b => b.onclick = () => select(+b.dataset.k));
+function next() { select(current + 1); }
+btnPlay.onclick = () => {
+  const S = STATES[current];
+  if (playing) playing = false;
+  else { if (tNow >= S.dur - 1e-9) tNow = 0; playing = true; hold = 0; }
+  updateButtons();
+};
+document.getElementById('btnReset').onclick = () => { tNow = 0; playing = false; hold = 0; updateButtons(); };
+btnSpeed.onclick = () => { speed = speed === 2 ? 1 : 2; updateButtons(); };
+
+function step(dt) {
+  const S = STATES[current];
+  if (playing) {
+    tNow += dt * speed;
+    if (tNow >= S.dur) { tNow = S.dur; playing = false; hold = 0; updateButtons(); }
+  } else if (renderer.xr.isPresenting && tNow >= S.dur - 1e-9) {
+    // στο XR δεν υπάρχουν κουμπιά: η κατάσταση ξαναπαίζει από την αρχή 5 s αφού τελειώσει
+    hold += dt;
+    if (hold > 5) { tNow = 0; playing = true; hold = 0; updateButtons(); }
+  }
+  S.upd(Math.min(tNow / S.dur, 1) * 0.9999);
+}
+
+// ο πίνακας γυρίζει προς τον θεατή (στο XR μόνο γύρω από τον κατακόρυφο άξονα)
+const eyeW = new THREE.Vector3(), pw = new THREE.Vector3(), camR = new THREE.Vector3(), camU = new THREE.Vector3();
+const qP = new THREE.Quaternion(), qY = new THREE.Quaternion();
+function faceViewer(cam, xr) {
+  cam.getWorldPosition(eyeW);
+  world.getWorldQuaternion(qP).invert();
+  if (xr) {
+    panel.getWorldPosition(pw);
+    qY.setFromAxisAngle(UP, Math.atan2(eyeW.x - pw.x, eyeW.z - pw.z));
+    panel.quaternion.copy(qP).multiply(qY);
+  } else {
+    panel.quaternion.copy(qP).multiply(cam.quaternion);
+    camR.setFromMatrixColumn(cam.matrixWorld, 0).normalize();
+    camU.setFromMatrixColumn(cam.matrixWorld, 1).normalize();
+    if (side) panel.position.copy(SIDE).addScaledVector(camR, -PW / 2).addScaledVector(camU, -panel.scale.y / 2);
+    else panel.position.copy(ANCHOR).addScaledVector(camU, panel.scale.y / 2);
+  }
+}
+
+// ------------------------------------------------------------------ πλαίσιο της προβολής 3D
+const VIEW_DIR = V(Math.sin(rad(AZ)) * Math.cos(rad(EL)), Math.sin(rad(EL)), Math.cos(rad(AZ)) * Math.cos(rad(EL))).normalize();
+const FIT = [];
+for (const x of [BX0, BX1]) for (const y of [0, FY1]) for (const z of [-1, 8]) FIT.push(V(x, y, z));
+const PANEL_MAX = Math.max(...STATES.map(S => S.lines.length));
+let barBottom = 62, dockTop = 600, frameH = 800, touched = false;
+controls.addEventListener('start', () => { touched = true; });
+function dockTopMax() {
+  const dock = document.getElementById('dock'), keep = hintEl.innerHTML;
+  let top = dock.getBoundingClientRect().top;
+  for (let k = 0; k < STATES.length; k++) { hintEl.innerHTML = hintHTML(k); top = Math.min(top, dock.getBoundingClientRect().top); }
+  hintEl.innerHTML = keep;
+  return top;
+}
+function layoutView() {
+  const W = window.innerWidth, Hh = window.innerHeight;
+  barBottom = Math.round(document.getElementById('bar').getBoundingClientRect().bottom);
+  dockTop = Math.round(dockTopMax());
+  const dy = Math.max(0, Math.round(Hh / 2 - (barBottom + dockTop) / 2));
+  frameH = Hh + 2 * dy;
+  camera.fov = 2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(rad(FOV / 2)) * frameH / Hh));
+  camera.aspect = W / frameH;
+  if (dy) camera.setViewOffset(W, frameH, 0, 2 * dy, W, Hh); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  if (!renderer.xr.isPresenting) setLabelScale(W / Hh < 1 ? 1.5 : 1.25);
+}
+// ο πίνακας τίτλου μπαίνει πάνω από τη σκηνή ή αριστερά της, όπου η σκηνή βγαίνει μεγαλύτερη
+function fitView(sd) {
+  side = sd;
+  const W = window.innerWidth, Hh = window.innerHeight;
+  const yTop = 1 - 2 * (barBottom + 8) / Hh, yBot = 1 - 2 * (dockTop - 8) / Hh;
+  const yMid = (yTop + yBot) / 2, hy = 0.95 * (yTop - yBot) / 2, hx = 0.95;
+  const tgt = world.localToWorld(V(0, 19, 0));
+  const right = new THREE.Vector3(), up = new THREE.Vector3(), corner = new THREE.Vector3();
+  let D = 1.6;
+  for (let it = 0; it < 14; it++) {
+    camera.position.copy(VIEW_DIR).multiplyScalar(D).add(tgt);
+    camera.lookAt(tgt);
+    camera.updateMatrixWorld();
+    faceViewer(camera, false);
+    scene.updateMatrixWorld(true);
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    const add = q => { q.project(camera); x0 = Math.min(x0, q.x); x1 = Math.max(x1, q.x); y0 = Math.min(y0, q.y); y1 = Math.max(y1, q.y); };
+    for (const c of FIT) add(world.localToWorld(c.clone()));
+    for (const [u, v] of [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]]) add(panel.localToWorld(corner.set(u, v, 0)));
+    const hh = D * Math.tan(rad(camera.fov / 2)) * Hh / frameH, ww = D * Math.tan(rad(camera.fov / 2)) * W / frameH;
+    right.setFromMatrixColumn(camera.matrixWorld, 0);
+    up.setFromMatrixColumn(camera.matrixWorld, 1);
+    tgt.addScaledVector(right, (x0 + x1) / 2 * ww).addScaledVector(up, ((y0 + y1) / 2 - yMid) * hh);
+    const r = Math.max((x1 - x0) / 2 / hx, (y1 - y0) / 2 / Math.max(hy, 0.05));
+    D = THREE.MathUtils.clamp(D * r, controls.minDistance, controls.maxDistance);
+  }
+  return { D, tgt, sd };
+}
+function homeView() {
+  const keep = panel.scale.clone();
+  panel.scale.set(PW, PW * panelH(PANEL_MAX) / PTW, 1);
+  const a = fitView(false), b = fitView(true), best = b.D < a.D * 0.97 ? b : a;
+  side = best.sd;
+  camera.position.copy(VIEW_DIR).multiplyScalar(best.D).add(best.tgt);
+  controls.target.copy(best.tgt);
+  controls.update();
+  panel.scale.copy(keep);
+  faceViewer(camera, false);
+}
+function setLabelScale(k) {
+  world.traverse(o => { if (o.userData.scalable) { o.userData.k = k; fitLabel(o); } });
+}
+
+{
+  const q = parseInt(Q.get('k'), 10);
+  select(Number.isFinite(q) && q >= 0 && q < STATES.length ? q : 0);
+}
+step(0);
+layoutView();
+homeView();
+viewReady = true;
+
+// ------------------------------------------------------------------ XR
+const btnAR = document.getElementById('btnAR'), btnVR = document.getElementById('btnVR');
+const note = document.getElementById('note');
+let placed = false, floorRef = true;
+async function checkXR() {
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+    return;
+  }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+  }
+}
+checkXR().then(() => { layoutView(); if (!touched) homeView(); });
+
+function resetView() {
+  camera.near = 0.01;
+  camera.far = 60;
+  root.position.set(0, 0, 0);
+  root.quaternion.identity();
+  root.scale.setScalar(1);
+  room.visible = false;
+  scene.background = null;
+  layoutView();
+  homeView();
+  touched = false;
+}
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    camera.near = 0.02;
+    camera.far = 50;
+    camera.updateProjectionMatrix();
+    await renderer.xr.setSession(session);
+    placed = false;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    room.visible = opaque;
+    scene.background = opaque ? new THREE.Color(0x0e1420) : null;
+    // μέσα στα γυαλιά δεν υπάρχουν κουμπιά για τον χρόνο: η κίνηση συνεχίζει
+    if (!playing && tNow < STATES[current].dur - 1e-9) { playing = true; updateButtons(); }
+    session.addEventListener('end', () => { resetView(); });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+// στην πρώτη εικόνα του XR, η σκηνή τοποθετείται μπροστά από τον χρήστη (το κέντρο της 1,15 m μακριά), στο ύψος ενός
+// θρανίου, πάντα κάτω από τα μάτια
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const floorY = floorRef ? 0 : p.y - 1.6;
+  const y = THREE.MathUtils.clamp(floorY + TABLE, p.y - 0.9, p.y - 0.4);
+  const yaw = Math.atan2(-dir.x, -dir.z);
+  root.position.set(p.x + dir.x * DIST, y, p.z + dir.z * DIST);
+  root.rotation.set(0, yaw - rad(AZ), 0);
+  root.scale.setScalar(1);
+  const desk = room.getObjectByName('desk');
+  desk.position.set(root.position.x, y - 0.029, root.position.z);
+  desk.rotation.y = yaw - rad(AZ);
+  room.getObjectByName('floor').position.y = floorY;
+  setLabelScale(1);
+  panelXR();
+  placed = true;
+}
+
+// χειριστήρια: σύντομο πάτημα (σκανδάλη ή τσίμπημα) = επόμενη κατάσταση, παρατεταμένο πάτημα πάνω στη σκηνή = μεταφορά,
+// μοχλός = μέγεθος. Ένα πάτημα έως 0,8 s που δεν έπιασε τη σκηνή μετρά επίσης ως «επόμενη κατάσταση».
+const hit = new THREE.Mesh(new THREE.BoxGeometry(54, 44, 12), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+hit.position.set(0, 22, 3);
+hit.visible = false;
+world.add(hit);
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    if (ray.intersectObject(hit, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    const held = performance.now() - ctl.userData.t0, grabbed = ctl.userData.grab;
+    if (grabbed) { scene.attach(root); ctl.userData.grab = false; }
+    if (held < 280 || (!grabbed && held < 800)) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+const ctls = [0, 1, 2, 3].map(makeController);
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  layoutView();
+  if (!touched) homeView();
+});
+
+let last = performance.now();
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const raw = (now - last) / 1000;
+  const dt = raw < 1 ? raw : 0;
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  step(dt);
+  if (renderer.xr.isPresenting) {
+    faceViewer(renderer.xr.getCamera(), true);
+    ctls.forEach(c => {
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if (gp && gp.axes && gp.axes.length) {
+        const ax = gp.axes[3] !== undefined ? gp.axes[3] : gp.axes[1];
+        if (Math.abs(ax) > 0.2) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ax * Math.min(dt, 0.1) * 0.9), 0.5, 3));
+      }
+    });
+  } else {
+    controls.update();
+    faceViewer(camera, false);
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

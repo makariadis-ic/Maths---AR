@@ -70,6 +70,10 @@ const META={
   'epipeda-lysi':['Δύο επίπεδα και η λύση: το γραμμικό σύστημα στον χώρο','Γ΄ Γυμνασίου','#2E75B6'],
   oria:['Ο ορισμός του ορίου: ε και δ','Γ΄ Λυκείου','#1565C0'],
   olokliromata:['Εμβαδόν παραβολικού χωρίου: Ε(Ω) = 1/3','Γ΄ Λυκείου','#2E7D32'],
+  'statistiki-b':['Η μέση τιμή και η διάμεσος','Β΄ Γυμνασίου','#3F7FBF'],
+  'pithanotites-g-gymn':['Δενδροδιάγραμμα ρίψεων νομίσματος: N(Ω) = 2^ν','Γ΄ Γυμνασίου','#E65100'],
+  'pithanotites-syndyastiki':['Το τρίγωνο του Pascal: C(n, k) = C(n − 1, k − 1) + C(n − 1, k)','Γ΄ Λυκείου, Γενική Παιδεία','#6A1B9A'],
+  'statistiki-g-lykeiou':['Η κανονική κατανομή: 68 %, 95 %, 99,7 %','Γ΄ Λυκείου','#C2185B'],
   'kanonika-polygona':['Κανονικό οκτάγωνο: Ε₈ = ½P₈α₈','Β΄ Λυκείου','#26A69A']
 };
 
@@ -432,6 +436,109 @@ if(id==='kanonika-polygona'){
   row.appendChild(play);
   const xr=document.createElement('button');
   xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='kanonika-polygona.html'; };
+  row.appendChild(xr);
+  mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
+}
+
+/* Περιγραφική Στατιστική (Β΄ Γυμνασίου, Κεφάλαιο 4, § 4.5): κύκλος 13 s. Ο ζυγός: οι τιμές 5, 8, 9, 12, 12, 14 στέκονται ως
+   κύβοι πάνω σε δοκό και το σημείο στήριξης μετακινείται από το 3 στο x̄ = 10, όπου η δοκός ισορροπεί· οι αποκλίσεις
+   x_i − x̄ φαίνονται πράσινες και κόκκινες (ως το 6 s). Η διάμεσος: οι τιμές ταξινομούνται (ως το 9,2 s), δ = 9 για ν = 7,
+   και με την τιμή 10 γίνονται ν = 8 και δ = (9 + 10)/2 = 9,5 (ως το 12,4 s). */
+const STAT=[['Ζυγός',2.5],['Αποκλίσεις',5.5],['Ταξινόμηση',8.5],['Διάμεσος, ν = 8',11.5]];
+if(id==='statistiki-b'){
+  mv.removeAttribute('auto-rotate');
+  mv.setAttribute('camera-orbit','12deg 72deg 100%');
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const mark=el=>[...row.children].forEach(b=>b.classList.toggle('on',b===el));
+  for(const [label,t] of STAT){
+    const b=document.createElement('button');
+    b.textContent=label;
+    b.onclick=()=>{ mv.currentTime=t; mv.pause(); mark(b); };
+    row.appendChild(b);
+  }
+  const play=document.createElement('button');
+  play.textContent='Συνεχής κίνηση';
+  play.onclick=()=>{ mv.play(); mark(play); };
+  row.appendChild(play);
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='statistiki-b.html'; };
+  row.appendChild(xr);
+  mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
+}
+
+/* Πιθανότητες (Γ΄ Γυμνασίου, §5.2): δενδροδιάγραμμα ρίψεων νομίσματος. Κίνηση 13 s σε επανάληψη: ν = 1 ως τα 2 s, ν = 2 ως τα
+   4,2 s, ν = 3 ως τα 6,8 s, ενδεχόμενο «ακριβώς 2 φορές Κ» 8,2 ως 10,4 s (P = 3/8) και «ακριβώς 3 φορές Κ» 11 ως 13 s (P = 1/8). */
+const PITH=[['ν = 1',1.5],['ν = 2',3.8],['ν = 3',6.5],['Δύο φορές Κ',9.3],['Τρεις φορές Κ',12]];
+if(id==='pithanotites-g-gymn'){
+  mv.removeAttribute('auto-rotate');
+  mv.setAttribute('camera-orbit','12deg 72deg 100%');
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const mark=el=>[...row.children].forEach(b=>b.classList.toggle('on',b===el));
+  for(const [label,t] of PITH){
+    const b=document.createElement('button');
+    b.textContent=label;
+    b.onclick=()=>{ mv.currentTime=t; mv.pause(); mark(b); };
+    row.appendChild(b);
+  }
+  const play=document.createElement('button');
+  play.textContent='Συνεχής κίνηση';
+  play.onclick=()=>{ mv.play(); mark(play); };
+  row.appendChild(play);
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='pithanotites-g-gymn.html'; };
+  row.appendChild(xr);
+  mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
+}
+
+/* Πιθανότητες και Συνδυαστική (Γ΄ Λυκείου Γενικής Παιδείας, §1.4, επέκταση): το τρίγωνο του Pascal χτίζεται γραμμή-γραμμή
+   (n = 0 έως 8, μία γραμμή ανά 0,8 s), στα 8,2 s σημειώνονται το C(6, 2) = C(5, 1) + C(5, 2) = 5 + 10 = 15 και στα 12,8 s
+   όλα χαμηλώνουν και η κίνηση ξαναρχίζει. Κύκλος 14 s. */
+const PASCAL=[['n = 2',2.9],['n = 5',5.3],['n = 8',8.0],['Άθροισμα',10.6]];
+if(id==='pithanotites-syndyastiki'){
+  mv.removeAttribute('auto-rotate');
+  mv.setAttribute('camera-orbit','12deg 72deg 100%');
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const mark=el=>[...row.children].forEach(b=>b.classList.toggle('on',b===el));
+  for(const [label,t] of PASCAL){
+    const b=document.createElement('button');
+    b.textContent=label;
+    b.onclick=()=>{ mv.currentTime=t; mv.pause(); mark(b); };
+    row.appendChild(b);
+  }
+  const play=document.createElement('button');
+  play.textContent='Συνεχής κίνηση';
+  play.onclick=()=>{ mv.play(); mark(play); };
+  row.appendChild(play);
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='pithanotites-syndyastiki.html'; };
+  row.appendChild(xr);
+  mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
+}
+
+/* Στατιστική (Γ΄ Λυκείου Γενικής Παιδείας, § 2.6): κανονική κατανομή με μ = 50 και s = 5. Τα σκιασμένα εμβαδά
+   μ ± s, μ ± 2s, μ ± 3s εμφανίζονται από το κέντρο προς τα έξω με τις ετικέτες 68,27 %, 95,45 %, 99,73 %. Κύκλος 13 s. */
+const STATL=[['μ ± s',3.6],['μ ± 2s',7],['μ ± 3s',10.4],['Κανόνας',11.8]];
+if(id==='statistiki-g-lykeiou'){
+  mv.removeAttribute('auto-rotate');
+  mv.setAttribute('camera-orbit','12deg 72deg 100%');
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const mark=el=>[...row.children].forEach(b=>b.classList.toggle('on',b===el));
+  for(const [label,t] of STATL){
+    const b=document.createElement('button');
+    b.textContent=label;
+    b.onclick=()=>{ mv.currentTime=t; mv.pause(); mark(b); };
+    row.appendChild(b);
+  }
+  const play=document.createElement('button');
+  play.textContent='Συνεχής κίνηση';
+  play.onclick=()=>{ mv.play(); mark(play); };
+  row.appendChild(play);
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='statistiki-g-lykeiou.html'; };
   row.appendChild(xr);
   mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
 }
