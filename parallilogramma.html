@@ -1,0 +1,803 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Παραλληλόγραμμα — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#1565C0}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px;white-space:nowrap}
+  #bar h1{font-size:15px;margin:0;font-weight:640;white-space:nowrap}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto;text-align:right;line-height:1.35}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#fff;background:var(--acc);border-color:transparent}
+  #btnPlay{min-width:132px}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:860px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:720px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(80vw,110vh);height:auto}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segS,.nogl #segT,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #btnPlay{min-width:112px} #hint{font-size:11.5px}
+    #bar{gap:10px;padding:10px 12px} #bar h1{font-size:14px} #bar .lv{font-size:10.5px} #bar .lv span{display:block} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 480 300" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<rect x="10" y="10" width="460" height="260" fill="#ffffff" stroke="#A6A6A6" stroke-width="2"/>
+<polygon points="110,220 290,220 370,80 190,80" fill="#1565C0" fill-opacity=".12" stroke="#1565C0" stroke-width="5"/>
+<line x1="110" y1="220" x2="370" y2="80" stroke="#2E7D32" stroke-width="4"/>
+<line x1="290" y1="220" x2="190" y2="80" stroke="#6A1B9A" stroke-width="4"/>
+<circle cx="240" cy="150" r="7" fill="#EF6C00" stroke="#0e1420" stroke-width="2"/>
+<text x="98" y="236" font-size="16" fill="#262626">Α</text><text x="292" y="238" font-size="16" fill="#262626">Β</text>
+<text x="374" y="78" font-size="16" fill="#262626">Γ</text><text x="176" y="76" font-size="16" fill="#262626">Δ</text>
+<text x="252" y="148" font-size="16" fill="#EF6C00">Μ</text>
+<text x="240" y="292" font-size="15" font-weight="700" fill="#eaf1f8" text-anchor="middle">ΑΜ = ΜΓ και ΒΜ = ΜΔ</text>
+</svg>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Παραλληλόγραμμα</h1>
+  <span class="lv"><span>Γεωμετρία Α΄ Λυκείου</span> <span>Κεφάλαιο 5</span></span>
+</div>
+<div id="dock">
+  <div class="seg" id="segS">
+    <button data-k="0" class="on">Ιδιότητες</button>
+    <button data-k="1">Διαγώνιοι</button>
+    <button data-k="2">Κριτήριο</button>
+    <button data-k="3">Ορθογώνιο</button>
+    <button data-k="4">Ρόμβος</button>
+    <button data-k="5">Τετράγωνο</button>
+    <button data-k="6">Διχοτόμοι</button>
+    <button data-k="7">Μέσα πλευρών</button>
+    <button data-k="8">Τραπέζιο</button>
+    <button data-k="9">Ισοσκελές τραπέζιο</button>
+  </div>
+  <div class="seg" id="segT">
+    <button id="btnPlay">Παύση</button>
+    <button id="btnReset">Επαναφορά</button>
+    <button id="btnSpeed">2×</button>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο «Παραλληλόγραμμα» (Γεωμετρία Α΄ Λυκείου, Κεφάλαιο 5): δέκα καταστάσεις, όπως οι εφαρμογές GeoGebra του σεναρίου.
+// Κέντρο Καινοτομίας Θεσσαλίας.
+// Ο πίνακας είναι ένα λευκό χαρτί 12 × 8 μονάδων (2,4 cm η μονάδα) πάνω σε βάση. Τα σχήματα είναι διαφανή πρίσματα μικρού
+// ύψους, με ράβδους στις πλευρές και σφαίρες στις κορυφές, ώστε όταν ο θεατής κινείται να ξεχωρίζουν τα επίπεδα.
+// Χρώματα: οι πλευρές μπλε, η διαγώνιος ΑΓ πράσινη, η διαγώνιος ΒΔ μωβ, οι γωνίες Α και Γ μπλε, οι Β και Δ κόκκινες,
+// ό,τι αλλάζει ή προκύπτει πορτοκαλί. Μονάδα σκηνής: 1 cm.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const CM = 0.01;                 // 1 cm της σκηνής σε μέτρα
+const U = 2.4;                   // cm ανά μονάδα του πίνακα
+const BW = 12, BH = 8;           // ο πίνακας σε μονάδες
+const W = BW * U, H = BH * U;    // πλάτος και βάθος του πίνακα σε cm
+const Y0 = 0;                    // το ύψος της επιφάνειας του πίνακα
+const PH = 1.0;                  // ύψος των πρισμάτων
+const HB = 1.1;                  // ύψος των ράβδων και των σημείων
+const TABLE = 0.78, DIST = 1.0;  // XR: ύψος θρανίου και απόσταση της σκηνής από τον χρήστη (m)
+const AZ = 0, EL = 42;           // η σκηνή φαίνεται από εμπρός και από ψηλά
+const FOV = 26;
+
+const COL = { B: '#1565C0', R: '#C62828', O: '#EF6C00', G: '#2E7D32', P: '#6A1B9A', K: '#616161' };
+const TXT = { B: '#7FB2E5', R: '#EF8A84', O: '#F7A864', G: '#7FD18A', P: '#C59BE0', K: '#cbd5e1' };
+const INK = '#eaf1f8', KEIMENO = '#262626';
+
+const rad = THREE.MathUtils.degToRad;
+const V = (x, y, z) => new THREE.Vector3(x, y, z);
+const UP = V(0, 1, 0);
+const clamp01 = x => Math.min(1, Math.max(0, x));
+const smooth = x => { x = clamp01(x); return x * x * (3 - 2 * x); };
+const lerp = (a, b, t) => a + (b - a) * t;
+const num = (x, d = 1) => { const s = (Math.abs(x) < 0.5 * 10 ** -d ? 0 : x).toFixed(d); return s.replace('.', ',').replace('-', '−'); };
+// σημείο της σκηνής από μαθηματικές συντεταγμένες (x, y) του πίνακα και ύψος h
+const P = (x, y, h = 0) => V(U * (x - BW / 2), Y0 + h, -U * (y - BH / 2));
+
+// ------------------------------------------------------------------ γεωμετρία στο επίπεδο (σημεία {x, y})
+const pt = (x, y) => ({ x, y });
+const add = (a, b) => pt(a.x + b.x, a.y + b.y);
+const sub = (a, b) => pt(a.x - b.x, a.y - b.y);
+const mul = (a, k) => pt(a.x * k, a.y * k);
+const mid = (a, b) => pt((a.x + b.x) / 2, (a.y + b.y) / 2);
+const len = a => Math.hypot(a.x, a.y);
+const dist = (a, b) => len(sub(a, b));
+const unit = a => mul(a, 1 / (len(a) || 1));
+const lerpP = (a, b, t) => pt(lerp(a.x, b.x, t), lerp(a.y, b.y, t));
+const cross = (a, b) => a.x * b.y - a.y * b.x;
+const dot = (a, b) => a.x * b.x + a.y * b.y;
+const cis = (r, th) => pt(r * Math.cos(th), r * Math.sin(th));
+// το παραλληλόγραμμο ΑΒΓΔ: ΑΒ = a, ΑΔ = b, γωνία Α = φ (σε μοίρες)
+function para(A, a, b, phi) {
+  const B = add(A, pt(a, 0)), D = add(A, cis(b, rad(phi)));
+  return { A, B, C: add(B, sub(D, A)), D };
+}
+// τομή των ευθειών p + s·u και q + t·v: επιστρέφει το s
+function isect(p, u, q, v) { return cross(sub(q, p), v) / cross(u, v); }
+
+// ------------------------------------------------------------------ οι καταστάσεις
+// Κάθε κατάσταση έχει τίτλο, γραμμές του πίνακα, κείμενο και συνάρτηση draw(p, d), όπου p από 0 έως 1 ο χρόνος της
+// κίνησης και d το αντικείμενο σχεδίασης (δείτε το Draw παρακάτω).
+const mark = (d, F) => {            // γωνίες και ίσες πλευρές ενός παραλληλογράμμου
+  d.arc(F.A, F.B, F.D, 'B'); d.arc(F.C, F.D, F.B, 'B');
+  d.arc(F.B, F.C, F.A, 'R'); d.arc(F.D, F.A, F.C, 'R');
+  d.tick(F.A, F.B, 1, 'B'); d.tick(F.D, F.C, 1, 'B'); d.tick(F.A, F.D, 2, 'B'); d.tick(F.B, F.C, 2, 'B');
+};
+const quad = (d, F, col = 'B', op = 0.45, frac = 1) => { d.prism([F.A, F.B, F.C, F.D], col, op); d.edges([F.A, F.B, F.C, F.D], col, frac); };
+const names4 = (d, F) => d.names([['Α', F.A], ['Β', F.B], ['Γ', F.C], ['Δ', F.D]], mid(F.A, F.C));
+const A0 = pt(2.4, 1.4);
+
+const STATES = [
+  { title: 'Το παραλληλόγραμμο και οι ιδιότητές του', tEnd: 4,
+    lines: [['ΑΒ = ΓΔ και ΑΔ = ΒΓ', 'B'], ['Α = Γ και Β = Δ', 'R'], ['Οι απέναντι πλευρές είναι παράλληλες', 'K']],
+    hint: '<b>Παραλληλόγραμμο:</b> τετράπλευρο με τις απέναντι πλευρές παράλληλες. Οι απέναντι πλευρές του είναι ίσες (ένα και δύο σημάδια) και οι απέναντι γωνίες του ίσες (Α = Γ μπλε, Β = Δ κόκκινες). Οι γωνίες που είναι προσκείμενες σε μία πλευρά είναι παραπληρωματικές.',
+    draw(p, d) { const F = para(A0, 5, 3, 65), e = clamp01(p / 0.5); quad(d, F, 'B', 0.45 * e, e); names4(d, F);
+      if (e > 0.99) mark(d, F);
+      d.status('Παραλληλόγραμμο ΑΒΓΔ', 'B'); } },
+  { title: 'Οι διαγώνιοι διχοτομούνται', tEnd: 4,
+    lines: [['ΑΜ = ΜΓ', 'G'], ['ΒΜ = ΜΔ', 'P'], ['Οι διαγώνιες τέμνονται στο μέσο τους', 'O']],
+    hint: '<b>Διαγώνιοι παραλληλογράμμου:</b> οι ΑΓ (πράσινη) και ΒΔ (μωβ) τέμνονται στο Μ και το Μ είναι μέσο και των δύο. Όσο αλλάζει η γωνία Α, το σχήμα μένει παραλληλόγραμμο και οι διαγώνιοι εξακολουθούν να διχοτομούνται.',
+    draw(p, d) { const F = para(A0, 5, 3, lerp(62, 108, smooth(p))), M = mid(F.A, F.C); quad(d, F); names4(d, F);
+      d.seg(F.A, F.C, 'G'); d.seg(F.B, F.D, 'P'); d.tick(F.A, M, 1, 'G'); d.tick(M, F.C, 1, 'G'); d.tick(F.B, M, 2, 'P'); d.tick(M, F.D, 2, 'P');
+      d.ball(M, 'O'); d.names([['Μ', M]], pt(M.x - 0.5, M.y - 2), 'O');
+      d.status('ΑΜ = ΜΓ και ΒΜ = ΜΔ', 'O'); } },
+  { title: 'Κριτήριο: δύο ίσες και παράλληλες πλευρές', tEnd: 4,
+    lines: [['ΑΒ ∥ ΔΓ και ΔΓ μεγαλώνει', 'B'], ['Όταν ΔΓ = ΑΒ', 'O'], ['το ΑΒΓΔ γίνεται παραλληλόγραμμο', 'O']],
+    hint: '<b>Κριτήριο:</b> αν δύο απέναντι πλευρές ενός τετραπλεύρου είναι ίσες και παράλληλες, τότε το τετράπλευρο είναι παραλληλόγραμμο. Εδώ η ΔΓ είναι πάντα παράλληλη προς την ΑΒ. Όσο η ΔΓ είναι μικρότερη, το ΑΒΓΔ είναι τραπέζιο. Όταν ΔΓ = ΑΒ, γίνεται παραλληλόγραμμο και οι ΑΔ, ΒΓ γίνονται παράλληλες.',
+    draw(p, d) { const l = lerp(3, 5, smooth(p)), A = pt(2.4, 1.4), B = pt(7.4, 1.4), D = pt(3.4, 4.8), C = add(D, pt(l, 0));
+      const eq = Math.abs(l - 5) < 1e-6, F = { A, B, C, D };
+      quad(d, F, eq ? 'B' : 'R', eq ? 0.5 : 0.35); names4(d, F);
+      d.seg(A, B, 'B', 0.3); d.seg(D, C, 'O', 0.3);
+      if (eq) { d.tick(A, B, 1, 'B'); d.tick(D, C, 1, 'B'); }
+      d.status(eq ? 'ΔΓ = ΑΒ: παραλληλόγραμμο' : `ΔΓ = ${num(l)} < ΑΒ = 5: τραπέζιο`, eq ? 'B' : 'R'); } },
+  { title: 'Το ορθογώνιο: ίσες διαγώνιοι', tEnd: 4,
+    lines: [['Γωνία Α = 90°', 'R'], ['ΑΓ = ΒΔ', 'G'], ['Οι κορυφές ανήκουν σε κύκλο κέντρου Μ', 'P']],
+    hint: '<b>Ορθογώνιο:</b> παραλληλόγραμμο με μία ορθή γωνία. Όταν η γωνία Α γίνεται 90°, οι διαγώνιοι ΑΓ και ΒΔ γίνονται ίσες και οι τέσσερις κορυφές βρίσκονται σε κύκλο με κέντρο το Μ. Αντίστροφα, ένα παραλληλόγραμμο με ίσες διαγώνιους είναι ορθογώνιο.',
+    draw(p, d) { const phi = lerp(62, 90, smooth(p)), F = para(A0, 5, 3, phi), M = mid(F.A, F.C), ok = phi > 89.99;
+      quad(d, F, ok ? 'G' : 'B', 0.4); names4(d, F); d.seg(F.A, F.C, 'G'); d.seg(F.B, F.D, 'P');
+      d.ball(M, 'O'); d.names([['Μ', M]], pt(M.x, M.y - 2), 'O');
+      if (ok) { d.ring(M, dist(M, F.A), 'P'); d.right(F.A, F.B, F.D); }
+      else d.arc(F.A, F.B, F.D, 'R');
+      d.status(ok ? `ΑΓ = ΒΔ = ${num(dist(F.A, F.C))}: ορθογώνιο` : `ΑΓ = ${num(dist(F.A, F.C))}, ΒΔ = ${num(dist(F.B, F.D))}`, ok ? 'G' : 'R'); } },
+  { title: 'Ο ρόμβος: κάθετες διαγώνιοι', tEnd: 4,
+    lines: [['ΑΒ = ΑΔ', 'B'], ['ΑΓ ⊥ ΒΔ', 'O'], ['Οι διαγώνιοι διχοτομούν τις γωνίες', 'G']],
+    hint: '<b>Ρόμβος:</b> παραλληλόγραμμο με δύο διαδοχικές πλευρές ίσες. Όταν η ΑΔ γίνεται ίση με την ΑΒ, οι διαγώνιοι ΑΓ και ΒΔ γίνονται κάθετες και διχοτομούν τις γωνίες του. Αντίστροφα, ένα παραλληλόγραμμο με κάθετες διαγώνιους είναι ρόμβος.',
+    draw(p, d) { const b = lerp(2.2, 4, smooth(p)), F = para(A0, 4, b, 70), M = mid(F.A, F.C), ok = Math.abs(b - 4) < 1e-6;
+      quad(d, F, ok ? 'O' : 'B', 0.4); names4(d, F); d.seg(F.A, F.C, 'G'); d.seg(F.B, F.D, 'P');
+      d.ball(M, 'O'); d.names([['Μ', M]], pt(M.x + 0.4, M.y - 2.2), 'O');
+      if (ok) { d.right(M, F.B, F.C); d.tick(F.A, F.B, 1, 'B'); d.tick(F.B, F.C, 1, 'B'); d.tick(F.C, F.D, 1, 'B'); d.tick(F.D, F.A, 1, 'B'); }
+      d.status(ok ? 'ΑΒ = ΑΔ: ρόμβος, ΑΓ ⊥ ΒΔ' : `ΑΔ = ${num(b)} ≠ ΑΒ = 4`, ok ? 'O' : 'R'); } },
+  { title: 'Το τετράγωνο και η ταξινόμηση', tEnd: 6,
+    lines: [['Παραλληλόγραμμο', 'B'], ['Ορθογώνιο: μία ορθή γωνία', 'R'], ['Τετράγωνο: ορθογώνιο και ρόμβος', 'O']],
+    hint: '<b>Ταξινόμηση:</b> ξεκινάμε από ένα παραλληλόγραμμο. Με ορθή γωνία γίνεται ορθογώνιο. Όταν οι διαδοχικές πλευρές γίνουν ίσες, γίνεται τετράγωνο: ορθογώνιο και ρόμβος μαζί, με ίσες και κάθετες διαγώνιους.',
+    draw(p, d) { const s1 = smooth(clamp01(p / 0.45)), s2 = smooth(clamp01((p - 0.55) / 0.45)), phi = lerp(65, 90, s1), b = lerp(3, 4.4, s2);
+      const F = para(A0, 4.4, b, phi), M = mid(F.A, F.C), rect = phi > 89.99, sq = rect && b > 4.4 - 1e-6;
+      quad(d, F, sq ? 'O' : rect ? 'R' : 'B', 0.4); names4(d, F);
+      if (rect) { d.right(F.A, F.B, F.D); d.right(F.B, F.C, F.A); d.right(F.C, F.D, F.B); d.right(F.D, F.A, F.C); }
+      if (sq) { d.seg(F.A, F.C, 'G'); d.seg(F.B, F.D, 'P'); d.ball(M, 'O'); }
+      d.status(sq ? 'Τετράγωνο' : rect ? 'Ορθογώνιο' : 'Παραλληλόγραμμο', sq ? 'O' : rect ? 'R' : 'B'); } },
+  { title: 'Οι διχοτόμοι σχηματίζουν ορθογώνιο', tEnd: 5,
+    lines: [['Οι διχοτόμοι των γωνιών Α, Β, Γ, Δ', 'G'], ['τέμνονται στα Ε, Ζ, Η, Θ', 'O'], ['Το ΕΖΗΘ είναι ορθογώνιο', 'O']],
+    hint: '<b>Διχοτόμοι:</b> οι διχοτόμοι των γωνιών ενός παραλληλογράμμου σχηματίζουν, με τις τομές τους Ε, Ζ, Η, Θ, ένα ορθογώνιο. Οι διχοτόμοι δύο προσκείμενων γωνιών τέμνονται κάθετα, επειδή οι γωνίες αυτές είναι παραπληρωματικές.',
+    draw(p, d) { const F = para(A0, 5, 3, 65), u = pt(1, 0), v = unit(sub(F.D, F.A)), nu = mul(u, -1), nv = mul(v, -1);
+      const dA = unit(add(u, v)), dB = unit(add(nu, v)), dC = unit(add(nu, nv)), dD = unit(add(u, nv));
+      const E = add(F.A, mul(dA, isect(F.A, dA, F.B, dB))), Z = add(F.B, mul(dB, isect(F.B, dB, F.C, dC)));
+      const Hh = add(F.C, mul(dC, isect(F.C, dC, F.D, dD))), Th = add(F.D, mul(dD, isect(F.D, dD, F.A, dA)));
+      const e = clamp01(p / 0.6), r = smooth(clamp01((p - 0.6) / 0.4));
+      quad(d, F, 'B', 0.3); names4(d, F);
+      d.seg(F.A, lerpP(F.A, dist(F.A, Th) > dist(F.A, E) ? Th : E, e), 'G', 0.2);
+      d.seg(F.B, lerpP(F.B, dist(F.B, E) > dist(F.B, Z) ? E : Z, e), 'G', 0.2);
+      d.seg(F.C, lerpP(F.C, dist(F.C, Z) > dist(F.C, Hh) ? Z : Hh, e), 'G', 0.2);
+      d.seg(F.D, lerpP(F.D, dist(F.D, Hh) > dist(F.D, Th) ? Hh : Th, e), 'G', 0.2);
+      if (r > 0) { d.prism([E, Z, Hh, Th], 'O', 0.55 * r); d.edges([E, Z, Hh, Th], 'O', r); d.names([['Ε', E], ['Ζ', Z], ['Η', Hh], ['Θ', Th]], mid(E, Hh), 'O');
+        if (r > 0.99) { d.right(E, Z, Th); d.right(Z, Hh, E); d.right(Hh, Th, Z); d.right(Th, E, Hh); } }
+      d.status(r > 0.99 ? 'Το ΕΖΗΘ είναι ορθογώνιο' : 'Οι διχοτόμοι των γωνιών', r > 0.99 ? 'O' : 'G'); } },
+  { title: 'Το τμήμα που ενώνει τα μέσα δύο πλευρών', tEnd: 5,
+    lines: [['ΜΝ ∥ ΒΓ', 'O'], ['ΜΝ = ½ ΒΓ', 'O'], ['Μ, Ν μέσα των ΑΒ, ΑΓ', 'K']],
+    hint: '<b>Τμήμα μέσων:</b> σε τρίγωνο ΑΒΓ, το τμήμα ΜΝ που ενώνει τα μέσα Μ και Ν των ΑΒ και ΑΓ είναι παράλληλο προς τη ΒΓ και ίσο με το μισό της. Κινούμε το Μ πάνω στην ΑΒ και το Ν πάνω στην ΑΓ με τον ίδιο λόγο: το ΜΝ μένει παράλληλο προς τη ΒΓ και γίνεται το μισό της, όταν τα Μ, Ν γίνουν μέσα.',
+    draw(p, d) { const A = pt(4.6, 6.4), B = pt(1.2, 1.2), C = pt(10.6, 1.2), t = lerp(0.2, 0.5, smooth(p)), Mm = lerpP(B, A, t), N = lerpP(C, A, t), half = Math.abs(t - 0.5) < 1e-6;
+      d.prism([A, B, C], 'B', 0.35); d.edges([A, B, C], 'B'); d.names([['Α', A], ['Β', B], ['Γ', C]], mid(B, C));
+      d.seg(Mm, N, 'O', 0.3); d.ball(Mm, 'O'); d.ball(N, 'O'); d.names([['Μ', Mm], ['Ν', N]], pt(5.6, 3.7), 'O');
+      if (half) { d.tick(B, Mm, 1, 'K'); d.tick(Mm, A, 1, 'K'); d.tick(C, N, 2, 'K'); d.tick(N, A, 2, 'K'); }
+      d.status(half ? 'ΜΝ ∥ ΒΓ, ΜΝ = ½ ΒΓ' : `ΜΝ ∥ ΒΓ, ΜΝ = ${num(t, 2)} ΒΓ`, 'O'); } },
+  { title: 'Το τραπέζιο και η διάμεσός του', tEnd: 5,
+    lines: [['ΜΝ ∥ ΑΒ ∥ ΔΓ', 'O'], ['ΜΝ = (ΑΒ + ΔΓ)/2', 'O'], ['ΚΛ = (ΑΒ − ΔΓ)/2', 'P']],
+    hint: '<b>Τραπέζιο:</b> η διάμεσος ΜΝ, που ενώνει τα μέσα των μη παράλληλων πλευρών, είναι παράλληλη προς τις βάσεις και ίση με το ημιάθροισμά τους. Το τμήμα ΚΛ που ορίζουν τα μέσα των διαγωνίων πάνω στη διάμεσο είναι ίσο με την ημιδιαφορά των βάσεων.',
+    draw(p, d) { const ab = 6, dg = lerp(4.5, 2, smooth(p)), A = pt(2.8, 1.4), B = add(A, pt(ab, 0)), D = pt(3.9, 5.2), C = add(D, pt(dg, 0)), F = { A, B, C, D };
+      const Mm = mid(A, D), N = mid(B, C), K = mid(A, C), L = mid(B, D);
+      quad(d, F, 'B', 0.4); d.edges([D, C], 'R', 1); names4(d, F);
+      d.seg(A, C, 'K', 0.14); d.seg(B, D, 'K', 0.14);
+      d.seg(Mm, N, 'O', 0.3); d.seg(K, L, 'P', 0.4); d.ball(Mm, 'O'); d.ball(N, 'O'); d.ball(K, 'P'); d.ball(L, 'P');
+      d.names([['Μ', Mm], ['Ν', N]], pt(6, 3.3), 'O'); d.names([['Κ', K], ['Λ', L]], pt(6, 3.2), 'P');
+      d.status(`ΜΝ = (ΑΒ + ΔΓ)/2 = ${num(dist(Mm, N))}`, 'O'); } },
+  { title: 'Το ισοσκελές τραπέζιο', tEnd: 5,
+    lines: [['ΑΔ = ΒΓ', 'B'], ['Γωνία Α = γωνία Β', 'R'], ['ΑΓ = ΒΔ', 'G']],
+    hint: '<b>Ισοσκελές τραπέζιο:</b> τραπέζιο με ίσες τις μη παράλληλες πλευρές του. Έχει ίσες τις γωνίες που είναι προσκείμενες σε κάθε βάση (Α = Β) και ίσες διαγώνιους ΑΓ = ΒΔ. Η μεγάλη βάση ΑΒ μένει σταθερή και η μικρή βάση ΔΓ αλλάζει, χωρίς να χαθεί η ισότητα των διαγωνίων.',
+    draw(p, d) { const ia = 6, ib = lerp(4.6, 2, smooth(p)), ih = 3.4, A = pt(2.8, 1.5), B = add(A, pt(ia, 0)), D = add(A, pt((ia - ib) / 2, ih)), C = add(D, pt(ib, 0)), F = { A, B, C, D };
+      quad(d, F, 'B', 0.4); names4(d, F); d.seg(A, C, 'G'); d.seg(B, D, 'P');
+      d.arc(A, B, D, 'R'); d.arc(B, A, C, 'R'); d.tick(A, D, 1, 'B'); d.tick(B, C, 1, 'B');
+      d.status(`ΑΓ = ${num(dist(A, C))}, ΒΔ = ${num(dist(B, D))}`, 'G'); } }
+];
+const hintHTML = k => STATES[k].hint;
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(FOV, window.innerWidth / window.innerHeight, 0.01, 60);
+const controls = new OrbitControls(camera, canvas);
+controls.enableDamping = true;
+controls.minDistance = 0.3;
+controls.maxDistance = 5;
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a3446, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(0.8, 1.6, 1.2);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xbcd8ff, 0.5);
+fill.position.set(-1, 0.5, -1);
+scene.add(fill);
+
+// δάπεδο και θρανίο μόνο σε αδιαφανή λειτουργία (VR)
+const room = new THREE.Group();
+room.visible = false;
+scene.add(room);
+{
+  const floor = new THREE.Group();
+  floor.name = 'floor';
+  room.add(floor);
+  const disc = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x1b2433, roughness: 0.95, depthWrite: false }));
+  disc.rotation.x = -Math.PI / 2;
+  disc.renderOrder = -2;
+  floor.add(disc);
+  const grid = new THREE.GridHelper(12, 24, 0x3b4a63, 0x27324a);
+  grid.material.depthWrite = false;
+  grid.renderOrder = -1;
+  grid.position.y = 0.002;
+  floor.add(grid);
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(0.8, 0.04, 0.55), new THREE.MeshStandardMaterial({ color: 0x6b4f3a, roughness: 0.7 }));
+  desk.name = 'desk';
+  room.add(desk);
+}
+
+const root = new THREE.Group();
+scene.add(root);
+const world = new THREE.Group();         // η σκηνή σε εκατοστά
+world.scale.setScalar(CM);
+root.add(world);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+const FONT = '"Segoe UI", Roboto, "Noto Sans", "DejaVu Sans", Arial, sans-serif';
+function roundRect(ctx, w, h, r) {
+  ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+  ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath();
+}
+function canvasTexture(cv) {
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+// ετικέτα με περίγραμμα, πάντα στραμμένη προς τον θεατή
+function label(text, color, height, template) {
+  const size = 120, pad = 40;
+  const cv = document.createElement('canvas');
+  const ctx = cv.getContext('2d');
+  ctx.font = `700 ${size}px ${FONT}`;
+  const w = Math.ceil(ctx.measureText(template || text).width) + 2 * pad, h = Math.ceil(size * 1.5);
+  cv.width = w; cv.height = h;
+  const tex = canvasTexture(cv);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, transparent: true, depthWrite: false }));
+  sp.renderOrder = 8;
+  sp.userData = { h: height, aspect: w / h, k: 1, cv, ctx, tex, text: null, color: null, scalable: true };
+  fitLabel(sp);
+  setText(sp, text, color);
+  return sp;
+}
+function setText(sp, text, color) {
+  const u = sp.userData;
+  if (u.text === text && u.color === color) return;
+  u.text = text; u.color = color;
+  const { cv, ctx } = u;
+  ctx.clearRect(0, 0, cv.width, cv.height);
+  ctx.font = `700 120px ${FONT}`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.lineJoin = 'round';
+  ctx.lineWidth = 22;
+  ctx.strokeStyle = 'rgba(14,20,32,.88)';
+  ctx.strokeText(text, cv.width / 2, cv.height / 2);
+  ctx.fillStyle = color;
+  ctx.fillText(text, cv.width / 2, cv.height / 2);
+  u.tex.needsUpdate = true;
+}
+function fitLabel(sp) { const u = sp.userData, s = u.h * u.k; sp.scale.set(s * u.aspect, s, 1); }
+
+// ------------------------------------------------------------------ βοηθητικά γεωμετρίας 3D
+const unitBox = new THREE.BoxGeometry(1, 1, 1);
+function kouti(sx, sy, sz, c, mat) {
+  const m = new THREE.Mesh(unitBox, mat);
+  m.scale.set(sx, sy, sz);
+  m.position.copy(c);
+  return m;
+}
+const unitCyl = new THREE.CylinderGeometry(1, 1, 1, 12, 1);
+function setBar(m, a, b, r) {
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  const d = b.clone().sub(a), l = d.length();
+  if (l > 1e-6) m.quaternion.setFromUnitVectors(UP, d.multiplyScalar(1 / l));
+  m.scale.set(r, Math.max(l, 1e-4), r);
+  m.visible = l > 0.02;
+}
+const ballGeo = new THREE.SphereGeometry(1, 24, 16);
+
+// ------------------------------------------------------------------ υλικά
+const glowC = {}, prismC = {};
+const glow = k => glowC[k] || (glowC[k] = new THREE.MeshStandardMaterial({ color: COL[k], emissive: COL[k], emissiveIntensity: 0.32, roughness: 0.45 }));
+const prismMat = (k, op) => { const key = k + op.toFixed(2); return prismC[key] || (prismC[key] = new THREE.MeshStandardMaterial({ color: COL[k], transparent: true, opacity: op, roughness: 0.6, side: THREE.DoubleSide, depthWrite: false })); };
+
+// ------------------------------------------------------------------ ο πίνακας: λευκό χαρτί με πλαίσιο
+function boardTexture() {
+  const PX = 36, w = Math.round(W * PX), h = Math.round(H * PX);
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = '#ffffff'; ctx.fillRect(0, 0, w, h);
+  ctx.strokeStyle = '#A6A6A6'; ctx.lineWidth = 4; ctx.strokeRect(2, 2, w - 4, h - 4);
+  return canvasTexture(cv);
+}
+world.add(kouti(W + 1, 0.5, H + 1, V(0, Y0 - 0.25, 0), new THREE.MeshStandardMaterial({ color: 0xe5e7eb, roughness: 0.85 })));
+{
+  const g = new THREE.Mesh(new THREE.PlaneGeometry(W, H), new THREE.MeshBasicMaterial({ map: boardTexture() }));
+  g.rotation.x = -Math.PI / 2;
+  g.position.set(0, Y0 + 0.02, 0);
+  world.add(g);
+}
+
+// ------------------------------------------------------------------ το αντικείμενο σχεδίασης: δεξαμενές αντικειμένων που ξαναχρησιμοποιούνται
+const figure = new THREE.Group();
+world.add(figure);
+const PRISM_TRIS = 16;
+class Draw {
+  constructor() { this.bars = []; this.balls = []; this.prisms = []; this.labels = []; this.cb = this.cba = this.cp = this.cl = 0; this.cent = pt(6, 4);
+    this.statusLbl = label('x', TXT.K, 1.9, 'ΑΓ = 10,0, ΒΔ = 10,0 ορθογώνιο ');
+    this.statusLbl.position.copy(P(6, 8.6, HB + 0.8)); figure.add(this.statusLbl); }
+  begin() { this.cb = this.cba = this.cp = this.cl = 0; }
+  end() {
+    for (let i = this.cb; i < this.bars.length; i++) this.bars[i].visible = false;
+    for (let i = this.cba; i < this.balls.length; i++) this.balls[i].visible = false;
+    for (let i = this.cp; i < this.prisms.length; i++) this.prisms[i].visible = false;
+    for (let i = this.cl; i < this.labels.length; i++) this.labels[i].visible = false;
+  }
+  bar(a, b, k, r) {
+    let m = this.bars[this.cb++];
+    if (!m) { m = new THREE.Mesh(unitCyl, glow(k)); figure.add(m); this.bars.push(m); }
+    m.material = glow(k); m.visible = true; setBar(m, a, b, r); return m;
+  }
+  seg(a, b, k, r = 0.22) { this.bar(P(a.x, a.y, HB), P(b.x, b.y, HB), k, r); }
+  edges(pts, k, frac = 1, r = 0.26) {
+    const n = pts.length, f = frac * n;
+    pts.forEach((a, i) => { if (f > i) { const c = pts[(i + 1) % n]; this.seg(a, lerpP(a, c, Math.min(1, f - i)), k, r); } });
+  }
+  ball(p, k, r = 0.62) {
+    let m = this.balls[this.cba++];
+    if (!m) { m = new THREE.Mesh(ballGeo, glow(k)); figure.add(m); this.balls.push(m); }
+    m.material = glow(k); m.visible = true; m.position.copy(P(p.x, p.y, HB)); m.scale.setScalar(r);
+  }
+  prism(pts, k, op) {
+    if (op <= 0.001) return;
+    let m = this.prisms[this.cp++];
+    if (!m) {
+      const g = new THREE.BufferGeometry();
+      g.setAttribute('position', new THREE.BufferAttribute(new Float32Array(PRISM_TRIS * 9), 3));
+      m = new THREE.Mesh(g, prismMat(k, op)); m.renderOrder = 3; figure.add(m); this.prisms.push(m);
+    }
+    m.material = prismMat(k, op); m.visible = true;
+    const a = m.geometry.attributes.position.array, n = pts.length;
+    let o = 0;
+    const put = v => { a[o++] = v.x; a[o++] = v.y; a[o++] = v.z; };
+    const top = pts.map(q => P(q.x, q.y, PH)), bot = pts.map(q => P(q.x, q.y, 0.05));
+    for (let i = 1; i < n - 1; i++) { put(top[0]); put(top[i]); put(top[i + 1]); }
+    for (let i = 0; i < n; i++) { const j = (i + 1) % n; put(bot[i]); put(bot[j]); put(top[j]); put(bot[i]); put(top[j]); put(top[i]); }
+    m.geometry.setDrawRange(0, o / 3);
+    m.geometry.attributes.position.needsUpdate = true;
+    m.geometry.computeVertexNormals();
+    m.geometry.computeBoundingSphere();
+  }
+  // γωνία στην κορυφή v ανάμεσα στις ημιευθείες προς a και b: τόξο από ράβδους
+  arc(v, a, b, k, r = 0.75) {
+    const t1 = Math.atan2(a.y - v.y, a.x - v.x);
+    let dl = Math.atan2(b.y - v.y, b.x - v.x) - t1;
+    while (dl > Math.PI) dl -= 2 * Math.PI;
+    while (dl <= -Math.PI) dl += 2 * Math.PI;
+    const N = 8;
+    for (let i = 0; i < N; i++) this.seg(add(v, cis(r, t1 + dl * i / N)), add(v, cis(r, t1 + dl * (i + 1) / N)), k, 0.17);
+  }
+  right(v, a, b, s = 0.4) {
+    const u1 = unit(sub(a, v)), u2 = unit(sub(b, v)), p1 = add(v, mul(u1, s)), p3 = add(v, mul(u2, s)), p2 = add(p1, mul(u2, s));
+    this.seg(p1, p2, 'K', 0.14); this.seg(p2, p3, 'K', 0.14);
+  }
+  tick(a, b, n, k) {           // σημάδια ισότητας στο μέσο του ΑΒ
+    const m = mid(a, b), u = unit(sub(b, a)), w = pt(-u.y, u.x);
+    for (let i = 0; i < n; i++) { const c = add(m, mul(u, (i - (n - 1) / 2) * 0.22)); this.seg(add(c, mul(w, -0.2)), add(c, mul(w, 0.2)), k, 0.13); }
+  }
+  ring(c, r, k) {
+    const N = 40;
+    for (let i = 0; i < N; i++) { if (i % 2) continue; this.seg(add(c, cis(r, 2 * Math.PI * i / N)), add(c, cis(r, 2 * Math.PI * (i + 1) / N)), k, 0.14); }
+  }
+  names(list, cent, k = 'K') {
+    for (const [t, p] of list) {
+      let s = this.labels[this.cl++];
+      if (!s) { s = label('Α', TXT.K, 1.6, 'Α'); figure.add(s); this.labels.push(s); s.userData.pos = null; }
+      const o = unit(sub(p, cent)), q = add(p, mul(o, 0.55));
+      setText(s, t, TXT[k]); s.visible = true; s.position.copy(P(q.x, q.y, HB + 1.2));
+    }
+  }
+  status(t, k) { setText(this.statusLbl, t, TXT[k]); }
+}
+const dr = new Draw();
+
+// ------------------------------------------------------------------ πίνακας με τον τίτλο και τις γραμμές
+const PTW = 1600;
+const PW = 30;
+const panelH = n => 60 + 72 + 34 + n * 92 + 36;
+const ANCHOR = V(0, 7, -H / 2 - 1);
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, depthTest: false, side: THREE.DoubleSide }));
+panel.renderOrder = 20;
+world.add(panel);
+let panelKey = '';
+function setPanel(S) {
+  if (S.title === panelKey) return;
+  panelKey = S.title;
+  const h = panelH(S.lines.length);
+  const cv = document.createElement('canvas');
+  cv.width = PTW; cv.height = h;
+  const ctx = cv.getContext('2d');
+  ctx.fillStyle = 'rgb(14,20,32)';
+  roundRect(ctx, PTW, h, 40);
+  ctx.fill();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  const line = (t, y, size, weight, color) => {
+    let s = size;
+    ctx.font = `${weight} ${s}px ${FONT}`;
+    while (s > 20 && ctx.measureText(t).width > PTW - 120) { s -= 2; ctx.font = `${weight} ${s}px ${FONT}`; }
+    ctx.fillStyle = color;
+    ctx.fillText(t, PTW / 2, y);
+  };
+  line(S.title, 60 + 36, 58, 700, INK);
+  S.lines.forEach(([t, c], i) => line(t, 60 + 72 + 34 + 46 + i * 92, 48, 600, c ? TXT[c] : INK));
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = canvasTexture(cv);
+  panel.material.needsUpdate = true;
+  panel.scale.set(PW, PW * h / PTW, 1);
+  panelXR();
+}
+function panelXR() { panel.position.copy(ANCHOR).addScaledVector(UP, panel.scale.y / 2); }
+
+// ------------------------------------------------------------------ κατάσταση και χρόνος
+let current = 0, tNow = 0, playing = true, speed = 1, hold = 0;
+const hintEl = document.getElementById('hint');
+const btnPlay = document.getElementById('btnPlay'), btnSpeed = document.getElementById('btnSpeed');
+function updateButtons() {
+  btnPlay.textContent = playing ? 'Παύση' : 'Αναπαραγωγή';
+  btnSpeed.classList.toggle('on', speed === 2);
+}
+function select(k) {
+  current = (k + STATES.length) % STATES.length;
+  const S = STATES[current];
+  document.querySelectorAll('#segS button').forEach(b => b.classList.toggle('on', +b.dataset.k === current));
+  hintEl.innerHTML = hintHTML(current);
+  setPanel(S);
+  tNow = 0; playing = true; hold = 0;
+  updateButtons();
+}
+document.querySelectorAll('#segS button').forEach(b => b.onclick = () => select(+b.dataset.k));
+function next() { select(current + 1); }
+function play() {
+  const S = STATES[current];
+  if (playing) playing = false;
+  else { if (tNow >= S.tEnd - 1e-9) tNow = 0; playing = true; hold = 0; }
+  updateButtons();
+}
+btnPlay.onclick = play;
+document.getElementById('btnReset').onclick = () => { tNow = 0; playing = false; hold = 0; updateButtons(); };
+btnSpeed.onclick = () => { speed = speed === 2 ? 1 : 2; updateButtons(); };
+
+function step(dt) {
+  const S = STATES[current];
+  if (playing) {
+    tNow += dt * speed;
+    if (tNow >= S.tEnd) { tNow = S.tEnd; playing = false; hold = 0; updateButtons(); }
+  } else if (renderer.xr.isPresenting && tNow >= S.tEnd - 1e-9) {
+    hold += dt;
+    if (hold > 5) { tNow = 0; playing = true; hold = 0; updateButtons(); }
+  }
+  dr.begin();
+  S.draw(clamp01(tNow / S.tEnd), dr);
+  dr.end();
+}
+
+// ο πίνακας τίτλου γυρίζει προς τον θεατή
+const eyeW = new THREE.Vector3(), pw0 = new THREE.Vector3(), camU = new THREE.Vector3();
+const qP = new THREE.Quaternion(), qY = new THREE.Quaternion();
+function faceViewer(cam, xr) {
+  cam.getWorldPosition(eyeW);
+  world.getWorldQuaternion(qP).invert();
+  if (xr) {
+    panel.getWorldPosition(pw0);
+    qY.setFromAxisAngle(UP, Math.atan2(eyeW.x - pw0.x, eyeW.z - pw0.z));
+    panel.quaternion.copy(qP).multiply(qY);
+  } else {
+    panel.quaternion.copy(qP).multiply(cam.quaternion);
+    camU.setFromMatrixColumn(cam.matrixWorld, 1).normalize();
+    panel.position.copy(ANCHOR).addScaledVector(camU, panel.scale.y / 2);
+  }
+}
+
+// ------------------------------------------------------------------ πλαίσιο της προβολής 3D
+const VIEW_DIR = V(Math.sin(rad(AZ)) * Math.cos(rad(EL)), Math.sin(rad(EL)), Math.cos(rad(AZ)) * Math.cos(rad(EL))).normalize();
+const FIT = [];
+for (const x of [-W / 2 - 1, W / 2 + 1]) for (const y of [Y0 - 1, Y0 + 5]) for (const z of [-H / 2 - 4, H / 2 + 1]) FIT.push(V(x, y, z));
+const PANEL_MAX = Math.max(...STATES.map(S => S.lines.length));
+let barBottom = 62, dockTop = 600, frameH = 800, touched = false, viewReady = false;
+controls.addEventListener('start', () => { touched = true; });
+function dockTopMax() {
+  const dock = document.getElementById('dock'), keep = hintEl.innerHTML;
+  let top = dock.getBoundingClientRect().top;
+  for (let k = 0; k < STATES.length; k++) { hintEl.innerHTML = hintHTML(k); top = Math.min(top, dock.getBoundingClientRect().top); }
+  hintEl.innerHTML = keep;
+  return top;
+}
+function layoutView() {
+  const Wd = window.innerWidth, Hh = window.innerHeight;
+  barBottom = Math.round(document.getElementById('bar').getBoundingClientRect().bottom);
+  dockTop = Math.round(dockTopMax());
+  const dy = Math.max(0, Math.round(Hh / 2 - (barBottom + dockTop) / 2));
+  frameH = Hh + 2 * dy;
+  camera.fov = 2 * THREE.MathUtils.radToDeg(Math.atan(Math.tan(rad(FOV / 2)) * frameH / Hh));
+  camera.aspect = Wd / frameH;
+  if (dy) camera.setViewOffset(Wd, frameH, 0, 2 * dy, Wd, Hh); else camera.clearViewOffset();
+  camera.updateProjectionMatrix();
+  if (!renderer.xr.isPresenting) setLabelScale(Wd / Hh < 1 ? 1.5 : 1.25);
+}
+function fitView() {
+  const Wd = window.innerWidth, Hh = window.innerHeight;
+  const yTop = 1 - 2 * (barBottom + 8) / Hh, yBot = 1 - 2 * (dockTop - 8) / Hh;
+  const yMid = (yTop + yBot) / 2, hy = 0.95 * (yTop - yBot) / 2, hx = 0.95;
+  const tgt = world.localToWorld(V(0, Y0 + 2, 0));
+  const right = new THREE.Vector3(), up = new THREE.Vector3(), corner = new THREE.Vector3();
+  let Dd = 1.2;
+  for (let it = 0; it < 14; it++) {
+    camera.position.copy(VIEW_DIR).multiplyScalar(Dd).add(tgt);
+    camera.lookAt(tgt);
+    camera.updateMatrixWorld();
+    faceViewer(camera, false);
+    scene.updateMatrixWorld(true);
+    let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity;
+    const addp = q => { q.project(camera); x0 = Math.min(x0, q.x); x1 = Math.max(x1, q.x); y0 = Math.min(y0, q.y); y1 = Math.max(y1, q.y); };
+    for (const cc of FIT) addp(world.localToWorld(cc.clone()));
+    for (const [u, vv] of [[-0.5, -0.5], [0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]]) addp(panel.localToWorld(corner.set(u, vv, 0)));
+    const hh = Dd * Math.tan(rad(camera.fov / 2)) * Hh / frameH, ww = Dd * Math.tan(rad(camera.fov / 2)) * Wd / frameH;
+    right.setFromMatrixColumn(camera.matrixWorld, 0);
+    up.setFromMatrixColumn(camera.matrixWorld, 1);
+    tgt.addScaledVector(right, (x0 + x1) / 2 * ww).addScaledVector(up, ((y0 + y1) / 2 - yMid) * hh);
+    const r = Math.max((x1 - x0) / 2 / hx, (y1 - y0) / 2 / Math.max(hy, 0.05));
+    Dd = THREE.MathUtils.clamp(Dd * r, controls.minDistance, controls.maxDistance);
+  }
+  return { D: Dd, tgt };
+}
+function homeView() {
+  const keep = panel.scale.clone();
+  panel.scale.set(PW, PW * panelH(PANEL_MAX) / PTW, 1);
+  const a = fitView();
+  camera.position.copy(VIEW_DIR).multiplyScalar(a.D).add(a.tgt);
+  controls.target.copy(a.tgt);
+  controls.update();
+  panel.scale.copy(keep);
+  faceViewer(camera, false);
+}
+function setLabelScale(k) {
+  world.traverse(o => { if (o.userData.scalable) { o.userData.k = k; fitLabel(o); } });
+}
+
+{
+  const q = parseInt(new URLSearchParams(location.search).get('k'), 10);
+  select(Number.isFinite(q) && q >= 0 && q < STATES.length ? q : 0);
+  const u = parseFloat(new URLSearchParams(location.search).get('u'));
+  if (Number.isFinite(u)) { tNow = clamp01(u) * STATES[current].tEnd; playing = false; updateButtons(); }
+}
+step(0);
+layoutView();
+homeView();
+viewReady = true;
+
+// ------------------------------------------------------------------ XR
+const btnAR = document.getElementById('btnAR'), btnVR = document.getElementById('btnVR');
+const note = document.getElementById('note');
+let placed = false, floorRef = true;
+async function checkXR() {
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+    return;
+  }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+  }
+}
+checkXR().then(() => { layoutView(); if (!touched) homeView(); });
+
+function resetView() {
+  camera.near = 0.01; camera.far = 60;
+  root.position.set(0, 0, 0); root.quaternion.identity(); root.scale.setScalar(1);
+  room.visible = false; scene.background = null;
+  layoutView(); homeView(); touched = false;
+}
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    camera.near = 0.02; camera.far = 50; camera.updateProjectionMatrix();
+    await renderer.xr.setSession(session);
+    placed = false;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    room.visible = opaque;
+    scene.background = opaque ? new THREE.Color(0x0e1420) : null;
+    if (!playing && tNow < STATES[current].tEnd - 1e-9) { playing = true; updateButtons(); }
+    session.addEventListener('end', () => { resetView(); });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const floorY = floorRef ? 0 : p.y - 1.6;
+  const y = THREE.MathUtils.clamp(floorY + TABLE, p.y - 0.9, p.y - 0.4);
+  const yaw = Math.atan2(-dir.x, -dir.z);
+  root.position.set(p.x + dir.x * DIST, y - Y0 * CM, p.z + dir.z * DIST);
+  root.rotation.set(0, yaw - rad(AZ), 0);
+  root.scale.setScalar(1);
+  const desk = room.getObjectByName('desk');
+  desk.position.set(p.x + dir.x * DIST, y - 0.029, p.z + dir.z * DIST);
+  desk.rotation.y = yaw - rad(AZ);
+  room.getObjectByName('floor').position.y = floorY;
+  setLabelScale(1);
+  panelXR();
+  placed = true;
+}
+
+// χειριστήρια: σύντομο πάτημα = επόμενη κατάσταση, παρατεταμένο πάτημα πάνω στη σκηνή = μετακίνηση, μοχλός = μέγεθος
+const hit = new THREE.Mesh(new THREE.BoxGeometry(W + 4, 10, H + 4), new THREE.MeshBasicMaterial({ side: THREE.DoubleSide }));
+hit.position.set(0, Y0 + 4, 0);
+hit.visible = false;
+world.add(hit);
+const rayc = new THREE.Raycaster();
+const rotM = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    rotM.identity().extractRotation(ctl.matrixWorld);
+    rayc.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    rayc.ray.direction.set(0, 0, -1).applyMatrix4(rotM);
+    if (rayc.intersectObject(hit, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    const held = performance.now() - ctl.userData.t0, grabbed = ctl.userData.grab;
+    if (grabbed) { scene.attach(root); ctl.userData.grab = false; }
+    if (held < 280 || (!grabbed && held < 800)) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+const ctls = [0, 1, 2, 3].map(makeController);
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  layoutView();
+  if (!touched) homeView();
+});
+
+let last = performance.now();
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const raw = (now - last) / 1000;
+  const dt = raw < 1 ? raw : 0;
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  step(dt);
+  if (renderer.xr.isPresenting) {
+    faceViewer(renderer.xr.getCamera(), true);
+    ctls.forEach(c => {
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if (gp && gp.axes && gp.axes.length) {
+        const ax = gp.axes[3] !== undefined ? gp.axes[3] : gp.axes[1];
+        if (Math.abs(ax) > 0.2) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ax * Math.min(dt, 0.1) * 0.9), 0.5, 3));
+      }
+    });
+  } else {
+    controls.update();
+    faceViewer(camera, false);
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
