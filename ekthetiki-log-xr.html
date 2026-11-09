@@ -45,10 +45,13 @@
 </div>
 <div id="dock">
   <div class="seg" id="segS">
-    <button data-s="0" class="on">Εκθετική: y = 2^x</button>
-    <button data-s="1">Λογαριθμική: y = log₂ x</button>
-    <button data-s="2">Συμμετρία ως προς y = x</button>
-    <button data-s="3">Βάση a = 1/2</button>
+    <button data-s="0" class="on">§ 5.1 Εκθετική</button>
+    <button data-s="1">§ 5.1 Βάση α</button>
+    <button data-s="2">§ 5.1 Ανατοκισμός</button>
+    <button data-s="3">§ 5.2 Αντίστροφη</button>
+    <button data-s="4">§ 5.2 pH</button>
+    <button data-s="5">§ 5.2 Εξίσωση</button>
+    <button data-s="6">§ 5.3 Λογαριθμική</button>
   </div>
   <div id="hint"></div>
   <div class="xr">
@@ -73,14 +76,21 @@ const CLAMP = 4;               // τιμές του y περιορίζονται
 const COL = { exp: 0xf5a524, log: 0x7dd3fc, base: 0xf9a8d4, axis: 0xcbd5e1, diag: 0xfbbf24, mark: 0xfbbf24 };
 
 const STATES = [
-  { hint: "<b>y = 2^x</b> αύξουσα. Τέμνει τον άξονα y΄y στο (0; 1) και έχει ασύμπτωτη τον x΄x." +
-          " Για κάθε πραγματικό x η τιμή 2^x είναι θετική." },
-  { hint: "<b>y = log₂ x</b> ορίζεται για x &gt; 0. Τέμνει τον x΄x στο (1; 0) και έχει κατακόρυφη" +
-          " ασύμπτωτη τον y΄y." },
-  { hint: "Η <b>y = log₂ x</b> είναι η αντίστροφη της <b>y = 2^x</b>. Οι δύο γραφικές παραστάσεις" +
-          " είναι συμμετρικές ως προς την ευθεία <b>y = x</b>." },
-  { hint: "Για <b>0 &lt; a &lt; 1</b> η <b>y = a^x</b> είναι φθίνουσα. Περνά από το (0; 1) και" +
-          " πλησιάζει τον x΄x χωρίς να τον τέμνει." },
+  { hint: "<b>§ 5.1 Εκθετική συνάρτηση, y = 2^x</b>. Αύξουσα, τέμνει τον y΄y στο (0; 1)." +
+          " Η ευθεία y = 0 είναι οριζόντια ασύμπτωτη και η τιμή 2^x είναι πάντα θετική." },
+  { hint: "<b>Βάση α</b>: η <b>y = 2^x</b> (α &gt; 1) είναι αύξουσα, ενώ η <b>y = (1/2)^x</b>" +
+          " (0 &lt; α &lt; 1) είναι φθίνουσα. Και οι δύο περνούν από το (0; 1)." },
+  { hint: "<b>Ανατοκισμός</b>: K(t) = C(1 + r)^t. Με C = 1 και r = 0,05 η καμπύλη δίνει το ποσό" +
+          " στα 10 έτη: 1,63 φορές το αρχικό κεφάλαιο." },
+  { hint: "<b>§ 5.2 Λογάριθμος</b>: η <b>y = log₂ x</b> είναι συμμετρική της <b>y = 2^x</b>" +
+          " ως προς την ευθεία <b>y = x</b>. Ορισμός: log₂ x = y ⇔ 2^y = x." },
+  { hint: "<b>Κλίμακα pH</b>: y = −log₁₀ x. Για x = 0,1 η τιμή είναι 1 και για x = 0,01 είναι 2," +
+          " δηλαδή κάθε μονάδα pH αντιστοιχεί σε δεκαπλάσια συγκέντρωση." },
+  { hint: "<b>Εξίσωση 2^x = 4</b>: η λύση x = 2 είναι το σημείο τομής της <b>y = 2^x</b>" +
+          " με την οριζόντια ευθεία <b>y = 4</b>." },
+  { hint: "<b>§ 5.3 Λογαριθμική συνάρτηση</b>: η <b>y = log₂ x</b> έχει πεδίο ορισμού x &gt; 0" +
+          " και κατακόρυφη ασύμπτωτη τον y΄y. Η <b>y = log₂(x + 1)</b> είναι μετατόπισή της" +
+          " κατά −1 στον άξονα x΄x." },
 ];
 
 // ---------- Σκηνή ----------
@@ -233,24 +243,34 @@ function build(s) {
     point(2, 4, "(2; 4)");
     moving = makeMover((x) => Math.pow(2, x), -3, 2.6, COL.exp);
   } else if (s === 1) {
-    plot((x) => Math.log2(x), 0.125, 6, 220, COL.log);
-    point(1, 0, "(1; 0)");
-    point(2, 1, "(2; 1)");
-    point(4, 2, "(4; 2)");
-    moving = makeMover((x) => Math.log2(x), 0.125, 6, COL.log);
+    plot((x) => Math.pow(2, x), -3, 2.6, 180, COL.exp);
+    plot((x) => Math.pow(0.5, x), -2.6, 3, 180, COL.base);
+    point(0, 1, "(0; 1)");
   } else if (s === 2) {
+    plot((x) => Math.pow(1.05, x), -1, 12, 220, COL.exp);
+    point(0, 1, "(0; 1)");
+    point(10, Math.pow(1.05, 10), "(10; 1,63)");
+  } else if (s === 3) {
     plot((x) => Math.pow(2, x), -3, 2.6, 180, COL.exp);
     plot((x) => Math.log2(x), 0.125, 6, 220, COL.log);
     diagonal();
     point(0, 1, "(0; 1)");
     point(1, 0, "(1; 0)");
-    point(1, 2, "(1; 2)");
     point(2, 1, "(2; 1)");
+  } else if (s === 4) {
+    plot((x) => -Math.log10(x), 0.01, 2, 220, COL.log);
+    point(0.1, 1, "(0,1; 1)");
+    point(0.01, 2, "(0,01; 2)");
+    point(1, 0, "(1; 0)");
+  } else if (s === 5) {
+    plot((x) => Math.pow(2, x), -3, 2.6, 180, COL.exp);
+    plot(() => 4, -3, 3, 2, COL.diag);
+    point(2, 4, "(2; 4)");
   } else {
-    plot((x) => Math.pow(0.5, x), -2.5, 3, 180, COL.base);
-    point(0, 1, "(0; 1)");
-    point(1, 0.5, "(1; 1/2)");
-    point(-1, 2, "(−1; 2)");
+    plot((x) => Math.log2(x), 0.125, 6, 220, COL.log);
+    plot((x) => Math.log2(x + 1), -0.875, 6, 220, COL.base);
+    point(1, 0, "(1; 0)");
+    point(0, 0, "(0; 0)");
   }
 
   hintEl.innerHTML = STATES[s].hint;
