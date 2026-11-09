@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Δεκαδικοί και ποσοστά — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#3b82f6}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px}
+  #bar h1{font-size:15px;margin:0;font-weight:640}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#08131a;background:var(--acc);border-color:transparent}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:780px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:640px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(92vw,80vh);height:auto}
+  #ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;color:var(--dim);font-size:13.5px}
+  #ctl input[type=range]{width:min(60vw,320px);accent-color:var(--acc)} #ctl b{color:var(--ink);min-width:3.2em;text-align:left}
+  #ctl .seg button{padding:8px 12px;font-size:13px}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segK,.nogl #ctl,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #hint{font-size:11.5px} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 200 230" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<g id="fbg"></g>
+<text x="100" y="218" font-size="12" font-weight="700" text-anchor="middle" fill="#eaf1f8">35% = 35/100 = 0,35</text>
+</svg>
+<script>
+(function(){var g=document.getElementById('fbg'),s='';for(var i=0;i<10;i++)for(var j=0;j<10;j++){var n=i*10+(9-j)*0;var f=i<3?'#3b82f6':(i==3&&j>=5?'#f59e0b':'#1b2a40');s+='<rect x="'+(10+i*18)+'" y="'+(10+j*18)+'" width="17" height="17" fill="'+f+'"/>';}g.innerHTML=s;})();
+</script>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Δεκαδικοί και ποσοστά</h1>
+  <span class="lv">Α΄ Γυμνασίου, §3.1, §5.1, §5.2</span>
+</div>
+<div id="dock">
+  <div class="seg" id="segK">
+    <button data-k="0" class="on">Το πλέγμα των 100</button>
+    <button data-k="1">Ποσοστό ενός ποσού</button>
+    <button data-k="2">Αύξηση και μείωση</button>
+  </div>
+  <div id="ctl">
+    <span id="lblP">Ποσοστό p %</span> <input id="rngP" type="range" min="0" max="100" step="1" value="35"> <b id="valP">35 %</b>
+    <div class="seg" id="segA" style="display:none">
+      <button data-a="40">40 €</button><button data-a="80" class="on">80 €</button><button data-a="120">120 €</button><button data-a="200">200 €</button>
+    </div>
+    <div class="seg" id="segD" style="display:none">
+      <button data-d="0" class="on">Αύξηση</button><button data-d="1">Μείωση</button>
+    </div>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο 27 «Δεκαδικοί και ποσοστά» — Α΄ Γυμνασίου (§3.1, §5.1, §5.2)
+// Κέντρο Καινοτομίας Θεσσαλίας. Το πλέγμα 10×10 έχει 100 τετράγωνα: το καθένα είναι το 1/100 = 0,01 = 1 %.
+// Σκηνή 1: το ποσοστό ως μέρος των 100. Σκηνή 2: το ποσοστό ενός ποσού. Σκηνή 3: αύξηση και μείωση με ποσοστό.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const UNIT = 0.4;                         // πλάτος του πλέγματος σε μέτρα
+const PRESETS = [35, 25, 50, 75, 10, 1, 100];   // σύντομο πάτημα στο XR: επόμενο ποσοστό
+const COL = { blue: 0x3b82f6, orange: 0xf59e0b, grey: 0x2b3a52, green: 0x22c55e, purple: 0xa855f7, red: 0xef4444 };
+const CSS = { 0: '#3b82f6', 1: '#f59e0b', 2: '#a855f7' };
+
+const st = { scene: 0, p: 35, A: 80, dec: 0 };      // dec: 0 αύξηση, 1 μείωση
+
+const gcd = (a, b) => b ? gcd(b, a % b) : a;
+const comma = s => s.replace('.', ',');
+const money = v => comma(v.toFixed(2)) + ' €';
+const dec01 = p => comma((p / 100).toFixed(2).replace(/0+$/, '').replace(/\.$/, ''));
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.01, 60);
+const HOME_CAM = new THREE.Vector3(0.08, 0.12, 1.9), HOME_TGT = new THREE.Vector3(0, 0.02, 0);
+camera.position.copy(HOME_CAM);
+const controls = new OrbitControls(camera, canvas);
+controls.target.copy(HOME_TGT);
+controls.enableDamping = true;
+controls.minDistance = 0.4;
+controls.maxDistance = 4;
+controls.update();
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a3446, 1.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+sun.position.set(0.8, 1.6, 1.6);
+scene.add(sun);
+
+const room = new THREE.Group();            // δάπεδο μόνο σε αδιαφανή λειτουργία (VR)
+room.visible = false;
+scene.add(room);
+{
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x1b2433, roughness: 0.95 }));
+  floor.rotation.x = -Math.PI / 2;
+  room.add(floor);
+  const grid = new THREE.GridHelper(12, 24, 0x3b4a63, 0x27324a);
+  grid.position.y = 0.002;
+  room.add(grid);
+}
+
+const root = new THREE.Group();
+scene.add(root);
+const world = new THREE.Group();           // μονάδα = πλάτος του πλέγματος
+world.scale.setScalar(UNIT);
+world.position.set(-0.5 * UNIT, -0.5 * UNIT, 0);
+root.add(world);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+function textTexture(lines, opt = {}) {
+  const w = opt.w || 1024, h = opt.h || 256;
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  if (opt.bg) {
+    ctx.fillStyle = opt.bg;
+    const r = 36;
+    ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+    ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath(); ctx.fill();
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const gap = opt.gap || h / (lines.length + 0.4);
+  lines.forEach((ln, i) => {
+    let size = ln.size || 64;
+    const font = s => `${ln.weight || 600} ${s}px "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif`;
+    ctx.font = font(size);
+    while (size > 18 && ctx.measureText(ln.t).width > w - 80) { size -= 2; ctx.font = font(size); }
+    ctx.fillStyle = ln.color || '#eaf1f8';
+    ctx.fillText(ln.t, w / 2, h / 2 + (i - (lines.length - 1) / 2) * gap);
+  });
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+
+// ------------------------------------------------------------------ το πλέγμα: 100 βασικά και έως 100 επιπλέον τετράγωνα
+const S = 0.1, GAP = 0.008;
+const geo = new THREE.BoxGeometry(S - GAP, S - GAP, 0.03);
+const mats = {};
+for (const k in COL) mats[k] = new THREE.MeshStandardMaterial({ color: COL[k], emissive: COL[k], emissiveIntensity: 0.18, roughness: 0.55 });
+const cells = [];
+for (let n = 0; n < 200; n++) {
+  const m = new THREE.Mesh(geo, mats.grey);
+  m.userData.box = true;
+  m.visible = false;
+  world.add(m);
+  cells.push(m);
+}
+// πλαίσιο γύρω από το βασικό πλέγμα
+{
+  const frame = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(1, 1, 0.04)), new THREE.LineBasicMaterial({ color: 0xe2e8f0 }));
+  frame.position.set(0.5, 0.5, 0);
+  world.add(frame);
+}
+function putBase(n, mat) {          // n = 0..99: στήλες από αριστερά, από κάτω προς τα πάνω
+  const m = cells[n];
+  m.position.set((Math.floor(n / 10) + 0.5) * S, ((n % 10) + 0.5) * S, 0);
+  m.material = mats[mat];
+  m.visible = true;
+}
+function putExtra(j, mat) {         // επιπλέον τετράγωνα πάνω από το πλέγμα, σε σειρές
+  const m = cells[100 + j];
+  m.position.set(((j % 10) + 0.5) * S, (10 + Math.floor(j / 10) + 0.5) * S, 0);
+  m.material = mats[mat];
+  m.visible = true;
+}
+
+// πίνακας με τον υπολογισμό
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(2.0, 0.5), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+panel.renderOrder = 8;
+world.add(panel);
+let panelKey = '';
+function setPanel(lines, top) {
+  panel.position.set(0.5, top + 0.4, 0);
+  const key = JSON.stringify(lines);
+  if (key === panelKey) return;
+  panelKey = key;
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = textTexture(lines, { w: 1280, h: 320, bg: 'rgba(14,20,32,.88)', gap: 110 });
+  panel.material.needsUpdate = true;
+}
+
+// ------------------------------------------------------------------ κατάσταση και σκηνές
+const $ = id => document.getElementById(id);
+const hintEl = $('hint'), rng = $('rngP'), valP = $('valP'), lblP = $('lblP'), segA = $('segA'), segD = $('segD');
+
+function update() {
+  const { scene: sc, p, A, dec } = st;
+  cells.forEach(c => { c.visible = false; });
+  let top = 1, lines, hint;
+  if (sc === 0) {
+    const g = gcd(p, 100), fr = p === 0 ? '0' : `${p / g}/${100 / g}`;
+    for (let n = 0; n < 100; n++) putBase(n, n < p ? (n < 10 * Math.floor(p / 10) ? 'blue' : 'orange') : 'grey');
+    lines = [{ t: g > 1 && p > 0 ? `${p} % = ${p}/100 = ${fr} = ${dec01(p)}` : `${p} % = ${p}/100 = ${dec01(p)}`, size: 66, weight: 650 },
+             { t: `${p} τετράγωνα από τα 100 είναι χρωματισμένα`, size: 52, color: CSS[0] }];
+    hint = `<b>Το ποσοστό ${p} %</b> σημαίνει ${p} στα 100. Κάθε τετράγωνο είναι το 1/100 = 0,01 = 1 %. Οι πλήρεις στήλες των 10 τετραγώνων (μπλε) είναι από 10 %, τα τετράγωνα της τελευταίας στήλης (πορτοκαλί) από 1 %.`;
+  } else if (sc === 1) {
+    const v = p * A / 100;
+    for (let n = 0; n < 100; n++) putBase(n, n < p ? 'orange' : 'grey');
+    lines = [{ t: `${p}/100 · ${A} = ${money(v)}`, size: 66, weight: 650 },
+             { t: `Το 1 % του ${A} € είναι ${money(A / 100)}`, size: 52, color: CSS[1] }];
+    hint = `<b>Το ${p} % του ποσού ${A} €:</b> τα 100 τετράγωνα είναι ολόκληρο το ποσό και κάθε τετράγωνο αξίζει ${money(A / 100)}. Τα ${p} πορτοκαλί τετράγωνα αξίζουν ${money(v)}. Υπολογισμός: ${p}/100 · ${A}.`;
+  } else {
+    const ch = p * A / 100;
+    if (dec === 0) {
+      for (let n = 0; n < 100; n++) putBase(n, 'green');
+      const rows = Math.ceil(p / 10);
+      for (let j = 0; j < p; j++) putExtra(j, 'purple');
+      top = 1 + 0.1 * rows;
+      lines = [{ t: `Αύξηση ${p} %: ${A} + ${money(ch).replace(' €', '')} = ${money(A + ch)}`, size: 62, weight: 650 },
+               { t: `Συντελεστής: ${comma((1 + p / 100).toFixed(2))}. Νέα τιμή: ${A} · ${comma((1 + p / 100).toFixed(2))}`, size: 48, color: CSS[2] }];
+      hint = `<b>Αύξηση ${p} % στα ${A} €:</b> τα 100 πράσινα τετράγωνα είναι η αρχική τιμή. Προστίθενται ${p} μωβ τετράγωνα, δηλαδή ${money(ch)}. Νέα τιμή ${money(A + ch)}, ίση με ${A} · ${comma((1 + p / 100).toFixed(2))}.`;
+    } else {
+      for (let n = 0; n < 100; n++) putBase(n, n < 100 - p ? 'green' : 'red');
+      lines = [{ t: `Μείωση ${p} %: ${A} − ${money(ch).replace(' €', '')} = ${money(A - ch)}`, size: 62, weight: 650 },
+               { t: `Συντελεστής: ${comma((1 - p / 100).toFixed(2))}. Νέα τιμή: ${A} · ${comma((1 - p / 100).toFixed(2))}`, size: 48, color: '#ef4444' }];
+      hint = `<b>Μείωση ${p} % στα ${A} €:</b> από τα 100 τετράγωνα αφαιρούνται ${p} (κόκκινα), δηλαδή ${money(ch)}. Μένουν ${100 - p} πράσινα τετράγωνα: νέα τιμή ${money(A - ch)}, ίση με ${A} · ${comma((1 - p / 100).toFixed(2))}.`;
+    }
+  }
+  setPanel(lines, top);
+  hintEl.innerHTML = hint;
+  rng.value = p;
+  valP.textContent = p + ' %';
+  document.documentElement.style.setProperty('--acc', sc === 0 ? CSS[0] : sc === 1 ? CSS[1] : (dec ? '#ef4444' : CSS[2]));
+  document.querySelectorAll('#segK button').forEach(b => b.classList.toggle('on', +b.dataset.k === sc));
+  document.querySelectorAll('#segA button').forEach(b => b.classList.toggle('on', +b.dataset.a === A));
+  document.querySelectorAll('#segD button').forEach(b => b.classList.toggle('on', +b.dataset.d === dec));
+  segA.style.display = sc === 0 ? 'none' : 'flex';
+  segD.style.display = sc === 2 ? 'flex' : 'none';
+  lblP.textContent = 'Ποσοστό p %';
+}
+document.querySelectorAll('#segK button').forEach(b => b.onclick = () => { st.scene = +b.dataset.k; update(); });
+document.querySelectorAll('#segA button').forEach(b => b.onclick = () => { st.A = +b.dataset.a; update(); });
+document.querySelectorAll('#segD button').forEach(b => b.onclick = () => { st.dec = +b.dataset.d; update(); });
+rng.oninput = () => { st.p = +rng.value; update(); };
+function next() {
+  const i = PRESETS.indexOf(st.p);
+  st.p = PRESETS[(i + 1) % PRESETS.length];
+  update();
+}
+update();
+
+// ------------------------------------------------------------------ XR
+const btnAR = $('btnAR'), btnVR = $('btnVR'), note = $('note');
+let placed = false, floorRef = true;
+async function checkXR() {
+  const msg = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) { note.textContent = msg; note.style.display = 'block'; return; }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) { note.textContent = msg; note.style.display = 'block'; }
+}
+checkXR();
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    await renderer.xr.setSession(session);
+    placed = false;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    room.visible = opaque;
+    scene.background = opaque ? new THREE.Color(0x0e1420) : null;
+    session.addEventListener('end', () => {
+      room.visible = false;
+      scene.background = null;
+      root.position.set(0, 0, 0);
+      root.quaternion.identity();
+      root.scale.setScalar(1);
+      camera.position.copy(HOME_CAM);
+      controls.target.copy(HOME_TGT);
+      controls.update();
+    });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+// στην πρώτη εικόνα του XR, το πλέγμα τοποθετείται 90 cm μπροστά από τον χρήστη, στο ύψος των ματιών
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const yaw = Math.atan2(-dir.x, -dir.z);
+  root.position.set(p.x + dir.x * 0.9, p.y - 0.15, p.z + dir.z * 0.9);
+  root.rotation.set(0, yaw, 0);
+  root.scale.setScalar(1);
+  room.children[0].position.y = floorRef ? 0 : p.y - 1.5;
+  placed = true;
+}
+
+// χειριστήρια: σύντομο πάτημα = επόμενο ποσοστό, παρατεταμένο πάτημα πάνω στο πλέγμα = μετακίνηση,
+// μοχλός αριστερά και δεξιά = αλλαγή ποσοστού, μοχλός πάνω και κάτω = μέγεθος
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    const targets = [];
+    world.traverse(o => { if (o.isMesh && o.visible && o.userData.box) targets.push(o); });
+    if (ray.intersectObjects(targets, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    if (ctl.userData.grab) { scene.attach(root); ctl.userData.grab = false; }
+    if (performance.now() - ctl.userData.t0 < 280) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+const ctls = [makeController(0), makeController(1)];
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+let last = performance.now(), acc = 0;
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  if (renderer.xr.isPresenting) {
+    const eye = new THREE.Vector3().setFromMatrixPosition(renderer.xr.getCamera().matrixWorld);
+    const local = world.worldToLocal(eye.clone());
+    panel.rotation.set(0, Math.atan2(local.x - panel.position.x, local.z - panel.position.z) * 0.6, 0);
+    acc += dt;
+    ctls.forEach(c => {
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if (!gp || !gp.axes || !gp.axes.length) return;
+      const ax = gp.axes.length > 3 ? gp.axes[2] : gp.axes[0];
+      const ay = gp.axes.length > 3 ? gp.axes[3] : gp.axes[1];
+      if (Math.abs(ax) > 0.5 && acc > 0.12) { acc = 0; st.p = THREE.MathUtils.clamp(st.p + (ax > 0 ? 1 : -1), 0, 100); update(); }
+      if (Math.abs(ay) > 0.5) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ay * dt * 0.9), 0.5, 3));
+    });
+  } else {
+    panel.rotation.set(0, 0, 0);
+    controls.update();
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
