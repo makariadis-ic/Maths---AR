@@ -71,6 +71,7 @@ const META={
   oria:['Ο ορισμός του ορίου: ε και δ','Γ΄ Λυκείου','#1565C0'],
   olokliromata:['Εμβαδόν παραβολικού χωρίου: Ε(Ω) = 1/3','Γ΄ Λυκείου','#2E7D32'],
   'kanonika-polygona':['Κανονικό οκτάγωνο: Ε₈ = ½P₈α₈','Β΄ Λυκείου','#26A69A'],
+  polyonyma:['Το κουτί και ο όγκος V(x)','Γ΄ Γυμνασίου, Β΄ Λυκείου','#1565C0'],
   synartiseis:['Μετατόπιση καμπύλης και αντίστροφη συνάρτηση','Α΄–Γ΄ Λυκείου','#1565C0']
 };
 
@@ -433,6 +434,32 @@ if(id==='kanonika-polygona'){
   row.appendChild(play);
   const xr=document.createElement('button');
   xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='kanonika-polygona.html'; };
+  row.appendChild(xr);
+  mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
+}
+
+/* Πολυώνυμα (Άλγεβρα Β΄ Λυκείου, § 4.1): το χαρτόνι 30 × 20 cm χάνει τις γωνίες x = 4 cm, τα πτερύγια διπλώνουν και
+   γίνεται ανοιχτό κουτί με V(4) = 4 × 12 × 22 = 1056 cm³. Κύκλος 15 s: χαρτόνι ως τα 2 s, κοπή ως τα 3 s, δίπλωμα από
+   τα 4 ως τα 8 s, κουτί ως τα 11,6 s, επιστροφή. */
+const POLY=[['Χαρτόνι',0.7],['Πτερύγια',5.7],['Κουτί',9.5]];
+if(id==='polyonyma'){
+  mv.removeAttribute('auto-rotate');
+  mv.setAttribute('camera-orbit','0deg 52deg 100%');
+  const row=document.getElementById('tomes');
+  row.style.display='flex';
+  const mark=el=>[...row.children].forEach(b=>b.classList.toggle('on',b===el));
+  for(const [label,t] of POLY){
+    const b=document.createElement('button');
+    b.textContent=label;
+    b.onclick=()=>{ mv.currentTime=t; mv.pause(); mark(b); };
+    row.appendChild(b);
+  }
+  const play=document.createElement('button');
+  play.textContent='Συνεχής κίνηση';
+  play.onclick=()=>{ mv.play(); mark(play); };
+  row.appendChild(play);
+  const xr=document.createElement('button');
+  xr.textContent='Γυαλιά XR ›'; xr.onclick=()=>{ location.href='polyonyma.html'; };
   row.appendChild(xr);
   mv.addEventListener('load',()=>{ if(note.style.display==='block') Object.assign(note.style,{top:'74px',bottom:'auto'}); });
 }
