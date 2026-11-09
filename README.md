@@ -12,7 +12,7 @@
 - `404.html` — φιλική σελίδα σφάλματος για GitHub Pages.
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 30 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
-- Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `trigona.html`, `trionymo.html`,
+- Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
   `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
@@ -23,6 +23,7 @@
 | Κωνικές τομές, SVD, Ασαφείς συνεπαγωγές | Λύκειο → Μεταπτυχιακό | Android (τοποθέτηση) · iPhone (διαδραστικό 3D) |
 | Περιστροφή χωρίου κάτω από y = √x και χωρίου ανάμεσα σε y = √x και y = x/2 (`peristrofi-omega`, `peristrofi-gamma`) | Γ΄ Λυκείου, εμβαδά επίπεδων χωρίων (§3.7) | Android (κινούμενο) · γυαλιά XR μέσω `emvada.html` |
 | Ο κύβος των κλασμάτων: τέσσερα κουτιά με όγκο ¼ (`kyvos-klasmaton`) | Α΄ Γυμνασίου, πολλαπλασιασμός κλασμάτων (§2.5) | Android (κινούμενο), γυαλιά XR μέσω `klasmata.html` |
+| Γωνίες και συμμετρία: 11 καταστάσεις (`gonies-symmetria.html`) | Α΄ Γυμνασίου, γωνίες, συμμετρία ως προς άξονα, άθροισμα γωνιών τριγώνου (§1.6 έως §2.2, §3.2) | Γυαλιά XR και προβολή 3D σε κάθε συσκευή |
 | Η σκιά της πυραμίδας: ο Θαλής και τα όμοια τρίγωνα (`pyramida-thali`) | Γ΄ Γυμνασίου, όμοια τρίγωνα (§1.5), και Α΄ Λυκείου, τρίγωνα (Κεφάλαιο 3) | Android (κινούμενο), γυαλιά XR μέσω `trigona.html` |
 | Το καλάθι: τρεις βολές, τρεις διακρίνουσες (`kalathi`) | Α΄ Λυκείου, εξισώσεις 2ου βαθμού (§3.3) και ανισώσεις 2ου βαθμού (§4.2) | Android (κινούμενο), γυαλιά XR μέσω `trionymo.html` |
 | Το κουτί των διαιρετών: ΜΚΔ και ΕΚΠ (`kouti-diaireton`) | Α΄ Γυμνασίου, ΜΚΔ, ΕΚΠ και ανάλυση σε γινόμενο πρώτων παραγόντων (§1.5) | Android (κινούμενο), γυαλιά XR μέσω `mkd-ekp.html` |
@@ -46,7 +47,7 @@
 1. Νέο (ή υπάρχον) repository → **Add file → Upload files**.
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
-   30 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `trigona.html`,
+   30 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
    `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
@@ -161,6 +162,11 @@ V = 2π · 3/4 · 16/3 = 8π· για το Γ: ȳ = 1, άρα V = 2π · 1 · 4/
 
 Τα κουτιά με όγκο ¼ πάνω σε αυτόν τον κάνναβο είναι **ακριβώς τέσσερα**: ένα κουτί με διαστάσεις
 i/2, j/3, k/4 έχει όγκο ¼ όταν i · j · k = 6, με i ≤ 2, j ≤ 3, k ≤ 4.
+
+
+Για το σενάριο «Γωνίες και συμμετρία» (Α΄ Γυμνασίου, Κεφάλαια 1 έως 3):
+
+- `gonies-symmetria.html` — WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3: είδη γωνιών, συμπληρωματικές και παραπληρωματικές, κατακορυφήν, επίκεντρη, άξονες συμμετρίας (τρίγωνο, ορθογώνιο, παραλληλόγραμμο, πεντάγωνο), καθρέφτης και άθροισμα γωνιών τριγώνου (Α΄ Γυμνασίου).
 
 ## Τα Τρίγωνα στο Κέντρο Καινοτομίας (σενάρια 7 και 8)
 
