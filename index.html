@@ -37,6 +37,17 @@
   .devnote b{color:var(--ink)}
   .how{max-width:1080px;margin:0 auto 50px;padding:0 20px;color:var(--dim);font-size:13px;line-height:1.7}
   .how b{color:var(--ink)}
+  .gnav{align-items:center;margin-top:10px}
+  .gnav .gl{font-size:13px;color:var(--dim);margin-right:2px}
+  .gnav a{font:600 13px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);text-decoration:none;
+    background:rgba(255,255,255,.03);border:1px solid var(--line);border-radius:9px;padding:9px 13px}
+  .gnav a:hover{border-color:#2dd4bf}
+  .grade{scroll-margin-top:12px}
+  .grade h2{max-width:1080px;margin:30px auto 0;padding:0 20px 8px;font-size:22px;letter-spacing:-.01em}
+  .grade h2::after{content:"";display:block;height:2px;margin-top:8px;background:linear-gradient(90deg,#2dd4bf,transparent 60%)}
+  .grade .grid{margin-bottom:10px}
+  .how h3{margin:22px 0 6px;font-size:16px;color:var(--ink)}
+  .how p{margin:0 0 8px}
   /* — πίνακας ρύθμισης διεύθυνσης — */
   .setup{max-width:1080px;margin:14px auto 0;padding:0 20px}
   .panel{border:1px solid var(--line);background:rgba(255,255,255,.03);border-radius:14px;
@@ -74,7 +85,7 @@
     font:400 13px/1 "Segoe UI",system-ui,sans-serif}
   @media print{
     html,body{background:#fff;color:#000}
-    .setup,.tabs,.devnote,.how,.cta,.badge,#zoom,header p,.kick,model-viewer{display:none!important}
+    .setup,.tabs,.gnav,.devnote,.how,.cta,.badge,#zoom,header p,.kick,model-viewer{display:none!important}
     .card{break-inside:avoid;border:1px solid #bbb;border-top-width:3px}
     .qrtag{color:#555}
   }
@@ -97,6 +108,131 @@
   <button data-d="tab">Tablet Samsung</button>
 </div>
 <div class="devnote" id="devnote"></div>
+<nav class="tabs gnav" id="grades"><span class="gl">Τάξη:</span><a href="#g-a-gym">Α΄ Γυμνασίου</a><a href="#g-b-gym">Β΄ Γυμνασίου</a><a href="#g-g-gym">Γ΄ Γυμνασίου</a><a href="#g-a-lyk">Α΄ Λυκείου</a><a href="#g-b-lyk">Β΄ Λυκείου</a><a href="#g-g-lyk">Γ΄ Λυκείου</a></nav>
+<section class="grade" id="g-a-gym">
+<h2>Α΄ Γυμνασίου</h2>
+<div class="grid">
+    <div class="card" data-dev="ml2 q3" style="--acc:#3b82f6">
+      <a class="open" href="klasmata.html">
+        <model-viewer src="kyvos-klasmaton.glb" camera-controls auto-rotate autoplay disable-zoom
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Ο κύβος των κλασμάτων</h3><p class="eq">½ · ⅔ · ¾ = 6/24 = ¼</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="klasmata" data-href="klasmata.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="klasmata.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="tab" style="--acc:#3b82f6">
+      <a class="open" href="m.html?id=kyvos-klasmaton">
+        <model-viewer src="kyvos-klasmaton.glb" camera-controls auto-rotate autoplay disable-zoom
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Τέσσερα κουτιά με όγκο ¼</h3><p class="eq">6 από τα 24 κουτάκια του κύβου</p><span class="badge">Κινούμενο, AR σε Android</span></div>
+        <div class="qr" data-id="kyvos-klasmaton" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=kyvos-klasmaton">Άνοιξέ το σε AR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#22c55e">
+      <a class="open" href="gonies-symmetria.html">
+        <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Συμμετρία ως προς άξονα"
+          style="display:block;width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)">
+          <polygon points="40,150 128,150 92,50" fill="#3b82f6" fill-opacity=".55" stroke="#3b82f6" stroke-width="2.5" stroke-linejoin="round"/>
+          <polygon points="216,150 128,150 164,50" fill="#f59e0b" fill-opacity=".55" stroke="#f59e0b" stroke-width="2.5" stroke-linejoin="round"/>
+          <line x1="128" y1="22" x2="128" y2="172" stroke="#22c55e" stroke-width="3" stroke-dasharray="7 5"/>
+        </svg>
+      </a>
+      <div class="meta">
+        <div><h3>Γωνίες και συμμετρία</h3><p class="eq">α + β + γ = 180°, άξονες συμμετρίας</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="gonies-symmetria" data-href="gonies-symmetria.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="gonies-symmetria.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#2E9E4F">
+      <a class="open" href="mkd-ekp.html">
+        <model-viewer src="kouti-diaireton.glb" camera-controls autoplay disable-zoom camera-orbit="20deg 66deg 70%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Το κουτί των διαιρετών</h3><p class="eq">360 = 2³ · 3² · 5</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="mkd-ekp" data-href="mkd-ekp.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="mkd-ekp.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="tab" style="--acc:#2E9E4F">
+      <a class="open" href="m.html?id=kouti-diaireton">
+        <model-viewer src="kouti-diaireton.glb" camera-controls autoplay disable-zoom camera-orbit="20deg 66deg 70%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Το κουτί των διαιρετών: ΜΚΔ και ΕΚΠ</h3><p class="eq">ΜΚΔ(12, 20) = 4, ΕΚΠ(12, 20) = 60</p><span class="badge">Κινούμενο, AR σε Android</span></div>
+        <div class="qr" data-id="kouti-diaireton" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=kouti-diaireton">Άνοιξέ το σε AR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#5B9BD5">
+      <a class="open" href="analoga.html">
+        <model-viewer src="docheia-nerou.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 80deg 88%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Τα δοχεία γεμίζουν</h3><p class="eq">h = 2t, h = t, h = 0,5t</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="analoga" data-href="analoga.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="analoga.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="tab" style="--acc:#5B9BD5">
+      <a class="open" href="m.html?id=docheia-nerou">
+        <model-viewer src="docheia-nerou.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 80deg 88%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Τα δοχεία γεμίζουν: τρία δοχεία, ίδια βρύση</h3><p class="eq">10 · 20 = 20 · 10 = 40 · 5 = 200</p><span class="badge">Κινούμενο, AR σε Android</span></div>
+        <div class="qr" data-id="docheia-nerou" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=docheia-nerou">Άνοιξέ το σε AR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#f59e0b">
+      <a class="open" href="dekadika-pososta.html">
+        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Πλέγμα 10 × 10 με 35 χρωματισμένα τετράγωνα"><rect x="110" y="12" width="16" height="16" fill="#3b82f6"/><rect x="110" y="29" width="16" height="16" fill="#3b82f6"/><rect x="110" y="46" width="16" height="16" fill="#3b82f6"/><rect x="110" y="63" width="16" height="16" fill="#3b82f6"/><rect x="110" y="80" width="16" height="16" fill="#3b82f6"/><rect x="110" y="97" width="16" height="16" fill="#3b82f6"/><rect x="110" y="114" width="16" height="16" fill="#3b82f6"/><rect x="110" y="131" width="16" height="16" fill="#3b82f6"/><rect x="110" y="148" width="16" height="16" fill="#3b82f6"/><rect x="110" y="165" width="16" height="16" fill="#3b82f6"/><rect x="127" y="12" width="16" height="16" fill="#3b82f6"/><rect x="127" y="29" width="16" height="16" fill="#3b82f6"/><rect x="127" y="46" width="16" height="16" fill="#3b82f6"/><rect x="127" y="63" width="16" height="16" fill="#3b82f6"/><rect x="127" y="80" width="16" height="16" fill="#3b82f6"/><rect x="127" y="97" width="16" height="16" fill="#3b82f6"/><rect x="127" y="114" width="16" height="16" fill="#3b82f6"/><rect x="127" y="131" width="16" height="16" fill="#3b82f6"/><rect x="127" y="148" width="16" height="16" fill="#3b82f6"/><rect x="127" y="165" width="16" height="16" fill="#3b82f6"/><rect x="144" y="12" width="16" height="16" fill="#3b82f6"/><rect x="144" y="29" width="16" height="16" fill="#3b82f6"/><rect x="144" y="46" width="16" height="16" fill="#3b82f6"/><rect x="144" y="63" width="16" height="16" fill="#3b82f6"/><rect x="144" y="80" width="16" height="16" fill="#3b82f6"/><rect x="144" y="97" width="16" height="16" fill="#3b82f6"/><rect x="144" y="114" width="16" height="16" fill="#3b82f6"/><rect x="144" y="131" width="16" height="16" fill="#3b82f6"/><rect x="144" y="148" width="16" height="16" fill="#3b82f6"/><rect x="144" y="165" width="16" height="16" fill="#3b82f6"/><rect x="161" y="12" width="16" height="16" fill="#1e2c42"/><rect x="161" y="29" width="16" height="16" fill="#1e2c42"/><rect x="161" y="46" width="16" height="16" fill="#1e2c42"/><rect x="161" y="63" width="16" height="16" fill="#1e2c42"/><rect x="161" y="80" width="16" height="16" fill="#1e2c42"/><rect x="161" y="97" width="16" height="16" fill="#f59e0b"/><rect x="161" y="114" width="16" height="16" fill="#f59e0b"/><rect x="161" y="131" width="16" height="16" fill="#f59e0b"/><rect x="161" y="148" width="16" height="16" fill="#f59e0b"/><rect x="161" y="165" width="16" height="16" fill="#f59e0b"/><rect x="178" y="12" width="16" height="16" fill="#1e2c42"/><rect x="178" y="29" width="16" height="16" fill="#1e2c42"/><rect x="178" y="46" width="16" height="16" fill="#1e2c42"/><rect x="178" y="63" width="16" height="16" fill="#1e2c42"/><rect x="178" y="80" width="16" height="16" fill="#1e2c42"/><rect x="178" y="97" width="16" height="16" fill="#1e2c42"/><rect x="178" y="114" width="16" height="16" fill="#1e2c42"/><rect x="178" y="131" width="16" height="16" fill="#1e2c42"/><rect x="178" y="148" width="16" height="16" fill="#1e2c42"/><rect x="178" y="165" width="16" height="16" fill="#1e2c42"/><rect x="195" y="12" width="16" height="16" fill="#1e2c42"/><rect x="195" y="29" width="16" height="16" fill="#1e2c42"/><rect x="195" y="46" width="16" height="16" fill="#1e2c42"/><rect x="195" y="63" width="16" height="16" fill="#1e2c42"/><rect x="195" y="80" width="16" height="16" fill="#1e2c42"/><rect x="195" y="97" width="16" height="16" fill="#1e2c42"/><rect x="195" y="114" width="16" height="16" fill="#1e2c42"/><rect x="195" y="131" width="16" height="16" fill="#1e2c42"/><rect x="195" y="148" width="16" height="16" fill="#1e2c42"/><rect x="195" y="165" width="16" height="16" fill="#1e2c42"/><rect x="212" y="12" width="16" height="16" fill="#1e2c42"/><rect x="212" y="29" width="16" height="16" fill="#1e2c42"/><rect x="212" y="46" width="16" height="16" fill="#1e2c42"/><rect x="212" y="63" width="16" height="16" fill="#1e2c42"/><rect x="212" y="80" width="16" height="16" fill="#1e2c42"/><rect x="212" y="97" width="16" height="16" fill="#1e2c42"/><rect x="212" y="114" width="16" height="16" fill="#1e2c42"/><rect x="212" y="131" width="16" height="16" fill="#1e2c42"/><rect x="212" y="148" width="16" height="16" fill="#1e2c42"/><rect x="212" y="165" width="16" height="16" fill="#1e2c42"/><rect x="229" y="12" width="16" height="16" fill="#1e2c42"/><rect x="229" y="29" width="16" height="16" fill="#1e2c42"/><rect x="229" y="46" width="16" height="16" fill="#1e2c42"/><rect x="229" y="63" width="16" height="16" fill="#1e2c42"/><rect x="229" y="80" width="16" height="16" fill="#1e2c42"/><rect x="229" y="97" width="16" height="16" fill="#1e2c42"/><rect x="229" y="114" width="16" height="16" fill="#1e2c42"/><rect x="229" y="131" width="16" height="16" fill="#1e2c42"/><rect x="229" y="148" width="16" height="16" fill="#1e2c42"/><rect x="229" y="165" width="16" height="16" fill="#1e2c42"/><rect x="246" y="12" width="16" height="16" fill="#1e2c42"/><rect x="246" y="29" width="16" height="16" fill="#1e2c42"/><rect x="246" y="46" width="16" height="16" fill="#1e2c42"/><rect x="246" y="63" width="16" height="16" fill="#1e2c42"/><rect x="246" y="80" width="16" height="16" fill="#1e2c42"/><rect x="246" y="97" width="16" height="16" fill="#1e2c42"/><rect x="246" y="114" width="16" height="16" fill="#1e2c42"/><rect x="246" y="131" width="16" height="16" fill="#1e2c42"/><rect x="246" y="148" width="16" height="16" fill="#1e2c42"/><rect x="246" y="165" width="16" height="16" fill="#1e2c42"/><rect x="263" y="12" width="16" height="16" fill="#1e2c42"/><rect x="263" y="29" width="16" height="16" fill="#1e2c42"/><rect x="263" y="46" width="16" height="16" fill="#1e2c42"/><rect x="263" y="63" width="16" height="16" fill="#1e2c42"/><rect x="263" y="80" width="16" height="16" fill="#1e2c42"/><rect x="263" y="97" width="16" height="16" fill="#1e2c42"/><rect x="263" y="114" width="16" height="16" fill="#1e2c42"/><rect x="263" y="131" width="16" height="16" fill="#1e2c42"/><rect x="263" y="148" width="16" height="16" fill="#1e2c42"/><rect x="263" y="165" width="16" height="16" fill="#1e2c42"/></svg>
+      </a>
+      <div class="meta">
+        <div><h3>Δεκαδικοί και ποσοστά</h3><p class="eq">35 % = 35/100 = 0,35</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="dekadika-pososta" data-href="dekadika-pososta.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="dekadika-pososta.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#a855f7">
+      <a class="open" href="rhtoi.html">
+        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Η ευθεία των ρητών αριθμών με τα σημεία −3,5 και 3,5"><line x1="20" y1="104" x2="300" y2="104" stroke="#e2e8f0" stroke-width="2.5"/><line x1="28" y1="98" x2="28" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="28" y="128" font-size="10" text-anchor="middle" fill="#fca5a5">−6</text><line x1="50" y1="98" x2="50" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="72" y1="98" x2="72" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="72" y="128" font-size="10" text-anchor="middle" fill="#fca5a5">−4</text><line x1="94" y1="98" x2="94" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="116" y1="98" x2="116" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="116" y="128" font-size="10" text-anchor="middle" fill="#fca5a5">−2</text><line x1="138" y1="98" x2="138" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="160" y1="98" x2="160" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="160" y="128" font-size="10" text-anchor="middle" fill="#eaf1f8">0</text><line x1="182" y1="98" x2="182" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="204" y1="98" x2="204" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="204" y="128" font-size="10" text-anchor="middle" fill="#93c5fd">2</text><line x1="226" y1="98" x2="226" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="248" y1="98" x2="248" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="248" y="128" font-size="10" text-anchor="middle" fill="#93c5fd">4</text><line x1="270" y1="98" x2="270" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="292" y1="98" x2="292" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="292" y="128" font-size="10" text-anchor="middle" fill="#93c5fd">6</text><rect x="83" y="72" width="77" height="8" fill="#f59e0b"/><circle cx="83" cy="104" r="8" fill="#ef4444"/><circle cx="237" cy="104" r="7" fill="#94a3b8"/><text x="122" y="64" font-size="12" font-weight="700" text-anchor="middle" fill="#fbbf24">|α| = 3,5</text></svg>
+      </a>
+      <div class="meta">
+        <div><h3>Ρητοί αριθμοί</h3><p class="eq">|−3,5| = 3,5</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="rhtoi" data-href="rhtoi.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="rhtoi.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#f59e0b">
+      <a class="open" href="eksiswseis.html">
+        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Ζυγαριά που ισορροπεί: x + 5 = 12"><rect x="154" y="62" width="12" height="96" fill="#475569"/><rect x="112" y="158" width="96" height="10" rx="3" fill="#475569"/><line x1="52" y1="62" x2="268" y2="62" stroke="#e2e8f0" stroke-width="5"/><circle cx="160" cy="62" r="8" fill="#e2e8f0"/><line x1="52" y1="62" x2="30" y2="112" stroke="#94a3b8" stroke-width="1.5"/><line x1="52" y1="62" x2="74" y2="112" stroke="#94a3b8" stroke-width="1.5"/><line x1="268" y1="62" x2="246" y2="112" stroke="#94a3b8" stroke-width="1.5"/><line x1="268" y1="62" x2="290" y2="112" stroke="#94a3b8" stroke-width="1.5"/><rect x="22" y="112" width="60" height="8" rx="2" fill="#64748b"/><rect x="238" y="112" width="60" height="8" rx="2" fill="#64748b"/><rect x="26" y="96" width="16" height="16" fill="#f59e0b"/><rect x="43" y="96" width="16" height="16" fill="#f59e0b"/><rect x="60" y="96" width="16" height="16" fill="#2563eb"/><rect x="242" y="96" width="16" height="16" fill="#0d9488"/><rect x="259" y="96" width="16" height="16" fill="#0d9488"/><rect x="276" y="96" width="16" height="16" fill="#0d9488"/><text x="160" y="30" font-size="16" font-weight="700" text-anchor="middle" fill="#eaf1f8">x + 5 = 12</text></svg>
+      </a>
+      <div class="meta">
+        <div><h3>Εξισώσεις και προβλήματα</h3><p class="eq">x + 5 = 12</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="eksiswseis" data-href="eksiswseis.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="eksiswseis.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+</div>
+</section>
+<section class="grade" id="g-b-gym">
+<h2>Β΄ Γυμνασίου</h2>
 <div class="grid">
     <div class="card" data-dev="ml2 q3" style="--acc:#f5a524">
       <a class="open" href="pythagoras.html">
@@ -109,30 +245,6 @@
         <div class="qr" data-id="pythagoras" data-href="pythagoras.html" title="Σκάναρέ το με το κινητό"></div>
       </div>
       <a class="cta" href="pythagoras.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#38bdf8">
-      <a class="open" href="m.html?id=kylindros">
-        <model-viewer src="kylindros.glb" camera-controls auto-rotate disable-zoom
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Κύλινδρος</h3><p class="eq">V = πr²h</p></div>
-        <div class="qr" data-id="kylindros" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=kylindros">Άνοιξέ το σε AR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#ff6b6b">
-      <a class="open" href="m.html?id=konos">
-        <model-viewer src="konos.glb" camera-controls auto-rotate disable-zoom
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Κώνος</h3><p class="eq">V = ⅓πr²h</p></div>
-        <div class="qr" data-id="konos" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=konos">Άνοιξέ το σε AR ›</a>
     </div>
     <div class="card" data-dev="tab" style="--acc:#38bdf8">
       <a class="open" href="m.html?id=kylindros-trigono">
@@ -157,6 +269,246 @@
         <div class="qr" data-id="konos-trigono" title="Σκάναρέ το με το κινητό"></div>
       </div>
       <a class="cta" href="m.html?id=konos-trigono">Άνοιξέ το σε AR ›</a>
+    </div>
+</div>
+</section>
+<section class="grade" id="g-g-gym">
+<h2>Γ΄ Γυμνασίου</h2>
+<div class="grid">
+    <div class="card" data-dev="ml2 q3" style="--acc:#f59e0b">
+      <a class="open" href="trigona.html">
+        <model-viewer src="pyramida-thali.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 74deg 78%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Η πυραμίδα του Θαλή</h3><p class="eq">H = (S + β/2) · h/s</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="trigona" data-href="trigona.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="trigona.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="tab" style="--acc:#f59e0b">
+      <a class="open" href="m.html?id=pyramida-thali">
+        <model-viewer src="pyramida-thali.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 74deg 78%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Η σκιά της πυραμίδας</h3><p class="eq">H/(S + β/2) = h/s</p><span class="badge">Κινούμενο, AR σε Android</span></div>
+        <div class="qr" data-id="pyramida-thali" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=pyramida-thali">Άνοιξέ το σε AR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#84cc16">
+      <a class="open" href="grammika-systimata.html">
+        <model-viewer src="epipeda-lysi.glb" camera-controls auto-rotate disable-zoom
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Τα γραμμικά συστήματα στον χώρο</h3><p class="eq">x + y = 5, x − y = 1 → (3, 2)</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="grammika-systimata" data-href="grammika-systimata.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="grammika-systimata.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="tab" style="--acc:#84cc16">
+      <a class="open" href="m.html?id=epipeda-lysi">
+        <model-viewer src="epipeda-lysi.glb" camera-controls auto-rotate autoplay disable-zoom
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Δύο επίπεδα και η λύση</h3><p class="eq">Τομή επιπέδων πάνω από το (3, 2)</p><span class="badge">AR σε Android, 3D σε iPhone</span></div>
+        <div class="qr" data-id="epipeda-lysi" data-href="" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=epipeda-lysi">Άνοιξέ το σε AR ›</a>
+    </div>
+</div>
+</section>
+<section class="grade" id="g-a-lyk">
+<h2>Α΄ Λυκείου</h2>
+<div class="grid">
+    <div class="card" data-dev="ml2 q3" style="--acc:#f97316">
+      <a class="open" href="trionymo.html">
+        <model-viewer src="kalathi.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 78deg 70%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Το καλάθι: τρεις βολές</h3><p class="eq">x² − 6x + 5 = 0</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="trionymo" data-href="trionymo.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="trionymo.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="tab" style="--acc:#f97316">
+      <a class="open" href="m.html?id=kalathi">
+        <model-viewer src="kalathi.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 78deg 70%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Το καλάθι</h3><p class="eq">Δ &gt; 0, Δ = 0, Δ &lt; 0</p><span class="badge">Κινούμενο, AR σε Android</span></div>
+        <div class="qr" data-id="kalathi" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=kalathi">Άνοιξέ το σε AR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3 tab" style="--acc:#f97316">
+      <a class="open" href="kare-kare.html">
+        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Καρέ μιας βολής"><rect x="8" y="30" width="304" height="114" rx="6" fill="#0a1019" stroke="#334155"/><rect x="14" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="14" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="28" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="28" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="42" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="42" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="56" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="56" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="70" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="70" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="84" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="84" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="98" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="98" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="112" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="112" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="126" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="126" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="140" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="140" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="154" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="154" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="168" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="168" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="182" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="182" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="196" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="196" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="210" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="210" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="224" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="224" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="238" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="238" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="252" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="252" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="266" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="266" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="280" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="280" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="294" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="294" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="17" y="46" width="52" height="84" rx="3" fill="#1d2838" stroke="#334155" stroke-width="1"/><line x1="21" y1="118" x2="65" y2="118" stroke="#e2e8f0" stroke-width="1.2"/><line x1="18" y1="76" x2="68" y2="76" stroke="#f97316" stroke-width="1.6"/><circle cx="43" cy="93.5" r="5.5" fill="#d4581f" stroke="#1c1917" stroke-width=".8"/><rect x="75" y="46" width="52" height="84" rx="3" fill="#1d2838" stroke="#f97316" stroke-width="2"/><line x1="79" y1="118" x2="123" y2="118" stroke="#e2e8f0" stroke-width="1.2"/><line x1="76" y1="76" x2="126" y2="76" stroke="#f97316" stroke-width="1.6"/><circle cx="101" cy="76.0" r="5.5" fill="#d4581f" stroke="#1c1917" stroke-width=".8"/><text x="101" y="158" font-size="11.5" font-weight="600" text-anchor="middle" fill="#f97316">t₁ = 0,2 s</text><rect x="133" y="46" width="52" height="84" rx="3" fill="#1d2838" stroke="#334155" stroke-width="1"/><line x1="137" y1="118" x2="181" y2="118" stroke="#e2e8f0" stroke-width="1.2"/><line x1="134" y1="76" x2="184" y2="76" stroke="#f97316" stroke-width="1.6"/><circle cx="159" cy="62.0" r="5.5" fill="#d4581f" stroke="#1c1917" stroke-width=".8"/><rect x="191" y="46" width="52" height="84" rx="3" fill="#1d2838" stroke="#f97316" stroke-width="2"/><line x1="195" y1="118" x2="239" y2="118" stroke="#e2e8f0" stroke-width="1.2"/><line x1="192" y1="76" x2="242" y2="76" stroke="#f97316" stroke-width="1.6"/><circle cx="217" cy="76.0" r="5.5" fill="#d4581f" stroke="#1c1917" stroke-width=".8"/><text x="217" y="158" font-size="11.5" font-weight="600" text-anchor="middle" fill="#f97316">t₂ = 0,6 s</text><rect x="249" y="46" width="52" height="84" rx="3" fill="#1d2838" stroke="#334155" stroke-width="1"/><line x1="253" y1="118" x2="297" y2="118" stroke="#e2e8f0" stroke-width="1.2"/><line x1="250" y1="76" x2="300" y2="76" stroke="#f97316" stroke-width="1.6"/><circle cx="275" cy="93.5" r="5.5" fill="#d4581f" stroke="#1c1917" stroke-width=".8"/><text x="160" y="178" font-size="11" text-anchor="middle" fill="#96a8bd">Η μπάλα περνά από το ύψος h δύο φορές</text></svg>
+      </a>
+      <div class="meta">
+        <div><h3>Βίντεο καρέ-καρέ</h3><p class="eq">t₁ + t₂ = T</p><span class="badge">Για τον σταθμό της μπάλας</span></div>
+        <div class="qr" data-id="kare-kare" data-href="kare-kare.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="kare-kare.html">Άνοιξε το εργαλείο ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#6366f1">
+      <a class="open" href="parallilogramma.html">
+        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Παραλληλόγραμμο με τις διαγώνιους του"><rect x="40" y="22" width="240" height="146" rx="6" fill="#fff" stroke="#A6A6A6" stroke-width="2"/><polygon points="80,140 210,140 250,56 120,56" fill="#1565C0" fill-opacity=".18" stroke="#1565C0" stroke-width="4"/><line x1="80" y1="140" x2="250" y2="56" stroke="#2E7D32" stroke-width="3"/><line x1="210" y1="140" x2="120" y2="56" stroke="#6A1B9A" stroke-width="3"/><circle cx="165" cy="98" r="5.5" fill="#EF6C00" stroke="#0e1420" stroke-width="1.5"/><text x="66" y="150" font-size="13" fill="#262626">Α</text><text x="212" y="154" font-size="13" fill="#262626">Β</text><text x="254" y="54" font-size="13" fill="#262626">Γ</text><text x="108" y="52" font-size="13" fill="#262626">Δ</text><text x="172" y="94" font-size="13" fill="#EF6C00">Μ</text></svg>
+      </a>
+      <div class="meta">
+        <div><h3>Παραλληλόγραμμα</h3><p class="eq">ΑΜ = ΜΓ, ΒΜ = ΜΔ</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="parallilogramma" data-href="parallilogramma.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="parallilogramma.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+</div>
+</section>
+<section class="grade" id="g-b-lyk">
+<h2>Β΄ Λυκείου</h2>
+<div class="grid">
+    <div class="card" data-dev="tab" style="--acc:#ff8a5b">
+      <a class="open" href="m.html?id=conics">
+        <model-viewer src="conics.glb" camera-controls auto-rotate disable-zoom
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Κωνικές τομές</h3><p class="eq">Κώνος ∩ επίπεδο</p><span class="badge">AR σε Android · 3D σε iPhone</span></div>
+        <div class="qr" data-id="conics" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=conics">Άνοιξέ το σε AR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#22d3ee">
+      <a class="open" href="trigonometria.html">
+        <model-viewer src="elika.glb" camera-controls auto-rotate disable-zoom
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Ο κύκλος και η έλικα</h3><p class="eq">M(συνt, ημt), y = ημt</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="trigonometria" data-href="trigonometria.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="trigonometria.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="tab" style="--acc:#22d3ee">
+      <a class="open" href="m.html?id=elika">
+        <model-viewer src="elika.glb" camera-controls auto-rotate autoplay disable-zoom
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Η έλικα και οι σκιές της</h3><p class="eq">y = ημt, y = συνt</p><span class="badge">Κινούμενο, AR σε Android</span></div>
+        <div class="qr" data-id="elika" data-href="" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=elika">Άνοιξέ το σε AR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#e879f9">
+      <a class="open" href="ekthetiki-log-xr.html">
+        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)display:block" role="img" aria-label="Η εκθετική, η λογαριθμική και η ευθεία y = x"><line x1="20" y1="150" x2="305" y2="150" stroke="#334155"/><line x1="60" y1="12" x2="60" y2="180" stroke="#334155"/><path d="M60.0 162.0 L61.2 161.7 L62.4 161.4 L63.6 161.1 L64.8 160.8 L66.0 160.5 L67.2 160.2 L68.4 159.9 L69.6 159.6 L70.8 159.3 L72.0 159.0 L73.2 158.7 L74.4 158.4 L75.6 158.1 L76.8 157.8 L78.0 157.5 L79.2 157.2 L80.4 156.9 L81.6 156.6 L82.8 156.3 L84.0 156.0 L85.2 155.7 L86.4 155.4 L87.6 155.1 L88.8 154.8 L90.0 154.5 L91.2 154.2 L92.4 153.9 L93.6 153.6 L94.8 153.3 L96.0 153.0 L97.2 152.7 L98.4 152.4 L99.6 152.1 L100.8 151.8 L102.0 151.5 L103.2 151.2 L104.4 150.9 L105.6 150.6 L106.8 150.3 L108.0 150.0 L109.2 149.7 L110.4 149.4 L111.6 149.1 L112.8 148.8 L114.0 148.5 L115.2 148.2 L116.4 147.9 L117.6 147.6 L118.8 147.3 L120.0 147.0 L121.2 146.7 L122.4 146.4 L123.6 146.1 L124.8 145.8 L126.0 145.5 L127.2 145.2 L128.4 144.9 L129.6 144.6 L130.8 144.3 L132.0 144.0 L133.2 143.7 L134.4 143.4 L135.6 143.1 L136.8 142.8 L138.0 142.5 L139.2 142.2 L140.4 141.9 L141.6 141.6 L142.8 141.3 L144.0 141.0 L145.2 140.7 L146.4 140.4 L147.6 140.1 L148.8 139.8 L150.0 139.5 L151.2 139.2 L152.4 138.9 L153.6 138.6 L154.8 138.3 L156.0 138.0 L157.2 137.7 L158.4 137.4 L159.6 137.1 L160.8 136.8 L162.0 136.5 L163.2 136.2 L164.4 135.9 L165.6 135.6 L166.8 135.3 L168.0 135.0 L169.2 134.7 L170.4 134.4 L171.6 134.1 L172.8 133.8 L174.0 133.5 L175.2 133.2 L176.4 132.9 L177.6 132.6 L178.8 132.3 L180.0 132.0 L181.2 131.7 L182.4 131.4 L183.6 131.1 L184.8 130.8 L186.0 130.5 L187.2 130.2 L188.4 129.9 L189.6 129.6 L190.8 129.3 L192.0 129.0 L193.2 128.7 L194.4 128.4 L195.6 128.1 L196.8 127.8 L198.0 127.5 L199.2 127.2 L200.4 126.9 L201.6 126.6 L202.8 126.3 L204.0 126.0 L205.2 125.7 L206.4 125.4 L207.6 125.1 L208.8 124.8 L210.0 124.5 L211.2 124.2 L212.4 123.9 L213.6 123.6 L214.8 123.3 L216.0 123.0 L217.2 122.7 L218.4 122.4 L219.6 122.1 L220.8 121.8 L222.0 121.5 L223.2 121.2 L224.4 120.9 L225.6 120.6 L226.8 120.3 L228.0 120.0 L229.2 119.7 L230.4 119.4 L231.6 119.1 L232.8 118.8 L234.0 118.5 L235.2 118.2 L236.4 117.9 L237.6 117.6 L238.8 117.3 L240.0 117.0 L241.2 116.7 L242.4 116.4 L243.6 116.1 L244.8 115.8 L246.0 115.5 L247.2 115.2 L248.4 114.9 L249.6 114.6 L250.8 114.3 L252.0 114.0 L253.2 113.7 L254.4 113.4 L255.6 113.1 L256.8 112.8 L258.0 112.5 L259.2 112.2 L260.4 111.9 L261.6 111.6 L262.8 111.3 L264.0 111.0 L265.2 110.7 L266.4 110.4 L267.6 110.1 L268.8 109.8 L270.0 109.5 L271.2 109.2 L272.4 108.9 L273.6 108.6 L274.8 108.3 L276.0 108.0 L277.2 107.7 L278.4 107.4 L279.6 107.1 L280.8 106.8 L282.0 106.5 L283.2 106.2 L284.4 105.9 L285.6 105.6 L286.8 105.3 L288.0 105.0 L289.2 104.7 L290.4 104.4 L291.6 104.1 L292.8 103.8 L294.0 103.5 L295.2 103.2 L296.4 102.9 L297.6 102.6 L298.8 102.3 L300.0 102.0" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/><path d="M60.0 144.0 L61.2 143.9 L62.4 143.8 L63.6 143.7 L64.8 143.6 L66.0 143.5 L67.2 143.3 L68.4 143.2 L69.6 143.1 L70.8 143.0 L72.0 142.9 L73.2 142.7 L74.4 142.6 L75.6 142.5 L76.8 142.4 L78.0 142.2 L79.2 142.1 L80.4 141.9 L81.6 141.8 L82.8 141.7 L84.0 141.5 L85.2 141.4 L86.4 141.2 L87.6 141.1 L88.8 140.9 L90.0 140.7 L91.2 140.6 L92.4 140.4 L93.6 140.3 L94.8 140.1 L96.0 139.9 L97.2 139.7 L98.4 139.6 L99.6 139.4 L100.8 139.2 L102.0 139.0 L103.2 138.8 L104.4 138.6 L105.6 138.4 L106.8 138.2 L108.0 138.0 L109.2 137.8 L110.4 137.6 L111.6 137.4 L112.8 137.1 L114.0 136.9 L115.2 136.7 L116.4 136.5 L117.6 136.2 L118.8 136.0 L120.0 135.7 L121.2 135.5 L122.4 135.2 L123.6 135.0 L124.8 134.7 L126.0 134.4 L127.2 134.2 L128.4 133.9 L129.6 133.6 L130.8 133.3 L132.0 133.0 L133.2 132.7 L134.4 132.4 L135.6 132.1 L136.8 131.8 L138.0 131.5 L139.2 131.2 L140.4 130.8 L141.6 130.5 L142.8 130.2 L144.0 129.8 L145.2 129.5 L146.4 129.1 L147.6 128.7 L148.8 128.4 L150.0 128.0 L151.2 127.6 L152.4 127.2 L153.6 126.8 L154.8 126.4 L156.0 126.0 L157.2 125.6 L158.4 125.2 L159.6 124.7 L160.8 124.3 L162.0 123.8 L163.2 123.4 L164.4 122.9 L165.6 122.4 L166.8 121.9 L168.0 121.5 L169.2 121.0 L170.4 120.5 L171.6 119.9 L172.8 119.4 L174.0 118.9 L175.2 118.3 L176.4 117.8 L177.6 117.2 L178.8 116.6 L180.0 116.1 L181.2 115.5 L182.4 114.9 L183.6 114.2 L184.8 113.6 L186.0 113.0 L187.2 112.3 L188.4 111.7 L189.6 111.0 L190.8 110.3 L192.0 109.6 L193.2 108.9 L194.4 108.2 L195.6 107.5 L196.8 106.7 L198.0 106.0 L199.2 105.2 L200.4 104.4 L201.6 103.6 L202.8 102.8 L204.0 102.0 L205.2 101.2 L206.4 100.3 L207.6 99.4 L208.8 98.6 L210.0 97.7 L211.2 96.7 L212.4 95.8 L213.6 94.9 L214.8 93.9 L216.0 92.9 L217.2 91.9 L218.4 90.9 L219.6 89.9 L220.8 88.8 L222.0 87.8 L223.2 86.7 L224.4 85.6 L225.6 84.4 L226.8 83.3 L228.0 82.1 L229.2 80.9 L230.4 79.7 L231.6 78.5 L232.8 77.2 L234.0 76.0 L235.2 74.7 L236.4 73.4 L237.6 72.0 L238.8 70.7 L240.0 69.3 L241.2 67.9 L242.4 66.4 L243.6 65.0 L244.8 63.5 L246.0 62.0 L247.2 60.4 L248.4 58.9 L249.6 57.3 L250.8 55.6 L252.0 54.0 L253.2 52.3 L254.4 50.6 L255.6 48.9 L256.8 47.1 L258.0 45.3 L259.2 43.5 L260.4 41.6 L261.6 39.7" fill="none" stroke="#f472b6" stroke-width="2.5"/><path d="M114.0 186.0 L115.2 182.8 L116.4 180.2 L117.6 177.9 L118.8 175.8 L120.0 174.0 L121.2 172.3 L122.4 170.8 L123.6 169.5 L124.8 168.2 L126.0 167.0 L127.2 165.9 L128.4 164.8 L129.6 163.8 L130.8 162.9 L132.0 162.0 L133.2 161.2 L134.4 160.3 L135.6 159.6 L136.8 158.8 L138.0 158.1 L139.2 157.5 L140.4 156.8 L141.6 156.2 L142.8 155.6 L144.0 155.0 L145.2 154.4 L146.4 153.9 L147.6 153.3 L148.8 152.8 L150.0 152.3 L151.2 151.8 L152.4 151.3 L153.6 150.9 L154.8 150.4 L156.0 150.0 L157.2 149.6 L158.4 149.2 L159.6 148.7 L160.8 148.3 L162.0 148.0 L163.2 147.6 L164.4 147.2 L165.6 146.8 L166.8 146.5 L168.0 146.1 L169.2 145.8 L170.4 145.5 L171.6 145.1 L172.8 144.8 L174.0 144.5 L175.2 144.2 L176.4 143.9 L177.6 143.6 L178.8 143.3 L180.0 143.0 L181.2 142.7 L182.4 142.4 L183.6 142.1 L184.8 141.9 L186.0 141.6 L187.2 141.3 L188.4 141.1 L189.6 140.8 L190.8 140.6 L192.0 140.3 L193.2 140.1 L194.4 139.8 L195.6 139.6 L196.8 139.3 L198.0 139.1 L199.2 138.9 L200.4 138.7 L201.6 138.4 L202.8 138.2 L204.0 138.0 L205.2 137.8 L206.4 137.6 L207.6 137.4 L208.8 137.2 L210.0 137.0 L211.2 136.7 L212.4 136.5 L213.6 136.3 L214.8 136.2 L216.0 136.0 L217.2 135.8 L218.4 135.6 L219.6 135.4 L220.8 135.2 L222.0 135.0 L223.2 134.8 L224.4 134.7 L225.6 134.5 L226.8 134.3 L228.0 134.1 L229.2 134.0 L230.4 133.8 L231.6 133.6 L232.8 133.5 L234.0 133.3 L235.2 133.1 L236.4 133.0 L237.6 132.8 L238.8 132.6 L240.0 132.5 L241.2 132.3 L242.4 132.2 L243.6 132.0 L244.8 131.9 L246.0 131.7 L247.2 131.6 L248.4 131.4 L249.6 131.3 L250.8 131.1 L252.0 131.0 L253.2 130.8 L254.4 130.7 L255.6 130.6 L256.8 130.4 L258.0 130.3 L259.2 130.1 L260.4 130.0 L261.6 129.9 L262.8 129.7 L264.0 129.6 L265.2 129.5 L266.4 129.3 L267.6 129.2 L268.8 129.1 L270.0 128.9 L271.2 128.8 L272.4 128.7 L273.6 128.6 L274.8 128.4 L276.0 128.3 L277.2 128.2 L278.4 128.1 L279.6 127.9 L280.8 127.8 L282.0 127.7 L283.2 127.6 L284.4 127.5 L285.6 127.3 L286.8 127.2 L288.0 127.1 L289.2 127.0 L290.4 126.9 L291.6 126.8 L292.8 126.7 L294.0 126.5 L295.2 126.4 L296.4 126.3 L297.6 126.2 L298.8 126.1 L300.0 126.0" fill="none" stroke="#22d3ee" stroke-width="2.5"/><text x="250" y="60" fill="#f472b6" font-size="13">y = 2ˣ</text><text x="200" y="128" fill="#22d3ee" font-size="13">y = log₂ x</text></svg>
+      </a>
+      <div class="meta">
+        <div><h3>Εκθετική και λογαριθμική συνάρτηση</h3><p class="eq">y = 2ˣ, y = log₂ x, y = x</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="ekthetiki-log-xr" data-href="ekthetiki-log-xr.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="ekthetiki-log-xr.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#26A69A">
+      <a class="open" href="kanonika-polygona.html">
+        <model-viewer src="kanonika-polygona.glb" camera-controls auto-rotate disable-zoom camera-orbit="0deg 46deg 88%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Κανονικά πολύγωνα</h3><p class="eq">φ<sub>ν</sub> = 180° − 360°/ν, ω<sub>ν</sub> = 360°/ν</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="kanonika-polygona" data-href="kanonika-polygona.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="kanonika-polygona.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="tab" style="--acc:#26A69A">
+      <a class="open" href="m.html?id=kanonika-polygona">
+        <model-viewer src="kanonika-polygona.glb" camera-controls auto-rotate autoplay disable-zoom camera-orbit="0deg 46deg 88%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Το εμβαδόν κανονικού οκταγώνου</h3><p class="eq">Ε<sub>8</sub> = ½P<sub>8</sub>α<sub>8</sub></p><span class="badge">Κινούμενο, AR σε Android</span></div>
+        <div class="qr" data-id="kanonika-polygona" data-href="" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=kanonika-polygona">Άνοιξέ το σε AR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#1565C0">
+      <a class="open" href="polyonyma.html">
+        <model-viewer src="polyonyma.glb" camera-controls auto-rotate disable-zoom camera-orbit="0deg 50deg 88%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Πολυώνυμα</h3><p class="eq">P(x) = (x − ρ)π(x) + υ</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="polyonyma" data-href="polyonyma.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="polyonyma.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+    <div class="card" data-dev="tab" style="--acc:#1565C0">
+      <a class="open" href="m.html?id=polyonyma">
+        <model-viewer src="polyonyma.glb" camera-controls auto-rotate autoplay disable-zoom camera-orbit="0deg 50deg 88%"
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Το κουτί και ο όγκος V(x)</h3><p class="eq">V(x) = x(20 − 2x)(30 − 2x)</p><span class="badge">Κινούμενο, AR σε Android</span></div>
+        <div class="qr" data-id="polyonyma" data-href="" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=polyonyma">Άνοιξέ το σε AR ›</a>
+    </div>
+    <div class="card" data-dev="ml2 q3" style="--acc:#a855f7">
+      <a class="open" href="dianysmata.html">
+        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Πρόσθεση διανυσμάτων: α + β με τον κανόνα του παραλληλογράμμου"><defs><marker id="dm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="context-stroke"/></marker></defs><line x1="20" y1="150" x2="300" y2="150" stroke="#e2e8f0" stroke-width="1.5"/><line x1="60" y1="180" x2="60" y2="14" stroke="#e2e8f0" stroke-width="1.5"/><line x1="60" y1="150" x2="190" y2="118" stroke="#3b82f6" stroke-width="5" marker-end="url(#dm)"/><line x1="60" y1="150" x2="102" y2="62" stroke="#22c55e" stroke-width="5" stroke-dasharray="9 5"/><line x1="190" y1="118" x2="232" y2="30" stroke="#22c55e" stroke-width="5" marker-end="url(#dm)"/><line x1="102" y1="62" x2="232" y2="30" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5"/><line x1="60" y1="150" x2="232" y2="30" stroke="#a855f7" stroke-width="6" marker-end="url(#dm)"/><text x="126" y="146" font-size="13" font-weight="700" fill="#93c5fd">α</text><text x="222" y="80" font-size="13" font-weight="700" fill="#86efac">β</text><text x="132" y="78" font-size="13" font-weight="700" fill="#d8b4fe">α + β</text></svg>
+      </a>
+      <div class="meta">
+        <div><h3>Διανύσματα</h3><p class="eq">α + β = (5, 4)</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
+        <div class="qr" data-id="dianysmata" data-href="dianysmata.html" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="dianysmata.html">Άνοιξέ το σε AR / VR ›</a>
+    </div>
+</div>
+</section>
+<section class="grade" id="g-g-lyk">
+<h2>Γ΄ Λυκείου</h2>
+<div class="grid">
+    <div class="card" data-dev="tab" style="--acc:#38bdf8">
+      <a class="open" href="m.html?id=kylindros">
+        <model-viewer src="kylindros.glb" camera-controls auto-rotate disable-zoom
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Κύλινδρος</h3><p class="eq">V = πr²h</p></div>
+        <div class="qr" data-id="kylindros" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=kylindros">Άνοιξέ το σε AR ›</a>
+    </div>
+    <div class="card" data-dev="tab" style="--acc:#ff6b6b">
+      <a class="open" href="m.html?id=konos">
+        <model-viewer src="konos.glb" camera-controls auto-rotate disable-zoom
+          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
+          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
+      </a>
+      <div class="meta">
+        <div><h3>Κώνος</h3><p class="eq">V = ⅓πr²h</p></div>
+        <div class="qr" data-id="konos" title="Σκάναρέ το με το κινητό"></div>
+      </div>
+      <a class="cta" href="m.html?id=konos">Άνοιξέ το σε AR ›</a>
     </div>
     <div class="card" data-dev="tab" style="--acc:#4ade80">
       <a class="open" href="m.html?id=sfaira">
@@ -218,151 +570,6 @@
       </div>
       <a class="cta" href="m.html?id=peristrofi-gamma">Άνοιξέ το σε AR ›</a>
     </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#3b82f6">
-      <a class="open" href="klasmata.html">
-        <model-viewer src="kyvos-klasmaton.glb" camera-controls auto-rotate autoplay disable-zoom
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Ο κύβος των κλασμάτων</h3><p class="eq">½ · ⅔ · ¾ = 6/24 = ¼</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="klasmata" data-href="klasmata.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="klasmata.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#3b82f6">
-      <a class="open" href="m.html?id=kyvos-klasmaton">
-        <model-viewer src="kyvos-klasmaton.glb" camera-controls auto-rotate autoplay disable-zoom
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Τέσσερα κουτιά με όγκο ¼</h3><p class="eq">6 από τα 24 κουτάκια του κύβου</p><span class="badge">Κινούμενο, AR σε Android</span></div>
-        <div class="qr" data-id="kyvos-klasmaton" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=kyvos-klasmaton">Άνοιξέ το σε AR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#22c55e">
-      <a class="open" href="gonies-symmetria.html">
-        <svg viewBox="0 0 300 190" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Συμμετρία ως προς άξονα"
-          style="display:block;width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)">
-          <polygon points="40,150 128,150 92,50" fill="#3b82f6" fill-opacity=".55" stroke="#3b82f6" stroke-width="2.5" stroke-linejoin="round"/>
-          <polygon points="216,150 128,150 164,50" fill="#f59e0b" fill-opacity=".55" stroke="#f59e0b" stroke-width="2.5" stroke-linejoin="round"/>
-          <line x1="128" y1="22" x2="128" y2="172" stroke="#22c55e" stroke-width="3" stroke-dasharray="7 5"/>
-        </svg>
-      </a>
-      <div class="meta">
-        <div><h3>Γωνίες και συμμετρία</h3><p class="eq">α + β + γ = 180°, άξονες συμμετρίας</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="gonies-symmetria" data-href="gonies-symmetria.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="gonies-symmetria.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#f59e0b">
-      <a class="open" href="trigona.html">
-        <model-viewer src="pyramida-thali.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 74deg 78%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Η πυραμίδα του Θαλή</h3><p class="eq">H = (S + β/2) · h/s</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="trigona" data-href="trigona.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="trigona.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#f59e0b">
-      <a class="open" href="m.html?id=pyramida-thali">
-        <model-viewer src="pyramida-thali.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 74deg 78%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Η σκιά της πυραμίδας</h3><p class="eq">H/(S + β/2) = h/s</p><span class="badge">Κινούμενο, AR σε Android</span></div>
-        <div class="qr" data-id="pyramida-thali" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=pyramida-thali">Άνοιξέ το σε AR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#f97316">
-      <a class="open" href="trionymo.html">
-        <model-viewer src="kalathi.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 78deg 70%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Το καλάθι: τρεις βολές</h3><p class="eq">x² − 6x + 5 = 0</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="trionymo" data-href="trionymo.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="trionymo.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#f97316">
-      <a class="open" href="m.html?id=kalathi">
-        <model-viewer src="kalathi.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 78deg 70%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Το καλάθι</h3><p class="eq">Δ &gt; 0, Δ = 0, Δ &lt; 0</p><span class="badge">Κινούμενο, AR σε Android</span></div>
-        <div class="qr" data-id="kalathi" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=kalathi">Άνοιξέ το σε AR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3 tab" style="--acc:#f97316">
-      <a class="open" href="kare-kare.html">
-        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Καρέ μιας βολής"><rect x="8" y="30" width="304" height="114" rx="6" fill="#0a1019" stroke="#334155"/><rect x="14" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="14" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="28" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="28" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="42" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="42" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="56" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="56" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="70" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="70" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="84" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="84" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="98" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="98" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="112" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="112" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="126" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="126" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="140" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="140" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="154" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="154" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="168" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="168" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="182" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="182" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="196" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="196" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="210" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="210" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="224" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="224" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="238" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="238" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="252" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="252" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="266" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="266" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="280" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="280" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="294" y="36" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="294" y="135" width="7" height="5" rx="1.2" fill="#0e1420"/><rect x="17" y="46" width="52" height="84" rx="3" fill="#1d2838" stroke="#334155" stroke-width="1"/><line x1="21" y1="118" x2="65" y2="118" stroke="#e2e8f0" stroke-width="1.2"/><line x1="18" y1="76" x2="68" y2="76" stroke="#f97316" stroke-width="1.6"/><circle cx="43" cy="93.5" r="5.5" fill="#d4581f" stroke="#1c1917" stroke-width=".8"/><rect x="75" y="46" width="52" height="84" rx="3" fill="#1d2838" stroke="#f97316" stroke-width="2"/><line x1="79" y1="118" x2="123" y2="118" stroke="#e2e8f0" stroke-width="1.2"/><line x1="76" y1="76" x2="126" y2="76" stroke="#f97316" stroke-width="1.6"/><circle cx="101" cy="76.0" r="5.5" fill="#d4581f" stroke="#1c1917" stroke-width=".8"/><text x="101" y="158" font-size="11.5" font-weight="600" text-anchor="middle" fill="#f97316">t₁ = 0,2 s</text><rect x="133" y="46" width="52" height="84" rx="3" fill="#1d2838" stroke="#334155" stroke-width="1"/><line x1="137" y1="118" x2="181" y2="118" stroke="#e2e8f0" stroke-width="1.2"/><line x1="134" y1="76" x2="184" y2="76" stroke="#f97316" stroke-width="1.6"/><circle cx="159" cy="62.0" r="5.5" fill="#d4581f" stroke="#1c1917" stroke-width=".8"/><rect x="191" y="46" width="52" height="84" rx="3" fill="#1d2838" stroke="#f97316" stroke-width="2"/><line x1="195" y1="118" x2="239" y2="118" stroke="#e2e8f0" stroke-width="1.2"/><line x1="192" y1="76" x2="242" y2="76" stroke="#f97316" stroke-width="1.6"/><circle cx="217" cy="76.0" r="5.5" fill="#d4581f" stroke="#1c1917" stroke-width=".8"/><text x="217" y="158" font-size="11.5" font-weight="600" text-anchor="middle" fill="#f97316">t₂ = 0,6 s</text><rect x="249" y="46" width="52" height="84" rx="3" fill="#1d2838" stroke="#334155" stroke-width="1"/><line x1="253" y1="118" x2="297" y2="118" stroke="#e2e8f0" stroke-width="1.2"/><line x1="250" y1="76" x2="300" y2="76" stroke="#f97316" stroke-width="1.6"/><circle cx="275" cy="93.5" r="5.5" fill="#d4581f" stroke="#1c1917" stroke-width=".8"/><text x="160" y="178" font-size="11" text-anchor="middle" fill="#96a8bd">Η μπάλα περνά από το ύψος h δύο φορές</text></svg>
-      </a>
-      <div class="meta">
-        <div><h3>Βίντεο καρέ-καρέ</h3><p class="eq">t₁ + t₂ = T</p><span class="badge">Για τον σταθμό της μπάλας</span></div>
-        <div class="qr" data-id="kare-kare" data-href="kare-kare.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="kare-kare.html">Άνοιξε το εργαλείο ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#2E9E4F">
-      <a class="open" href="mkd-ekp.html">
-        <model-viewer src="kouti-diaireton.glb" camera-controls autoplay disable-zoom camera-orbit="20deg 66deg 70%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Το κουτί των διαιρετών</h3><p class="eq">360 = 2³ · 3² · 5</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="mkd-ekp" data-href="mkd-ekp.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="mkd-ekp.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#2E9E4F">
-      <a class="open" href="m.html?id=kouti-diaireton">
-        <model-viewer src="kouti-diaireton.glb" camera-controls autoplay disable-zoom camera-orbit="20deg 66deg 70%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Το κουτί των διαιρετών: ΜΚΔ και ΕΚΠ</h3><p class="eq">ΜΚΔ(12, 20) = 4, ΕΚΠ(12, 20) = 60</p><span class="badge">Κινούμενο, AR σε Android</span></div>
-        <div class="qr" data-id="kouti-diaireton" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=kouti-diaireton">Άνοιξέ το σε AR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#5B9BD5">
-      <a class="open" href="analoga.html">
-        <model-viewer src="docheia-nerou.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 80deg 88%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Τα δοχεία γεμίζουν</h3><p class="eq">h = 2t, h = t, h = 0,5t</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="analoga" data-href="analoga.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="analoga.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#5B9BD5">
-      <a class="open" href="m.html?id=docheia-nerou">
-        <model-viewer src="docheia-nerou.glb" camera-controls autoplay disable-zoom camera-orbit="0deg 80deg 88%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Τα δοχεία γεμίζουν: τρία δοχεία, ίδια βρύση</h3><p class="eq">10 · 20 = 20 · 10 = 40 · 5 = 200</p><span class="badge">Κινούμενο, AR σε Android</span></div>
-        <div class="qr" data-id="docheia-nerou" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=docheia-nerou">Άνοιξέ το σε AR ›</a>
-    </div>
     <div class="card" data-dev="tab" style="--acc:#c084fc">
       <a class="open" href="m.html?id=salpigga">
         <model-viewer src="salpigga.glb" camera-controls auto-rotate disable-zoom
@@ -374,18 +581,6 @@
         <div class="qr" data-id="salpigga" title="Σκάναρέ το με το κινητό"></div>
       </div>
       <a class="cta" href="m.html?id=salpigga">Άνοιξέ το σε AR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#ff8a5b">
-      <a class="open" href="m.html?id=conics">
-        <model-viewer src="conics.glb" camera-controls auto-rotate disable-zoom
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Κωνικές τομές</h3><p class="eq">Κώνος ∩ επίπεδο</p><span class="badge">AR σε Android · 3D σε iPhone</span></div>
-        <div class="qr" data-id="conics" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=conics">Άνοιξέ το σε AR ›</a>
     </div>
     <div class="card" data-dev="ml2 q3" style="--acc:#a78bfa">
       <a class="open" href="paragogoi.html">
@@ -410,30 +605,6 @@
         <div class="qr" data-id="paragogoi-ar" data-href="paragogoi-ar.html" title="Σκάναρέ το με το κινητό"></div>
       </div>
       <a class="cta" href="paragogoi-ar.html">Άνοιξέ το σε AR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#22d3ee">
-      <a class="open" href="trigonometria.html">
-        <model-viewer src="elika.glb" camera-controls auto-rotate disable-zoom
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Ο κύκλος και η έλικα</h3><p class="eq">M(συνt, ημt), y = ημt</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="trigonometria" data-href="trigonometria.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="trigonometria.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#22d3ee">
-      <a class="open" href="m.html?id=elika">
-        <model-viewer src="elika.glb" camera-controls auto-rotate autoplay disable-zoom
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Η έλικα και οι σκιές της</h3><p class="eq">y = ημt, y = συνt</p><span class="badge">Κινούμενο, AR σε Android</span></div>
-        <div class="qr" data-id="elika" data-href="" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=elika">Άνοιξέ το σε AR ›</a>
     </div>
     <div class="card" data-dev="ml2 q3" style="--acc:#1565C0">
       <a class="open" href="oria.html">
@@ -483,167 +654,44 @@
       </div>
       <a class="cta" href="m.html?id=olokliromata">Άνοιξέ το σε AR ›</a>
     </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#84cc16">
-      <a class="open" href="grammika-systimata.html">
-        <model-viewer src="epipeda-lysi.glb" camera-controls auto-rotate disable-zoom
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Τα γραμμικά συστήματα στον χώρο</h3><p class="eq">x + y = 5, x − y = 1 → (3, 2)</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="grammika-systimata" data-href="grammika-systimata.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="grammika-systimata.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#84cc16">
-      <a class="open" href="m.html?id=epipeda-lysi">
-        <model-viewer src="epipeda-lysi.glb" camera-controls auto-rotate autoplay disable-zoom
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Δύο επίπεδα και η λύση</h3><p class="eq">Τομή επιπέδων πάνω από το (3, 2)</p><span class="badge">AR σε Android, 3D σε iPhone</span></div>
-        <div class="qr" data-id="epipeda-lysi" data-href="" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=epipeda-lysi">Άνοιξέ το σε AR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#e879f9">
-      <a class="open" href="ekthetiki-log-xr.html">
-        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)display:block" role="img" aria-label="Η εκθετική, η λογαριθμική και η ευθεία y = x"><line x1="20" y1="150" x2="305" y2="150" stroke="#334155"/><line x1="60" y1="12" x2="60" y2="180" stroke="#334155"/><path d="M60.0 162.0 L61.2 161.7 L62.4 161.4 L63.6 161.1 L64.8 160.8 L66.0 160.5 L67.2 160.2 L68.4 159.9 L69.6 159.6 L70.8 159.3 L72.0 159.0 L73.2 158.7 L74.4 158.4 L75.6 158.1 L76.8 157.8 L78.0 157.5 L79.2 157.2 L80.4 156.9 L81.6 156.6 L82.8 156.3 L84.0 156.0 L85.2 155.7 L86.4 155.4 L87.6 155.1 L88.8 154.8 L90.0 154.5 L91.2 154.2 L92.4 153.9 L93.6 153.6 L94.8 153.3 L96.0 153.0 L97.2 152.7 L98.4 152.4 L99.6 152.1 L100.8 151.8 L102.0 151.5 L103.2 151.2 L104.4 150.9 L105.6 150.6 L106.8 150.3 L108.0 150.0 L109.2 149.7 L110.4 149.4 L111.6 149.1 L112.8 148.8 L114.0 148.5 L115.2 148.2 L116.4 147.9 L117.6 147.6 L118.8 147.3 L120.0 147.0 L121.2 146.7 L122.4 146.4 L123.6 146.1 L124.8 145.8 L126.0 145.5 L127.2 145.2 L128.4 144.9 L129.6 144.6 L130.8 144.3 L132.0 144.0 L133.2 143.7 L134.4 143.4 L135.6 143.1 L136.8 142.8 L138.0 142.5 L139.2 142.2 L140.4 141.9 L141.6 141.6 L142.8 141.3 L144.0 141.0 L145.2 140.7 L146.4 140.4 L147.6 140.1 L148.8 139.8 L150.0 139.5 L151.2 139.2 L152.4 138.9 L153.6 138.6 L154.8 138.3 L156.0 138.0 L157.2 137.7 L158.4 137.4 L159.6 137.1 L160.8 136.8 L162.0 136.5 L163.2 136.2 L164.4 135.9 L165.6 135.6 L166.8 135.3 L168.0 135.0 L169.2 134.7 L170.4 134.4 L171.6 134.1 L172.8 133.8 L174.0 133.5 L175.2 133.2 L176.4 132.9 L177.6 132.6 L178.8 132.3 L180.0 132.0 L181.2 131.7 L182.4 131.4 L183.6 131.1 L184.8 130.8 L186.0 130.5 L187.2 130.2 L188.4 129.9 L189.6 129.6 L190.8 129.3 L192.0 129.0 L193.2 128.7 L194.4 128.4 L195.6 128.1 L196.8 127.8 L198.0 127.5 L199.2 127.2 L200.4 126.9 L201.6 126.6 L202.8 126.3 L204.0 126.0 L205.2 125.7 L206.4 125.4 L207.6 125.1 L208.8 124.8 L210.0 124.5 L211.2 124.2 L212.4 123.9 L213.6 123.6 L214.8 123.3 L216.0 123.0 L217.2 122.7 L218.4 122.4 L219.6 122.1 L220.8 121.8 L222.0 121.5 L223.2 121.2 L224.4 120.9 L225.6 120.6 L226.8 120.3 L228.0 120.0 L229.2 119.7 L230.4 119.4 L231.6 119.1 L232.8 118.8 L234.0 118.5 L235.2 118.2 L236.4 117.9 L237.6 117.6 L238.8 117.3 L240.0 117.0 L241.2 116.7 L242.4 116.4 L243.6 116.1 L244.8 115.8 L246.0 115.5 L247.2 115.2 L248.4 114.9 L249.6 114.6 L250.8 114.3 L252.0 114.0 L253.2 113.7 L254.4 113.4 L255.6 113.1 L256.8 112.8 L258.0 112.5 L259.2 112.2 L260.4 111.9 L261.6 111.6 L262.8 111.3 L264.0 111.0 L265.2 110.7 L266.4 110.4 L267.6 110.1 L268.8 109.8 L270.0 109.5 L271.2 109.2 L272.4 108.9 L273.6 108.6 L274.8 108.3 L276.0 108.0 L277.2 107.7 L278.4 107.4 L279.6 107.1 L280.8 106.8 L282.0 106.5 L283.2 106.2 L284.4 105.9 L285.6 105.6 L286.8 105.3 L288.0 105.0 L289.2 104.7 L290.4 104.4 L291.6 104.1 L292.8 103.8 L294.0 103.5 L295.2 103.2 L296.4 102.9 L297.6 102.6 L298.8 102.3 L300.0 102.0" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="5 4"/><path d="M60.0 144.0 L61.2 143.9 L62.4 143.8 L63.6 143.7 L64.8 143.6 L66.0 143.5 L67.2 143.3 L68.4 143.2 L69.6 143.1 L70.8 143.0 L72.0 142.9 L73.2 142.7 L74.4 142.6 L75.6 142.5 L76.8 142.4 L78.0 142.2 L79.2 142.1 L80.4 141.9 L81.6 141.8 L82.8 141.7 L84.0 141.5 L85.2 141.4 L86.4 141.2 L87.6 141.1 L88.8 140.9 L90.0 140.7 L91.2 140.6 L92.4 140.4 L93.6 140.3 L94.8 140.1 L96.0 139.9 L97.2 139.7 L98.4 139.6 L99.6 139.4 L100.8 139.2 L102.0 139.0 L103.2 138.8 L104.4 138.6 L105.6 138.4 L106.8 138.2 L108.0 138.0 L109.2 137.8 L110.4 137.6 L111.6 137.4 L112.8 137.1 L114.0 136.9 L115.2 136.7 L116.4 136.5 L117.6 136.2 L118.8 136.0 L120.0 135.7 L121.2 135.5 L122.4 135.2 L123.6 135.0 L124.8 134.7 L126.0 134.4 L127.2 134.2 L128.4 133.9 L129.6 133.6 L130.8 133.3 L132.0 133.0 L133.2 132.7 L134.4 132.4 L135.6 132.1 L136.8 131.8 L138.0 131.5 L139.2 131.2 L140.4 130.8 L141.6 130.5 L142.8 130.2 L144.0 129.8 L145.2 129.5 L146.4 129.1 L147.6 128.7 L148.8 128.4 L150.0 128.0 L151.2 127.6 L152.4 127.2 L153.6 126.8 L154.8 126.4 L156.0 126.0 L157.2 125.6 L158.4 125.2 L159.6 124.7 L160.8 124.3 L162.0 123.8 L163.2 123.4 L164.4 122.9 L165.6 122.4 L166.8 121.9 L168.0 121.5 L169.2 121.0 L170.4 120.5 L171.6 119.9 L172.8 119.4 L174.0 118.9 L175.2 118.3 L176.4 117.8 L177.6 117.2 L178.8 116.6 L180.0 116.1 L181.2 115.5 L182.4 114.9 L183.6 114.2 L184.8 113.6 L186.0 113.0 L187.2 112.3 L188.4 111.7 L189.6 111.0 L190.8 110.3 L192.0 109.6 L193.2 108.9 L194.4 108.2 L195.6 107.5 L196.8 106.7 L198.0 106.0 L199.2 105.2 L200.4 104.4 L201.6 103.6 L202.8 102.8 L204.0 102.0 L205.2 101.2 L206.4 100.3 L207.6 99.4 L208.8 98.6 L210.0 97.7 L211.2 96.7 L212.4 95.8 L213.6 94.9 L214.8 93.9 L216.0 92.9 L217.2 91.9 L218.4 90.9 L219.6 89.9 L220.8 88.8 L222.0 87.8 L223.2 86.7 L224.4 85.6 L225.6 84.4 L226.8 83.3 L228.0 82.1 L229.2 80.9 L230.4 79.7 L231.6 78.5 L232.8 77.2 L234.0 76.0 L235.2 74.7 L236.4 73.4 L237.6 72.0 L238.8 70.7 L240.0 69.3 L241.2 67.9 L242.4 66.4 L243.6 65.0 L244.8 63.5 L246.0 62.0 L247.2 60.4 L248.4 58.9 L249.6 57.3 L250.8 55.6 L252.0 54.0 L253.2 52.3 L254.4 50.6 L255.6 48.9 L256.8 47.1 L258.0 45.3 L259.2 43.5 L260.4 41.6 L261.6 39.7" fill="none" stroke="#f472b6" stroke-width="2.5"/><path d="M114.0 186.0 L115.2 182.8 L116.4 180.2 L117.6 177.9 L118.8 175.8 L120.0 174.0 L121.2 172.3 L122.4 170.8 L123.6 169.5 L124.8 168.2 L126.0 167.0 L127.2 165.9 L128.4 164.8 L129.6 163.8 L130.8 162.9 L132.0 162.0 L133.2 161.2 L134.4 160.3 L135.6 159.6 L136.8 158.8 L138.0 158.1 L139.2 157.5 L140.4 156.8 L141.6 156.2 L142.8 155.6 L144.0 155.0 L145.2 154.4 L146.4 153.9 L147.6 153.3 L148.8 152.8 L150.0 152.3 L151.2 151.8 L152.4 151.3 L153.6 150.9 L154.8 150.4 L156.0 150.0 L157.2 149.6 L158.4 149.2 L159.6 148.7 L160.8 148.3 L162.0 148.0 L163.2 147.6 L164.4 147.2 L165.6 146.8 L166.8 146.5 L168.0 146.1 L169.2 145.8 L170.4 145.5 L171.6 145.1 L172.8 144.8 L174.0 144.5 L175.2 144.2 L176.4 143.9 L177.6 143.6 L178.8 143.3 L180.0 143.0 L181.2 142.7 L182.4 142.4 L183.6 142.1 L184.8 141.9 L186.0 141.6 L187.2 141.3 L188.4 141.1 L189.6 140.8 L190.8 140.6 L192.0 140.3 L193.2 140.1 L194.4 139.8 L195.6 139.6 L196.8 139.3 L198.0 139.1 L199.2 138.9 L200.4 138.7 L201.6 138.4 L202.8 138.2 L204.0 138.0 L205.2 137.8 L206.4 137.6 L207.6 137.4 L208.8 137.2 L210.0 137.0 L211.2 136.7 L212.4 136.5 L213.6 136.3 L214.8 136.2 L216.0 136.0 L217.2 135.8 L218.4 135.6 L219.6 135.4 L220.8 135.2 L222.0 135.0 L223.2 134.8 L224.4 134.7 L225.6 134.5 L226.8 134.3 L228.0 134.1 L229.2 134.0 L230.4 133.8 L231.6 133.6 L232.8 133.5 L234.0 133.3 L235.2 133.1 L236.4 133.0 L237.6 132.8 L238.8 132.6 L240.0 132.5 L241.2 132.3 L242.4 132.2 L243.6 132.0 L244.8 131.9 L246.0 131.7 L247.2 131.6 L248.4 131.4 L249.6 131.3 L250.8 131.1 L252.0 131.0 L253.2 130.8 L254.4 130.7 L255.6 130.6 L256.8 130.4 L258.0 130.3 L259.2 130.1 L260.4 130.0 L261.6 129.9 L262.8 129.7 L264.0 129.6 L265.2 129.5 L266.4 129.3 L267.6 129.2 L268.8 129.1 L270.0 128.9 L271.2 128.8 L272.4 128.7 L273.6 128.6 L274.8 128.4 L276.0 128.3 L277.2 128.2 L278.4 128.1 L279.6 127.9 L280.8 127.8 L282.0 127.7 L283.2 127.6 L284.4 127.5 L285.6 127.3 L286.8 127.2 L288.0 127.1 L289.2 127.0 L290.4 126.9 L291.6 126.8 L292.8 126.7 L294.0 126.5 L295.2 126.4 L296.4 126.3 L297.6 126.2 L298.8 126.1 L300.0 126.0" fill="none" stroke="#22d3ee" stroke-width="2.5"/><text x="250" y="60" fill="#f472b6" font-size="13">y = 2ˣ</text><text x="200" y="128" fill="#22d3ee" font-size="13">y = log₂ x</text></svg>
-      </a>
-      <div class="meta">
-        <div><h3>Εκθετική και λογαριθμική συνάρτηση</h3><p class="eq">y = 2ˣ, y = log₂ x, y = x</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="ekthetiki-log-xr" data-href="ekthetiki-log-xr.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="ekthetiki-log-xr.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#26A69A">
-      <a class="open" href="kanonika-polygona.html">
-        <model-viewer src="kanonika-polygona.glb" camera-controls auto-rotate disable-zoom camera-orbit="0deg 46deg 88%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Κανονικά πολύγωνα</h3><p class="eq">φ<sub>ν</sub> = 180° − 360°/ν, ω<sub>ν</sub> = 360°/ν</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="kanonika-polygona" data-href="kanonika-polygona.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="kanonika-polygona.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#26A69A">
-      <a class="open" href="m.html?id=kanonika-polygona">
-        <model-viewer src="kanonika-polygona.glb" camera-controls auto-rotate autoplay disable-zoom camera-orbit="0deg 46deg 88%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Το εμβαδόν κανονικού οκταγώνου</h3><p class="eq">Ε<sub>8</sub> = ½P<sub>8</sub>α<sub>8</sub></p><span class="badge">Κινούμενο, AR σε Android</span></div>
-        <div class="qr" data-id="kanonika-polygona" data-href="" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=kanonika-polygona">Άνοιξέ το σε AR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#6366f1">
-      <a class="open" href="parallilogramma.html">
-        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Παραλληλόγραμμο με τις διαγώνιους του"><rect x="40" y="22" width="240" height="146" rx="6" fill="#fff" stroke="#A6A6A6" stroke-width="2"/><polygon points="80,140 210,140 250,56 120,56" fill="#1565C0" fill-opacity=".18" stroke="#1565C0" stroke-width="4"/><line x1="80" y1="140" x2="250" y2="56" stroke="#2E7D32" stroke-width="3"/><line x1="210" y1="140" x2="120" y2="56" stroke="#6A1B9A" stroke-width="3"/><circle cx="165" cy="98" r="5.5" fill="#EF6C00" stroke="#0e1420" stroke-width="1.5"/><text x="66" y="150" font-size="13" fill="#262626">Α</text><text x="212" y="154" font-size="13" fill="#262626">Β</text><text x="254" y="54" font-size="13" fill="#262626">Γ</text><text x="108" y="52" font-size="13" fill="#262626">Δ</text><text x="172" y="94" font-size="13" fill="#EF6C00">Μ</text></svg>
-      </a>
-      <div class="meta">
-        <div><h3>Παραλληλόγραμμα</h3><p class="eq">ΑΜ = ΜΓ, ΒΜ = ΜΔ</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="parallilogramma" data-href="parallilogramma.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="parallilogramma.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#1565C0">
-      <a class="open" href="polyonyma.html">
-        <model-viewer src="polyonyma.glb" camera-controls auto-rotate disable-zoom camera-orbit="0deg 50deg 88%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Πολυώνυμα</h3><p class="eq">P(x) = (x − ρ)π(x) + υ</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="polyonyma" data-href="polyonyma.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="polyonyma.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="tab" style="--acc:#1565C0">
-      <a class="open" href="m.html?id=polyonyma">
-        <model-viewer src="polyonyma.glb" camera-controls auto-rotate autoplay disable-zoom camera-orbit="0deg 50deg 88%"
-          interaction-prompt="none" exposure="1.05" shadow-intensity="0.6"
-          style="width:100%;height:190px;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)"></model-viewer>
-      </a>
-      <div class="meta">
-        <div><h3>Το κουτί και ο όγκος V(x)</h3><p class="eq">V(x) = x(20 − 2x)(30 − 2x)</p><span class="badge">Κινούμενο, AR σε Android</span></div>
-        <div class="qr" data-id="polyonyma" data-href="" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="m.html?id=polyonyma">Άνοιξέ το σε AR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#f59e0b">
-      <a class="open" href="dekadika-pososta.html">
-        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Πλέγμα 10 × 10 με 35 χρωματισμένα τετράγωνα"><rect x="110" y="12" width="16" height="16" fill="#3b82f6"/><rect x="110" y="29" width="16" height="16" fill="#3b82f6"/><rect x="110" y="46" width="16" height="16" fill="#3b82f6"/><rect x="110" y="63" width="16" height="16" fill="#3b82f6"/><rect x="110" y="80" width="16" height="16" fill="#3b82f6"/><rect x="110" y="97" width="16" height="16" fill="#3b82f6"/><rect x="110" y="114" width="16" height="16" fill="#3b82f6"/><rect x="110" y="131" width="16" height="16" fill="#3b82f6"/><rect x="110" y="148" width="16" height="16" fill="#3b82f6"/><rect x="110" y="165" width="16" height="16" fill="#3b82f6"/><rect x="127" y="12" width="16" height="16" fill="#3b82f6"/><rect x="127" y="29" width="16" height="16" fill="#3b82f6"/><rect x="127" y="46" width="16" height="16" fill="#3b82f6"/><rect x="127" y="63" width="16" height="16" fill="#3b82f6"/><rect x="127" y="80" width="16" height="16" fill="#3b82f6"/><rect x="127" y="97" width="16" height="16" fill="#3b82f6"/><rect x="127" y="114" width="16" height="16" fill="#3b82f6"/><rect x="127" y="131" width="16" height="16" fill="#3b82f6"/><rect x="127" y="148" width="16" height="16" fill="#3b82f6"/><rect x="127" y="165" width="16" height="16" fill="#3b82f6"/><rect x="144" y="12" width="16" height="16" fill="#3b82f6"/><rect x="144" y="29" width="16" height="16" fill="#3b82f6"/><rect x="144" y="46" width="16" height="16" fill="#3b82f6"/><rect x="144" y="63" width="16" height="16" fill="#3b82f6"/><rect x="144" y="80" width="16" height="16" fill="#3b82f6"/><rect x="144" y="97" width="16" height="16" fill="#3b82f6"/><rect x="144" y="114" width="16" height="16" fill="#3b82f6"/><rect x="144" y="131" width="16" height="16" fill="#3b82f6"/><rect x="144" y="148" width="16" height="16" fill="#3b82f6"/><rect x="144" y="165" width="16" height="16" fill="#3b82f6"/><rect x="161" y="12" width="16" height="16" fill="#1e2c42"/><rect x="161" y="29" width="16" height="16" fill="#1e2c42"/><rect x="161" y="46" width="16" height="16" fill="#1e2c42"/><rect x="161" y="63" width="16" height="16" fill="#1e2c42"/><rect x="161" y="80" width="16" height="16" fill="#1e2c42"/><rect x="161" y="97" width="16" height="16" fill="#f59e0b"/><rect x="161" y="114" width="16" height="16" fill="#f59e0b"/><rect x="161" y="131" width="16" height="16" fill="#f59e0b"/><rect x="161" y="148" width="16" height="16" fill="#f59e0b"/><rect x="161" y="165" width="16" height="16" fill="#f59e0b"/><rect x="178" y="12" width="16" height="16" fill="#1e2c42"/><rect x="178" y="29" width="16" height="16" fill="#1e2c42"/><rect x="178" y="46" width="16" height="16" fill="#1e2c42"/><rect x="178" y="63" width="16" height="16" fill="#1e2c42"/><rect x="178" y="80" width="16" height="16" fill="#1e2c42"/><rect x="178" y="97" width="16" height="16" fill="#1e2c42"/><rect x="178" y="114" width="16" height="16" fill="#1e2c42"/><rect x="178" y="131" width="16" height="16" fill="#1e2c42"/><rect x="178" y="148" width="16" height="16" fill="#1e2c42"/><rect x="178" y="165" width="16" height="16" fill="#1e2c42"/><rect x="195" y="12" width="16" height="16" fill="#1e2c42"/><rect x="195" y="29" width="16" height="16" fill="#1e2c42"/><rect x="195" y="46" width="16" height="16" fill="#1e2c42"/><rect x="195" y="63" width="16" height="16" fill="#1e2c42"/><rect x="195" y="80" width="16" height="16" fill="#1e2c42"/><rect x="195" y="97" width="16" height="16" fill="#1e2c42"/><rect x="195" y="114" width="16" height="16" fill="#1e2c42"/><rect x="195" y="131" width="16" height="16" fill="#1e2c42"/><rect x="195" y="148" width="16" height="16" fill="#1e2c42"/><rect x="195" y="165" width="16" height="16" fill="#1e2c42"/><rect x="212" y="12" width="16" height="16" fill="#1e2c42"/><rect x="212" y="29" width="16" height="16" fill="#1e2c42"/><rect x="212" y="46" width="16" height="16" fill="#1e2c42"/><rect x="212" y="63" width="16" height="16" fill="#1e2c42"/><rect x="212" y="80" width="16" height="16" fill="#1e2c42"/><rect x="212" y="97" width="16" height="16" fill="#1e2c42"/><rect x="212" y="114" width="16" height="16" fill="#1e2c42"/><rect x="212" y="131" width="16" height="16" fill="#1e2c42"/><rect x="212" y="148" width="16" height="16" fill="#1e2c42"/><rect x="212" y="165" width="16" height="16" fill="#1e2c42"/><rect x="229" y="12" width="16" height="16" fill="#1e2c42"/><rect x="229" y="29" width="16" height="16" fill="#1e2c42"/><rect x="229" y="46" width="16" height="16" fill="#1e2c42"/><rect x="229" y="63" width="16" height="16" fill="#1e2c42"/><rect x="229" y="80" width="16" height="16" fill="#1e2c42"/><rect x="229" y="97" width="16" height="16" fill="#1e2c42"/><rect x="229" y="114" width="16" height="16" fill="#1e2c42"/><rect x="229" y="131" width="16" height="16" fill="#1e2c42"/><rect x="229" y="148" width="16" height="16" fill="#1e2c42"/><rect x="229" y="165" width="16" height="16" fill="#1e2c42"/><rect x="246" y="12" width="16" height="16" fill="#1e2c42"/><rect x="246" y="29" width="16" height="16" fill="#1e2c42"/><rect x="246" y="46" width="16" height="16" fill="#1e2c42"/><rect x="246" y="63" width="16" height="16" fill="#1e2c42"/><rect x="246" y="80" width="16" height="16" fill="#1e2c42"/><rect x="246" y="97" width="16" height="16" fill="#1e2c42"/><rect x="246" y="114" width="16" height="16" fill="#1e2c42"/><rect x="246" y="131" width="16" height="16" fill="#1e2c42"/><rect x="246" y="148" width="16" height="16" fill="#1e2c42"/><rect x="246" y="165" width="16" height="16" fill="#1e2c42"/><rect x="263" y="12" width="16" height="16" fill="#1e2c42"/><rect x="263" y="29" width="16" height="16" fill="#1e2c42"/><rect x="263" y="46" width="16" height="16" fill="#1e2c42"/><rect x="263" y="63" width="16" height="16" fill="#1e2c42"/><rect x="263" y="80" width="16" height="16" fill="#1e2c42"/><rect x="263" y="97" width="16" height="16" fill="#1e2c42"/><rect x="263" y="114" width="16" height="16" fill="#1e2c42"/><rect x="263" y="131" width="16" height="16" fill="#1e2c42"/><rect x="263" y="148" width="16" height="16" fill="#1e2c42"/><rect x="263" y="165" width="16" height="16" fill="#1e2c42"/></svg>
-      </a>
-      <div class="meta">
-        <div><h3>Δεκαδικοί και ποσοστά</h3><p class="eq">35 % = 35/100 = 0,35</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="dekadika-pososta" data-href="dekadika-pososta.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="dekadika-pososta.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#a855f7">
-      <a class="open" href="rhtoi.html">
-        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Η ευθεία των ρητών αριθμών με τα σημεία −3,5 και 3,5"><line x1="20" y1="104" x2="300" y2="104" stroke="#e2e8f0" stroke-width="2.5"/><line x1="28" y1="98" x2="28" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="28" y="128" font-size="10" text-anchor="middle" fill="#fca5a5">−6</text><line x1="50" y1="98" x2="50" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="72" y1="98" x2="72" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="72" y="128" font-size="10" text-anchor="middle" fill="#fca5a5">−4</text><line x1="94" y1="98" x2="94" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="116" y1="98" x2="116" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="116" y="128" font-size="10" text-anchor="middle" fill="#fca5a5">−2</text><line x1="138" y1="98" x2="138" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="160" y1="98" x2="160" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="160" y="128" font-size="10" text-anchor="middle" fill="#eaf1f8">0</text><line x1="182" y1="98" x2="182" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="204" y1="98" x2="204" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="204" y="128" font-size="10" text-anchor="middle" fill="#93c5fd">2</text><line x1="226" y1="98" x2="226" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="248" y1="98" x2="248" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="248" y="128" font-size="10" text-anchor="middle" fill="#93c5fd">4</text><line x1="270" y1="98" x2="270" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="292" y1="98" x2="292" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><text x="292" y="128" font-size="10" text-anchor="middle" fill="#93c5fd">6</text><rect x="83" y="72" width="77" height="8" fill="#f59e0b"/><circle cx="83" cy="104" r="8" fill="#ef4444"/><circle cx="237" cy="104" r="7" fill="#94a3b8"/><text x="122" y="64" font-size="12" font-weight="700" text-anchor="middle" fill="#fbbf24">|α| = 3,5</text></svg>
-      </a>
-      <div class="meta">
-        <div><h3>Ρητοί αριθμοί</h3><p class="eq">|−3,5| = 3,5</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="rhtoi" data-href="rhtoi.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="rhtoi.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#f59e0b">
-      <a class="open" href="eksiswseis.html">
-        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Ζυγαριά που ισορροπεί: x + 5 = 12"><rect x="154" y="62" width="12" height="96" fill="#475569"/><rect x="112" y="158" width="96" height="10" rx="3" fill="#475569"/><line x1="52" y1="62" x2="268" y2="62" stroke="#e2e8f0" stroke-width="5"/><circle cx="160" cy="62" r="8" fill="#e2e8f0"/><line x1="52" y1="62" x2="30" y2="112" stroke="#94a3b8" stroke-width="1.5"/><line x1="52" y1="62" x2="74" y2="112" stroke="#94a3b8" stroke-width="1.5"/><line x1="268" y1="62" x2="246" y2="112" stroke="#94a3b8" stroke-width="1.5"/><line x1="268" y1="62" x2="290" y2="112" stroke="#94a3b8" stroke-width="1.5"/><rect x="22" y="112" width="60" height="8" rx="2" fill="#64748b"/><rect x="238" y="112" width="60" height="8" rx="2" fill="#64748b"/><rect x="26" y="96" width="16" height="16" fill="#f59e0b"/><rect x="43" y="96" width="16" height="16" fill="#f59e0b"/><rect x="60" y="96" width="16" height="16" fill="#2563eb"/><rect x="242" y="96" width="16" height="16" fill="#0d9488"/><rect x="259" y="96" width="16" height="16" fill="#0d9488"/><rect x="276" y="96" width="16" height="16" fill="#0d9488"/><text x="160" y="30" font-size="16" font-weight="700" text-anchor="middle" fill="#eaf1f8">x + 5 = 12</text></svg>
-      </a>
-      <div class="meta">
-        <div><h3>Εξισώσεις και προβλήματα</h3><p class="eq">x + 5 = 12</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="eksiswseis" data-href="eksiswseis.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="eksiswseis.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
-    <div class="card" data-dev="ml2 q3" style="--acc:#a855f7">
-      <a class="open" href="dianysmata.html">
-        <svg viewBox="0 0 320 190" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif" style="width:100%;height:190px;display:block;background:radial-gradient(120% 90% at 50% 0%,#17263c,#0e1420)" role="img" aria-label="Πρόσθεση διανυσμάτων: α + β με τον κανόνα του παραλληλογράμμου"><defs><marker id="dm" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 z" fill="context-stroke"/></marker></defs><line x1="20" y1="150" x2="300" y2="150" stroke="#e2e8f0" stroke-width="1.5"/><line x1="60" y1="180" x2="60" y2="14" stroke="#e2e8f0" stroke-width="1.5"/><line x1="60" y1="150" x2="190" y2="118" stroke="#3b82f6" stroke-width="5" marker-end="url(#dm)"/><line x1="60" y1="150" x2="102" y2="62" stroke="#22c55e" stroke-width="5" stroke-dasharray="9 5"/><line x1="190" y1="118" x2="232" y2="30" stroke="#22c55e" stroke-width="5" marker-end="url(#dm)"/><line x1="102" y1="62" x2="232" y2="30" stroke="#64748b" stroke-width="2" stroke-dasharray="6 5"/><line x1="60" y1="150" x2="232" y2="30" stroke="#a855f7" stroke-width="6" marker-end="url(#dm)"/><text x="126" y="146" font-size="13" font-weight="700" fill="#93c5fd">α</text><text x="222" y="80" font-size="13" font-weight="700" fill="#86efac">β</text><text x="132" y="78" font-size="13" font-weight="700" fill="#d8b4fe">α + β</text></svg>
-      </a>
-      <div class="meta">
-        <div><h3>Διανύσματα</h3><p class="eq">α + β = (5, 4)</p><span class="badge">WebXR για Magic Leap 2 και Meta Quest 3</span></div>
-        <div class="qr" data-id="dianysmata" data-href="dianysmata.html" title="Σκάναρέ το με το κινητό"></div>
-      </div>
-      <a class="cta" href="dianysmata.html">Άνοιξέ το σε AR / VR ›</a>
-    </div>
 </div>
+</section>
 <div class="how">
-  <b>Πώς δουλεύει:</b> σε <b>Android</b> ανοίγει το Scene Viewer (Google) και τοποθετείς το στερεό στον χώρο·
-  σε <b>iPhone</b> (Safari) ανοίγει το AR Quick Look. Τα πέντε στερεά εκ περιστροφής έχουν και iOS AR·
-  οι κωνικές τομές τοποθετούνται σε Android και προβάλλονται διαδραστικά σε iPhone.
-  Το Πυθαγόρειο θεώρημα με κύβους και η σελίδα «Από το εμβαδόν στον όγκο» ανοίγουν σε WebXR: AR στα γυαλιά
-  Magic Leap 2 και Meta Quest 3 (και σε Android), VR στο Meta Quest 3, προβολή 3D σε κάθε άλλη συσκευή.
-  Τα δύο κινούμενα μοντέλα περιστροφής χωρίου (Γ΄ Λυκείου, §3.7) δείχνουν πώς ένα επίπεδο χωρίο, καθώς
-  περιστρέφεται γύρω από τον άξονα x΄x, σχηματίζει στερεό εκ περιστροφής.
-  Ο κύβος των κλασμάτων (Α΄ Γυμνασίου, §2.5) δείχνει τον πολλαπλασιασμό τριών κλασμάτων ως όγκο κουτιού
-  μέσα σε έναν κύβο που χωρίζεται σε 2 · 3 · 4 = 24 ίσα κουτάκια· ανοίγει σε WebXR στα γυαλιά και ως
-  κινούμενο μοντέλο AR σε Android.
-  Η πυραμίδα του Θαλή (Γ΄ Γυμνασίου, §1.5, και Α΄ Λυκείου, Κεφάλαιο 3) δείχνει πώς μετριέται το ύψος της
-  πυραμίδας με τις σκιές: με τον ήλιο σε 45°, 40°, 35° και 50°, η σκιά της πυραμίδας και η σκιά μιας ράβδου
-  2 m σχηματίζουν δύο όμοια ορθογώνια τρίγωνα. Ανοίγει σε WebXR στα γυαλιά και ως κινούμενο μοντέλο AR σε
-  Android. Το καλάθι (Α΄ Λυκείου, §3.3 και §4.2) δείχνει τρεις βολές προς ένα καλάθι στα 3 m: η μπάλα φτάνει
-  στο ύψος του καλαθιού δύο φορές, μία φορά ή καμία, ανάλογα με το πρόσημο της διακρίνουσας. Ανοίγει σε WebXR
-  στα γυαλιά και ως κινούμενο μοντέλο AR σε Android, ενώ το «Βίντεο καρέ-καρέ» μετρά χρόνους σε βίντεο μιας
-  βολής, χωρίς να το ανεβάζει πουθενά. Το κουτί των διαιρετών (σενάριο «Ο ΜΚΔ και το ΕΚΠ στο Κέντρο Καινοτομίας»,
-  Α΄ Γυμνασίου, §1.5) τοποθετεί τους 24 διαιρέτες του 360 = 2³ · 3² · 5 σε κάνναβο 4 × 3 × 2: οι διαιρέτες του 12 και
-  του 20, οι κοινοί τους διαιρέτες με τον ΜΚΔ και το ΕΚΠ φαίνονται ως κουτιά μέσα στο μεγάλο κουτί. Ανοίγει σε WebXR
-  στα γυαλιά και ως κινούμενο μοντέλο AR σε Android. Τα δοχεία γεμίζουν (σενάριο «Ανάλογα και αντιστρόφως ανάλογα ποσά
-  στο Κέντρο Καινοτομίας», Β΄ Γυμνασίου, §3.3–3.5) δείχνει τρία δοχεία με βάσεις 10, 20 και 40 cm² που γεμίζουν από
-  ίδιες βρύσες: το ύψος του νερού είναι ανάλογο του χρόνου (h = 2t, h = t, h = 0,5t), ενώ για τον ίδιο όγκο η βάση και
-  το ύψος είναι αντιστρόφως ανάλογα (B · h = 200 cm³ στα 10 s). Ανοίγει σε WebXR στα γυαλιά και ως κινούμενο μοντέλο
-  AR σε Android. Απαιτείται σύνδεση στο διαδίκτυο.
-  Νέα: η «Εφαπτομένη, ταχύτητα, ρυθμός και ακρότατα» (Παράγωγοι, Γ΄ Λυκείου) δείχνει τη συνάρτηση f(x) = x³ − 6x² + 9x + 1 με κινούμενο σημείο P πάνω στην καμπύλη, την εφαπτομένη του P, την τέμνουσα που γίνεται εφαπτομένη (h → 0) και τα τοπικά ακρότατα (1, 5) και (3, 1). Ανοίγει σε WebXR στα γυαλιά Magic Leap 2 και Meta Quest 3. «Η εφαπτομένη που κινείται» είναι η κινούμενη εκδοχή της ίδιας κατασκευής για Android και iPhone. «Ο κύκλος και η έλικα» και «Η έλικα και οι σκιές της» (Β΄ Λυκείου, Τριγωνομετρία) δείχνουν τον τριγωνομετρικό κύκλο και τη γραφική παράσταση του ημιτόνου ως έλικα. «Τα γραμμικά συστήματα στον χώρο» και «Δύο επίπεδα και η λύση» δείχνουν ότι η λύση ενός γραμμικού συστήματος είναι το σημείο τομής των επιπέδων. «Εκθετική και λογαριθμική συνάρτηση» δείχνει τις δύο συναρτήσεις και την ευθεία y = x, που είναι άξονας συμμετρίας τους. «Όρια και συνέχεια» (Γ΄ Λυκείου Προσανατολισμού, Κεφάλαιο 1, §1.3–1.7) έχει εννέα καταστάσεις: τον ορισμό του ορίου με ε και δ για την f(x) = (x³ − 8)/(x − 2) στο x₀ = 2, τα πλευρικά όρια, το κριτήριο παρεμβολής για την x ημ(1/x), το όριο ημθ/θ στον μοναδιαίο κύκλο, το μη πεπερασμένο όριο της 1/(x − 1)², το όριο στο άπειρο, τη συνέχεια συνάρτησης, το θεώρημα Bolzano και τη μέθοδο της διχοτόμησης για τη ρίζα της x³ − x − 1 στο [1, 2]. Ανοίγει σε WebXR στα γυαλιά Magic Leap 2 και Meta Quest 3. «Ο ορισμός του ορίου» είναι η κινούμενη εκδοχή της πρώτης κατάστασης (το ε μικραίνει και το δ το ακολουθεί) για AR σε Android, και 3D σε iPhone. «Ολοκληρώματα και εφαρμογές» (Γ΄ Λυκείου Προσανατολισμού, Κεφάλαιο 3, §3.1–3.7) έχει δέκα καταστάσεις: την αρχική συνάρτηση G(x) = F(x) + c με τις παράλληλες εφαπτόμενες, το εμβαδόν του παραβολικού χωρίου με τα αθροίσματα ε<sub>ν</sub> και Ε<sub>ν</sub>, το ορισμένο ολοκλήρωμα ως όριο των αθροισμάτων S<sub>ν</sub>, την ιδιότητα με το σημείο γ, τη συνάρτηση F(x) = ∫<sub>0</sub><sup>x</sup> συν t dt, το θεμελιώδες θεώρημα του ολοκληρωτικού λογισμού, την παραγοντική ολοκλήρωση και την ολοκλήρωση με αντικατάσταση ως ισότητες εμβαδών, το εμβαδόν επίπεδου χωρίου με την |f| και το εμβαδόν μεταξύ δύο γραφικών παραστάσεων. Ανοίγει σε WebXR στα γυαλιά Magic Leap 2 και Meta Quest 3. «Εμβαδόν παραβολικού χωρίου» είναι η κινούμενη εκδοχή της δεύτερης κατάστασης (το ν διπλασιάζεται από 2 ως 32 και τα τουβλάκια των αθροισμάτων ανεβαίνουν από τον άξονα x΄x) για AR σε Android, και 3D σε iPhone. «Κανονικά πολύγωνα» (Γεωμετρία Β΄ Λυκείου, Κεφάλαιο 11, §11.1–11.3) έχει εννέα καταστάσεις: τον ορισμό του κανονικού πολυγώνου με τον ρόμβο και το ορθογώνιο, τη γωνία φ<sub>ν</sub> = 180° − 360°/ν και την κεντρική γωνία ω<sub>ν</sub> = 360°/ν, το εγγεγραμμένο και το περιγεγραμμένο κανονικό ν-γωνο, τα στοιχεία R, λ<sub>ν</sub> και α<sub>ν</sub> με τη σχέση α<sub>ν</sub>² + λ<sub>ν</sub>²/4 = R², το εμβαδόν Ε<sub>ν</sub> = ½P<sub>ν</sub>α<sub>ν</sub>, την εγγραφή του κανονικού εξαγώνου και του ισόπλευρου τριγώνου με τον διαβήτη, τον διπλασιασμό του πλήθους των πλευρών ως το κανονικό 96-γωνο του Αρχιμήδη, την πλακόστρωση δαπέδου με κανονικά πολύγωνα και την κηρήθρα. Ανοίγει σε WebXR στα γυαλιά Magic Leap 2 και Meta Quest 3. «Το εμβαδόν κανονικού οκταγώνου» είναι η κινούμενη εκδοχή της πέμπτης κατάστασης (τα 8 ίσα ισοσκελή τρίγωνα του οκταγώνου μπαίνουν σε σειρά και σχηματίζουν παραλληλόγραμμο με βάση P<sub>8</sub>/2 και ύψος α<sub>8</sub>) για AR σε Android, και 3D σε iPhone.
-  Νέα: τα «Δεκαδικοί και ποσοστά» (σενάριο 27, Α΄ Γυμνασίου, §3.1, §5.1, §5.2) δείχνουν το πλέγμα 10 × 10, όπου κάθε τετράγωνο είναι το 1/100 = 0,01 = 1 %: το ποσοστό ως μέρος των 100, το ποσοστό ενός ποσού και η αύξηση ή μείωση με ποσοστό. Ανοίγει σε WebXR στα γυαλιά Magic Leap 2 και Meta Quest 3, και ως απλή προβολή 3D σε κάθε συσκευή.
-  Νέα: τα «Διανύσματα» (σενάριο 40, Β΄ Λυκείου, Κεφάλαιο 1, §1.1–1.5) έχουν πέντε σκηνές: το διάνυσμα ΑΒ και οι συντεταγμένες του, η πρόσθεση και η αφαίρεση (κανόνας παραλληλογράμμου), ο αριθμός επί διάνυσμα, το εσωτερικό γινόμενο με τη γωνία και την προβολή, και η πτήση με άνεμο v = u + w. Ανοίγει σε WebXR στα γυαλιά Magic Leap 2 και Meta Quest 3, και ως απλή προβολή 3D σε κάθε συσκευή.
+  <p><b>Πώς δουλεύει:</b> σε <b>Android</b> ανοίγει το Scene Viewer (Google) και τοποθετείς το στερεό στον χώρο, ενώ σε <b>iPhone</b> (Safari) ανοίγει το AR Quick Look. Οι σελίδες WebXR ανοίγουν σε AR στα γυαλιά Magic Leap 2 και Meta Quest 3 (και σε Android), σε VR στο Meta Quest 3 και ως προβολή 3D σε κάθε άλλη συσκευή. Τα κινούμενα μοντέλα ανοίγουν ως AR σε Android και ως 3D σε iPhone. Απαιτείται σύνδεση στο διαδίκτυο. Οι δραστηριότητες είναι ομαδοποιημένες ανά τάξη και η επεξήγηση κάθε μίας ακολουθεί την ίδια σειρά.</p>
+
+  <h3>Α΄ Γυμνασίου</h3>
+  <p><b>Ο κύβος των κλασμάτων</b> (§2.5) δείχνει τον πολλαπλασιασμό τριών κλασμάτων ως όγκο κουτιού μέσα σε έναν κύβο που χωρίζεται σε 2 · 3 · 4 = 24 ίσα κουτάκια. Ανοίγει σε WebXR στα γυαλιά και ως κινούμενο μοντέλο AR σε Android.</p>
+  <p><b>Γωνίες και συμμετρία</b> (Γεωμετρία, Μέρος Β) έχει έντεκα καταστάσεις: είδη γωνιών, συμπληρωματικές και παραπληρωματικές, κατακορυφήν, επίκεντρη, συμμετρία ως προς άξονα, καθρέφτης και άθροισμα γωνιών τριγώνου. Ανοίγει σε WebXR στα γυαλιά.</p>
+  <p><b>Το κουτί των διαιρετών</b> (§1.5, ΜΚΔ και ΕΚΠ) τοποθετεί τους 24 διαιρέτες του 360 = 2³ · 3² · 5 σε κάνναβο 4 × 3 × 2: οι διαιρέτες του 12 και του 20, οι κοινοί τους διαιρέτες με τον ΜΚΔ και το ΕΚΠ φαίνονται ως κουτιά μέσα στο μεγάλο κουτί. Ανοίγει σε WebXR στα γυαλιά και ως κινούμενο μοντέλο AR σε Android.</p>
+  <p><b>Τα δοχεία γεμίζουν</b> (Ανάλογα και αντιστρόφως ανάλογα ποσά, Κεφάλαιο 6) δείχνει τρία δοχεία με βάσεις 10, 20 και 40 cm² που γεμίζουν από ίδιες βρύσες: το ύψος του νερού είναι ανάλογο του χρόνου (h = 2t, h = t, h = 0,5t), ενώ για τον ίδιο όγκο η βάση και το ύψος είναι αντιστρόφως ανάλογα (B · h = 200 cm³ στα 10 s). Ανοίγει σε WebXR στα γυαλιά και ως κινούμενο μοντέλο AR σε Android.</p>
+  <p><b>Δεκαδικοί και ποσοστά</b> (§3.1, §5.1, §5.2) δείχνει το πλέγμα 10 × 10, όπου κάθε τετράγωνο είναι το 1/100 = 0,01 = 1 %: το ποσοστό ως μέρος των 100, το ποσοστό ενός ποσού και η αύξηση ή μείωση με ποσοστό. Ανοίγει σε WebXR στα γυαλιά και ως απλή προβολή 3D σε κάθε συσκευή.</p>
+  <p><b>Ρητοί αριθμοί</b> (§7.1 έως §7.9) έχει τέσσερις σκηνές: την ευθεία των ρητών και την απόλυτη τιμή, την πρόσθεση και την αφαίρεση ως βέλη, τον πολλαπλασιασμό ως εμβαδόν με πρόσημο και τις δυνάμεις. Ανοίγει σε WebXR στα γυαλιά και ως απλή προβολή 3D σε κάθε συσκευή.</p>
+  <p><b>Εξισώσεις και προβλήματα</b> (§4.1 έως §4.3) έχει πέντε καταστάσεις: τη ζυγαριά, την ίδια πράξη και στα δύο μέλη, τη λύση της αx + β = γ, τις δύο προσφορές και το ορθογώνιο. Ανοίγει σε WebXR στα γυαλιά και ως απλή προβολή 3D σε κάθε συσκευή.</p>
+
+  <h3>Β΄ Γυμνασίου</h3>
+  <p><b>Το Πυθαγόρειο θεώρημα με κύβους</b> ανοίγει σε WebXR: AR στα γυαλιά Magic Leap 2 και Meta Quest 3 (και σε Android), VR στο Meta Quest 3, προβολή 3D σε κάθε άλλη συσκευή. Τα δύο μοντέλα <b>Κύλινδρος: το ορθογώνιο τρίγωνο</b> (δ² = (2ρ)² + h²) και <b>Κώνος: το ορθογώνιο τρίγωνο</b> (λ² = ρ² + h²) εφαρμόζουν το θεώρημα στα στερεά και ανοίγουν ως AR σε Android και ως 3D σε iPhone.</p>
+
+  <h3>Γ΄ Γυμνασίου</h3>
+  <p><b>Η πυραμίδα του Θαλή</b> (§1.5, και Α΄ Λυκείου, Κεφάλαιο 3) δείχνει πώς μετριέται το ύψος της πυραμίδας με τις σκιές: με τον ήλιο σε 45°, 40°, 35° και 50°, η σκιά της πυραμίδας και η σκιά μιας ράβδου 2 m σχηματίζουν δύο όμοια ορθογώνια τρίγωνα. Ανοίγει σε WebXR στα γυαλιά και ως κινούμενο μοντέλο AR σε Android.</p>
+  <p><b>Τα γραμμικά συστήματα στον χώρο</b> και <b>Δύο επίπεδα και η λύση</b> δείχνουν ότι η λύση ενός γραμμικού συστήματος είναι το σημείο τομής των επιπέδων. Το πρώτο ανοίγει σε WebXR στα γυαλιά και το δεύτερο ως AR σε Android.</p>
+
+  <h3>Α΄ Λυκείου</h3>
+  <p><b>Το καλάθι</b> (§3.3 και §4.2, τριώνυμο) δείχνει τρεις βολές προς ένα καλάθι στα 3 m: η μπάλα φτάνει στο ύψος του καλαθιού δύο φορές, μία φορά ή καμία, ανάλογα με το πρόσημο της διακρίνουσας. Ανοίγει σε WebXR στα γυαλιά και ως κινούμενο μοντέλο AR σε Android, ενώ το <b>Βίντεο καρέ-καρέ</b> μετρά χρόνους σε βίντεο μιας βολής, χωρίς να το ανεβάζει πουθενά.</p>
+  <p><b>Παραλληλόγραμμα</b> (Γεωμετρία, Κεφάλαιο 5) έχει δέκα καταστάσεις για τις ιδιότητες των παραλληλογράμμων και των τραπεζίων. Ανοίγει σε WebXR στα γυαλιά.</p>
+
+  <h3>Β΄ Λυκείου</h3>
+  <p><b>Κωνικές τομές</b> δείχνει τις τομές κώνου και επιπέδου: τοποθετούνται σε Android και προβάλλονται διαδραστικά σε iPhone.</p>
+  <p><b>Ο κύκλος και η έλικα</b> και <b>Η έλικα και οι σκιές της</b> (Τριγωνομετρία) δείχνουν τον τριγωνομετρικό κύκλο και τη γραφική παράσταση του ημιτόνου ως έλικα. Το πρώτο ανοίγει σε WebXR στα γυαλιά και το δεύτερο ως AR σε Android.</p>
+  <p><b>Εκθετική και λογαριθμική συνάρτηση</b> (Κεφάλαιο 5) δείχνει τις δύο συναρτήσεις και την ευθεία y = x, που είναι άξονας συμμετρίας τους. Ανοίγει σε WebXR στα γυαλιά.</p>
+  <p><b>Κανονικά πολύγωνα</b> (Γεωμετρία, Κεφάλαιο 11, §11.1 έως §11.3) έχει εννέα καταστάσεις: τον ορισμό του κανονικού πολυγώνου με τον ρόμβο και το ορθογώνιο, τη γωνία φ<sub>ν</sub> = 180° − 360°/ν και την κεντρική γωνία ω<sub>ν</sub> = 360°/ν, το εγγεγραμμένο και το περιγεγραμμένο κανονικό ν-γωνο, τα στοιχεία R, λ<sub>ν</sub> και α<sub>ν</sub> με τη σχέση α<sub>ν</sub>² + λ<sub>ν</sub>²/4 = R², το εμβαδόν Ε<sub>ν</sub> = ½P<sub>ν</sub>α<sub>ν</sub>, την εγγραφή του κανονικού εξαγώνου και του ισόπλευρου τριγώνου με τον διαβήτη, τον διπλασιασμό του πλήθους των πλευρών ως το κανονικό 96-γωνο του Αρχιμήδη, την πλακόστρωση δαπέδου και την κηρήθρα. Ανοίγει σε WebXR στα γυαλιά. Το <b>Εμβαδόν κανονικού οκταγώνου</b> είναι η κινούμενη εκδοχή της πέμπτης κατάστασης (τα 8 ίσα ισοσκελή τρίγωνα μπαίνουν σε σειρά και σχηματίζουν παραλληλόγραμμο με βάση P<sub>8</sub>/2 και ύψος α<sub>8</sub>) για AR σε Android και 3D σε iPhone.</p>
+  <p><b>Πολυώνυμα</b> (Άλγεβρα, Κεφάλαιο 4) έχει καταστάσεις για τις πολυωνυμικές συναρτήσεις, τις ρίζες και τους παράγοντες, το κουτί, τη διαίρεση και το σχήμα Horner, τη διχοτόμηση και τις ανισώσεις. Ανοίγει σε WebXR στα γυαλιά. Το μοντέλο <b>Το κουτί και ο όγκος V(x)</b> είναι κινούμενο, για AR σε Android.</p>
+  <p><b>Διανύσματα</b> (Μαθηματικά Προσανατολισμού, Κεφάλαιο 1, §1.1 έως §1.5) έχει πέντε σκηνές: το διάνυσμα ΑΒ και οι συντεταγμένες του, η πρόσθεση και η αφαίρεση (κανόνας παραλληλογράμμου), ο αριθμός επί διάνυσμα, το εσωτερικό γινόμενο με τη γωνία και την προβολή, και η πτήση με άνεμο v = u + w. Ανοίγει σε WebXR στα γυαλιά και ως απλή προβολή 3D σε κάθε συσκευή.</p>
+
+  <h3>Γ΄ Λυκείου</h3>
+  <p>Τα πέντε <b>στερεά εκ περιστροφής</b> (<b>Κύλινδρος</b>, <b>Κώνος</b>, <b>Σφαίρα</b>, <b>Παραβολοειδές √x</b> και <b>Σάλπιγγα Γαβριήλ</b>) έχουν και iOS AR. Το <b>Από το εμβαδόν στον όγκο</b> ανοίγει σε WebXR: AR στα γυαλιά Magic Leap 2 και Meta Quest 3 (και σε Android), VR στο Meta Quest 3, προβολή 3D σε κάθε άλλη συσκευή. Τα δύο κινούμενα μοντέλα περιστροφής χωρίου (§3.7), <b>Χωρίο κάτω από y = √x</b> και <b>Χωρίο ανάμεσα σε y = √x και y = x/2</b>, δείχνουν πώς ένα επίπεδο χωρίο, καθώς περιστρέφεται γύρω από τον άξονα x΄x, σχηματίζει στερεό εκ περιστροφής.</p>
+  <p><b>Εφαπτομένη, ταχύτητα, ρυθμός και ακρότατα</b> (Παράγωγοι) δείχνει τη συνάρτηση f(x) = x³ − 6x² + 9x + 1 με κινούμενο σημείο P πάνω στην καμπύλη, την εφαπτομένη του P, την τέμνουσα που γίνεται εφαπτομένη (h → 0) και τα τοπικά ακρότατα (1, 5) και (3, 1). Ανοίγει σε WebXR στα γυαλιά. Η <b>Εφαπτομένη που κινείται</b> είναι η κινούμενη εκδοχή της ίδιας κατασκευής για Android και iPhone.</p>
+  <p><b>Όρια και συνέχεια</b> (Κεφάλαιο 1, §1.3 έως §1.7) έχει εννέα καταστάσεις: τον ορισμό του ορίου με ε και δ για την f(x) = (x³ − 8)/(x − 2) στο x₀ = 2, τα πλευρικά όρια, το κριτήριο παρεμβολής για την x ημ(1/x), το όριο ημθ/θ στον μοναδιαίο κύκλο, το μη πεπερασμένο όριο της 1/(x − 1)², το όριο στο άπειρο, τη συνέχεια συνάρτησης, το θεώρημα Bolzano και τη μέθοδο της διχοτόμησης για τη ρίζα της x³ − x − 1 στο [1, 2]. Ανοίγει σε WebXR στα γυαλιά. Ο <b>Ορισμός του ορίου</b> είναι η κινούμενη εκδοχή της πρώτης κατάστασης (το ε μικραίνει και το δ το ακολουθεί) για AR σε Android και 3D σε iPhone.</p>
+  <p><b>Ολοκληρώματα και εφαρμογές</b> (Κεφάλαιο 3, §3.1 έως §3.7) έχει δέκα καταστάσεις: την αρχική συνάρτηση G(x) = F(x) + c με τις παράλληλες εφαπτόμενες, το εμβαδόν του παραβολικού χωρίου με τα αθροίσματα ε<sub>ν</sub> και Ε<sub>ν</sub>, το ορισμένο ολοκλήρωμα ως όριο των αθροισμάτων S<sub>ν</sub>, την ιδιότητα με το σημείο γ, τη συνάρτηση F(x) = ∫<sub>0</sub><sup>x</sup> συν t dt, το θεμελιώδες θεώρημα του ολοκληρωτικού λογισμού, την παραγοντική ολοκλήρωση και την ολοκλήρωση με αντικατάσταση ως ισότητες εμβαδών, το εμβαδόν επίπεδου χωρίου με την |f| και το εμβαδόν μεταξύ δύο γραφικών παραστάσεων. Ανοίγει σε WebXR στα γυαλιά. Το <b>Εμβαδόν παραβολικού χωρίου</b> είναι η κινούμενη εκδοχή της δεύτερης κατάστασης (το ν διπλασιάζεται από 2 ως 32 και τα τουβλάκια των αθροισμάτων ανεβαίνουν από τον άξονα x΄x) για AR σε Android και 3D σε iPhone.</p>
 </div>
 <div id="zoom">
   <button class="x" id="zx">Κλείσιμο ✕</button>
@@ -655,6 +703,7 @@
 (function(){
   var tabs=[].slice.call(document.querySelectorAll('#tabs button')),
       cards=[].slice.call(document.querySelectorAll('.grid .card')),
+      secs=[].slice.call(document.querySelectorAll('.grade')),
       note=document.getElementById('devnote');
   var TXT={
     all:'<b>Όλες οι δραστηριότητες.</b> Διάλεξε συσκευή για να δεις μόνο όσες ανοίγουν σε αυτήν και πώς ανοίγουν.',
@@ -668,6 +717,7 @@
       var ok=d==='all'||(' '+c.dataset.dev+' ').indexOf(' '+d+' ')>=0;
       c.style.display=ok?'':'none'; if(ok) n++;
     });
+    secs.forEach(function(g){ g.style.display=[].slice.call(g.querySelectorAll('.card')).some(function(c){return c.style.display!=='none';})?'':'none'; });
     tabs.forEach(function(b){ b.classList.toggle('on',b.dataset.d===d); });
     note.innerHTML=TXT[d]+' Δραστηριότητες: '+n+'.';
     try{ history.replaceState(null,'',d==='all'?location.pathname+location.search:'#'+d); }catch(e){}
