@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Στερεά και όγκοι — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#3b82f6}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px}
+  #bar h1{font-size:15px;margin:0;font-weight:640}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#08131a;background:var(--acc);border-color:transparent}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:780px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:640px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(92vw,80vh);height:auto}
+  #ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;color:var(--dim);font-size:13.5px}
+  #ctl input[type=range]{width:min(60vw,320px);accent-color:var(--acc)} #ctl b{color:var(--ink);min-width:3.6em;text-align:left}
+  #ctl .seg button{padding:8px 12px;font-size:13px}
+  .prm{display:flex;align-items:center;gap:10px}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segK,.nogl #ctl,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #hint{font-size:11.5px} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 220 130" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<polygon points="110,18 52,92 110,112" fill="#2563eb" fill-opacity=".55" stroke="#93c5fd" stroke-width="1.5"/>
+<polygon points="110,18 110,112 168,92" fill="#2563eb" fill-opacity=".8" stroke="#93c5fd" stroke-width="1.5"/>
+<line x1="110" y1="18" x2="110" y2="76" stroke="#dc2626" stroke-width="2" stroke-dasharray="4 3"/>
+<text x="110" y="126" font-size="12" font-weight="700" text-anchor="middle" fill="#eaf1f8">Στερεά και όγκοι</text>
+</svg>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Στερεά και όγκοι</h1>
+  <span class="lv">Γ΄ Γυμνασίου, Στερεά και όγκοι</span>
+</div>
+<div id="dock">
+  <div class="seg" id="segK">
+    <button data-k="0" class="on">Πρίσμα</button>
+    <button data-k="1">Κύλινδρος</button>
+    <button data-k="2">Πυραμίδα και κύβος</button>
+    <button data-k="3">Κώνος</button>
+    <button data-k="4">Κώνος και κύλινδρος</button>
+    <button data-k="5">Μεγέθυνση</button>
+    <button data-k="6">Πυραμίδα του Χέοπα</button>
+  </div>
+  <div id="ctl">
+    <span class="prm" id="rowA"><span id="lblA"></span> <input id="rngA" type="range"> <b id="valA"></b></span>
+    <span class="prm" id="rowB"><span id="lblB"></span> <input id="rngB" type="range"> <b id="valB"></b></span>
+    <span class="prm" id="rowC"><span id="lblC"></span> <input id="rngC" type="range"> <b id="valC"></b></span>
+    <div class="seg" id="segD" style="display:none"></div>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο 35 «Στερεά και όγκοι» — Γ΄ Γυμνασίου. Κέντρο Καινοτομίας Θεσσαλίας. Μονάδα του χώρου: 1 = 10 cm.
+// Σκηνές: 1 πρίσμα από στρώσεις κύβων, 2 κύλινδρος και ανάπτυγμα, 3 κύβος από τρεις πυραμίδες, 4 κώνος και ανάπτυγμα,
+// 5 κώνος και κύλινδρος (μετάγγιση), 6 ομοιότητα στερεών με λόγο λ, 7 η πυραμίδα του Χέοπα.
+// Χρώματα όπως στις εφαρμογές GeoGebra: βάση πορτοκαλί, ύψος κόκκινο, παράπλευρη επιφάνεια μπλε, όγκος πράσινος, ειδικό μέγεθος μωβ.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const UNIT = 0.1;
+const COL = { base: 0xf59e0b, h: 0xdc2626, lat: 0x2563eb, vol: 0x16a34a, spec: 0x7c3aed, grey: 0x6b7280, ink: 0xe2e8f0 };
+const CSS = ['#16a34a', '#2563eb', '#7c3aed', '#2563eb', '#16a34a', '#7c3aed', '#f59e0b'];
+const Y0 = -2.4;                                   // το δάπεδο των στερεών, σε μονάδες του χώρου
+// ρυθμίσεις ανά σκηνή: p = ολισθητές [ελάχιστο, μέγιστο, βήμα, ετικέτα], modes = εναλλακτικές προβολές, ex = παραδείγματα για το σύντομο πάτημα
+const CFG = [
+  { p: [[1, 6, 1, 'Πλάτος α'], [1, 5, 1, 'Βάθος β'], [1, 5, 1, 'Ύψος υ']], init: [4, 3, 2], ex: [[4, 3, 2], [2, 2, 5], [6, 1, 3], [3, 5, 4], [1, 1, 1], [5, 4, 5]] },
+  { p: [[0.5, 2, 0.5, 'Ακτίνα ρ'], [1, 5, 1, 'Ύψος υ']], init: [1.5, 3], modes: ['Κύλινδρος', 'Ανάπτυγμα'], ex: [[1.5, 3], [1, 5], [2, 1], [0.5, 4], [2, 3]] },
+  { p: [[1, 5, 1, 'Ακμή α'], [0, 1, 0.05, 'Απομάκρυνση']], init: [3, 0.6], ex: [[3, 0.6], [3, 0], [3, 1], [2, 1], [5, 0.6]] },
+  { p: [[0.5, 2, 0.5, 'Ακτίνα ρ'], [1, 5, 1, 'Ύψος υ']], init: [1.5, 3], modes: ['Κώνος', 'Ανάπτυγμα'], ex: [[1.5, 3], [1, 5], [2, 1], [0.5, 4], [2, 3]] },
+  { p: [[1, 2.5, 0.5, 'Ακτίνα ρ'], [2, 5, 1, 'Ύψος υ'], [0, 1, 0.01, 'Μετάγγιση']], init: [2, 4, 0.5], ex: [[2, 4, 0.5], [2, 4, 1], [1, 3, 0.2], [2.5, 5, 0.75], [1.5, 2, 0]] },
+  { p: [[0.5, 3, 0.5, 'Λόγος ομοιότητας λ']], init: [2], ex: [[2], [3], [0.5], [1], [2.5]] },
+  { p: [[100, 300, 5, 'Πλευρά βάσης α (m)'], [50, 200, 5, 'Ύψος υ (m)']], init: [230, 145], ex: [[230, 145], [100, 200], [300, 50], [200, 100], [150, 150]] }
+];
+const st = { scene: 0, mode: CFG.map(() => 0), v: CFG.map(c => c.init.slice()) };
+
+const fmt = (v, d = 2) => {
+  const f = Math.pow(10, d), r = Math.round(v * f) / f;
+  return (r < 0 ? '−' : '') + String(Math.abs(r)).replace('.', ',');
+};
+const PI = Math.PI;
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.01, 60);
+const HOME_CAM = new THREE.Vector3(0.3, 0.2, 2.6), HOME_TGT = new THREE.Vector3(0, 0.0, 0);
+camera.position.copy(HOME_CAM);
+const controls = new OrbitControls(camera, canvas);
+controls.target.copy(HOME_TGT);
+controls.enableDamping = true;
+controls.minDistance = 0.4;
+controls.maxDistance = 5;
+controls.update();
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a3446, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 1.5);
+sun.position.set(0.8, 1.6, 1.6);
+scene.add(sun);
+
+const room = new THREE.Group();            // δάπεδο μόνο σε αδιαφανή λειτουργία (VR)
+room.visible = false;
+scene.add(room);
+{
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x1b2433, roughness: 0.95 }));
+  floor.rotation.x = -Math.PI / 2;
+  room.add(floor);
+  const grid = new THREE.GridHelper(12, 24, 0x3b4a63, 0x27324a);
+  grid.position.y = 0.002;
+  room.add(grid);
+}
+
+const root = new THREE.Group();
+scene.add(root);
+const world = new THREE.Group();
+world.scale.setScalar(UNIT);
+root.add(world);
+const dyn = new THREE.Group();              // το περιεχόμενο που ξαναχτίζεται σε κάθε αλλαγή
+world.add(dyn);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+function textTexture(lines, opt = {}) {
+  const w = opt.w || 1024, h = opt.h || 256;
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  if (opt.bg) {
+    ctx.fillStyle = opt.bg;
+    const r = 36;
+    ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+    ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath(); ctx.fill();
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const gap = opt.gap || h / (lines.length + 0.4);
+  lines.forEach((ln, i) => {
+    let size = ln.size || 64;
+    const font = s => `${ln.weight || 600} ${s}px "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif`;
+    ctx.font = font(size);
+    while (size > 18 && ctx.measureText(ln.t).width > w - 80) { size -= 2; ctx.font = font(size); }
+    ctx.fillStyle = ln.color || '#eaf1f8';
+    ctx.fillText(ln.t, w / 2, h / 2 + (i - (lines.length - 1) / 2) * gap);
+  });
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+
+// ------------------------------------------------------------------ σχήματα
+const matCache = new Map();
+const mat = (c, op = 1) => {
+  const k = c + '/' + op;
+  if (!matCache.has(k)) matCache.set(k, new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.16, roughness: 0.55,
+    transparent: op < 1, opacity: op, side: THREE.DoubleSide, depthWrite: op >= 0.9 }));
+  return matCache.get(k);
+};
+const edgeMat = new THREE.LineBasicMaterial({ color: 0xf1f5f9, transparent: true, opacity: 0.55 });
+function add(parent, geo, c, op = 1, edges = true, grab = true) {
+  const m = new THREE.Mesh(geo, mat(c, op));
+  if (grab) m.userData.box = true;
+  parent.add(m);
+  if (edges) m.add(new THREE.LineSegments(new THREE.EdgesGeometry(geo, 25), edgeMat));
+  return m;
+}
+function sub(s, x = 0, y = 0, z = 0) {        // υποομάδα με κλίμακα, που ενώνεται στο dyn
+  const g = new THREE.Group();
+  g.scale.setScalar(s); g.position.set(x, y, z);
+  dyn.add(g);
+  return g;
+}
+// πυραμίδα με βάση τετράπλευρο (4 κορυφές) και κορυφή
+function pyramidGeo(base, apex) {
+  const P = base.map(v => new THREE.Vector3(...v)), A = new THREE.Vector3(...apex);
+  const pos = [];
+  const tri = (a, b, c) => pos.push(a.x, a.y, a.z, b.x, b.y, b.z, c.x, c.y, c.z);
+  tri(P[0], P[1], P[2]); tri(P[0], P[2], P[3]);
+  for (let i = 0; i < 4; i++) tri(P[i], P[(i + 1) % 4], A);
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.computeVertexNormals();
+  return g;
+}
+const wire = (g, c = 0xf1f5f9, op = 0.8) => { const l = new THREE.LineSegments(new THREE.EdgesGeometry(g, 25), new THREE.LineBasicMaterial({ color: c, transparent: true, opacity: op })); return l; };
+
+// πίνακας με τον υπολογισμό
+const PW = 9.4, PH = 2.9;
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(PW, PH), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+panel.renderOrder = 8;
+panel.position.set(0, 5.3, 0.3);
+world.add(panel);
+let panelKey = '';
+function setPanel(lines) {
+  const key = JSON.stringify(lines);
+  if (key === panelKey) return;
+  panelKey = key;
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = textTexture(lines, { w: 1280, h: 395, bg: 'rgba(14,20,32,.9)', gap: 98 });
+  panel.material.needsUpdate = true;
+}
+
+// ------------------------------------------------------------------ σκηνές
+const $ = id => document.getElementById(id);
+const hintEl = $('hint');
+const rows = [0, 1, 2].map(i => ({ row: $('row' + 'ABC'[i]), rng: $('rng' + 'ABC'[i]), lbl: $('lbl' + 'ABC'[i]), val: $('val' + 'ABC'[i]) }));
+const segD = $('segD');
+
+function build() {
+  dyn.traverse(o => { if (o.geometry) o.geometry.dispose(); });
+  dyn.clear();
+  const s = st.scene, [a, b, c] = st.v[s], mode = st.mode[s];
+  let lines, hint;
+  if (s === 0) {                                // πρίσμα με βάση ορθογώνιο, στρώσεις μοναδιαίων κύβων
+    const k = 4.6 / Math.max(a, b, c, 4);
+    const g = sub(k, -a * k / 2, Y0, -b * k / 2);
+    const cubes = new THREE.InstancedMesh(new THREE.BoxGeometry(0.94, 0.94, 0.94), mat(COL.vol, 0.85), a * b * c);
+    cubes.userData.box = true;
+    const m4 = new THREE.Matrix4();
+    let n = 0;
+    for (let i = 0; i < a; i++) for (let j = 0; j < b; j++) for (let l = 0; l < c; l++) { m4.setPosition(i + 0.5, l + 0.5, j + 0.5); cubes.setMatrixAt(n++, m4); }
+    g.add(cubes);
+    const bx = new THREE.BoxGeometry(a, c, b); bx.translate(a / 2, c / 2, b / 2);
+    g.add(wire(bx, 0x93c5fd, 0.95));
+    const bs = new THREE.PlaneGeometry(a, b); bs.rotateX(-PI / 2); bs.translate(a / 2, 0.01, b / 2);
+    add(g, bs, COL.base, 0.55, false, false);
+    const hl = new THREE.CylinderGeometry(0.05, 0.05, c, 8); hl.translate(a + 0.25, c / 2, b + 0.25);
+    add(g, hl, COL.h, 1, false, false);
+    const eb = a * b;
+    lines = [{ t: `Εβ = α · β = ${a} · ${b} = ${eb}`, size: 60, color: '#fbbf24', weight: 650 },
+             { t: `V = Εβ · υ = ${eb} · ${c} = ${eb * c}`, size: 66, weight: 650 },
+             { t: `Κάθε στρώση έχει ${eb} κύβους και υπάρχουν ${c} στρώσεις`, size: 46, color: '#86efac' }];
+    hint = `<b>Όγκος πρίσματος:</b> η βάση χωρά ${eb} μοναδιαίους κύβους, και σε ύψος υ = ${c} στοιβάζονται ${c} στρώσεις. Ο όγκος είναι το εμβαδόν της βάσης επί το ύψος, V = Εβ · υ = ${eb * c}. Το κόκκινο τμήμα είναι το ύψος.`;
+  } else if (s === 1) {                         // κύλινδρος και ανάπτυγμα
+    const r = a, h = b, eP = 2 * PI * r * h, eB = PI * r * r;
+    if (mode === 0) {
+      const g = sub(1, 0, Y0 + h / 2, 0);
+      const cg = new THREE.CylinderGeometry(r, r, h, 64, 1, true);
+      add(g, cg, COL.lat, 0.55);
+      const top = new THREE.CircleGeometry(r, 64); top.rotateX(-PI / 2); top.translate(0, h / 2, 0);
+      const bot = new THREE.CircleGeometry(r, 64); bot.rotateX(PI / 2); bot.translate(0, -h / 2, 0);
+      add(g, top, COL.base, 0.6, false); add(g, bot, COL.base, 0.6, false);
+      const hl = new THREE.CylinderGeometry(0.05, 0.05, h, 8); hl.translate(0, 0, 0);
+      add(g, hl, COL.h, 1, false, false);
+    } else {
+      const w = 2 * PI * r, k = Math.min(1, 8.6 / w, 6.4 / (h + 4 * r));
+      const g = sub(k, 0, 0.2, 0);
+      const lat = new THREE.PlaneGeometry(w, h); add(g, lat, COL.lat, 0.7);
+      const d1 = new THREE.CircleGeometry(r, 64); d1.translate(0, h / 2 + r, 0); add(g, d1, COL.base, 0.75, false);
+      const d2 = new THREE.CircleGeometry(r, 64); d2.translate(0, -h / 2 - r, 0); add(g, d2, COL.base, 0.75, false);
+      const hh = new THREE.PlaneGeometry(0.1, h); hh.translate(-w / 2 - 0.15, 0, 0.02); add(g, hh, COL.h, 1, false, false);
+    }
+    lines = [{ t: `Επαρ = 2πρ · υ = 2 · π · ${fmt(r)} · ${b} = ${fmt(eP)}`, size: 54, color: '#93c5fd', weight: 650 },
+             { t: `Εολ = Επαρ + 2 · πρ² = ${fmt(eP)} + ${fmt(2 * eB)} = ${fmt(eP + 2 * eB)}`, size: 54, weight: 650 },
+             { t: `V = πρ² · υ = ${fmt(eB)} · ${b} = ${fmt(eB * b)}`, size: 58, color: '#86efac', weight: 650 }];
+    hint = `<b>Κύλινδρος:</b> αν τον ανοίξουμε, η παράπλευρη επιφάνεια γίνεται ορθογώνιο με μήκος 2πρ = ${fmt(2 * PI * r)} και ύψος υ = ${b}, και οι δύο βάσεις είναι κύκλοι ακτίνας ρ = ${fmt(r)}. Ο όγκος είναι πρ² · υ.`;
+  } else if (s === 2) {                         // ο κύβος ως τρεις πυραμίδες
+    const k = 3.6 / Math.max(a, 3), t = b * 0.9 * a;
+    const g = sub(k, -a * k / 2, Y0 + t * k, -a * k / 2);
+    const A = a;
+    const defs = [
+      { base: [[0, 0, 0], [0, A, 0], [0, A, A], [0, 0, A]], d: [-1, 0, 0], c: COL.h },
+      { base: [[0, 0, 0], [A, 0, 0], [A, 0, A], [0, 0, A]], d: [0, -1, 0], c: COL.lat },
+      { base: [[0, 0, 0], [A, 0, 0], [A, A, 0], [0, A, 0]], d: [0, 0, -1], c: COL.vol }];
+    for (const df of defs) {
+      const pg = new THREE.Group();
+      pg.position.set(df.d[0] * t, df.d[1] * t, df.d[2] * t);
+      g.add(pg);
+      add(pg, pyramidGeo(df.base, [A, A, A]), df.c, 0.8);
+    }
+    if (b < 0.02) g.add(wire(new THREE.BoxGeometry(A, A, A).translate(A / 2, A / 2, A / 2), 0xf1f5f9, 0.9));
+    const eb = a * a, vp = eb * a / 3;
+    lines = [{ t: `Κύβος: V = α³ = ${a}³ = ${a * a * a}`, size: 58, weight: 650 },
+             { t: `Πυραμίδα: V = (1/3) · Εβ · υ = (1/3) · ${eb} · ${a} = ${fmt(vp)}`, size: 54, color: '#c4b5fd', weight: 650 },
+             { t: `3 · ${fmt(vp)} = ${a * a * a}: ο κύβος χωρά 3 ίδιες πυραμίδες`, size: 46, color: '#86efac' }];
+    hint = `<b>Ο όγκος της πυραμίδας:</b> όταν η κορυφή βρίσκεται σε μια κορυφή του κύβου, οι τρεις έδρες που δεν την περιέχουν γίνονται βάσεις τριών ίδιων πυραμίδων με ύψος α. Άρα κάθε πυραμίδα έχει το 1/3 του όγκου του κύβου, δηλαδή V = (1/3) · Εβ · υ.`;
+  } else if (s === 3) {                         // κώνος και ανάπτυγμα
+    const r = a, h = b, lam = Math.hypot(r, h), eP = PI * r * lam, eB = PI * r * r, th = 2 * PI * r / lam;
+    if (mode === 0) {
+      const g = sub(1, 0, Y0 + h / 2, 0);
+      add(g, new THREE.ConeGeometry(r, h, 64, 1, true), COL.lat, 0.55);
+      const bot = new THREE.CircleGeometry(r, 64); bot.rotateX(PI / 2); bot.translate(0, -h / 2, 0);
+      add(g, bot, COL.base, 0.6, false);
+      const hl = new THREE.CylinderGeometry(0.05, 0.05, h, 8);
+      add(g, hl, COL.h, 1, false, false);
+    } else {
+      const k = Math.min(1, 6.4 / (lam + 2 * r), 8.6 / (2 * lam));
+      const g = sub(k, 0, 0.2 + (lam + 2 * r) * k / 2, 0);
+      const sec = new THREE.CircleGeometry(lam, 96, -PI / 2 - th / 2, th);
+      add(g, sec, COL.lat, 0.7);
+      const d = new THREE.CircleGeometry(r, 64); d.translate(0, -lam - r, 0); add(g, d, COL.base, 0.75, false);
+    }
+    lines = [{ t: `λ = √(ρ² + υ²) = √(${fmt(r)}² + ${b}²) = ${fmt(lam)}`, size: 54, color: '#c4b5fd', weight: 650 },
+             { t: `Επαρ = πρλ = ${fmt(eP)}, Εολ = πρλ + πρ² = ${fmt(eP + eB)}`, size: 54, color: '#93c5fd', weight: 650 },
+             { t: `V = (1/3) · πρ² · υ = ${fmt(eB * h / 3)}`, size: 58, color: '#86efac', weight: 650 }];
+    hint = `<b>Κώνος:</b> το ανάπτυγμα της παράπλευρης επιφάνειας είναι κυκλικός τομέας με ακτίνα την πλάγια ύψος λ = ${fmt(lam)}. Το μήκος του τόξου του είναι 2πρ, οπότε η γωνία του τομέα είναι ${fmt(360 * r / lam, 1)}°. Στο ανάπτυγμα προστίθεται ο κύκλος της βάσης.`;
+  } else if (s === 4) {                         // κώνος και κύλινδρος, μετάγγιση
+    const r = a, h = b, t = c, k = Math.min(1, 8.4 / (4 * r + 1.2), 4.6 / h);
+    const w = h * Math.cbrt(1 - t);
+    const gC = sub(k, -(r + 0.6) * k, Y0, 0), gY = sub(k, (r + 0.6) * k, Y0, 0);
+    const cone = new THREE.ConeGeometry(r, h, 64, 1, true); cone.rotateX(PI); cone.translate(0, h / 2, 0);
+    add(gC, cone, 0xe5e7eb, 0.2, false, false); gC.add(wire(cone, 0xe2e8f0, 0.7));
+    if (w > 0.02) { const wc = new THREE.ConeGeometry(r * w / h, w, 64); wc.rotateX(PI); wc.translate(0, w / 2, 0); add(gC, wc, COL.lat, 0.85, false); }
+    const cyl = new THREE.CylinderGeometry(r, r, h, 64, 1, true); cyl.translate(0, h / 2, 0);
+    add(gY, cyl, 0xe5e7eb, 0.2, false, false); gY.add(wire(cyl, 0xe2e8f0, 0.7));
+    const wh = t * h / 3;
+    if (wh > 0.01) { const wy = new THREE.CylinderGeometry(r, r, wh, 64); wy.translate(0, wh / 2, 0); add(gY, wy, COL.lat, 0.85, false); }
+    const vC = PI * r * r * h / 3, vY = PI * r * r * h;
+    lines = [{ t: `Κώνος: V = (1/3) · πρ² · υ = ${fmt(vC)}`, size: 56, color: '#86efac', weight: 650 },
+             { t: `Κύλινδρος: V = πρ² · υ = ${fmt(vY)} = 3 · ${fmt(vC)}`, size: 54, weight: 650 },
+             { t: `Έχει μεταγγιστεί το ${fmt(t * 100, 0)} % του νερού του κώνου`, size: 48, color: '#93c5fd' }];
+    hint = `<b>Κώνος και κύλινδρος με ίδια βάση και ίδιο ύψος:</b> ο όγκος του κώνου είναι το 1/3 του όγκου του κυλίνδρου. Με την απομάκρυνση του ολισθητή το νερό περνά από τον κώνο στον κύλινδρο, και όταν ο κώνος αδειάσει το νερό φτάνει στο 1/3 του ύψους του κυλίνδρου.`;
+  } else if (s === 5) {                         // ομοιότητα στερεών
+    const lam = a, wd = 1.5, dp = 1, ht = 1;
+    const k = Math.min(1.6, 8.6 / (wd + 0.7 + wd * lam), 4.6 / (ht * lam));
+    const g0 = sub(k, 0, Y0, 0), g1 = sub(k, 0, Y0, 0);
+    const x0 = -(wd + 0.7 + wd * lam) / 2 * k / k;
+    g0.position.x = (x0 + wd / 2) * k; g1.position.x = (x0 + wd + 0.7 + wd * lam / 2) * k;
+    const b0 = new THREE.BoxGeometry(wd, ht, dp); b0.translate(0, ht / 2, 0); add(g0, b0, COL.lat, 0.7);
+    const b1 = new THREE.BoxGeometry(wd * lam, ht * lam, dp * lam); b1.translate(0, ht * lam / 2, 0); add(g1, b1, COL.spec, 0.55);
+    lines = [{ t: `Μήκη × λ = × ${fmt(lam)}`, size: 56, color: '#fca5a5', weight: 650 },
+             { t: `Εμβαδά × λ² = × ${fmt(lam * lam)}: 8 → ${fmt(8 * lam * lam)}`, size: 56, color: '#fcd34d', weight: 650 },
+             { t: `Όγκοι × λ³ = × ${fmt(lam * lam * lam)}: 1,5 → ${fmt(1.5 * lam * lam * lam)}`, size: 56, color: '#86efac', weight: 650 }];
+    hint = `<b>Μεγέθυνση με λόγο λ = ${fmt(lam)}:</b> το μπλε στερεό είναι το αρχικό (1,5 × 1 × 1) και το μωβ το μεγεθυμένο, με όλα τα μήκη πολλαπλασιασμένα επί λ. Τα εμβαδά πολλαπλασιάζονται επί λ² και οι όγκοι επί λ³.`;
+  } else {                                      // η πυραμίδα του Χέοπα
+    const k = 4.6 / 300, al = a, h = b, lam = Math.hypot(h, al / 2), V = al * al * h / 3;
+    const g = sub(k, 0, Y0, 0);
+    const hs = al / 2;
+    add(g, pyramidGeo([[-hs, 0, -hs], [hs, 0, -hs], [hs, 0, hs], [-hs, 0, hs]], [0, h, 0]), COL.lat, 0.75);
+    const hl = new THREE.CylinderGeometry(al * 0.006, al * 0.006, h, 8); hl.translate(0, h / 2, 0);
+    add(g, hl, COL.h, 1, false, false);
+    const pool = new THREE.BoxGeometry(50, 2, 25); pool.translate(0, 1, 0);
+    const gp = sub(k, (al / 2 + 80) * k, Y0, 0);
+    add(gp, pool, COL.vol, 0.85);
+    lines = [{ t: `λ = √(υ² + (α/2)²) = ${fmt(lam)} m`, size: 54, color: '#c4b5fd', weight: 650 },
+             { t: `V = (1/3) · α² · υ = ${fmt(V, 0)} m³`, size: 58, color: '#86efac', weight: 650 },
+             { t: `Ολυμπιακή πισίνα (50 m × 25 m × 2 m) = 2500 m³: ${fmt(V / 2500, 0)} πισίνες`, size: 44, weight: 600 }];
+    hint = `<b>Η πυραμίδα του Χέοπα</b> έχει περίπου α = 230 m και υ = 147 m. Ο όγκος της είναι V = (1/3) · Εβ · υ, και χωρά περίπου ${fmt(V / 2500, 0)} ολυμπιακές πισίνες, μία από τις οποίες φαίνεται δίπλα της σε ίδια κλίμακα.`;
+  }
+  setPanel(lines);
+  hintEl.innerHTML = hint;
+}
+
+function update() {
+  const s = st.scene, cf = CFG[s];
+  rows.forEach((r, i) => {
+    const p = cf.p[i];
+    r.row.style.display = p ? 'flex' : 'none';
+    if (!p) return;
+    const v = st.v[s][i];
+    r.rng.min = p[0]; r.rng.max = p[1]; r.rng.step = p[2]; r.rng.value = v;
+    r.lbl.textContent = p[3]; r.val.textContent = fmt(v, 2);
+  });
+  segD.style.display = cf.modes ? 'flex' : 'none';
+  if (cf.modes) {
+    segD.innerHTML = cf.modes.map((m, i) => `<button data-d="${i}" class="${st.mode[s] === i ? 'on' : ''}">${m}</button>`).join('');
+    segD.querySelectorAll('button').forEach(x => x.onclick = () => { st.mode[s] = +x.dataset.d; update(); });
+  }
+  document.documentElement.style.setProperty('--acc', CSS[s]);
+  document.querySelectorAll('#segK button').forEach(x => x.classList.toggle('on', +x.dataset.k === s));
+  build();
+}
+function bump(i, dir) {                        // αλλαγή του ολισθητή i κατά ένα βήμα
+  const p = CFG[st.scene].p[i];
+  if (!p) return;
+  const v = st.v[st.scene][i] + dir * p[2];
+  st.v[st.scene][i] = Math.min(p[1], Math.max(p[0], Math.round(v * 100) / 100));
+  update();
+}
+document.querySelectorAll('#segK button').forEach(x => x.onclick = () => { st.scene = +x.dataset.k; update(); });
+rows.forEach((r, i) => { r.rng.oninput = () => { st.v[st.scene][i] = +r.rng.value; update(); }; });
+function next() {
+  const ex = CFG[st.scene].ex, cur = st.v[st.scene];
+  const i = ex.findIndex(e => e.every((x, j) => x === cur[j]));
+  st.v[st.scene] = ex[(i + 1) % ex.length].slice();
+  update();
+}
+update();
+
+// ------------------------------------------------------------------ XR
+const btnAR = $('btnAR'), btnVR = $('btnVR'), note = $('note');
+let placed = false, floorRef = true;
+async function checkXR() {
+  const msg = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) { note.textContent = msg; note.style.display = 'block'; return; }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) { note.textContent = msg; note.style.display = 'block'; }
+}
+checkXR();
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    await renderer.xr.setSession(session);
+    placed = false;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    room.visible = opaque;
+    scene.background = opaque ? new THREE.Color(0x0e1420) : null;
+    session.addEventListener('end', () => {
+      room.visible = false;
+      scene.background = null;
+      root.position.set(0, 0, 0);
+      root.quaternion.identity();
+      root.scale.setScalar(1);
+      camera.position.copy(HOME_CAM);
+      controls.target.copy(HOME_TGT);
+      controls.update();
+    });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+// στην πρώτη εικόνα του XR, το σχήμα τοποθετείται 1,1 m μπροστά από τον χρήστη, στο ύψος των ματιών
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const yaw = Math.atan2(-dir.x, -dir.z);
+  root.position.set(p.x + dir.x * 1.1, p.y + 0.1, p.z + dir.z * 1.1);
+  root.rotation.set(0, yaw, 0);
+  root.scale.setScalar(1);
+  room.children[0].position.y = floorRef ? 0 : p.y - 1.5;
+  placed = true;
+}
+
+// χειριστήρια: σύντομο πάτημα = επόμενο παράδειγμα, παρατεταμένο πάτημα πάνω στο σχήμα = μετακίνηση,
+// μοχλός αριστερά και δεξιά = αλλαγή του πρώτου (αριστερό χειριστήριο) ή του δεύτερου (δεξί) ολισθητή, πάνω και κάτω = μέγεθος
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    const targets = [];
+    world.traverse(o => { if ((o.isMesh || o.isInstancedMesh) && o.visible && o.userData.box) targets.push(o); });
+    if (ray.intersectObjects(targets, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    if (ctl.userData.grab) { scene.attach(root); ctl.userData.grab = false; }
+    if (performance.now() - ctl.userData.t0 < 280) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+const ctls = [makeController(0), makeController(1)];
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+let last = performance.now(), acc = 0;
+const vp = new THREE.Vector3();
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  // ο πίνακας στρέφεται προς τον θεατή γύρω από τον κατακόρυφο άξονα
+  const cam = renderer.xr.isPresenting ? renderer.xr.getCamera() : camera;
+  cam.getWorldPosition(vp);
+  world.worldToLocal(vp);
+  panel.rotation.set(0, Math.atan2(vp.x, vp.z), 0);
+  if (renderer.xr.isPresenting) {
+    acc += dt;
+    ctls.forEach(c => {
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if (!gp || !gp.axes || !gp.axes.length) return;
+      const ax = gp.axes.length > 3 ? gp.axes[2] : gp.axes[0];
+      const ay = gp.axes.length > 3 ? gp.axes[3] : gp.axes[1];
+      if (Math.abs(ax) > 0.5 && acc > 0.2) { acc = 0; const h = c.userData.source.handedness; bump(h === 'right' && CFG[st.scene].p[1] ? 1 : 0, ax > 0 ? 1 : -1); }
+      if (Math.abs(ay) > 0.5) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ay * dt * 0.9), 0.5, 3));
+    });
+  } else {
+    controls.update();
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
