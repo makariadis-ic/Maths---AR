@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 30 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -38,6 +38,7 @@
 | Δεκαδικοί και ποσοστά (`dekadika-pososta.html`) | Α΄ Γυμνασίου, δεκαδικοί αριθμοί (§3.1) και ποσοστά (§5.1, §5.2) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Ρητοί αριθμοί (`rhtoi.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 7 (§7.1 έως §7.9) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Εξισώσεις και προβλήματα (`eksiswseis.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 4 (§4.1 έως §4.3) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Διανύσματα (`dianysmata.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 1 (§1.1 έως §1.5) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 
 Όλα τα μοντέλα είναι περίπου **25 εκατοστά** — μέγεθος που κάθεται σε θρανίο.
 
@@ -51,7 +52,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    30 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -648,4 +649,28 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 | 5 | Το ορθογώνιο (§4.3) | Πλάτος x, μήκος x + δ και περίμετρος 2(x + (x + δ)) = Π. Η μωβ γραμμή δείχνει το ορθογώνιο της λύσης |
 
 Η σελίδα δεν έχει δοκιμαστεί μέσα στα γυαλιά, μόνο σε headless Chrome (προβολή 3D, έλεγχος σφαλμάτων και ακραίες τιμές των ολισθητών).
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+## Διανύσματα στο Κέντρο Καινοτομίας (σενάριο 40, Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 1, §1.1 έως §1.5)
+
+Συνοδεύει τις 15 εφαρμογές GeoGebra «Διανύσματα - …» του σεναρίου.
+
+- `dianysmata.html` — WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3 (και προβολή 3D σε κάθε συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/dianysmata.html. Η μονάδα του χώρου είναι τα 10 cm. Τα χρώματα είναι όπως στις
+  εφαρμογές GeoGebra: α μπλε, β πράσινο, αποτέλεσμα μωβ, αρνητικό κόκκινο, συνιστώσες και προβολή τιρκουάζ. Ένας πίνακας από πάνω γράφει
+  τον υπολογισμό. Μέσα στα γυαλιά το σχήμα εμφανίζεται 1,1 m μπροστά από τον μαθητή. Σύντομο πάτημα σκανδάλης φορτώνει το
+  επόμενο παράδειγμα, κράτημα πάνω στο σχήμα το μετακινεί, ο μοχλός αριστερά και δεξιά αλλάζει μία παράμετρο (το αριστερό χειριστήριο
+  την πρώτη, το δεξί τη δεύτερη), το πάτημα του μοχλού περνά στην επόμενη παράμετρο και πάνω και κάτω αλλάζει το μέγεθος. Στην προβολή 3D
+  οι ολισθητές και τα κουμπιά ελέγχουν τη σκηνή. Δεν έχει αντίστοιχο μοντέλο `.glb`, γι' αυτό η κάρτα του `index.html` δείχνει ένα σχέδιο
+  SVG και δεν υπάρχει εγγραφή στο `m.html`.
+
+| # | Σκηνή | Τι δείχνει |
+|---|---|---|
+| 1 | Το διάνυσμα ΑΒ (§1.1, §1.4) | Το ΑΒ από το Α στο Β, οι συνιστώσες του και το ίσο διάνυσμα από το Ο, με ΑΒ = (xΒ − xΑ, yΒ − yΑ) και το μέτρο |
+| 2 | Πρόσθεση και αφαίρεση (§1.2) | Ο κανόνας του τριγώνου και του παραλληλογράμμου για το α + β, και το α − β = α + (−β) |
+| 3 | Αριθμός επί διάνυσμα (§1.3) | Το λα στον ίδιο φορέα με το α: ομόρροπα για λ > 0, αντίρροπα για λ < 0, με |λα| = |λ||α| |
+| 4 | Εσωτερικό γινόμενο (§1.5) | Η γωνία φ, η προβολή του β στο α και το α · β = αxβx + αyβy, με οξεία, αμβλεία ή ορθή γωνία |
+| 5 | Πτήση με άνεμο (§1.2) | Η ταχύτητα ως προς το έδαφος v = u + w και η εκτροπή από τη διεύθυνση του αεροσκάφους |
+
+Η σελίδα δεν έχει δοκιμαστεί μέσα στα γυαλιά, μόνο σε headless Chrome (προβολή 3D και έλεγχος σφαλμάτων).
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
