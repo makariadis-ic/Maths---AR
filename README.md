@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 30 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -41,6 +41,7 @@
 | Μεσοκάθετος, συμμετρία και παράλληλες (`symmetria-paralliles.html`) | Α΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 2 (§2.3 έως §2.6) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Στερεά και όγκοι (`sterea-ogkoi.html`) | Γ΄ Γυμνασίου, Στερεά και όγκοι | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Διανύσματα (`dianysmata.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 1 (§1.1 έως §1.5) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Η ευθεία στο επίπεδο (`eutheia.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 2 (§2.1 έως §2.3) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μετρικές σχέσεις (`metrikes-scheseis.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 9 (§9.1 έως §9.5 και §9.7) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 
 Όλα τα μοντέλα είναι περίπου **25 εκατοστά** — μέγεθος που κάθεται σε θρανίο.
@@ -55,7 +56,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    30 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -697,6 +698,26 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 | 11 | 1ο θεώρημα διαμέσων | §9.5 |
 | 12 | 2ο θεώρημα διαμέσων | §9.5 |
 | 13 | Τέμνουσες κύκλου | §9.7 |
+
+- `eutheia.html` — WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3 (και προβολή 3D σε κάθε συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/eutheia.html. Η μονάδα του χώρου είναι τα 10 cm. Τα χρώματα είναι όπως στις
+  εφαρμογές GeoGebra. Ένας πίνακας από πάνω γράφει τον υπολογισμό. Μέσα στα γυαλιά το σχήμα εμφανίζεται 1,1 m μπροστά από τον
+  μαθητή. Σύντομο πάτημα σκανδάλης φορτώνει το επόμενο παράδειγμα, κράτημα πάνω στο σχήμα το μετακινεί, ο μοχλός αριστερά και δεξιά
+  αλλάζει μία παράμετρο, το πάτημα του μοχλού περνά στην επόμενη παράμετρο και πάνω και κάτω αλλάζει το μέγεθος. Στην προβολή 3D
+  οι ολισθητές και τα κουμπιά ελέγχουν τη σκηνή. Δεν έχει αντίστοιχο μοντέλο `.glb`, γι' αυτό η κάρτα του `index.html` δείχνει ένα
+  σχέδιο SVG και δεν υπάρχει εγγραφή στο `m.html`.
+
+| # | Σκηνή | Τι δείχνει |
+|---|---|---|
+| 1 | Συντελεστής διεύθυνσης (§2.1) | Ευθεία από δύο σημεία, με τις μεταβολές Δx και Δy, το λ, το β και τη γωνία ω |
+| 2 | y = λx + β (§2.1) | Το λ και το β, καθώς και οι ευθείες x = κ και y = μ παράλληλες προς τους άξονες |
+| 3 | Παράλληλες και κάθετες (§2.1) | Οι συνθήκες λ₁ = λ₂ και λ₁ · λ₂ = −1, με ορθή γωνία στο σημείο τομής |
+| 4 | Γενική μορφή (§2.2) | Η ευθεία Αx + Βy + Γ = 0, με λ, β και τα ειδικά είδη (Β = 0, Α = 0, Γ = 0) |
+| 5 | Απόσταση σημείου από ευθεία (§2.3) | Ο τύπος d = \|Αx₀ + Βy₀ + Γ\| / √(Α² + Β²) και η προβολή Η του Μ |
+| 6 | Εμβαδόν τριγώνου (§2.3) | Ε = ½ \|det(ΑΒ, ΑΓ)\|, με τη συνευθειακή θέση Ε = 0 |
+
+Η σελίδα δεν έχει δοκιμαστεί μέσα στα γυαλιά, μόνο σε headless Chrome (προβολή 3D, έλεγχος σφαλμάτων και ακραίες τιμές των ολισθητών).
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
 
 - `metrikes-scheseis.html` — WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3 (και προβολή 3D σε κάθε συσκευή),
   https://makariadis-ic.github.io/Maths---AR/metrikes-scheseis.html. Η μονάδα του χώρου είναι τα 10 cm. Τα χρώματα είναι όπως στις

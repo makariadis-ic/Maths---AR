@@ -1,0 +1,643 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Η ευθεία στο επίπεδο — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#3b82f6}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px}
+  #bar h1{font-size:15px;margin:0;font-weight:640}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+  .seg button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:10px 14px;cursor:pointer}
+  .seg button.on{color:#08131a;background:var(--acc);border-color:transparent}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:780px;text-align:center;line-height:1.5}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:640px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:44%;transform:translate(-50%,-50%);
+    width:min(92vw,80vh);height:auto}
+  #ctl{display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:center;color:var(--dim);font-size:13.5px}
+  #ctl input[type=range]{width:min(40vw,190px);accent-color:var(--acc)} #rows{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:6px 22px} .row{display:flex;align-items:center;gap:8px;justify-content:space-between} .row span{min-width:7.5em} #ctl b{color:var(--ink);min-width:4.2em;text-align:left}
+  #ctl .seg button{padding:8px 12px;font-size:13px}
+  .nogl #fallback{display:block} .nogl #c,.nogl #segK,.nogl #ctl,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:9px 10px;font-size:12.5px} #hint{font-size:11.5px} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 220 140" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<line x1="10" y1="110" x2="210" y2="110" stroke="#e2e8f0" stroke-width="1.5"/><line x1="60" y1="130" x2="60" y2="10" stroke="#e2e8f0" stroke-width="1.5"/>
+<line x1="20" y1="128" x2="200" y2="30" stroke="#3b82f6" stroke-width="4"/><line x1="80" y1="95" x2="160" y2="95" stroke="#22c55e" stroke-width="3"/><line x1="160" y1="95" x2="160" y2="51" stroke="#14b8a6" stroke-width="3"/>
+<circle cx="80" cy="95" r="5" fill="#ef4444"/><circle cx="160" cy="51" r="5" fill="#ef4444"/>
+<text x="110" y="136" font-size="12" font-weight="700" text-anchor="middle" fill="#eaf1f8">Η ευθεία στο επίπεδο</text>
+</svg>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Η ευθεία στο επίπεδο</h1>
+  <span class="lv">Β΄ Λυκείου, §2.1 έως §2.3</span>
+</div>
+<div id="dock">
+  <div class="seg" id="segK"></div>
+  <div id="ctl">
+    <div id="rows"></div>
+  </div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο 41 «Η ευθεία στο επίπεδο» — Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφ. 2 (§2.1 έως §2.3)
+// Κέντρο Καινοτομίας Θεσσαλίας. Μονάδα του χώρου: 1 = 10 cm.
+// Σκηνές: συντελεστής διεύθυνσης, y = λx + β, παράλληλες και κάθετες, γενική μορφή, απόσταση σημείου από ευθεία, εμβαδόν τριγώνου.
+// Χρώματα όπως στις εφαρμογές GeoGebra: ε₁ μπλε, ε₂ πράσινο, αποτέλεσμα μωβ, σημεία και κάθετα κόκκινα, βοηθητικά τιρκουάζ.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const UNIT = 0.1;
+const COL = { pos: 0x3b82f6, b: 0x22c55e, neg: 0xef4444, neg2: 0x22c55e, res: 0xa855f7, comp: 0x22c55e, comp2: 0x14b8a6, grey: 0x64748b, ink: 0xe2e8f0 };
+const fmt = v => {
+  const r = Math.round(v * 1e5) / 1e5;
+  const s = String(Math.abs(r)).replace('.', ',');
+  return (r < 0 ? '−' : '') + s;
+};
+const par = v => v < 0 ? '(' + fmt(v) + ')' : fmt(v);
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.01, 60);
+const HOME_CAM = new THREE.Vector3(0, -0.3, 4.0), HOME_TGT = new THREE.Vector3(0, -0.3, 0);
+camera.position.copy(HOME_CAM);
+const controls = new OrbitControls(camera, canvas);
+controls.target.copy(HOME_TGT);
+controls.enableDamping = true;
+controls.minDistance = 0.4;
+controls.maxDistance = 5;
+controls.update();
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a3446, 1.6));
+const sun = new THREE.DirectionalLight(0xffffff, 1.4);
+sun.position.set(0.8, 1.6, 1.6);
+scene.add(sun);
+
+const room = new THREE.Group();            // δάπεδο μόνο σε αδιαφανή λειτουργία (VR)
+room.visible = false;
+scene.add(room);
+{
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x1b2433, roughness: 0.95 }));
+  floor.rotation.x = -Math.PI / 2;
+  room.add(floor);
+  const grid = new THREE.GridHelper(12, 24, 0x3b4a63, 0x27324a);
+  grid.position.y = 0.002;
+  room.add(grid);
+}
+
+const root = new THREE.Group();
+scene.add(root);
+const world = new THREE.Group();
+world.scale.setScalar(UNIT);
+root.add(world);
+const dyn = new THREE.Group();              // το περιεχόμενο που ξαναχτίζεται σε κάθε αλλαγή
+world.add(dyn);
+
+// ------------------------------------------------------------------ κείμενα σε υφή
+function textTexture(lines, opt = {}) {
+  const w = opt.w || 1024, h = opt.h || 256;
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  if (opt.bg) {
+    ctx.fillStyle = opt.bg;
+    const r = 36;
+    ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+    ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath(); ctx.fill();
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const gap = opt.gap || h / (lines.length + 0.4);
+  lines.forEach((ln, i) => {
+    let size = ln.size || 64;
+    const font = s => `${ln.weight || 600} ${s}px "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif`;
+    ctx.font = font(size);
+    while (size > 18 && ctx.measureText(ln.t).width > w - 80) { size -= 2; ctx.font = font(size); }
+    ctx.fillStyle = ln.color || '#eaf1f8';
+    ctx.fillText(ln.t, w / 2, h / 2 + (i - (lines.length - 1) / 2) * gap);
+  });
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+const labCache = new Map();
+function label(t, x, y, color = '#eaf1f8', size = 0.9, z = 0.2) {
+  const key = t + color;
+  let mat = labCache.get(key);
+  if (!mat) {
+    mat = new THREE.MeshBasicMaterial({ map: textTexture([{ t, size: 70, weight: 650, color }], { w: 384, h: 128 }), transparent: true, depthWrite: false, side: THREE.DoubleSide });
+    labCache.set(key, mat);
+  }
+  const m = new THREE.Mesh(new THREE.PlaneGeometry(size * 3, size), mat);
+  m.position.set(x, y, z);
+  m.renderOrder = 6;
+  dyn.add(m);
+  return m;
+}
+
+// ------------------------------------------------------------------ βασικά σχήματα
+const matCache = new Map();
+const mat = c => {
+  if (!matCache.has(c)) matCache.set(c, new THREE.MeshStandardMaterial({ color: c, emissive: c, emissiveIntensity: 0.18, roughness: 0.55 }));
+  return matCache.get(c);
+};
+const Y = new THREE.Vector3(0, 1, 0);
+function put(geo, c, pos, dir, grab = true) {
+  const m = new THREE.Mesh(geo, mat(c));
+  m.position.copy(pos);
+  if (dir) m.quaternion.setFromUnitVectors(Y, dir);
+  m.userData.box = grab;
+  dyn.add(m);
+  return m;
+}
+function box(x0, x1, y0, y1, z0, z1, c) {
+  const m = new THREE.Mesh(new THREE.BoxGeometry(Math.max(Math.abs(x1 - x0), 0.001), Math.max(Math.abs(y1 - y0), 0.001), Math.max(Math.abs(z1 - z0), 0.001)), mat(c));
+  m.position.set((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2);
+  m.userData.box = true;
+  dyn.add(m);
+  return m;
+}
+function ball(x, y, c, r = 0.26) {
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r, 24, 16), mat(c));
+  m.position.set(x, y, 0.05);
+  m.userData.box = true;
+  dyn.add(m);
+  return m;
+}
+// διάνυσμα από το (x0,y0) στο (x1,y1) στο επίπεδο xy: κύλινδρος και κώνος, προαιρετικά διακεκομμένο
+function vec(x0, y0, x1, y1, c, r = 0.11, z = 0, dash = false) {
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+  if (L < 0.06) return;
+  const dir = new THREE.Vector3(dx / L, dy / L, 0);
+  const head = Math.min(0.62, L * 0.5), shaft = L - head;
+  const start = new THREE.Vector3(x0, y0, z);
+  if (!dash) {
+    put(new THREE.CylinderGeometry(r, r, shaft, 14), c, start.clone().addScaledVector(dir, shaft / 2), dir);
+  } else {
+    const on = 0.32, off = 0.22;
+    for (let t = 0; t < shaft - 0.05; t += on + off) {
+      const len = Math.min(on, shaft - t);
+      put(new THREE.CylinderGeometry(r, r, len, 10), c, start.clone().addScaledVector(dir, t + len / 2), dir);
+    }
+  }
+  put(new THREE.ConeGeometry(r * 2.8, head, 18), c, start.clone().addScaledVector(dir, L - head / 2), dir);
+}
+function ln(x0, y0, x1, y1, c, r = 0.025, z = -0.02) {      // λεπτή γραμμή
+  const dx = x1 - x0, dy = y1 - y0, L = Math.hypot(dx, dy);
+  if (L < 0.01) return;
+  const dir = new THREE.Vector3(dx / L, dy / L, 0);
+  return put(new THREE.CylinderGeometry(r, r, L, 8), c, new THREE.Vector3((x0 + x1) / 2, (y0 + y1) / 2, z), dir, false);
+}
+function dashLine(x0, y0, x1, y1, c, r = 0.03) {
+  const L = Math.hypot(x1 - x0, y1 - y0), n = Math.max(2, Math.round(L / 0.4));
+  for (let i = 0; i < n; i += 2) ln(x0 + (x1 - x0) * i / n, y0 + (y1 - y0) * i / n, x0 + (x1 - x0) * (i + 1) / n, y0 + (y1 - y0) * (i + 1) / n, c, r);
+}
+function axes2(R = 6) {
+  ln(-R - 0.4, 0, R + 0.4, 0, COL.ink, 0.035, 0);
+  ln(0, -R - 0.4, 0, R + 0.4, COL.ink, 0.035, 0);
+  label('x', R + 0.8, -0.45, '#cbd5e1', 0.6);
+  label('y', 0.5, R + 0.8, '#cbd5e1', 0.6);
+  for (let i = -R; i <= R; i++) if (i) {
+    const col = i < 0 ? '#fca5a5' : '#93c5fd';
+    ln(i, -0.12, i, 0.12, COL.ink, 0.02, 0);
+    ln(-0.12, i, 0.12, i, COL.ink, 0.02, 0);
+    if (Math.abs(i) % 2 === 0) {
+      label(fmt(i), i, -0.62, col, 0.42);
+      label(fmt(i), -0.72, i, col, 0.42);
+    }
+  }
+}
+function lab(t, x, y, nx, ny, color, size = 0.62) { label(t, x + nx, y + ny, color, size, 0.35); }   // ετικέτα με μετατόπιση
+
+// πίνακας με τον υπολογισμό
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(9, 2.25), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+panel.renderOrder = 8;
+world.add(panel);
+let panelKey = '';
+function setPanel(lines, y) {
+  panel.position.set(0, y, 0.3);
+  const key = JSON.stringify(lines);
+  if (key === panelKey) return;
+  panelKey = key;
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = textTexture(lines, { w: 1280, h: 320, bg: 'rgba(14,20,32,.88)', gap: lines.length > 2 ? 96 : 110 });
+  panel.material.needsUpdate = true;
+}
+const grid = new THREE.GridHelper(14, 14, 0x3b4a63, 0x27324a);     // πλέγμα στο επίπεδο xy
+grid.rotation.x = Math.PI / 2;
+grid.position.z = -0.1;
+world.add(grid);
+
+// ------------------------------------------------------------------ σκηνές
+const $ = id => document.getElementById(id);
+const hintEl = $('hint'), rowsEl = $('rows'), segK = $('segK');
+const P = (k, label, min, max, step, unit = '') => ({ k, label, min, max, step, unit });
+const SCENES = [
+  { name: 'Συντελεστής διεύθυνσης', acc: '#3b82f6',
+    p: [P('x1', 'x₁', -6, 6, 1), P('y1', 'y₁', -6, 6, 1), P('x2', 'x₂', -6, 6, 1), P('y2', 'y₂', -6, 6, 1)],
+    init: [-4, -3, 2, 1], ex: [[-4, -3, 2, 1], [-3, 4, 3, -2], [-5, 2, 4, 2], [2, -3, 2, 4], [-4, -4, 4, 4], [-5, 1, 1, 5]] },
+  { name: 'y = λx + β', acc: '#3b82f6',
+    p: [P('l', 'λ', -4, 4, 0.5), P('b', 'β', -5, 5, 1), P('kx', 'κ', -6, 6, 1), P('ky', 'μ', -6, 6, 1)],
+    init: [1, 2, 4, -3], ex: [[1, 2, 4, -3], [-2, 3, -3, 4], [0.5, -2, 2, 2], [0, 4, -4, -1], [3, 0, 5, -5], [-1, 0, 1, 3]] },
+  { name: 'Παράλληλες και κάθετες', acc: '#a855f7',
+    p: [P('l1', 'λ₁', -4, 4, 0.25), P('b1', 'β₁', -5, 5, 1), P('l2', 'λ₂', -4, 4, 0.25), P('b2', 'β₂', -5, 5, 1)],
+    init: [2, 1, -0.5, -2], ex: [[2, 1, -0.5, -2], [1, 0, -1, 0], [2, 1, 2, -3], [1, 2, 1, 2], [0.5, -1, -2, 3], [3, -2, -0.25, 1]] },
+  { name: 'Γενική μορφή Αx + Βy + Γ = 0', acc: '#a855f7',
+    p: [P('A', 'Α', -5, 5, 1), P('B', 'Β', -5, 5, 1), P('G', 'Γ', -12, 12, 1)],
+    init: [1, 2, -4], ex: [[1, 2, -4], [2, -1, 0], [0, 2, -6], [3, 0, 6], [1, 1, -2], [0, 0, 3]] },
+  { name: 'Απόσταση σημείου από ευθεία', acc: '#ef4444',
+    p: [P('A', 'Α', -5, 5, 1), P('B', 'Β', -5, 5, 1), P('G', 'Γ', -12, 12, 1), P('x0', 'x₀', -6, 6, 1), P('y0', 'y₀', -6, 6, 1)],
+    init: [3, 4, -12, 4, 4], ex: [[3, 4, -12, 4, 4], [1, 1, -2, 1, 1], [1, -1, 0, -3, 2], [0, 2, -4, 3, 5], [2, 0, 4, 1, -3], [1, 2, -4, -4, -3]] },
+  { name: 'Εμβαδόν τριγώνου', acc: '#a855f7',
+    p: [P('xA', 'xΑ', -5, 5, 1), P('yA', 'yΑ', -5, 5, 1), P('xB', 'xΒ', -5, 5, 1), P('yB', 'yΒ', -5, 5, 1), P('xG', 'xΓ', -5, 5, 1), P('yG', 'yΓ', -5, 5, 1)],
+    init: [-3, -2, 4, -1, 1, 4], ex: [[-3, -2, 4, -1, 1, 4], [0, 0, 4, 0, 0, 3], [-4, 3, 2, 3, -1, -4], [0, 0, 2, 2, 4, 4], [-5, -4, 5, 4, -5, 4], [-2, -3, 3, 1, -4, 2]] }
+];
+const st = { scene: 0, dec: 0, v: SCENES.map(s => s.init.slice()) };
+const hyp = (x, y) => Math.hypot(x, y);
+const f2 = v => fmt(Math.round(v * 100) / 100);
+const eq = v => Math.abs(v * 100 - Math.round(v * 100)) < 0.001 ? ' = ' : ' ≈ ';
+const tup = (x, y) => `(${fmt(x)}, ${fmt(y)})`;
+const gcd = (a, b) => b ? gcd(b, a % b) : Math.abs(a);
+function fr(n, d) {                      // κλάσμα n/d σε απλούστερη μορφή, με ακέραιους ή δεκαδικούς όρους
+  if (!Number.isInteger(n) || !Number.isInteger(d)) return fmt(n / d);
+  if (d < 0) { n = -n; d = -d; }
+  const g = gcd(n, d) || 1; n /= g; d /= g;
+  return d === 1 ? fmt(n) : `${fmt(n)}/${d}`;
+}
+const sq = n => Math.abs(Math.sqrt(n) - Math.round(Math.sqrt(n))) < 1e-9 ? fmt(Math.round(Math.sqrt(n))) : `√${fmt(n)}`;
+function genEq(A, B, C) {                // Αx + Βy + Γ = 0
+  let s = '';
+  const add = (c, v) => {
+    if (!c) return;
+    const a = Math.abs(c), body = v ? (a === 1 ? v : fmt(a) + v) : fmt(a);
+    s += s ? (c < 0 ? ' − ' : ' + ') + body : (c < 0 ? '−' : '') + body;
+  };
+  add(A, 'x'); add(B, 'y'); add(C, '');
+  return (s || '0') + ' = 0';
+}
+function slopeEq(l, b) {                 // y = λx + β
+  let s = '';
+  if (l) s += (l === 1 ? '' : l === -1 ? '−' : fmt(l)) + 'x';
+  if (b) s += s ? (b < 0 ? ' − ' : ' + ') + fmt(Math.abs(b)) : fmt(b);
+  return 'y = ' + (s || '0');
+}
+function clipLine(A, B, C, R = 6.4) {    // τα άκρα της ευθείας Ax + By + C = 0 μέσα στο τετράγωνο [−R, R]²
+  const pts = [], add = (x, y) => { if (!pts.some(p => Math.hypot(p[0] - x, p[1] - y) < 1e-6)) pts.push([x, y]); };
+  if (B) for (const x of [-R, R]) { const y = (-C - A * x) / B; if (Math.abs(y) <= R + 1e-9) add(x, y); }
+  if (A) for (const y of [-R, R]) { const x = (-C - B * y) / A; if (Math.abs(x) <= R + 1e-9) add(x, y); }
+  return pts.length >= 2 ? [pts[0], pts[1]] : null;
+}
+function bigLine(A, B, C, c, r = 0.07, z = 0.02) {
+  const e = clipLine(A, B, C);
+  if (!e) return null;
+  const m = ln(e[0][0], e[0][1], e[1][0], e[1][1], c, r, z);
+  if (m) m.userData.box = true;
+  return e;
+}
+function labEnd(t, e, color, which = 1, size = 0.75) {   // ετικέτα κοντά στο ένα άκρο της ευθείας
+  if (!e) return;
+  const p = e[which], q = e[1 - which], L = hyp(p[0] - q[0], p[1] - q[1]) || 1;
+  const x = p[0] + (q[0] - p[0]) / L * 0.9, y = p[1] + (q[1] - p[1]) / L * 0.9;
+  lab(t, x, y, -(p[1] - q[1]) / L * 0.7, (p[0] - q[0]) / L * 0.7, color, size);
+}
+const inBox = (x, y, R = 6.3) => Math.abs(x) <= R && Math.abs(y) <= R;
+const triMat = new THREE.MeshBasicMaterial({ color: 0xa855f7, transparent: true, opacity: 0.3, side: THREE.DoubleSide, depthWrite: false });
+
+function build() {
+  while (dyn.children.length) {
+    const o = dyn.children.pop();
+    if (o.geometry) o.geometry.dispose();
+  }
+  const s = st.scene, v = st.v[s];
+  let lines, hint;
+  axes2(6);
+  if (s === 0) {
+    const [x1, y1, x2, y2] = v, dx = x2 - x1, dy = y2 - y1;
+    if (dx || dy) bigLine(dy, -dx, dx * y1 - dy * x1, COL.pos);
+    if (dx && dy) {
+      ln(x1, y1, x2, y1, COL.comp, 0.06, 0.08); ln(x2, y1, x2, y2, COL.comp2, 0.06, 0.08);
+      lab('Δx = ' + fmt(dx), (x1 + x2) / 2, y1, 0, dy > 0 ? -0.75 : 0.75, '#86efac', 0.6);
+      lab('Δy = ' + fmt(dy), x2, (y1 + y2) / 2, dx > 0 ? 1.5 : -1.5, 0, '#5eead4', 0.6);
+    }
+    ball(x1, y1, COL.neg); ball(x2, y2, COL.neg);
+    lab('A', x1, y1, -0.55, -0.55, '#fca5a5'); lab('B', x2, y2, 0.55, 0.55, '#fca5a5');
+    if (dx) {
+      const lam = dy / dx, bn = y1 * dx - dy * x1;
+      let w = Math.atan(lam) * 180 / Math.PI; if (w < 0) w += 180;
+      lines = [{ t: `λ = (y₂ − y₁) / (x₂ − x₁) = (${fmt(y2)} − ${par(y1)}) / (${fmt(x2)} − ${par(x1)}) = ${fr(dy, dx)}`, size: 56, weight: 650, color: '#d8b4fe' },
+               { t: `y = λx + β με β = y₁ − λx₁ = ${fr(bn, dx)}`, size: 52, color: '#93c5fd' },
+               { t: `εφω = λ,   ω${eq(w)}${f2(w)}°`, size: 48, color: '#e2e8f0' }];
+      hint = `<b>Συντελεστής διεύθυνσης:</b> για x₁ ≠ x₂ είναι λ = Δy / Δx. Το πράσινο τμήμα είναι η οριζόντια μεταβολή Δx και το τιρκουάζ η κατακόρυφη μεταβολή Δy. Όταν x₁ = x₂ η ευθεία είναι κατακόρυφη και δεν έχει συντελεστή διεύθυνσης.`;
+    } else {
+      lines = [{ t: dy ? `Κατακόρυφη ευθεία x = ${fmt(x1)}` : 'Τα σημεία Α και Β ταυτίζονται', size: 62, weight: 650, color: '#93c5fd' },
+               { t: dy ? 'x₁ = x₂: δεν ορίζεται συντελεστής διεύθυνσης λ' : 'Από ένα σημείο διέρχονται άπειρες ευθείες', size: 50, color: '#e2e8f0' },
+               { t: dy ? 'Η γωνία ω είναι 90°, ενώ η εφω δεν ορίζεται' : '', size: 46, color: '#d8b4fe' }].filter(l => l.t);
+      hint = `<b>Εκφυλισμένη θέση:</b> ${dy ? 'όταν x₁ = x₂ η ευθεία ΑΒ είναι παράλληλη προς τον y΄y και δεν ορίζεται λ.' : 'τα δύο σημεία ταυτίζονται, οπότε δεν προσδιορίζεται ευθεία.'} Μετακίνησε κάποια συντεταγμένη.`;
+    }
+  } else if (s === 1) {
+    const [l, b, kx, ky] = v;
+    const e = bigLine(l, -1, b, COL.pos);
+    ln(kx, -6.4, kx, 6.4, COL.b, 0.06, 0.01); ln(-6.4, ky, 6.4, ky, COL.neg, 0.06, 0.01);
+    ball(0, b, COL.res); lab('(0, ' + fmt(b) + ')', 0, b, 1.5, 0.7, '#d8b4fe', 0.6);
+    if (l && inBox(-b / l, 0)) { ball(-b / l, 0, COL.comp2); lab('(' + f2(-b / l) + ', 0)', -b / l, 0, 0, -0.9, '#5eead4', 0.6); }
+    labEnd('ε', e, '#93c5fd');
+    lab('x = κ', kx, 6.4, 1.1, 0.5, '#86efac', 0.6); lab('y = μ', 6.4, ky, 0.9, 0.5, '#fca5a5', 0.6);
+    lines = [{ t: `ε: ${slopeEq(l, b)}`, size: 64, weight: 650, color: '#93c5fd' },
+             { t: `λ = ${fmt(l)},   β = ${fmt(b)}  (τεταγμένη του σημείου τομής με τον y΄y)`, size: 48, color: '#d8b4fe' },
+             { t: `x = ${fmt(kx)}: παράλληλη προς τον y΄y.   y = ${fmt(ky)}: παράλληλη προς τον x΄x, με λ = 0`, size: 42, color: '#e2e8f0' }];
+    hint = `<b>Η εξίσωση y = λx + β:</b> το λ είναι ο συντελεστής διεύθυνσης και το β η τεταγμένη του σημείου τομής με τον y΄y. Η πράσινη ευθεία x = κ είναι παράλληλη προς τον y΄y και δεν έχει λ, ενώ η κόκκινη y = μ είναι παράλληλη προς τον x΄x και έχει λ = 0.`;
+  } else if (s === 2) {
+    const [l1, b1, l2, b2] = v;
+    const e1 = bigLine(l1, -1, b1, COL.pos), e2 = bigLine(l2, -1, b2, COL.b, 0.07, 0.04);
+    labEnd('ε₁', e1, '#93c5fd'); labEnd('ε₂', e2, '#86efac', 0);
+    const same = l1 === l2, perp = Math.abs(l1 * l2 + 1) < 1e-9;
+    if (!same) {
+      const X = (b2 - b1) / (l1 - l2), Yv = l1 * X + b1;
+      if (inBox(X, Yv)) {
+        ball(X, Yv, COL.res, 0.24); lab('Σ', X, Yv, -0.55, 0.55, '#d8b4fe');
+        if (perp) {
+          const n1 = hyp(1, l1), n2 = hyp(1, l2), u = [1 / n1, l1 / n1], w = [1 / n2, l2 / n2], k = 0.9;
+          const p1 = [X + k * u[0], Yv + k * u[1]], p2 = [p1[0] + k * w[0], p1[1] + k * w[1]], p3 = [X + k * w[0], Yv + k * w[1]];
+          ln(p1[0], p1[1], p2[0], p2[1], COL.neg, 0.05, 0.12); ln(p2[0], p2[1], p3[0], p3[1], COL.neg, 0.05, 0.12);
+        }
+      }
+    }
+    lines = [{ t: `ε₁: ${slopeEq(l1, b1)}      ε₂: ${slopeEq(l2, b2)}`, size: 56, weight: 650, color: '#e2e8f0' },
+             { t: `λ₁ · λ₂ = ${par(l1)} · ${par(l2)} = ${fmt(Math.round(l1 * l2 * 1e5) / 1e5)}`, size: 52, color: '#e2e8f0' },
+             { t: same ? (b1 === b2 ? 'Οι ευθείες ταυτίζονται (λ₁ = λ₂ και β₁ = β₂)' : 'Παράλληλες: λ₁ = λ₂') : perp ? 'Κάθετες: λ₁ · λ₂ = −1' : 'Τέμνονται πλάγια', size: 56, weight: 650, color: perp ? '#fca5a5' : '#d8b4fe' }];
+    hint = `<b>Παράλληλες και κάθετες:</b> δύο ευθείες με συντελεστές λ₁ και λ₂ είναι παράλληλες όταν λ₁ = λ₂ και κάθετες όταν λ₁ · λ₂ = −1. Στην κάθετη θέση εμφανίζεται η ορθή γωνία στο σημείο τομής Σ.`;
+  } else if (s === 3) {
+    const [A, B, G] = v;
+    if (A || B) {
+      const e = bigLine(A, B, G, COL.res);
+      if (B && inBox(0, -G / B)) { ball(0, -G / B, COL.res); lab('(0, ' + f2(-G / B) + ')', 0, -G / B, 1.6, 0.7, '#d8b4fe', 0.6); }
+      if (A && B && inBox(-G / A, 0)) { ball(-G / A, 0, COL.comp2); lab('(' + f2(-G / A) + ', 0)', -G / A, 0, 0, -0.9, '#5eead4', 0.6); }
+      labEnd('ε', e, '#d8b4fe');
+    }
+    const kind = !A && !B ? 'Για Α = 0 και Β = 0 δεν προκύπτει ευθεία' : !B ? `Β = 0: κατακόρυφη ευθεία x = ${fr(-G, A)}, χωρίς λ` : !A ? `Α = 0: οριζόντια ευθεία y = ${fr(-G, B)}, με λ = 0` : `λ = −Α/Β = ${fr(-A, B)}   και   β = −Γ/Β = ${fr(-G, B)}`;
+    lines = [{ t: `ε: ${A || B ? genEq(A, B, G) : 'Α = Β = 0'}`, size: 66, weight: 650, color: '#d8b4fe' },
+             { t: kind, size: 50, color: '#e2e8f0' },
+             { t: A || B ? (G === 0 ? 'Γ = 0: η ευθεία διέρχεται από την αρχή των αξόνων' : '') : '', size: 46, color: '#86efac' }].filter(l => l.t);
+    hint = `<b>Γενική μορφή:</b> κάθε ευθεία γράφεται Αx + Βy + Γ = 0 με (Α, Β) ≠ (0, 0). Για Β ≠ 0 ισχύει λ = −Α/Β, για Β = 0 η ευθεία είναι κατακόρυφη, και για Α = 0 οριζόντια. Αν Γ = 0 περνά από την αρχή Ο.`;
+  } else if (s === 4) {
+    const [A, B, G, x0, y0] = v, n = A * A + B * B, val = A * x0 + B * y0 + G;
+    if (n) {
+      bigLine(A, B, G, COL.pos);
+      const hx = x0 - val / n * A, hy = y0 - val / n * B, d = Math.abs(val) / Math.sqrt(n);
+      if (d > 1e-9) { ln(x0, y0, hx, hy, COL.neg, 0.07, 0.1); ball(hx, hy, COL.comp2, 0.2); lab('Η', hx, hy, -0.5, -0.55, '#5eead4'); lab('d', (x0 + hx) / 2, (y0 + hy) / 2, 0.6, 0.6, '#fca5a5', 0.7); }
+      lines = [{ t: `d = |Αx₀ + Βy₀ + Γ| / √(Α² + Β²) = |${fmt(A)}·${par(x0)} + ${fmt(B)}·${par(y0)} + ${par(G)}| / ${sq(n)}`, size: 52, weight: 650, color: '#fca5a5' },
+               { t: `d = ${fmt(Math.abs(val))} / ${sq(n)}${eq(d)}${f2(d)}`, size: 58, color: '#e2e8f0' },
+               { t: `ε: ${genEq(A, B, G)}      M${tup(x0, y0)}${d < 1e-9 ? ':  το Μ ανήκει στην ευθεία, d = 0' : ''}`, size: 46, color: '#93c5fd' }];
+    } else {
+      lines = [{ t: 'Για Α = 0 και Β = 0 δεν προκύπτει ευθεία', size: 60, weight: 650, color: '#fca5a5' }, { t: 'Η απόσταση δεν ορίζεται', size: 48, color: '#e2e8f0' }];
+    }
+    ball(x0, y0, COL.res, 0.26); lab('Μ', x0, y0, 0.6, 0.6, '#d8b4fe');
+    hint = `<b>Απόσταση σημείου από ευθεία:</b> η απόσταση του Μ(x₀, y₀) από την ευθεία Αx + Βy + Γ = 0 είναι d = |Αx₀ + Βy₀ + Γ| / √(Α² + Β²). Το κόκκινο τμήμα ΜΗ είναι κάθετο στην ευθεία και Η είναι η προβολή του Μ.`;
+  } else {
+    const [xA, yA, xB, yB, xG, yG] = v;
+    const det = (xB - xA) * (yG - yA) - (yB - yA) * (xG - xA), E = Math.abs(det) / 2;
+    if (det) {
+      const shp = new THREE.Shape(); shp.moveTo(xA, yA); shp.lineTo(xB, yB); shp.lineTo(xG, yG); shp.closePath();
+      const m = new THREE.Mesh(new THREE.ShapeGeometry(shp), triMat); m.position.z = 0.0; m.userData.box = true; dyn.add(m);
+    }
+    const col = det ? COL.pos : COL.comp2;
+    ln(xA, yA, xB, yB, col, 0.07, 0.06); ln(xB, yB, xG, yG, col, 0.07, 0.06); ln(xG, yG, xA, yA, col, 0.07, 0.06);
+    ball(xA, yA, COL.neg); ball(xB, yB, COL.neg); ball(xG, yG, COL.neg);
+    lab('Α', xA, yA, -0.55, -0.55, '#fca5a5'); lab('Β', xB, yB, 0.55, -0.55, '#fca5a5'); lab('Γ', xG, yG, 0.1, 0.7, '#fca5a5');
+    lines = [{ t: `det(ΑΒ, ΑΓ) = (${fmt(xB - xA)})(${fmt(yG - yA)}) − (${fmt(yB - yA)})(${fmt(xG - xA)}) = ${fmt(det)}`, size: 54, weight: 650, color: '#e2e8f0' },
+             { t: det ? `Ε = ½ |det(ΑΒ, ΑΓ)| = ½ · ${fmt(Math.abs(det))} = ${f2(E)}` : 'Ε = 0: τα σημεία Α, Β, Γ είναι συνευθειακά', size: 60, weight: 650, color: det ? '#d8b4fe' : '#5eead4' },
+             { t: `ΑΒ = ${tup(xB - xA, yB - yA)},   ΑΓ = ${tup(xG - xA, yG - yA)}`, size: 46, color: '#94a3b8' }];
+    hint = `<b>Εμβαδόν τριγώνου:</b> Ε(ΑΒΓ) = ½ |det(ΑΒ, ΑΓ)|. Αν η ορίζουσα είναι 0, το εμβαδόν είναι 0 και τα Α, Β, Γ βρίσκονται στην ίδια ευθεία.`;
+  }
+  setPanel(lines, 8.4);
+  hintEl.innerHTML = hint;
+}
+
+function renderRows() {
+  const sc = SCENES[st.scene];
+  rowsEl.innerHTML = '';
+  sc.p.forEach((q, i) => {
+    const row = document.createElement('div'); row.className = 'row';
+    row.innerHTML = `<span>${q.label}</span><input type="range" min="${q.min}" max="${q.max}" step="${q.step}"><b></b>`;
+    const inp = row.querySelector('input'), out = row.querySelector('b');
+    inp.value = st.v[st.scene][i];
+    out.textContent = fmt(+inp.value) + q.unit;
+    inp.oninput = () => { st.v[st.scene][i] = +inp.value; out.textContent = fmt(+inp.value) + q.unit; build(); };
+    row._set = val => { inp.value = val; out.textContent = fmt(val) + q.unit; };
+    rowsEl.appendChild(row);
+  });
+}
+function refresh() {            // ενημέρωση ολισθητών από τις τιμές
+  const sc = SCENES[st.scene];
+  [...rowsEl.children].forEach((row, i) => row._set(st.v[st.scene][i]));
+}
+function update() {
+  document.documentElement.style.setProperty('--acc', SCENES[st.scene].acc);
+  document.querySelectorAll('#segK button').forEach(x => x.classList.toggle('on', +x.dataset.k === st.scene));
+    build();
+}
+function bump(which, dir) {          // αλλαγή της παραμέτρου which κατά ένα βήμα
+  const sc = SCENES[st.scene], i = Math.min(which, sc.p.length - 1), q = sc.p[i];
+  const val = st.v[st.scene][i] + dir * q.step;
+  st.v[st.scene][i] = Math.min(q.max, Math.max(q.min, Math.round(val * 100) / 100));
+  refresh(); build();
+}
+SCENES.forEach((sc, k) => {
+  const b = document.createElement('button'); b.dataset.k = k; b.textContent = sc.name;
+  b.onclick = () => { st.scene = k; renderRows(); update(); };
+  segK.appendChild(b);
+});
+function next() {
+  const ex = SCENES[st.scene].ex, cur = st.v[st.scene];
+  const i = ex.findIndex(e => e.every((t, j) => t === cur[j]));
+  st.v[st.scene] = ex[(i + 1) % ex.length].slice();
+  refresh(); build();
+}
+renderRows();
+update();
+
+// ------------------------------------------------------------------ XR
+const btnAR = $('btnAR'), btnVR = $('btnVR'), note = $('note');
+let placed = false, floorRef = true;
+async function checkXR() {
+  const msg = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) { note.textContent = msg; note.style.display = 'block'; return; }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) { note.textContent = msg; note.style.display = 'block'; }
+}
+checkXR();
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    await renderer.xr.setSession(session);
+    placed = false;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    room.visible = opaque;
+    scene.background = opaque ? new THREE.Color(0x0e1420) : null;
+    session.addEventListener('end', () => {
+      room.visible = false;
+      scene.background = null;
+      root.position.set(0, 0, 0);
+      root.quaternion.identity();
+      root.scale.setScalar(1);
+      camera.position.copy(HOME_CAM);
+      controls.target.copy(HOME_TGT);
+      controls.update();
+    });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+// στην πρώτη εικόνα του XR, το πλέγμα τοποθετείται 90 cm μπροστά από τον χρήστη, στο ύψος των ματιών
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const yaw = Math.atan2(-dir.x, -dir.z);
+  root.position.set(p.x + dir.x * 1.1, p.y - 0.1, p.z + dir.z * 1.1);
+  root.rotation.set(0, yaw, 0);
+  root.scale.setScalar(1);
+  room.children[0].position.y = floorRef ? 0 : p.y - 1.5;
+  placed = true;
+}
+
+// χειριστήρια: σύντομο πάτημα = επόμενο παράδειγμα, παρατεταμένο πάτημα πάνω στο σχήμα = μετακίνηση,
+// μοχλός αριστερά και δεξιά = αλλαγή μιας παραμέτρου (αριστερό χειριστήριο: η πρώτη, δεξί: η δεύτερη), πάτημα του μοχλού = επόμενη παράμετρος, μοχλός πάνω και κάτω = μέγεθος
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    const targets = [];
+    world.traverse(o => { if (o.isMesh && o.visible && o.userData.box) targets.push(o); });
+    if (ray.intersectObjects(targets, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    if (ctl.userData.grab) { scene.attach(root); ctl.userData.grab = false; }
+    if (performance.now() - ctl.userData.t0 < 280) next();
+  });
+  scene.add(ctl);
+  return ctl;
+}
+const ctls = [makeController(0), makeController(1)];
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+let last = performance.now(), acc = 0;
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  if (renderer.xr.isPresenting) {
+        acc += dt;
+    ctls.forEach(c => {
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if (!gp || !gp.axes || !gp.axes.length) return;
+      const ax = gp.axes.length > 3 ? gp.axes[2] : gp.axes[0];
+      const ay = gp.axes.length > 3 ? gp.axes[3] : gp.axes[1];
+      const ud = c.userData;
+      if (ud.act === undefined) ud.act = c.userData.source.handedness === 'right' ? 1 : 0;
+      const pr = !!(gp.buttons && gp.buttons[3] && gp.buttons[3].pressed);
+      if (pr && !ud.pr) ud.act = (ud.act + 1) % SCENES[st.scene].p.length;
+      ud.pr = pr;
+      if (Math.abs(ax) > 0.5 && acc > 0.2) { acc = 0; bump(ud.act, ax > 0 ? 1 : -1); }
+      if (Math.abs(ay) > 0.5) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ay * dt * 0.9), 0.5, 3));
+    });
+  } else {
+    controls.update();
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>
