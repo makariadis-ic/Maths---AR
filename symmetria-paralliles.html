@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Συμμετρία και παράλληλες — XR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#96a8bd;--line:rgba(255,255,255,.12);--acc:#3b82f6}
+  *{box-sizing:border-box} html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;
+    background:radial-gradient(120% 90% at 50% 0%,#17263c 0%,#0e1420 60%)}
+  #bar{position:fixed;top:0;left:0;right:0;z-index:10;display:flex;align-items:center;gap:12px;
+    padding:12px 14px;background:linear-gradient(180deg,rgba(14,20,32,.92),transparent)}
+  #bar a{color:var(--dim);text-decoration:none;font-size:13px;border:1px solid var(--line);
+    padding:8px 12px;border-radius:9px}
+  #bar h1{font-size:15px;margin:0;font-weight:640}
+  #bar .lv{font-size:11.5px;color:var(--dim);margin-left:auto}
+  #dock{position:fixed;left:0;right:0;bottom:14px;z-index:10;display:flex;flex-direction:column;
+    align-items:center;gap:8px;padding:0 12px}
+  .seg{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;max-width:980px}
+  .seg button{font:600 13px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);
+    background:rgba(14,20,32,.92);border:1px solid var(--line);border-radius:9px;
+    padding:9px 12px;cursor:pointer}
+  .seg button.on{color:#08131a;background:var(--acc);border-color:transparent}
+  .ctl{display:flex;align-items:center;gap:12px;background:rgba(14,20,32,.9);border:1px solid var(--line);
+    border-radius:10px;padding:8px 14px}
+  .ctl button{font:600 13px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);background:transparent;
+    border:1px solid var(--line);border-radius:8px;padding:8px 12px;cursor:pointer}
+  .ctl label{font-size:12.5px;color:var(--dim);min-width:150px}
+  .ctl input[type=range]{width:min(46vw,320px);accent-color:var(--acc)}
+  .xr{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+  .xr button{font:650 15px/1 "Segoe UI",system-ui,sans-serif;color:#08131a;background:#2dd4bf;
+    border:none;border-radius:12px;padding:14px 22px;box-shadow:0 12px 34px rgba(0,0,0,.5);cursor:pointer;
+    display:none}
+  .xr button.vr{background:#c084fc}
+  #hint{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.86);border:1px solid var(--line);
+    padding:8px 13px;border-radius:10px;max-width:820px;text-align:center;line-height:1.5}
+  #calc{font-size:19px;font-weight:700;text-align:center;line-height:1.35;text-shadow:0 2px 8px #000}
+  #calc small{display:block;font-size:14px;font-weight:600}
+  #hint b{color:var(--ink)}
+  #note{font-size:12.5px;color:var(--dim);background:rgba(14,20,32,.9);border:1px solid var(--line);
+    padding:9px 14px;border-radius:10px;max-width:640px;text-align:center;line-height:1.55;display:none}
+  #fallback{display:none;position:fixed;left:50%;top:42%;transform:translate(-50%,-50%);width:min(92vw,74vh);height:auto}
+  .nogl #fallback{display:block} .nogl #c,.nogl .seg,.nogl .ctl,.nogl #hint{display:none}
+  @media (max-width:560px){ .seg button{padding:8px 9px;font-size:12px} #hint{font-size:11.5px} .ctl label{min-width:110px} }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<svg id="fallback" viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI,Arial,sans-serif">
+<polygon points="170,120 235,100 205,50" fill="#3b82f6" fill-opacity="0.35" stroke="#3b82f6" stroke-width="2.5" stroke-linejoin="round"/>
+<polygon points="130,100 65,120 95,170" fill="#f59e0b" fill-opacity="0.35" stroke="#f59e0b" stroke-width="2.5" stroke-linejoin="round"/>
+<line x1="235" y1="100" x2="65" y2="120" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 5"/>
+<line x1="205" y1="50" x2="95" y2="170" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 5"/>
+<circle cx="150" cy="110" r="5" fill="#eaf1f8"/>
+<text x="150" y="212" font-size="14" font-weight="700" text-anchor="middle" fill="#eaf1f8">Συμμετρία ως προς σημείο</text>
+</svg>
+<div id="bar">
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Συμμετρία και παράλληλες</h1>
+  <span class="lv">Α΄ Γυμνασίου, § 2.3 έως § 2.6</span>
+</div>
+<div id="dock">
+  <div class="seg" id="segS"></div>
+  <div class="ctl">
+    <button id="btnPlay">Παύση</button>
+    <label id="lblV"></label>
+    <input type="range" id="rngV" min="0" max="1" step="1" value="0">
+  </div>
+  <div id="calc"></div>
+  <div id="hint"></div>
+  <div class="xr">
+    <button id="btnAR">Είσοδος σε AR</button>
+    <button id="btnVR" class="vr">Είσοδος σε VR</button>
+  </div>
+  <div id="note"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.184.0/build/three.module.js",
+"three/addons/":"https://cdn.jsdelivr.net/npm/three@0.184.0/examples/jsm/"}}
+</script>
+<script type="module">
+// Σενάριο 52 «Μεσοκάθετος, συμμετρία ως προς σημείο και παράλληλες» (Α΄ Γυμνασίου, Μέρος Β, Κεφ. 2, § 2.3 έως § 2.6).
+// Κέντρο Καινοτομίας Θεσσαλίας. Κάθε κατάσταση έχει μία παράμετρο v που κινείται μόνη της ή ρυθμίζεται με τον ολισθητή.
+// Το σχήμα βρίσκεται στο οριζόντιο επίπεδο του θρανίου: το σημείο (x, y) του σχεδίου γίνεται (x, 0, −y) στον χώρο.
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+const UNIT = 0.075;                      // μέτρα ανά μονάδα του σχεδίου
+const DEG = Math.PI / 180;
+const C = { blue: 0x3b82f6, orange: 0xf59e0b, green: 0x22c55e, red: 0xef4444, purple: 0xa855f7, teal: 0x2dd4bf, grey: 0x94a3b8, white: 0xe2e8f0, dark: 0x1e293b };
+const CSS = { blue: '#3b82f6', orange: '#f59e0b', green: '#22c55e', red: '#ef4444', purple: '#a855f7', teal: '#2dd4bf', grey: '#94a3b8', white: '#eaf1f8' };
+const fmt = (x, d = 2) => (Math.round(x * 10 ** d) / 10 ** d).toLocaleString('el-GR', { minimumFractionDigits: 0, maximumFractionDigits: d });
+
+// ------------------------------------------------------------------ renderer, σκηνή, κάμερα
+const canvas = document.getElementById('c');
+let renderer;
+try {
+  renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+  if (!renderer.getContext()) throw new Error('no gl');
+} catch (err) {
+  document.documentElement.classList.add('nogl');
+  throw err;
+}
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.setSize(window.innerWidth, window.innerHeight);
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.xr.enabled = true;
+
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(42, window.innerWidth / window.innerHeight, 0.01, 60);
+const CAM0 = new THREE.Vector3(0.0, 0.72, 0.78), TGT0 = new THREE.Vector3(0, 0.0, 0.3);
+camera.position.copy(CAM0);
+const controls = new OrbitControls(camera, canvas);
+controls.target.copy(TGT0);
+controls.enableDamping = true;
+controls.minDistance = 0.25;
+controls.maxDistance = 2.5;
+controls.update();
+
+scene.add(new THREE.HemisphereLight(0xffffff, 0x2a3446, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 1.6);
+sun.position.set(0.8, 1.6, 1.2);
+scene.add(sun);
+const fill = new THREE.DirectionalLight(0xbcd8ff, 0.5);
+fill.position.set(-1, 0.5, -1);
+scene.add(fill);
+
+// δάπεδο και θρανίο μόνο σε αδιαφανή λειτουργία (VR)
+const room = new THREE.Group();
+room.visible = false;
+scene.add(room);
+{
+  const floor = new THREE.Mesh(new THREE.CircleGeometry(6, 48), new THREE.MeshStandardMaterial({ color: 0x1b2433, roughness: 0.95 }));
+  floor.rotation.x = -Math.PI / 2;
+  room.add(floor);
+  const grid = new THREE.GridHelper(12, 24, 0x3b4a63, 0x27324a);
+  grid.position.y = 0.002;
+  room.add(grid);
+  const desk = new THREE.Mesh(new THREE.BoxGeometry(1.2, 0.04, 0.8), new THREE.MeshStandardMaterial({ color: 0x6b4f3a, roughness: 0.7 }));
+  desk.name = 'desk';
+  room.add(desk);
+}
+// το επίπεδο του θρανίου στην προβολή 3D (λεπτό πλέγμα)
+const tableGrid = new THREE.GridHelper(8, 32, 0x2f3d57, 0x1f2a40);
+tableGrid.position.y = -0.003;
+scene.add(tableGrid);
+
+const root = new THREE.Group();          // ό,τι μετακινείται στο XR
+scene.add(root);
+const world = new THREE.Group();         // μονάδα = 1 του σχεδίου
+world.scale.setScalar(UNIT);
+root.add(world);
+
+// ------------------------------------------------------------------ βοηθητικά σχήματα
+const P = (x, y, h = 0) => new THREE.Vector3(x, h, -y);       // σημείο του σχεδίου στον χώρο
+const Y = new THREE.Vector3(0, 1, 0);
+const matCache = new Map();
+function mat(color, opacity = 1, double = false, emis = 0.22) {
+  const key = [color, opacity, double, emis].join();
+  if (!matCache.has(key)) {
+    matCache.set(key, new THREE.MeshStandardMaterial({
+      color, emissive: color, emissiveIntensity: emis, roughness: 0.55, transparent: opacity < 1, opacity,
+      side: double ? THREE.DoubleSide : THREE.FrontSide, depthWrite: opacity >= 1, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1
+    }));
+  }
+  return matCache.get(key);
+}
+const geoCache = new Map();
+function cyl(r) {
+  if (!geoCache.has(r)) geoCache.set(r, new THREE.CylinderGeometry(r, r, 1, 10));
+  return geoCache.get(r);
+}
+function bar(a, b, r, color, opacity = 1) {
+  const m = new THREE.Mesh(cyl(r), mat(color, opacity, false, 0.3));
+  setBar(m, a, b);
+  return m;
+}
+function setBar(m, a, b) {
+  const d = b.clone().sub(a), L = d.length();
+  m.position.copy(a).add(b).multiplyScalar(0.5);
+  m.visible = L > 1e-5;
+  if (L > 1e-5) { m.scale.set(1, L, 1); m.quaternion.setFromUnitVectors(Y, d.multiplyScalar(1 / L)); }
+}
+function dashed(a, b, r, color, n = 9) {          // διακεκομμένη γραμμή
+  const g = new THREE.Group();
+  for (let i = 0; i < n; i++) {
+    const s = a.clone().lerp(b, (i + 0.15) / n), e = a.clone().lerp(b, (i + 0.65) / n);
+    g.add(bar(s, e, r, color));
+  }
+  return g;
+}
+function ball(p, r, color) {
+  const m = new THREE.Mesh(new THREE.SphereGeometry(r, 18, 14), mat(color, 1, false, 0.35));
+  m.position.copy(p);
+  return m;
+}
+// επίπεδο πολύγωνο στο θρανίο
+function polyMesh(pts, color, opacity = 0.9, h = 0, double = true) {
+  const sh = new THREE.Shape(pts.map(p => new THREE.Vector2(p[0], p[1])));
+  const m = new THREE.Mesh(new THREE.ShapeGeometry(sh), mat(color, opacity, double));
+  m.rotation.x = -Math.PI / 2;
+  m.position.y = h;
+  return m;
+}
+function polyEdges(pts, r, color, h = 0) {
+  const g = new THREE.Group();
+  for (let i = 0; i < pts.length; i++) g.add(bar(P(...pts[i], h), P(...pts[(i + 1) % pts.length], h), r, color));
+  return g;
+}
+// τομέας κύκλου (γωνίες σε ακτίνια, αριστερόστροφα στο σχέδιο)
+function sectorGeo(r, a0, a1) {
+  const sh = new THREE.Shape();
+  sh.moveTo(0, 0);
+  sh.absarc(0, 0, r, a0, a1, false);
+  sh.lineTo(0, 0);
+  return new THREE.ShapeGeometry(sh, 48);
+}
+function sectorMesh(r, a0, a1, color, opacity = 0.55, h = 0) {
+  const m = new THREE.Mesh(sectorGeo(r, a0, a1), mat(color, opacity, true));
+  m.rotation.x = -Math.PI / 2;
+  m.position.y = h;
+  m.userData.r = r;
+  return m;
+}
+function setSector(m, a0, a1) {
+  m.geometry.dispose();
+  m.geometry = sectorGeo(m.userData.r, a0, a1);
+  m.visible = a1 - a0 > 1e-4;
+}
+// τόξο ως σωλήνας
+function arcMesh(r, a0, a1, color, tube = 0.035, h = 0) {
+  const m = new THREE.Mesh(new THREE.TorusGeometry(r, tube, 8, 64, Math.max(a1 - a0, 1e-3)), mat(color, 1, false, 0.3));
+  m.rotation.set(-Math.PI / 2, 0, 0);
+  m.userData = { r, tube };
+  const holder = new THREE.Group();
+  holder.add(m);
+  holder.position.y = h;
+  holder.userData.m = m;
+  m.rotation.z = a0;
+  return holder;
+}
+function setArc(holder, a0, a1) {
+  const m = holder.userData.m;
+  m.geometry.dispose();
+  m.geometry = new THREE.TorusGeometry(m.userData.r, m.userData.tube, 8, Math.max(8, Math.ceil(Math.abs(a1 - a0) / (6 * DEG))), Math.max(a1 - a0, 1e-3));
+  m.rotation.z = a0;
+  holder.visible = a1 - a0 > 1e-4;
+}
+function ringMesh(r, tube, color) {
+  const m = new THREE.Mesh(new THREE.TorusGeometry(r, tube, 8, 96), mat(color, 1, false, 0.25));
+  m.rotation.x = -Math.PI / 2;
+  return m;
+}
+// κείμενα σε υφή
+function textTexture(lines, opt = {}) {
+  const w = opt.w || 1024, h = opt.h || 256;
+  const cv = document.createElement('canvas');
+  cv.width = w; cv.height = h;
+  const ctx = cv.getContext('2d');
+  if (opt.bg) {
+    ctx.fillStyle = opt.bg;
+    const r = 36;
+    ctx.beginPath(); ctx.moveTo(r, 0); ctx.arcTo(w, 0, w, h, r); ctx.arcTo(w, h, 0, h, r);
+    ctx.arcTo(0, h, 0, 0, r); ctx.arcTo(0, 0, w, 0, r); ctx.closePath(); ctx.fill();
+  }
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  const gap = opt.gap || h / (lines.length + 0.4);
+  lines.forEach((ln, i) => {
+    let size = ln.size || 64;
+    const font = s => `${ln.weight || 600} ${s}px "Segoe UI", Roboto, "Noto Sans", Arial, sans-serif`;
+    ctx.font = font(size);
+    while (size > 18 && ctx.measureText(ln.t).width > w - 80) { size -= 2; ctx.font = font(size); }
+    ctx.fillStyle = ln.color || '#eaf1f8';
+    ctx.fillText(ln.t, w / 2, h / 2 + (i - (lines.length - 1) / 2) * gap);
+  });
+  const tex = new THREE.CanvasTexture(cv);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+function label(text, color, size = 0.3) {
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: textTexture([{ t: text, size: 170, color, weight: 700 }], { w: 512, h: 256 }), transparent: true, depthWrite: false, depthTest: false }));
+  sp.scale.set(size * 2.6, size * 1.3, 1);
+  sp.renderOrder = 6;
+  sp.userData = { text, color, size };
+  return sp;
+}
+function setLabel(sp, text, color) {
+  if (sp.userData.text === text && (!color || sp.userData.color === color)) return;
+  sp.userData.text = text;
+  if (color) sp.userData.color = color;
+  sp.material.map.dispose();
+  sp.material.map = textTexture([{ t: text, size: 170, color: sp.userData.color, weight: 700 }], { w: 512, h: 256 });
+  sp.material.needsUpdate = true;
+}
+
+// ------------------------------------------------------------------ βοηθητικά για τις καταστάσεις
+const polar = (r, deg) => [r * Math.cos(deg * DEG), r * Math.sin(deg * DEG)];
+function reflectPt(p, phiDeg) {            // ανάκλαση του σημείου ως προς ευθεία από την αρχή με γωνία φ
+  const c = Math.cos(2 * phiDeg * DEG), s = Math.sin(2 * phiDeg * DEG);
+  return [p[0] * c + p[1] * s, p[0] * s - p[1] * c];
+}
+function sameSet(a, b) {
+  return a.length === b.length && a.every(p => b.some(q => Math.hypot(p[0] - q[0], p[1] - q[1]) < 1e-3));
+}
+const lerp = (a, b, t) => a + (b - a) * t;
+
+// ------------------------------------------------------------------ οι καταστάσεις
+const STATES = [];
+function addState(s) { s.group = new THREE.Group(); s.group.visible = false; world.add(s.group); STATES.push(s); return s; }
+const GREEK_DEG = (x) => fmt(x, 0) + '°';
+// δυναμικός δακτύλιος (κύκλος) με ακτίνα που αλλάζει
+function ringDyn(color, tube = 0.03) {
+  const holder = new THREE.Group();
+  const m = new THREE.Mesh(new THREE.TorusGeometry(1, tube, 8, 96), mat(color, 1, false, 0.25));
+  m.rotation.x = -Math.PI / 2;
+  holder.add(m);
+  holder.userData = { m, tube, r: 1, color };
+  return holder;
+}
+function setRing(h, r) {
+  if (Math.abs(h.userData.r - r) < 1e-3) return;
+  h.userData.r = r;
+  h.userData.m.geometry.dispose();
+  h.userData.m.geometry = new THREE.TorusGeometry(Math.max(r, 0.01), h.userData.tube, 8, 96);
+}
+function rightMark(g, x, y, ang, s = 0.42, color = C.red) {   // σύμβολο ορθής γωνίας στο σημείο (x, y)
+  const grp = new THREE.Group();
+  grp.add(bar(P(s, 0, 0.02), P(s, s, 0.02), 0.025, color), bar(P(s, s, 0.02), P(0, s, 0.02), 0.025, color));
+  grp.position.copy(P(x, y, 0));
+  grp.rotation.y = ang;
+  g.add(grp);
+  return grp;
+}
+
+// 1. § 2.3 Μεσοκάθετος και ίση απόσταση
+{
+  const s = addState({ name: 'Μεσοκάθετος', range: [-3, 3, 0.05], stops: [2.2, 0.8, -1.2, -2.6, 0], hold: 1.5, move: 1.5, v0: 2.2, pname: 'Θέση του Ρ', fmtV: v => fmt(v, 2) });
+  const g = s.group, X = 2.6;
+  g.add(bar(P(0, -3.5, 0.008), P(0, 3.5, 0.008), 0.04, C.green));
+  g.add(bar(P(-X, 0, 0.012), P(X, 0, 0.012), 0.06, C.blue));
+  const pa = bar(P(0, 0), P(0, 0), 0.045, C.purple), pb = bar(P(0, 0), P(0, 0), 0.045, C.purple);
+  g.add(pa, pb);
+  const ring = ringDyn(C.teal, 0.022); ring.position.y = 0.004; g.add(ring);
+  g.add(ball(P(-X, 0, 0.02), 0.1, C.blue), ball(P(X, 0, 0.02), 0.1, C.blue), ball(P(0, 0, 0.02), 0.08, C.white));
+  const bp = ball(P(0, 0), 0.12, C.purple); g.add(bp);
+  rightMark(g, 0, 0, 0);
+  const lA = label('Α', CSS.blue, 0.4), lB = label('Β', CSS.blue, 0.4), lM = label('Μ', CSS.white, 0.34), lP = label('Ρ', CSS.purple, 0.42);
+  lA.position.copy(P(-X - 0.4, -0.45, 0.05)); lB.position.copy(P(X + 0.4, -0.45, 0.05)); lM.position.copy(P(0.4, -0.45, 0.05));
+  g.add(lA, lB, lM, lP);
+  s.set = (v) => {
+    const t = v, d = Math.hypot(X, t);
+    setBar(pa, P(0, t, 0.02), P(-X, 0, 0.02)); setBar(pb, P(0, t, 0.02), P(X, 0, 0.02));
+    bp.position.copy(P(0, t, 0.02)); lP.position.copy(P(0.42, t + 0.2, 0.05));
+    setRing(ring, d); ring.position.copy(P(0, t, 0.004));
+    return {
+      lines: [{ t: `ΡΑ = ΡΒ = ${fmt(d, 2)}`, size: 78, color: CSS.purple, weight: 700 }, { t: 'Το Ρ ισαπέχει από τα Α και Β', size: 56, color: CSS.grey }],
+      hint: '<b>Μεσοκάθετος ευθύγραμμου τμήματος</b> είναι η ευθεία που είναι κάθετη στο τμήμα και περνά από το μέσο του. Κάθε σημείο της ισαπέχει από τα άκρα του τμήματος: ΡΑ = ΡΒ. Ο κύκλος με κέντρο το Ρ που περνά από το Α περνά και από το Β. Αντίστροφα, κάθε σημείο που ισαπέχει από τα Α και Β ανήκει στη μεσοκάθετο.'
+    };
+  };
+}
+
+// 2. § 2.3 Κατασκευή της μεσοκαθέτου με διαβήτη
+{
+  const s = addState({ name: 'Κατασκευή με διαβήτη', range: [1, 4.2, 0.05], stops: [1.2, 2, 2.6, 3.4, 4], hold: 1.6, move: 1.4, v0: 2.6, pname: 'Ακτίνα r', fmtV: v => fmt(v, 2) });
+  const g = s.group, X = 2, HALF = 2;
+  g.add(bar(P(-X, 0, 0.012), P(X, 0, 0.012), 0.06, C.white));
+  const rA = ringDyn(C.blue, 0.03), rB = ringDyn(C.orange, 0.03);
+  rA.position.copy(P(-X, 0, 0.006)); rB.position.copy(P(X, 0, 0.006)); g.add(rA, rB);
+  const mes = bar(P(0, -3.6, 0.01), P(0, 3.6, 0.01), 0.045, C.green); g.add(mes);
+  const seg = [[C.blue, -X, 1], [C.orange, X, 1], [C.blue, -X, -1], [C.orange, X, -1]].map(([c, x0, sg]) => { const b = bar(P(0, 0), P(0, 0), 0.022, c, 0.9); g.add(b); return { b, x0, sg }; });
+  const bK = ball(P(0, 0), 0.11, C.purple), bL = ball(P(0, 0), 0.11, C.purple), bM = ball(P(0, 0, 0.02), 0.08, C.white);
+  g.add(bK, bL, bM, ball(P(-X, 0, 0.02), 0.1, C.blue), ball(P(X, 0, 0.02), 0.1, C.orange));
+  const lA = label('Α', CSS.blue, 0.4), lB = label('Β', CSS.orange, 0.4), lK = label('Κ', CSS.purple, 0.4), lL = label('Λ', CSS.purple, 0.4), lM = label('Μ', CSS.white, 0.34);
+  lA.position.copy(P(-X - 0.45, -0.45, 0.05)); lB.position.copy(P(X + 0.45, -0.45, 0.05)); lM.position.copy(P(0.4, -0.45, 0.05));
+  g.add(lA, lB, lK, lL, lM);
+  const rm = rightMark(g, 0, 0, 0);
+  s.set = (v) => {
+    const r = v, inter = r > HALF + 1e-6, h = inter ? Math.sqrt(r * r - HALF * HALF) : 0;
+    setRing(rA, r); setRing(rB, r);
+    mes.visible = inter; bK.visible = inter; bL.visible = inter; lK.visible = inter; lL.visible = inter; bM.visible = inter; lM.visible = inter; rm.visible = inter;
+    if (inter) {
+      bK.position.copy(P(0, h, 0.02)); bL.position.copy(P(0, -h, 0.02));
+      lK.position.copy(P(0.45, h + 0.25, 0.05)); lL.position.copy(P(0.45, -h - 0.25, 0.05));
+    }
+    seg.forEach(o => { o.b.visible = inter; if (inter) setBar(o.b, P(o.x0, 0, 0.014), P(0, o.sg * h, 0.014)); });
+    const touch = Math.abs(r - HALF) < 1e-6;
+    return {
+      lines: [{ t: `r = ${fmt(r, 2)}\u00a0\u00a0\u00a0\u00a0\u00a0\u00a0ΑΒ/2 = ${fmt(HALF, 0)}`, size: 70, weight: 700 }, inter ? { t: 'Η ΚΛ είναι η μεσοκάθετος του ΑΒ', size: 58, color: CSS.green, weight: 700 } : { t: touch ? 'Οι κύκλοι εφάπτονται στο μέσο του ΑΒ' : 'Οι κύκλοι δεν τέμνονται: χρειάζεται r > ΑΒ/2', size: 54, color: CSS.red }],
+      hint: '<b>Κατασκευή με κανόνα και διαβήτη.</b> Με κέντρα τα Α και Β και την ίδια ακτίνα r μεγαλύτερη από το μισό του ΑΒ γράφουμε δύο κύκλους. Τα σημεία τομής Κ και Λ ισαπέχουν από τα Α και Β (ΚΑ = ΚΒ = ΛΑ = ΛΒ = r), άρα η ευθεία ΚΛ είναι η μεσοκάθετος του ΑΒ.'
+    };
+  };
+}
+
+// 3. § 2.4 Συμμετρία ως προς σημείο: στροφή 180°
+const TRI = [[1.0, 0.5], [3.9, 0.9], [2.3, 3.1]];
+function halfTurnState(def) {
+  const s = addState({ name: def.name, range: [0, 1, 0.01], stops: [0, 1], hold: 1.9, move: 2.6, v0: 0, pname: 'Στροφή γύρω από το Ο', fold: true, fmtV: v => GREEK_DEG(180 * v) });
+  const g = s.group, n = def.groups ? def.groups.length : 1;
+  const grps = (def.groups || [def.poly]).map((poly, gi) => {
+    const sub = new THREE.Group(); g.add(sub);
+    sub.add(polyMesh(poly, C.blue, 0.4, 0.002), polyEdges(poly, 0.035, C.blue, 0.008));
+    const sym = poly.map(p => [-p[0], -p[1]]);
+    sub.add(polyMesh(sym, C.orange, 0.14, 0.001), polyEdges(sym, 0.02, C.orange, 0.006));
+    const mv = new THREE.Group(); mv.position.y = 0.04;
+    mv.add(polyMesh(poly, C.orange, 0.5, 0.0), polyEdges(poly, 0.04, C.orange, 0.004));
+    sub.add(mv);
+    const links = def.links ? poly.map(p => { const b = dashed(P(p[0], p[1], 0.012), P(-p[0], -p[1], 0.012), 0.014, C.grey, 14); sub.add(b); return b; }) : [];
+    const names = def.names ? poly.map((p, i) => { const sp = label(def.names[i], CSS.blue, 0.38); sp.position.copy(P(p[0] * 1.16, p[1] * 1.16, 0.05)); sub.add(sp); return sp; }) : [];
+    const names2 = def.names ? poly.map((p, i) => { const sp = label(def.names[i] + '΄', CSS.orange, 0.38); sp.position.copy(P(-p[0] * 1.16, -p[1] * 1.16, 0.05)); sub.add(sp); return sp; }) : [];
+    if (def.diag) { sub.add(dashed(P(...poly[0], 0.014), P(...poly[2], 0.014), 0.014, C.grey, 14), dashed(P(...poly[1], 0.014), P(...poly[3], 0.014), 0.014, C.grey, 14)); }
+    return { sub, mv, names2 };
+  });
+  g.add(ball(P(0, 0, 0.03), 0.1, C.white));
+  const lO = label('Ο', CSS.white, 0.38); lO.position.copy(P(0.38, -0.4, 0.05)); g.add(lO);
+  let idx = 0;
+  const place = () => grps.forEach((o, i) => { o.sub.visible = i === idx; });
+  place();
+  s.cycle = n > 1 ? () => { idx = (idx + 1) % n; place(); } : null;
+  s.set = (v) => {
+    const k = Math.min(1, Math.max(0, v)), o = grps[idx];
+    o.mv.rotation.y = Math.PI * k;
+    o.names2.forEach(sp => { sp.visible = k > 0.97; });
+    return def.info(k, idx);
+  };
+  s.hint = def.hint;
+  return s;
+}
+halfTurnState({
+  name: 'Συμμετρία ως προς σημείο', poly: TRI, names: ['Α', 'Β', 'Γ'], links: true,
+  info: (k) => ({
+    lines: [{ t: `Στροφή κατά ${GREEK_DEG(180 * k)} γύρω από το Ο`, size: 66, weight: 700 }, k >= 0.99 ? { t: 'Το Α΄Β΄Γ΄ είναι το συμμετρικό του ΑΒΓ ως προς το Ο', size: 50, color: CSS.green, weight: 700 } : { t: 'Στρέφω το τρίγωνο ΑΒΓ γύρω από το Ο', size: 56, color: CSS.grey }],
+    hint: '<b>Συμμετρία ως προς σημείο Ο.</b> Το Α΄ είναι συμμετρικό του Α ως προς το Ο όταν το Ο είναι το μέσο του ΑΑ΄. Το συμμετρικό σχήμα προκύπτει με στροφή 180° γύρω από το Ο και είναι ίσο με το αρχικό. Τα ΑΑ΄, ΒΒ΄ και ΓΓ΄ περνούν από το Ο και έχουν μέσο το Ο.'
+  })
+});
+
+// 4. § 2.5 Κέντρο συμμετρίας του παραλληλογράμμου
+{
+  const bb = 5, cc = 3, w = 70 * DEG, ux = bb, vx = cc * Math.cos(w), vy = cc * Math.sin(w);
+  const A = [-(ux + vx) / 2, -vy / 2];
+  const PAR = [A, [A[0] + ux, A[1]], [A[0] + ux + vx, A[1] + vy], [A[0] + vx, A[1] + vy]];
+  halfTurnState({
+    name: 'Κέντρο συμμετρίας παραλληλογράμμου', poly: PAR, names: ['Α', 'Β', 'Γ', 'Δ'], diag: true,
+    info: (k) => ({
+      lines: [{ t: `Στροφή κατά ${GREEK_DEG(180 * k)} γύρω από το Ο`, size: 66, weight: 700 }, k >= 0.99 ? { t: 'Ταυτίζεται με το αρχικό: το Ο είναι κέντρο συμμετρίας', size: 50, color: CSS.green, weight: 700 } : { t: 'Το Ο είναι το σημείο τομής των διαγωνίων', size: 56, color: CSS.grey }],
+      hint: '<b>Κέντρο συμμετρίας</b> ενός σχήματος είναι ένα σημείο Ο τέτοιο ώστε το συμμετρικό του σχήματος ως προς το Ο να ταυτίζεται με το ίδιο το σχήμα. Το παραλληλόγραμμο έχει κέντρο συμμετρίας το σημείο τομής των διαγωνίων του: ΟΑ = ΟΓ και ΟΒ = ΟΔ.'
+    })
+  });
+}
+
+// 5. § 2.5 Κανονικά πολύγωνα και κέντρο συμμετρίας
+{
+  const NS = [3, 4, 5, 6, 7, 8], NM = { 3: 'τρίγωνο', 4: 'τετράγωνο', 5: 'πεντάγωνο', 6: 'εξάγωνο', 7: 'επτάγωνο', 8: 'οκτάγωνο' };
+  halfTurnState({
+    name: 'Κανονικά πολύγωνα', groups: NS.map(nn => Array.from({ length: nn }, (_, i) => polar(2.9, 90 + 360 * i / nn))),
+    info: (k, i) => {
+      const nn = NS[i], even = nn % 2 === 0;
+      return {
+        lines: [{ t: `Κανονικό ${NM[nn]} (ν = ${nn})`, size: 70, weight: 700 }, k >= 0.99 ? (even ? { t: 'Ταυτίζεται: το Ο είναι κέντρο συμμετρίας', size: 56, color: CSS.green, weight: 700 } : { t: 'Δεν ταυτίζεται: δεν έχει κέντρο συμμετρίας', size: 56, color: CSS.red, weight: 700 }) : { t: `Στροφή κατά ${GREEK_DEG(180 * k)} γύρω από το Ο`, size: 56, color: CSS.grey }],
+        hint: '<b>Κανονικά πολύγωνα και κέντρο συμμετρίας.</b> Αν το πλήθος ν των πλευρών είναι άρτιος, η στροφή κατά 180° γύρω από το κέντρο Ο ταυτίζει το πολύγωνο με τον εαυτό του, άρα το Ο είναι κέντρο συμμετρίας. Αν το ν είναι περιττός, το πολύγωνο δεν έχει κέντρο συμμετρίας.'
+      };
+    }
+  });
+}
+
+// 6. § 2.6 Παράλληλες ευθείες και τέμνουσα: ζεύγη γωνιών
+{
+  const s = addState({ name: 'Παράλληλες και τέμνουσα', range: [30, 150, 1], stops: [60, 120], hold: 2.1, move: 1.6, v0: 60, pname: 'Γωνία θ της τέμνουσας', fmtV: v => GREEK_DEG(v) });
+  const g = s.group, Hh = 1.3;
+  g.add(bar(P(-5.2, Hh, 0.01), P(5.2, Hh, 0.01), 0.05, C.white), bar(P(-5.2, -Hh, 0.01), P(5.2, -Hh, 0.01), 0.05, C.white));
+  const e3 = bar(P(0, 0), P(0, 0), 0.05, C.purple); g.add(e3);
+  const kb = ball(P(0, 0), 0.09, C.white), lb = ball(P(0, 0), 0.09, C.white); g.add(kb, lb);
+  const sA = sectorMesh(1.1, 0, 1, C.blue, 0.65, 0.006), sB = sectorMesh(1.1, 0, 1, C.orange, 0.65, 0.006);
+  g.add(sA, sB);
+  const l1 = label('ε₁', CSS.white, 0.4), l2 = label('ε₂', CSS.white, 0.4), l3 = label('ε₃', CSS.purple, 0.4), lK = label('Κ', CSS.white, 0.34), lL = label('Λ', CSS.white, 0.34);
+  l1.position.copy(P(5.5, Hh + 0.35, 0.05)); l2.position.copy(P(5.5, -Hh + 0.35, 0.05));
+  g.add(l1, l2, l3, lK, lL);
+  const ANG = (th) => ({ a1: [0, th], a2: [th, Math.PI], a3: [Math.PI, Math.PI + th], a4: [Math.PI + th, 2 * Math.PI] });
+  const PAIRS = [
+    { n: 'Εντός εναλλάξ γωνίες', b: ['K', 'a4'], o: ['L', 'a2'], rel: 'eq', def: 'Βρίσκονται μεταξύ των παραλλήλων και σε διαφορετικά μέρη της τέμνουσας.' },
+    { n: 'Εντός, εκτός και επί τα αυτά γωνίες', b: ['L', 'a1'], o: ['K', 'a1'], rel: 'eq', def: 'Η μία βρίσκεται μεταξύ των παραλλήλων και η άλλη εκτός, στο ίδιο μέρος της τέμνουσας.' },
+    { n: 'Εντός και επί τα αυτά γωνίες', b: ['K', 'a4'], o: ['L', 'a1'], rel: 'sum', def: 'Βρίσκονται και οι δύο μεταξύ των παραλλήλων, στο ίδιο μέρος της τέμνουσας.' },
+    { n: 'Εκτός και επί τα αυτά γωνίες', b: ['K', 'a1'], o: ['L', 'a4'], rel: 'sum', def: 'Βρίσκονται και οι δύο εκτός των παραλλήλων, στο ίδιο μέρος της τέμνουσας.' },
+    { n: 'Εκτός εναλλάξ γωνίες', b: ['K', 'a2'], o: ['L', 'a4'], rel: 'eq', def: 'Βρίσκονται και οι δύο εκτός των παραλλήλων, σε διαφορετικά μέρη της τέμνουσας.' }
+  ];
+  let idx = 0;
+  s.cycle = () => { idx = (idx + 1) % PAIRS.length; };
+  s.set = (v) => {
+    const th = v * DEG, c = 1 / Math.tan(th), kx = Hh * c;
+    const K = [kx, Hh], L = [-kx, -Hh], pr = PAIRS[idx], an = ANG(th);
+    const u = [Math.cos(th), Math.sin(th)];
+    setBar(e3, P(-4.4 * u[0], -4.4 * u[1], 0.01), P(4.4 * u[0], 4.4 * u[1], 0.01));
+    kb.position.copy(P(...K, 0.02)); lb.position.copy(P(...L, 0.02));
+    lK.position.copy(P(K[0] - 0.4, K[1] + 0.35, 0.05)); lL.position.copy(P(L[0] + 0.4, L[1] - 0.35, 0.05));
+    const up = th <= Math.PI / 2;
+    l3.position.copy(P((up ? 4.8 : -4.8) * u[0], (up ? 4.8 : -4.8) * u[1], 0.05));
+    const place = (m, [at, key]) => { const c0 = at === 'K' ? K : L, [a0, a1] = an[key]; m.position.set(c0[0], 0.006, -c0[1]); setSector(m, a0, a1); return (a1 - a0) / DEG; };
+    const va = place(sA, pr.b), vb = place(sB, pr.o);
+    return {
+      lines: [{ t: pr.n, size: 62, weight: 700 }, pr.rel === 'eq' ? { t: `${fmt(va, 0)}° = ${fmt(vb, 0)}°: ίσες γωνίες`, size: 66, color: CSS.green, weight: 700 } : { t: `${fmt(va, 0)}° + ${fmt(vb, 0)}° = ${fmt(va + vb, 0)}°: παραπληρωματικές`, size: 60, color: CSS.green, weight: 700 }],
+      hint: `<b>Παράλληλες ευθείες ε₁ και ε₂ που τέμνονται από την ε₃.</b> ${pr.n}: ${pr.def} ` + (pr.rel === 'eq' ? 'Επειδή ε₁ // ε₂, είναι ίσες.' : 'Επειδή ε₁ // ε₂, έχουν άθροισμα 180°.') + ' Το αποτέλεσμα δεν εξαρτάται από τη γωνία θ της τέμνουσας.'
+    };
+  };
+}
+
+// 7. § 2.6 Κριτήριο παραλληλίας
+{
+  const s = addState({ name: 'Κριτήριο παραλληλίας', range: [-25, 25, 0.5], stops: [12, 6, 0, -8, -15, 0], hold: 1.7, move: 1.5, v0: 12, pname: 'Στροφή της ε₂ κατά δ', fmtV: v => fmt(v, 1) + '°' });
+  const g = s.group, Hh = 1.3, TH = 60 * DEG, u = [Math.cos(TH), Math.sin(TH)];
+  g.add(bar(P(-5.2, Hh, 0.01), P(5.2, Hh, 0.01), 0.05, C.white));
+  g.add(bar(P(-4.4 * u[0], -4.4 * u[1], 0.01), P(4.4 * u[0], 4.4 * u[1], 0.01), 0.05, C.purple));
+  const K = [Hh / Math.tan(TH), Hh], L = [-K[0], -K[1]];
+  const e2 = bar(P(0, 0), P(0, 0), 0.05, C.teal); g.add(e2);
+  const bx = ball(P(0, 0), 0.12, C.red); g.add(bx);
+  g.add(ball(P(...K, 0.02), 0.09, C.white), ball(P(...L, 0.02), 0.09, C.white));
+  const sA = sectorMesh(1.1, Math.PI + TH, 2 * Math.PI, C.blue, 0.65, 0.006); sA.position.set(K[0], 0.006, -K[1]); g.add(sA);
+  const sB = sectorMesh(1.1, 0, 1, C.orange, 0.65, 0.006); sB.position.set(L[0], 0.006, -L[1]); g.add(sB);
+  const l1 = label('ε₁', CSS.white, 0.4), l2 = label('ε₂', CSS.teal, 0.4), l3 = label('ε₃', CSS.purple, 0.4), lX = label('Χ', CSS.red, 0.4);
+  l1.position.copy(P(5.5, Hh + 0.35, 0.05)); l3.position.copy(P(4.8 * u[0], 4.8 * u[1], 0.05));
+  g.add(l1, l2, l3, lX);
+  s.set = (v) => {
+    const dl = v * DEG, w = [Math.cos(dl), Math.sin(dl)];
+    setBar(e2, P(L[0] - 5.4 * w[0], L[1] - 5.4 * w[1], 0.01), P(L[0] + 5.4 * w[0], L[1] + 5.4 * w[1], 0.01));
+    l2.position.copy(P(L[0] + 5.7 * w[0], L[1] + 5.7 * w[1] + 0.35, 0.05));
+    setSector(sB, TH, Math.PI + dl);
+    const va = 180 - 60, vb = 180 + v - 60, par = Math.abs(v) < 0.25;
+    const sx = Math.abs(w[1]) > 1e-4 ? (2 * Hh) / w[1] : 1e9, X = [L[0] + sx * w[0], L[1] + sx * w[1]];
+    const showX = !par && Math.abs(X[0]) < 6.5;
+    bx.visible = showX; lX.visible = showX;
+    if (showX) { bx.position.copy(P(X[0], X[1], 0.03)); lX.position.copy(P(X[0] + 0.4, X[1] + 0.35, 0.05)); }
+    return {
+      lines: [{ t: `Εντός εναλλάξ: ${fmt(va, 1)}° και ${fmt(vb, 1)}°`, size: 64, weight: 700 }, par ? { t: 'Οι γωνίες είναι ίσες: ε₁ // ε₂', size: 62, color: CSS.green, weight: 700 } : { t: 'Οι γωνίες δεν είναι ίσες: οι ε₁ και ε₂ τέμνονται', size: 56, color: CSS.red, weight: 700 }],
+      hint: '<b>Κριτήριο παραλληλίας.</b> Αν δύο ευθείες που τέμνονται από μια τρίτη σχηματίζουν εντός εναλλάξ γωνίες ίσες, τότε είναι παράλληλες. Αν οι γωνίες δεν είναι ίσες, οι ευθείες τέμνονται σε ένα σημείο Χ.'
+    };
+  };
+}
+
+// πίνακας με τον υπολογισμό, πάνω από το σχήμα
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(6.6, 1.65), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, side: THREE.DoubleSide }));
+panel.position.set(0, 0.9, -5.4);
+panel.renderOrder = 8;
+world.add(panel);
+let panelKey = '';
+function setPanel(lines) {
+  const key = JSON.stringify(lines);
+  if (key === panelKey) return;
+  panelKey = key;
+  if (panel.material.map) panel.material.map.dispose();
+  panel.material.map = textTexture(lines, { w: 1280, h: 320, bg: 'rgba(14,20,32,.88)', gap: 110 });
+  panel.material.needsUpdate = true;
+}
+
+// ------------------------------------------------------------------ κατάσταση και έλεγχοι
+let cur = 0, v = 0, playing = true;
+const auto = { i: 0, phase: 'hold', t: 0 };
+const calcEl = document.getElementById('calc'), segS = document.getElementById('segS'), hintEl = document.getElementById('hint');
+const btnPlay = document.getElementById('btnPlay'), lblV = document.getElementById('lblV'), rng = document.getElementById('rngV');
+STATES.forEach((st, i) => {
+  const b = document.createElement('button');
+  b.textContent = st.name;
+  b.onclick = () => select(i);
+  segS.appendChild(b);
+});
+const ACC = [C.green, C.green, C.orange, C.blue, C.purple, C.purple, C.teal].map(c => '#' + c.toString(16).padStart(6, '0'));
+function select(i) {
+  cur = (i + STATES.length) % STATES.length;
+  const st = STATES[cur];
+  STATES.forEach((x, j) => { x.group.visible = j === cur; });
+  segS.querySelectorAll('button').forEach((b, j) => b.classList.toggle('on', j === cur));
+  document.documentElement.style.setProperty('--acc', ACC[cur]);
+  rng.min = st.range[0]; rng.max = st.range[1]; rng.step = st.range[2];
+  v = st.v0 !== undefined ? st.v0 : st.range[0];
+  auto.i = Math.max(0, st.stops.findIndex(x => Math.abs(x - v) < 1e-6)); auto.phase = 'hold'; auto.t = 0;
+  if (st.vertical) { camera.position.set(0.15, 0.45, 1.0); controls.target.set(0, 0.12, 0); } else { camera.position.copy(CAM0); controls.target.copy(TGT0); }
+  controls.update();
+  apply();
+}
+function apply() {
+  const st = STATES[cur];
+  const info = st.set(v);
+  setPanel(info.lines);
+  calcEl.innerHTML = info.lines.map((l, i) => i ? `<small style="color:${l.color || '#eaf1f8'}">${l.t}</small>` : `<span style="color:${l.color || '#eaf1f8'}">${l.t}</span>`).join('');
+  hintEl.innerHTML = info.hint;
+  rng.value = v;
+  lblV.textContent = `${st.pname}: ${st.fmtV ? st.fmtV(v) : fmt(v)}`;
+  const vert = !!st.vertical;
+  tableGrid.visible = !vert;
+  panel.position.set(0, vert ? 3.6 : 0.9, vert ? 0 : -5.4);
+  panel.userData.vert = vert;
+}
+function setPlaying(p) { playing = p; btnPlay.textContent = p ? 'Παύση' : 'Αναπαραγωγή'; }
+btnPlay.onclick = () => setPlaying(!playing);
+rng.oninput = () => { setPlaying(false); v = parseFloat(rng.value); apply(); };
+const ease = t => t * t * (3 - 2 * t);
+function stepAuto(dt) {
+  const st = STATES[cur], n = st.stops.length;
+  auto.t += dt;
+  if (auto.phase === 'hold') {
+    v = st.stops[auto.i];
+    if (auto.t >= st.hold) { auto.phase = 'move'; auto.t = 0; }
+  } else {
+    const from = st.stops[auto.i], j = (auto.i + 1) % n, to = st.stops[j];
+    const wrap = j === 0;                                   // επιστροφή από το τελευταίο στο πρώτο στάδιο
+    const dur = wrap ? 0.9 : st.move;
+    const k = Math.min(1, auto.t / dur);
+    v = lerp(from, to, ease(k));
+    if (k >= 1) { auto.i = j; auto.phase = 'hold'; auto.t = 0; if (wrap && st.cycle) st.cycle(); }
+  }
+  apply();
+}
+select(0);
+window.mathsAR = { select, setParam: x => { setPlaying(false); v = x; apply(); }, states: STATES.length, cycle: () => STATES[cur].cycle && STATES[cur].cycle() };
+
+// ------------------------------------------------------------------ XR
+const btnAR = document.getElementById('btnAR'), btnVR = document.getElementById('btnVR');
+const note = document.getElementById('note');
+let placed = false, floorRef = true;
+async function checkXR() {
+  if (!window.isSecureContext) {
+    note.textContent = 'Η σελίδα δεν σερβίρεται μέσω HTTPS, οπότε το AR/VR δεν είναι διαθέσιμο. Προβολή σε 3D.';
+    note.style.display = 'block';
+    return;
+  }
+  if (!navigator.xr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+    return;
+  }
+  const [ar, vr] = await Promise.all([
+    navigator.xr.isSessionSupported('immersive-ar').catch(() => false),
+    navigator.xr.isSessionSupported('immersive-vr').catch(() => false)]);
+  if (ar) btnAR.style.display = 'inline-block';
+  if (vr) btnVR.style.display = 'inline-block';
+  if (!ar && !vr) {
+    note.textContent = 'Προβολή σε 3D. Η λειτουργία AR/VR ανοίγει στον browser των γυαλιών Magic Leap 2 ή Meta Quest 3.';
+    note.style.display = 'block';
+  }
+}
+checkXR();
+
+async function startXR(kind) {
+  if (renderer.xr.isPresenting) return;
+  try {
+    const session = await navigator.xr.requestSession(kind, { optionalFeatures: ['local-floor', 'hand-tracking'] });
+    let ref = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch { ref = 'local'; }
+    renderer.xr.setReferenceSpaceType(ref);
+    floorRef = ref === 'local-floor';
+    await renderer.xr.setSession(session);
+    placed = false;
+    const opaque = (session.environmentBlendMode || 'opaque') === 'opaque';
+    room.visible = opaque;
+    tableGrid.visible = false;
+    scene.background = opaque ? new THREE.Color(0x0e1420) : null;
+    session.addEventListener('end', () => {
+      room.visible = false;
+      scene.background = null;
+      root.position.set(0, 0, 0);
+      root.quaternion.identity();
+      root.scale.setScalar(1);
+      camera.position.copy(CAM0);
+      controls.target.copy(TGT0);
+      controls.update();
+      apply();
+    });
+  } catch (err) {
+    note.textContent = 'Δεν ξεκίνησε η λειτουργία ' + (kind === 'immersive-ar' ? 'AR' : 'VR') + ': ' + (err.message || err);
+    note.style.display = 'block';
+  }
+}
+btnAR.onclick = () => startXR('immersive-ar');
+btnVR.onclick = () => startXR('immersive-vr');
+
+// στην πρώτη εικόνα του XR, το σχήμα τοποθετείται 70 cm μπροστά από τον χρήστη, λίγο κάτω από τα μάτια
+function placeInFront(frame) {
+  const ref = renderer.xr.getReferenceSpace();
+  const pose = frame.getViewerPose(ref);
+  if (!pose) return;
+  const p = pose.transform.position, o = pose.transform.orientation;
+  const q = new THREE.Quaternion(o.x, o.y, o.z, o.w);
+  const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(q);
+  dir.y = 0;
+  if (dir.lengthSq() < 1e-6) dir.set(0, 0, -1);
+  dir.normalize();
+  const yaw = Math.atan2(-dir.x, -dir.z);
+  root.position.set(p.x + dir.x * 0.7, p.y - 0.42, p.z + dir.z * 0.7);
+  root.rotation.set(0, yaw, 0);
+  root.scale.setScalar(1.3);
+  const desk = room.getObjectByName('desk');
+  desk.position.set(root.position.x, root.position.y - 0.021, root.position.z);
+  desk.rotation.y = yaw;
+  room.children[0].position.y = floorRef ? 0 : p.y - 1.5;
+  placed = true;
+  select(cur);
+}
+
+// χειριστήρια: σύντομο πάτημα = επόμενη κατάσταση, παρατεταμένο πάτημα πάνω στο σχήμα = μετακίνηση,
+// πλευρικό κουμπί = παύση ή συνέχεια, οριζόντια κίνηση του μοχλού (σε παύση) = αλλαγή της παραμέτρου, κάθετη = μέγεθος
+const ray = new THREE.Raycaster();
+const rot = new THREE.Matrix4();
+function makeController(i) {
+  const ctl = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1)]),
+    new THREE.LineBasicMaterial({ color: 0x2dd4bf, transparent: true, opacity: 0.7 }));
+  line.scale.z = 2.5;
+  line.visible = false;
+  ctl.add(line);
+  ctl.userData = { line, t0: 0, grab: false, source: null };
+  ctl.addEventListener('connected', e => { ctl.userData.source = e.data; line.visible = e.data.targetRayMode === 'tracked-pointer'; });
+  ctl.addEventListener('disconnected', () => { ctl.userData.source = null; line.visible = false; });
+  ctl.addEventListener('selectstart', () => {
+    ctl.userData.t0 = performance.now();
+    rot.identity().extractRotation(ctl.matrixWorld);
+    ray.ray.origin.setFromMatrixPosition(ctl.matrixWorld);
+    ray.ray.direction.set(0, 0, -1).applyMatrix4(rot);
+    const targets = [];
+    STATES[cur].group.traverse(o => { if (o.isMesh) targets.push(o); });
+    if (ray.intersectObjects(targets, false).length) { ctl.userData.grab = true; ctl.attach(root); }
+  });
+  ctl.addEventListener('selectend', () => {
+    if (ctl.userData.grab) { scene.attach(root); ctl.userData.grab = false; }
+    if (performance.now() - ctl.userData.t0 < 280) select(cur + 1);
+  });
+  ctl.addEventListener('squeezestart', () => setPlaying(!playing));
+  scene.add(ctl);
+  return ctl;
+}
+const ctls = [makeController(0), makeController(1)];
+
+window.addEventListener('resize', () => {
+  if (renderer.xr.isPresenting) return;
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+let last = performance.now();
+renderer.setAnimationLoop((t, frame) => {
+  const now = performance.now();
+  const dt = Math.min((now - last) / 1000, 0.05);
+  last = now;
+  if (frame && !placed) placeInFront(frame);
+  if (playing) stepAuto(dt);
+  if (renderer.xr.isPresenting) {
+    panel.visible = true;
+    // ο πίνακας γυρίζει πάντα προς τον χρήστη
+    const eye = new THREE.Vector3().setFromMatrixPosition(renderer.xr.getCamera().matrixWorld);
+    const local = world.worldToLocal(eye.clone());
+    panel.rotation.set(0, Math.atan2(local.x - panel.position.x, local.z - panel.position.z), 0);
+    ctls.forEach(c => {
+      const gp = c.userData.source && c.userData.source.gamepad;
+      if (gp && gp.axes && gp.axes.length) {
+        const ax = gp.axes[2] !== undefined ? gp.axes[2] : gp.axes[0], ay = gp.axes[3] !== undefined ? gp.axes[3] : gp.axes[1];
+        if (Math.abs(ay) > 0.2) root.scale.setScalar(THREE.MathUtils.clamp(root.scale.x * (1 - ay * dt * 0.9), 0.5, 4));
+        if (!playing && Math.abs(ax) > 0.2) {
+          const st = STATES[cur], span = st.range[1] - st.range[0];
+          v = THREE.MathUtils.clamp(v + ax * dt * span * 0.4, st.range[0], st.range[1]);
+          apply();
+        }
+      }
+    });
+  } else {
+    panel.visible = false;
+    controls.update();
+  }
+  renderer.render(scene, camera);
+});
+</script>
+</body>
+</html>

@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 30 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `metrikes-scheseis.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -38,6 +38,7 @@
 | Δεκαδικοί και ποσοστά (`dekadika-pososta.html`) | Α΄ Γυμνασίου, δεκαδικοί αριθμοί (§3.1) και ποσοστά (§5.1, §5.2) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Ρητοί αριθμοί (`rhtoi.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 7 (§7.1 έως §7.9) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Εξισώσεις και προβλήματα (`eksiswseis.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 4 (§4.1 έως §4.3) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Μεσοκάθετος, συμμετρία και παράλληλες (`symmetria-paralliles.html`) | Α΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 2 (§2.3 έως §2.6) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Στερεά και όγκοι (`sterea-ogkoi.html`) | Γ΄ Γυμνασίου, Στερεά και όγκοι | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Διανύσματα (`dianysmata.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 1 (§1.1 έως §1.5) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μετρικές σχέσεις (`metrikes-scheseis.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 9 (§9.1 έως §9.5 και §9.7) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
@@ -54,7 +55,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    30 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `metrikes-scheseis.html`, `sterea-ogkoi.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -716,6 +717,28 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 | 7 | Τέμνουσες κύκλου (§9.7) | Το γινόμενο ΡΑ · ΡΒ ίσο για κάθε τέμνουσα και ίσο με |ΟΡ² − R²| |
 
 Η παράγραφος §9.6 δεν καλύπτεται. Η σελίδα δεν έχει δοκιμαστεί μέσα στα γυαλιά, μόνο σε headless Chrome (προβολή 3D, έλεγχος σφαλμάτων και ακραίες τιμές των ολισθητών).
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+- `symmetria-paralliles.html` — WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3 (και προβολή 3D σε κάθε συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/symmetria-paralliles.html. Συνέχεια του `gonies-symmetria.html` (σενάριο 30). Η μονάδα του
+  χώρου είναι τα 7,5 cm. Τα χρώματα είναι όπως στις εφαρμογές GeoGebra: μεσοκάθετος πράσινη, αρχικό σχήμα μπλε, συμμετρικό ή
+  στρεφόμενο αντίγραφο πορτοκαλί, ίσα τμήματα μωβ, ορθή γωνία και κέντρο συμμετρίας κόκκινα. Ένας πίνακας από πάνω γράφει το
+  συμπέρασμα. Μέσα στα γυαλιά το σχήμα εμφανίζεται μπροστά από τον μαθητή. Σύντομο πάτημα σκανδάλης φορτώνει την επόμενη σκηνή,
+  κράτημα πάνω στο σχήμα το μετακινεί και ο μοχλός αλλάζει την παράμετρο της σκηνής. Στην προβολή 3D ο ολισθητής και τα κουμπιά
+  ελέγχουν τη σκηνή. Δεν έχει αντίστοιχο μοντέλο `.glb`, γι' αυτό η κάρτα του `index.html` δείχνει ένα σχέδιο SVG και δεν υπάρχει
+  εγγραφή στο `m.html`.
+
+| # | Σκηνή | Τι δείχνει |
+|---|---|---|
+| 1 | Μεσοκάθετος (§2.3) | Σημείο Ρ που κινείται: ΡΑ = ΡΒ ακριβώς όταν το Ρ είναι πάνω στη μεσοκάθετο |
+| 2 | Κατασκευή με διαβήτη (§2.3) | Δύο κύκλοι ίσης ακτίνας r από τα άκρα, τομές Κ και Λ, ευθεία ΚΛ· χρειάζεται r > ΑΒ/2 |
+| 3 | Συμμετρία ως προς σημείο (§2.4) | Στροφή 180° τριγώνου γύρω από το Ο, με τα ζεύγη Α, Α΄ και το Ο μέσο |
+| 4 | Κέντρο συμμετρίας παραλληλογράμμου (§2.5) | Οι διαγώνιοι διχοτομούνται στο Ο, που είναι το κέντρο συμμετρίας |
+| 5 | Κανονικά πολύγωνα (§2.5) | Κέντρο συμμετρίας έχουν μόνο τα πολύγωνα με άρτιο πλήθος πλευρών |
+| 6 | Παράλληλες και τέμνουσα (§2.6) | Ζεύγη γωνιών (εντός εναλλάξ, εντός εκτός και επί τα αυτά, αντίστοιχες) και τα αθροίσματά τους |
+| 7 | Κριτήριο παραλληλίας (§2.6) | Στροφή της ε₂ κατά δ: οι ευθείες είναι παράλληλες όταν δ = 0 |
+
+Η σελίδα δεν έχει δοκιμαστεί μέσα στα γυαλιά, μόνο σε headless Chrome (προβολή 3D, έλεγχος σφαλμάτων και ακραίες τιμές των παραμέτρων).
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
 
 ## Στερεά και όγκοι στο Κέντρο Καινοτομίας (σενάριο 35, Γ΄ Γυμνασίου)
