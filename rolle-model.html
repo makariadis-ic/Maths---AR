@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Θεώρημα Rolle — μοντέλο AR</title>
+<style>
+  html, body { margin:0; height:100%; background:#eef2f7; font-family: Arial, "Segoe UI", sans-serif; color:#1f3863; }
+  header { padding:10px 14px; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  header a { color:#1f3863; text-decoration:none; font-size:15px; }
+  h1 { margin:0; font-size:20px; }
+  .sub { font-size:14px; color:#4a5568; }
+  model-viewer { position:fixed; left:0; right:0; top:48px; bottom:0; width:100%; height:calc(100% - 48px); --poster-color:#eef2f7; background:#eef2f7; }
+  .btn { position:absolute; bottom:16px; left:14px; font:inherit; font-size:14px; color:#fff; background:#1f3863; border:0; border-radius:4px; padding:9px 14px; cursor:pointer; }
+  .ar { left:auto; right:14px; }
+</style>
+<script type="module" src="https://unpkg.com/@google/model-viewer@4.4.0/dist/model-viewer.min.js"></script>
+</head>
+<body>
+<header>
+  <a href="index.html">‹ Πίσω</a>
+  <h1>Θεώρημα Rolle</h1>
+  <span class="sub">Γ΄ Λυκείου, Κεφάλαιο 2</span>
+</header>
+<model-viewer id="mv" src="rolle.glb" alt="Πίνακας 48 × 30 cm με τη γραφική παράσταση μιας συνάρτησης, το σημείο ξ και την εφαπτομένη του"
+  ar ar-modes="scene-viewer webxr quick-look" ar-scale="fixed" ar-placement="floor"
+  camera-controls touch-action="pan-y" autoplay animation-name="rolle" interaction-prompt="none"
+  camera-orbit="0deg 82deg 1.1m" min-camera-orbit="auto auto 0.5m" max-camera-orbit="auto auto 3m"
+  shadow-intensity="0.7" exposure="1.0">
+  <button slot="ar-button" class="btn ar">Είσοδος σε AR</button>
+  <button class="btn" id="pp">Παύση</button>
+</model-viewer>
+<script>
+  const mv = document.getElementById("mv"), pp = document.getElementById("pp");
+  pp.addEventListener("click", () => {
+    if (mv.paused) { mv.play(); pp.textContent = "Παύση"; } else { mv.pause(); pp.textContent = "Συνέχεια"; }
+  });
+</script>
+</body>
+</html>
