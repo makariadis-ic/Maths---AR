@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `rolle.html`, `kyrtotita.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -35,6 +35,7 @@
 | Κανονικό οκτάγωνο: Ε₈ = ½P₈α₈ (`kanonika-polygona`) | Β΄ Λυκείου, Γεωμετρία, κανονικά πολύγωνα (Κεφάλαιο 11, §11.1–11.3) | Android (κινούμενο), γυαλιά XR μέσω `kanonika-polygona.html` |
 | Το κουτί και ο όγκος V(x) (`polyonyma`) | Β΄ Λυκείου, Άλγεβρα, πολυωνυμικές συναρτήσεις (Κεφάλαιο 4, §4.1) | Android (κινούμενο), γυαλιά XR μέσω `polyonyma.html` |
 | Θεώρημα Rolle: η εφαπτομένη και το σημείο ξ (`rolle`) | Γ΄ Λυκείου, Θεώρημα Rolle (Κεφάλαιο 2) | Android (κινούμενο), γυαλιά XR μέσω `rolle.html` |
+| Θεώρημα Μέσης Τιμής: η εφαπτομένη παράλληλη στη χορδή (`mvt`) | Γ΄ Λυκείου, Θεώρημα Μέσης Τιμής (Κεφάλαιο 2) | Γυαλιά XR και tablet Samsung μέσω `mvt.html` (χωρίς μοντέλο `.glb`) |
 | Κυρτότητα και σημεία καμπής (`kyrtotita.html`) | Γ΄ Λυκείου, Κυρτότητα και σημεία καμπής (Κεφάλαιο 2) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Παραλληλόγραμμα (`parallilogramma.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 5 (παραλληλόγραμμα, ορθογώνιο, ρόμβος, τετράγωνο, τραπέζιο) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Δεκαδικοί και ποσοστά (`dekadika-pososta.html`) | Α΄ Γυμνασίου, δεκαδικοί αριθμοί (§3.1) και ποσοστά (§5.1, §5.2) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
@@ -58,7 +59,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -830,6 +831,24 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 | 4 | Ρίζες της f και της f΄ | Τρεις ρίζες ρ₁, ρ₂, ρ₃ της f (η ρ₂ κινείται): μία ρίζα της f΄ σε καθένα από τα (ρ₁, ρ₂) και (ρ₂, ρ₃) |
 
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+## Θεώρημα Μέσης Τιμής στο Κέντρο Καινοτομίας (σενάριο 47, Γ΄ Λυκείου, Κεφάλαιο 2)
+
+Συνοδεύει τις 4 εφαρμογές GeoGebra «Θεώρημα Μέσης Τιμής - …» του σεναρίου.
+
+- `mvt.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/mvt.html. Χρειάζεται δίπλα της το `mvt-lib.js`, που έχει τη σκηνή (three.js, από CDN).
+  Η διεύθυνση `mvt.html?k=2` ανοίγει κατευθείαν μια κατάσταση (από 0 έως 3). Χρώματα όπως στις εφαρμογές GeoGebra: η f μπλε,
+  η χορδή ΑΒ πορτοκαλί, η εφαπτομένη στο ξ κόκκινη και τα σημεία ξ πράσινα.
+- Τέσσερις καταστάσεις, ίδιες με τις εφαρμογές GeoGebra:
+  0. Γεωμετρική ερμηνεία: f(x) = x³ − 3x, με τέσσερα διαστήματα [α, β]. Το σημείο ξ κινείται στο (α, β) και ο πράσινος δείκτης
+     σημειώνει τα σημεία όπου η εφαπτομένη είναι παράλληλη στη χορδή.
+  1. Υποθέσεις και αντιπαραδείγματα: x³ − 3x στο [0 ; 2], √x στο [0 ; 4], |x| στο [−1 ; 2] (δεν είναι παραγωγίσιμη στο 0)
+     και μια συνάρτηση με άλμα στο 1 (όχι συνεχής).
+  2. Εφαρμογή e^x ≥ 1 + x: το ξ = ln(κλίση ΑΒ) είναι ακριβές, άρα η ανισότητα προκύπτει από την e^β − 1 = e^ξ · β.
+  3. Εφαρμογή |ημβ − ημα| ≤ |β − α|: η χορδή ΑΒ μένει μέσα στο διπλό κώνο με κλίσεις ±1 από το Α.
+- Το κουμπί «Παράδειγμα ›» αλλάζει το παράδειγμα της κατάστασης, το «Παύση» σταματά την κίνηση.
+- Ελεγμένο σε headless Chromium: και οι 4 καταστάσεις φορτώνουν χωρίς σφάλματα JavaScript. Δεν έχει δοκιμαστεί ακόμη στα γυαλιά Magic Leap 2 και Meta Quest 3 και στο tablet Samsung.
 
 ## Κυρτότητα και σημεία καμπής στο Κέντρο Καινοτομίας (σενάριο 48, Γ΄ Λυκείου Προσανατολισμού, Κεφάλαιο 2)
 
