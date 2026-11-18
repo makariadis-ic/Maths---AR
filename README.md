@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -37,6 +37,7 @@
 | Θεώρημα Rolle: η εφαπτομένη και το σημείο ξ (`rolle`) | Γ΄ Λυκείου, Θεώρημα Rolle (Κεφάλαιο 2) | Android (κινούμενο), γυαλιά XR μέσω `rolle.html` |
 | Θεώρημα Μέσης Τιμής: η εφαπτομένη παράλληλη στη χορδή (`mvt`) | Γ΄ Λυκείου, Θεώρημα Μέσης Τιμής (Κεφάλαιο 2) | Γυαλιά XR και tablet Samsung μέσω `mvt.html` (χωρίς μοντέλο `.glb`) |
 | Κυρτότητα και σημεία καμπής (`kyrtotita.html`) | Γ΄ Λυκείου, Κυρτότητα και σημεία καμπής (Κεφάλαιο 2) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Ασύμπτωτες (`asymptotes.html`) | Γ΄ Λυκείου, Ασύμπτωτες (Κεφάλαιο 2) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Παραλληλόγραμμα (`parallilogramma.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 5 (παραλληλόγραμμα, ορθογώνιο, ρόμβος, τετράγωνο, τραπέζιο) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Δεκαδικοί και ποσοστά (`dekadika-pososta.html`) | Α΄ Γυμνασίου, δεκαδικοί αριθμοί (§3.1) και ποσοστά (§5.1, §5.2) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Ρητοί αριθμοί (`rhtoi.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 7 (§7.1 έως §7.9) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
@@ -59,7 +60,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -609,6 +610,22 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 | 1 | Το πλέγμα των 100 (§3.1, §5.1) | p % = p/100 = απλοποιημένο κλάσμα = δεκαδικός, π.χ. 35 % = 35/100 = 7/20 = 0,35 |
 | 2 | Ποσοστό ενός ποσού (§5.1) | Τα 100 τετράγωνα είναι ολόκληρο το ποσό Α (40, 80, 120 ή 200 €): p/100 · Α, π.χ. 35/100 · 80 = 28,00 € |
 | 3 | Αύξηση και μείωση (§5.2) | Αύξηση: προστίθενται p μωβ τετράγωνα πάνω από το πλέγμα, νέα τιμή Α · (1 + p/100). Μείωση: p κόκκινα τετράγωνα αφαιρούνται, νέα τιμή Α · (1 − p/100) |
+
+## Ασύμπτωτες στο Κέντρο Καινοτομίας (σενάριο 49, Γ΄ Λυκείου Προσανατολισμού, Κεφάλαιο 2)
+
+Συνοδεύει τις 5 εφαρμογές GeoGebra «Ασύμπτωτες - …» του σεναρίου.
+
+- `asymptotes.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/asymptotes.html. Χρειάζεται δίπλα της το `asymptotes-lib.js`, που έχει τη σκηνή (three.js, από CDN).
+  Η διεύθυνση `asymptotes.html?k=2` ανοίγει κατευθείαν μια κατάσταση (από 0 έως 4). Χρώματα όπως στις εφαρμογές GeoGebra.
+  Δεν υπάρχει μοντέλο `.glb`: τα tablet Samsung χρησιμοποιούν το WebXR AR ή την προβολή 3D της σελίδας.
+- Πέντε καταστάσεις, ίδιες με τις εφαρμογές GeoGebra:
+  0. Κατακόρυφη ασύμπτωτη: 1/(x − α), 1/(x − α)² και ln|x − α|, με τα πλευρικά όρια στο α.
+  1. Οριζόντια ασύμπτωτη: 2 + 1/x, 1 + e^(−x) και x/√(x² + 1), με όριο στο +∞ και στο −∞.
+  2. Πλάγια ασύμπτωτη: f(x) = λx + β + γ/(x − δ), με λ = lim f(x)/x και β = lim (f(x) − λx).
+  3. Πού ψάχνουμε για ασύμπτωτες: (x² − 1)/(x² − 4), x − ln x, √(x² + 1) και x + e^x.
+  4. Τέμνει η γραφική παράσταση την ασύμπτωτη: ημ(ωx)/x και x + ημ(ωx)/x.
+- Το κουμπί «Παύση» σταματά την κίνηση. Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript. Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
 
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
 
