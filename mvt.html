@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Θεώρημα Μέσης Τιμής — XR</title>
+<style>
+  :root { --navy:#1f3863; --line:#c9ced6; --bg:#eef2f7; }
+  * { box-sizing: border-box; }
+  html, body { margin:0; height:100%; background:var(--bg); font-family: Arial, "Segoe UI", sans-serif; color:var(--navy); overflow:hidden; }
+  #c { position:fixed; inset:0; width:100%; height:100%; display:block; touch-action:none; }
+  #ui { position:fixed; left:0; right:0; top:0; padding:10px 14px; pointer-events:none; }
+  #ui > * { pointer-events:auto; }
+  .top { display:flex; align-items:baseline; gap:14px; flex-wrap:wrap; }
+  .back { color:var(--navy); text-decoration:none; font-size:15px; }
+  h1 { margin:0; font-size:20px; }
+  .sub { font-size:14px; color:#4a5568; }
+  .tabs { display:flex; gap:6px; margin-top:8px; flex-wrap:wrap; }
+  button { font:inherit; font-size:14px; color:#fff; background:var(--navy); border:0; border-radius:4px; padding:8px 12px; cursor:pointer; }
+  button.tab { background:#fff; color:var(--navy); border:1px solid var(--line); }
+  button.tab.on { background:var(--navy); color:#fff; border-color:var(--navy); }
+  button:disabled { background:#aab2c0; cursor:default; }
+  #bar { position:fixed; left:0; right:0; bottom:0; padding:10px 14px; display:flex; gap:8px; flex-wrap:wrap; }
+  #msg { position:fixed; left:14px; bottom:62px; font-size:13px; color:#4a5568; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">
+  <div class="top">
+    <a class="back" href="index.html">‹ Πίσω</a>
+    <h1>Θεώρημα Μέσης Τιμής</h1>
+    <span class="sub">Γ΄ Λυκείου, Κεφάλαιο 2</span>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</div>
+<div id="bar">
+  <button id="bAR" disabled>Είσοδος σε AR</button>
+  <button id="bVR" disabled>Είσοδος σε VR</button>
+  <button id="bPause">Παύση</button>
+  <button id="bVar">Επόμενο παράδειγμα</button>
+</div>
+<div id="msg"></div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { createMVT } from "./mvt-lib.js";
+
+const canvas = document.getElementById("c");
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+renderer.xr.enabled = true;
+renderer.xr.setReferenceSpaceType("local-floor");
+
+const scene = new THREE.Scene();
+const BG = new THREE.Color(0xeef2f7);
+scene.background = BG;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x8892a6, 1.5));
+const sun = new THREE.DirectionalLight(0xffffff, 2.2); sun.position.set(0.4, 0.8, 1.0); scene.add(sun);
+
+const camera = new THREE.PerspectiveCamera(45, 1, 0.02, 20);
+camera.position.set(0, 0.04, 0.78);
+const controls = new OrbitControls(camera, canvas);
+controls.target.set(0, 0.03, 0);
+controls.enableDamping = true;
+controls.minDistance = 0.3; controls.maxDistance = 2.0;
+
+const app = createMVT();
+scene.add(app.root);
+window.__mvt = app;
+
+// ----- Διεπαφή -----
+const tabs = document.getElementById("tabs");
+const tabEls = app.states.map((s, i) => {
+  const b = document.createElement("button");
+  b.className = "tab"; b.textContent = s.title;
+  b.addEventListener("click", () => app.setState(i));
+  tabs.appendChild(b); return b;
+});
+const bPause = document.getElementById("bPause"), bVar = document.getElementById("bVar");
+bPause.addEventListener("click", () => app.togglePause());
+bVar.addEventListener("click", () => app.nextVariant());
+const sync = () => {
+  tabEls.forEach((b, i) => b.classList.toggle("on", i === app.state));
+  bPause.textContent = app.paused ? "Συνέχεια" : "Παύση";
+};
+app.onChange = sync;
+const k = parseInt(new URLSearchParams(location.search).get("k") || "0", 10);
+app.setState(Number.isFinite(k) ? Math.max(0, Math.min(app.states.length - 1, k)) : 0);
+sync();
+
+// ----- Ανίχνευση AR / VR -----
+const bAR = document.getElementById("bAR"), bVR = document.getElementById("bVR"), msg = document.getElementById("msg");
+if (navigator.xr) {
+  navigator.xr.isSessionSupported("immersive-ar").then((ok) => { bAR.disabled = !ok; }).catch(() => {});
+  navigator.xr.isSessionSupported("immersive-vr").then((ok) => { bVR.disabled = !ok; }).catch(() => {});
+}
+
+let session = null, placed = false, frames = 0;
+async function startXR(mode) {
+  if (session) { session.end(); return; }
+  try {
+    const init = { requiredFeatures: ["local-floor"], optionalFeatures: ["hand-tracking"] };
+    if (mode === "ar") { init.optionalFeatures.push("dom-overlay"); init.domOverlay = { root: document.body }; }
+    session = await navigator.xr.requestSession(mode === "ar" ? "immersive-ar" : "immersive-vr", init);
+    session.addEventListener("end", () => {
+      session = null; scene.background = BG;
+      app.root.position.set(0, 0, 0); app.root.rotation.set(0, 0, 0);
+    });
+    scene.background = mode === "ar" ? null : new THREE.Color(0x101828);
+    placed = false; frames = 0;
+    await renderer.xr.setSession(session);
+    msg.textContent = "";
+  } catch (e) {
+    session = null; msg.textContent = "Η συνεδρία δεν ξεκίνησε: " + (e && e.message ? e.message : e);
+  }
+}
+bAR.addEventListener("click", () => startXR("ar"));
+bVR.addEventListener("click", () => startXR("vr"));
+// Τα κουμπιά της σελίδας δεν πρέπει να προκαλούν «select» μέσα στο AR των tablet
+document.querySelectorAll("button, a").forEach((el) => el.addEventListener("beforexrselect", (e) => e.preventDefault()));
+
+// ----- Χειριστήρια, χέρια και αφή: ακτίνα προς τα κουμπιά του πίνακα -----
+const ray = new THREE.Raycaster();
+const tmp = new THREE.Matrix4();
+function hitButton(origin, dir) {
+  ray.set(origin, dir); ray.far = 3;
+  app.root.updateMatrixWorld(true);
+  const h = ray.intersectObjects(app.buttons, false)[0];
+  return h ? h.object.userData.action : null;
+}
+function onSelect(ev) {
+  const c = ev.target;
+  tmp.identity().extractRotation(c.matrixWorld);
+  const o = new THREE.Vector3().setFromMatrixPosition(c.matrixWorld);
+  const d = new THREE.Vector3(0, 0, -1).applyMatrix4(tmp).normalize();
+  const a = hitButton(o, d);
+  if (a) app.act(a); else app.nextVariant();
+}
+for (let i = 0; i < 2; i++) {
+  const c = renderer.xr.getController(i);
+  c.addEventListener("select", onSelect);
+  c.addEventListener("squeeze", () => app.togglePause());
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -0.6)]),
+    new THREE.LineBasicMaterial({ color: 0x1f3863 }));
+  c.add(line);
+  scene.add(c);
+}
+
+// ----- Ποντίκι / αφή εκτός XR -----
+let down = null;
+canvas.addEventListener("pointerdown", (e) => { down = [e.clientX, e.clientY]; });
+canvas.addEventListener("pointerup", (e) => {
+  if (!down || session) return;
+  const moved = Math.hypot(e.clientX - down[0], e.clientY - down[1]); down = null;
+  if (moved > 5) return;
+  const r = canvas.getBoundingClientRect();
+  const ndc = new THREE.Vector2(((e.clientX - r.left) / r.width) * 2 - 1, -((e.clientY - r.top) / r.height) * 2 + 1);
+  ray.setFromCamera(ndc, camera);
+  app.root.updateMatrixWorld(true);
+  const h = ray.intersectObjects(app.buttons, false)[0];
+  if (h) app.act(h.object.userData.action);
+});
+
+function resize() {
+  if (session) return;
+  const w = window.innerWidth, h = window.innerHeight;
+  renderer.setSize(w, h, false);
+  camera.aspect = w / h;
+  // σε κάθετη οθόνη απομακρύνουμε την κάμερα ώστε να χωρά ο πίνακας
+  const need = 0.30 / Math.tan((camera.fov * Math.PI) / 360) / Math.min(1, camera.aspect) * 0.9 + 0.1;
+  camera.position.setLength(Math.max(0.78, need));
+  camera.updateProjectionMatrix();
+}
+window.addEventListener("resize", resize); resize();
+
+// ----- Τοποθέτηση του πίνακα μπροστά στον χρήστη (πρώτα καρέ της συνεδρίας) -----
+const _p = new THREE.Vector3(), _d = new THREE.Vector3();
+function placeInFront() {
+  const cam = renderer.xr.getCamera();
+  cam.getWorldPosition(_p); cam.getWorldDirection(_d);
+  _d.y = 0; if (_d.lengthSq() < 1e-6) _d.set(0, 0, -1); _d.normalize();
+  const ar = scene.background === null;
+  app.root.position.set(_p.x + _d.x * 0.75, _p.y - (ar ? 0.12 : 0.18), _p.z + _d.z * 0.75);
+  app.root.rotation.set(0, Math.atan2(-_d.x, -_d.z), 0);
+}
+
+const clock = new THREE.Clock();
+renderer.setAnimationLoop(() => {
+  const dt = Math.min(clock.getDelta(), 0.1);
+  app.update(dt);
+  if (session) {
+    frames++;
+    if (!placed && frames > 12) { placeInFront(); placed = true; }
+  } else controls.update();
+  renderer.render(scene, camera);
+});
+window.__hit = hitButton; window.__camera = camera;
+window.__ready = true;
+</script>
+</body>
+</html>
