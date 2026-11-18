@@ -11,9 +11,9 @@
 - `check.html` — **διαγνωστικό**: ελέγχει ότι όλα τα αρχεία υπάρχουν στη διεύθυνση που ανέβηκαν.
 - `404.html` — φιλική σελίδα σφάλματος για GitHub Pages.
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
-- 30 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
+- 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `rolle.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -34,6 +34,7 @@
 | Εμβαδόν παραβολικού χωρίου: Ε(Ω) = 1/3 (`olokliromata`) | Γ΄ Λυκείου, ολοκληρώματα και εφαρμογές (Κεφάλαιο 3, §3.1–3.7) | Android (κινούμενο), γυαλιά XR μέσω `olokliromata.html` |
 | Κανονικό οκτάγωνο: Ε₈ = ½P₈α₈ (`kanonika-polygona`) | Β΄ Λυκείου, Γεωμετρία, κανονικά πολύγωνα (Κεφάλαιο 11, §11.1–11.3) | Android (κινούμενο), γυαλιά XR μέσω `kanonika-polygona.html` |
 | Το κουτί και ο όγκος V(x) (`polyonyma`) | Β΄ Λυκείου, Άλγεβρα, πολυωνυμικές συναρτήσεις (Κεφάλαιο 4, §4.1) | Android (κινούμενο), γυαλιά XR μέσω `polyonyma.html` |
+| Θεώρημα Rolle: η εφαπτομένη και το σημείο ξ (`rolle`) | Γ΄ Λυκείου, Θεώρημα Rolle (Κεφάλαιο 2) | Android (κινούμενο), γυαλιά XR μέσω `rolle.html` |
 | Παραλληλόγραμμα (`parallilogramma.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 5 (παραλληλόγραμμα, ορθογώνιο, ρόμβος, τετράγωνο, τραπέζιο) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Δεκαδικοί και ποσοστά (`dekadika-pososta.html`) | Α΄ Γυμνασίου, δεκαδικοί αριθμοί (§3.1) και ποσοστά (§5.1, §5.2) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Ρητοί αριθμοί (`rhtoi.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 7 (§7.1 έως §7.9) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
@@ -55,8 +56,8 @@
 1. Νέο (ή υπάρχον) repository → **Add file → Upload files**.
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
-   30 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `README.md`.
+   31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -801,3 +802,30 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 | 5 | Κώνος και κύλινδρος | Μετάγγιση νερού από τον κώνο στον κύλινδρο με ίδια βάση και ύψος, V κώνου = 1/3 του V κυλίνδρου |
 | 6 | Μεγέθυνση | Μήκη × λ, εμβαδά × λ², όγκοι × λ³ |
 | 7 | Πυραμίδα του Χέοπα | Ο όγκος με α και υ που αλλάζουν, σε σύγκριση με ολυμπιακή πισίνα 2500 m³ |
+
+## Θεώρημα Rolle στο Κέντρο Καινοτομίας (σενάριο 46, Γ΄ Λυκείου Προσανατολισμού, Κεφάλαιο 2)
+
+Συνοδεύει τις 4 εφαρμογές GeoGebra «Θεώρημα Rolle - …» του σεναρίου.
+
+- `rolle.html` — WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3 (και AR ή προβολή 3D σε tablet Samsung και κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/rolle.html. Χρειάζεται δίπλα της το `rolle-lib.js`, που έχει τη σκηνή (three.js, από CDN).
+  Κάθε κατάσταση είναι ένας πίνακας 48 × 30 cm με τετραγωνισμένο χαρτί και άξονες, πάνω σε βάση. Οι καμπύλες είναι ταινίες με πάχος
+  λίγο μπροστά από το χαρτί και ένας πίνακας από πάνω γράφει τον τίτλο και τρεις έως πέντε γραμμές. Μέσα στα γυαλιά ο πίνακας
+  τοποθετείται 75 cm μπροστά από τον χρήστη. Στον πίνακα υπάρχουν τέσσερα τρισδιάστατα κουμπιά («‹ Κατάσταση», «Κατάσταση ›»,
+  «Παύση», «Παράδειγμα ›»): η σκανδάλη ή το τσίμπημα πάνω σε κουμπί το πατά, αλλιώς αλλάζει παράδειγμα, και το squeeze κάνει παύση.
+  Στην προβολή 3D τα ίδια κουμπιά υπάρχουν και στη σελίδα, και το tablet μπαίνει σε AR με το «Είσοδος σε AR».
+  Η διεύθυνση `rolle.html?k=2` ανοίγει κατευθείαν μια κατάσταση (από 0 έως 3). Χρώματα όπως στις εφαρμογές GeoGebra: η f μπλε,
+  η f΄ πορτοκαλί διακεκομμένη, το ξ πορτοκαλί, η εφαπτομένη κόκκινη, τα σημεία του θεωρήματος και οι ρίζες πράσινα.
+- `rolle.glb` — το σημείο ξ και η εφαπτομένη του για AR σε Android (3D σε iPhone), πίνακας περίπου 48 cm πλάτος,
+  https://makariadis-ic.github.io/Maths---AR/m.html?id=rolle. Κίνηση 12 δευτερολέπτων σε επανάληψη: για f(x) = x³ − 4x στο [−2, 2]
+  το ξ πάει από το α στο β και γυρίζει, και η εφαπτομένη στρέφεται μαζί του. Τα κουμπιά «ξ = α», «ξ ≈ −1,15», «ξ ≈ 1,15» και
+  «ξ = β» σταματούν την κίνηση (στα δύο μεσαία η εφαπτομένη είναι οριζόντια) και το κουμπί «Γυαλιά XR» ανοίγει την `rolle.html`.
+
+| # | Κατάσταση | Τι δείχνει |
+|---|---|---|
+| 1 | Γεωμετρική ερμηνεία | f(x) = (x − α)(x − β)(x − γ) + h με f(α) = f(β), το ξ που κινείται, η εφαπτομένη και τα σημεία όπου f΄ = 0 στο (α, β) (4 παραδείγματα) |
+| 2 | Υποθέσεις και αντιπαραδείγματα | x³ − 4x στο [−2 ; 2], 1 − \|x\| στο [−1 ; 1], x² στο [−1 ; 1,5], x στο [0 ; 1) με f(1) = 0: ποια υπόθεση αποτυγχάνει και αν υπάρχει ξ |
+| 3 | Πλήθος ριζών της x³ + px + q = 0 | Το q αλλάζει, 4 τιμές του p: η f, η f΄, οι ρίζες και το επιχείρημα του Rolle (το πολύ 1 ή 3 ρίζες) |
+| 4 | Ρίζες της f και της f΄ | Τρεις ρίζες ρ₁, ρ₂, ρ₃ της f (η ρ₂ κινείται): μία ρίζα της f΄ σε καθένα από τα (ρ₁, ρ₂) και (ρ₂, ρ₃) |
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
