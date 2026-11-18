@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `rolle.html`, `kyrtotita.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -35,7 +35,7 @@
 | Κανονικό οκτάγωνο: Ε₈ = ½P₈α₈ (`kanonika-polygona`) | Β΄ Λυκείου, Γεωμετρία, κανονικά πολύγωνα (Κεφάλαιο 11, §11.1–11.3) | Android (κινούμενο), γυαλιά XR μέσω `kanonika-polygona.html` |
 | Το κουτί και ο όγκος V(x) (`polyonyma`) | Β΄ Λυκείου, Άλγεβρα, πολυωνυμικές συναρτήσεις (Κεφάλαιο 4, §4.1) | Android (κινούμενο), γυαλιά XR μέσω `polyonyma.html` |
 | Θεώρημα Rolle: η εφαπτομένη και το σημείο ξ (`rolle`) | Γ΄ Λυκείου, Θεώρημα Rolle (Κεφάλαιο 2) | Android (κινούμενο), γυαλιά XR μέσω `rolle.html` |
-| Θεώρημα Μέσης Τιμής: η εφαπτομένη παράλληλη στη χορδή (`mvt`) | Γ΄ Λυκείου, Θεώρημα Μέσης Τιμής (Κεφάλαιο 2) | Γυαλιά XR και tablet Samsung μέσω `mvt.html` (χωρίς μοντέλο `.glb`) |
+| Κυρτότητα και σημεία καμπής (`kyrtotita.html`) | Γ΄ Λυκείου, Κυρτότητα και σημεία καμπής (Κεφάλαιο 2) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Παραλληλόγραμμα (`parallilogramma.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 5 (παραλληλόγραμμα, ορθογώνιο, ρόμβος, τετράγωνο, τραπέζιο) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Δεκαδικοί και ποσοστά (`dekadika-pososta.html`) | Α΄ Γυμνασίου, δεκαδικοί αριθμοί (§3.1) και ποσοστά (§5.1, §5.2) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Ρητοί αριθμοί (`rhtoi.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 7 (§7.1 έως §7.9) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
@@ -58,7 +58,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -831,20 +831,26 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
 
-## Θεώρημα Μέσης Τιμής στο Κέντρο Καινοτομίας (σενάριο 47, Γ΄ Λυκείου, Κεφάλαιο 2)
+## Κυρτότητα και σημεία καμπής στο Κέντρο Καινοτομίας (σενάριο 48, Γ΄ Λυκείου Προσανατολισμού, Κεφάλαιο 2)
 
-Συνοδεύει τις 4 εφαρμογές GeoGebra «Θεώρημα Μέσης Τιμής - …» του σεναρίου.
+Συνοδεύει τις 6 εφαρμογές GeoGebra «Κυρτότητα και σημεία καμπής - …» του σεναρίου.
 
-- `mvt.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
-  https://makariadis-ic.github.io/Maths---AR/mvt.html. Χρειάζεται δίπλα της το `mvt-lib.js`, που έχει τη σκηνή (three.js, από CDN).
-  Η διεύθυνση `mvt.html?k=2` ανοίγει κατευθείαν μια κατάσταση (από 0 έως 3). Χρώματα όπως στις εφαρμογές GeoGebra: η f μπλε,
-  η χορδή ΑΒ πορτοκαλί, η εφαπτομένη στο ξ κόκκινη και τα σημεία ξ πράσινα.
-- Τέσσερις καταστάσεις, ίδιες με τις εφαρμογές GeoGebra:
-  0. Γεωμετρική ερμηνεία: f(x) = x³ − 3x, με τέσσερα διαστήματα [α, β]. Το σημείο ξ κινείται στο (α, β) και ο πράσινος δείκτης
-     σημειώνει τα σημεία όπου η εφαπτομένη είναι παράλληλη στη χορδή.
-  1. Υποθέσεις και αντιπαραδείγματα: x³ − 3x στο [0 ; 2], √x στο [0 ; 4], |x| στο [−1 ; 2] (δεν είναι παραγωγίσιμη στο 0)
-     και μια συνάρτηση με άλμα στο 1 (όχι συνεχής).
-  2. Εφαρμογή e^x ≥ 1 + x: το ξ = ln(κλίση ΑΒ) είναι ακριβές, άρα η ανισότητα προκύπτει από την e^β − 1 = e^ξ · β.
-  3. Εφαρμογή |ημβ − ημα| ≤ |β − α|: η χορδή ΑΒ μένει μέσα στο διπλό κώνο με κλίσεις ±1 από το Α.
-- Το κουμπί «Παράδειγμα ›» αλλάζει το παράδειγμα της κατάστασης, το «Παύση» σταματά την κίνηση.
-- Ελεγμένο σε headless Chromium: και οι 4 καταστάσεις φορτώνουν χωρίς σφάλματα JavaScript. Δεν έχει δοκιμαστεί ακόμη στα γυαλιά Magic Leap 2 και Meta Quest 3 και στο tablet Samsung.
+- `kyrtotita.html` — WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3 (και AR ή προβολή 3D σε tablet Samsung και κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/kyrtotita.html. Χρειάζεται δίπλα της το `kyrtotita-lib.js`, που έχει τη σκηνή (three.js, από CDN).
+  Η σκηνή έχει την ίδια υποδομή με το `rolle-lib.js`: πίνακας 48 × 30 cm με τετραγωνισμένο χαρτί και άξονες πάνω σε βάση, καμπύλες
+  ως ταινίες με πάχος, πίνακας κειμένου από πάνω και τέσσερα τρισδιάστατα κουμπιά («‹ Κατάσταση», «Κατάσταση ›», «Παύση», «Παράδειγμα ›»).
+  Σε κάθε κατάσταση το πλέγμα και οι τιμές των αξόνων προσαρμόζονται στο τμήμα του επιπέδου που χρειάζεται. Μέσα στα γυαλιά ο πίνακας
+  τοποθετείται 75 cm μπροστά από τον χρήστη. Η διεύθυνση `kyrtotita.html?k=3` ανοίγει κατευθείαν μια κατάσταση (από 0 έως 5).
+  Χρώματα όπως στις εφαρμογές GeoGebra: η f μπλε, κοίλα τμήματα και ρυθμός μεταβολής πορτοκαλί, εφαπτομένη και σημεία καμπής πράσινα.
+  Δεν υπάρχει μοντέλο `.glb`: τα tablet Samsung χρησιμοποιούν το WebXR AR ή την προβολή 3D της σελίδας.
+
+| # | Κατάσταση | Τι δείχνει |
+|---|---|---|
+| 1 | Ορισμός με τη χορδή | f(x) = x³/6 − x, τα σημεία P και Q για το λ που κινείται και το συμπέρασμα από την f΄΄ (4 ζεύγη α, β) |
+| 2 | Εφαπτομένη και κυρτότητα | Η εφαπτομένη στο Τ(t ; f(t)) και η διαφορά f(s) − εφαπτομένη στο s που κινείται (4 τιμές του t, ανάμεσά τους t = 0 στο σημείο καμπής) |
+| 3 | Πρόσημο της f΄΄ και σημεία καμπής | Πολυωνυμική f με f΄΄(x) = 1,2(x − α)(x − β): κυρτά τμήματα μπλε, κοίλο πορτοκαλί, σημεία καμπής Σ₁, Σ₂ (4 ζεύγη α, d) |
+| 4 | Συνθήκες σημείου καμπής | x³/4 + x/2, x⁴/4 + x/2, x⁵/8 + x/2 και συνάρτηση χωρίς f΄(0): αλλαγή κυρτότητας, εφαπτομένη, συμπέρασμα |
+| 5 | Ανισότητες με κυρτότητα | Η κοίλη ln x: ln(λα + (1 − λ)β) ≥ λ ln α + (1 − λ) ln β και α<sup>λ</sup>β<sup>1−λ</sup> ≤ λα + (1 − λ)β (4 ζεύγη α, β) |
+| 6 | Μέγιστος ρυθμός μεταβολής | Λογιστική P(t) = K/(1 + e^(−r(t − t₀))), το σημείο καμπής Σ(t₀ ; K/2) και το μέγιστο της P΄ ίσο με Kr/4 (4 τριάδες K, r, t₀) |
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
