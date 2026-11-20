@@ -655,7 +655,7 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 Συνοδεύει τις 19 εφαρμογές GeoGebra «Πίνακες και ορίζουσες - …» του σεναρίου.
 
 - `pinakes-orizouses.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
-  https://makariadis-ic.github.io/Maths---AR/pinakes-orizouses.html. Χρειάζεται δίπλα της το `pinakes-orizouses-lib.js`, που έχει τη σκηνή (three.js, από CDN).
+  https://makariadis-ic.github.io/Maths---AR/pinakes-orizouses.html. Είναι ένα αυτόνομο αρχείο (η σκηνή είναι μέσα, το three.js φορτώνεται από CDN).
   Η διεύθυνση `pinakes-orizouses.html?k=3` ανοίγει κατευθείαν μια κατάσταση (από 0 έως 5). Χρώματα όπως στις εφαρμογές GeoGebra.
   Δεν υπάρχει μοντέλο `.glb`: τα tablet Samsung χρησιμοποιούν το WebXR AR ή την προβολή 3D της σελίδας.
 - Οι ολισθητές είναι HTML στην οθόνη και στο AR του tablet (DOM overlay). Στα γυαλιά εμφανίζεται 3D πάνελ ολισθητών και τους κινείς με την ακτίνα του χειριστηρίου και τη σκανδάλη. Στο AR του tablet η σκηνή τοποθετείται με πάτημα στο δάπεδο ή στο θρανίο (hit-test).
