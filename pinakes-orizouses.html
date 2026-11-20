@@ -37,8 +37,9 @@
     <button id="end">Έξοδος</button>
   </div>
 </div>
+<script>window.addEventListener('error',function(e){var r=document.getElementById('readout');if(r)r.textContent='Σφάλμα: '+e.message;});</script>
 <script type="module">
-  import { createApp } from './pinakes-orizouses-lib.js';
+  import { createApp } from './pinakes-orizouses-lib.js?v=2';
   const k = (parseInt(new URLSearchParams(location.search).get('k') || '0', 10) || 0) + 1;
   const app = createApp({ canvas: document.getElementById('cv'), overlay: document.getElementById('ui'), k });
   window.__app = app;
