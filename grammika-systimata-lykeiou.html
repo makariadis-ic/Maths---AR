@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Γραμμικά συστήματα, Γ΄ Λυκείου: 3D, AR και VR</title>
+<style>
+  :root { --navy:#14305E; --gray:#555; --orange:#FF8C00; --teal:#00A6A6; --purple:#8E3FBF; }
+  html,body { margin:0; height:100%; overflow:hidden; background:#EEF2F8; font-family:system-ui,"Segoe UI",Roboto,Arial,sans-serif; color:#1b1b1b; }
+  canvas { display:block; }
+  #ui { position:fixed; left:0; top:0; width:360px; max-height:100%; overflow:auto; box-sizing:border-box; padding:12px 14px; background:rgba(255,255,255,.94); border-right:1px solid #d5dbe6; border-bottom:1px solid #d5dbe6; }
+  #ui h1 { font-size:17px; margin:0 0 2px; color:var(--navy); }
+  #ui .sub { font-size:12px; color:var(--gray); margin-bottom:10px; }
+  #tabs { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-bottom:10px; }
+  #tabs button { padding:7px 4px; font-size:13px; border:1px solid #b9c3d6; background:#fff; border-radius:6px; cursor:pointer; color:var(--navy); }
+  #tabs button.on { background:var(--navy); color:#fff; border-color:var(--navy); }
+  #ctl { display:grid; grid-template-columns:1fr 1fr; gap:6px 12px; margin-bottom:10px; }
+  .c label { display:block; font-size:12px; color:var(--orange); font-weight:600; }
+  .c input { width:100%; accent-color:var(--orange); }
+  #info { font-size:14px; line-height:1.5; }
+  #info .l { margin:2px 0; }
+  #xrbar { position:fixed; right:12px; top:12px; display:flex; gap:8px; }
+  #xrbar button { padding:9px 14px; font-size:14px; border:0; border-radius:6px; background:var(--navy); color:#fff; cursor:pointer; }
+  #xrbar button[hidden] { display:none; }
+  #hint { position:fixed; left:50%; bottom:14px; transform:translateX(-50%); font-size:13px; color:var(--gray); background:rgba(255,255,255,.9); padding:6px 12px; border-radius:6px; display:none; }
+  body.ar { background:transparent; }
+  body.ar #ui { width:100%; max-height:46%; border-right:0; }
+  @media (max-width:720px) { #ui { width:100%; max-height:48%; } }
+</style>
+<script type="importmap">
+{ "imports": { "three": "https://unpkg.com/three@0.187.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.187.0/examples/jsm/" } }
+</script>
+</head>
+<body>
+<div id="ui">
+  <h1>Γραμμικά συστήματα</h1>
+  <div class="sub">Γ΄ Λυκείου (εκτός ύλης εξετάσεων)</div>
+  <div id="tabs"></div>
+  <div id="ctl"></div>
+  <div id="info"></div>
+</div>
+<div id="xrbar"><button id="bAR" hidden>Είσοδος AR</button><button id="bVR" hidden>Είσοδος VR</button><button id="bPlace" hidden>Αλλαγή θέσης</button></div>
+<div id="hint"></div>
+<script type="module" src="./grammika-systimata-lykeiou-lib.js"></script>
+</body>
+</html>
