@@ -324,7 +324,7 @@ if (navigator.xr) {
 addEventListener("resize", () => { camera.aspect = innerWidth / innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); });
 
 buildStatic();
-const q = new URLSearchParams(location.search); setScene(Math.max(0, Math.min(SCENES.length - 1, (+q.get("k") || 1) - 1)));
+const q = new URLSearchParams(location.search); setScene(Math.max(0, Math.min(SCENES.length - 1, +q.get("k") || 0)));
 renderer.setAnimationLoop((t, frame) => {
   if (frame && hitSrc && mode === "ar" && !state.placed) { const h = frame.getHitTestResults(hitSrc); if (h.length) { reticle.visible = true; reticle.matrix.fromArray(h[0].getPose(renderer.xr.getReferenceSpace()).transform.matrix); } else reticle.visible = false; }
   if (panel.visible && panelDirty) { drawPanel(); panelDirty = false; }

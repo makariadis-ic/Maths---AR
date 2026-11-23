@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -40,6 +40,7 @@
 | Ασύμπτωτες (`asymptotes.html`) | Γ΄ Λυκείου, Ασύμπτωτες (Κεφάλαιο 2) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Μιγαδικοί αριθμοί (`migadikoi.html`) | Γ΄ Λυκείου, Μιγαδικοί αριθμοί (εκτός ύλης) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Πίνακες και ορίζουσες (`pinakes-orizouses.html`) | Γ΄ Λυκείου, Πίνακες και ορίζουσες (εκτός ύλης) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
+| Γραμμικά συστήματα (`grammika-systimata-lykeiou.html`) | Γ΄ Λυκείου, Γραμμικά συστήματα (εκτός ύλης) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Παραλληλόγραμμα (`parallilogramma.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 5 (παραλληλόγραμμα, ορθογώνιο, ρόμβος, τετράγωνο, τραπέζιο) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Δεκαδικοί και ποσοστά (`dekadika-pososta.html`) | Α΄ Γυμνασίου, δεκαδικοί αριθμοί (§3.1) και ποσοστά (§5.1, §5.2) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Ρητοί αριθμοί (`rhtoi.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 7 (§7.1 έως §7.9) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
@@ -62,7 +63,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -929,5 +930,26 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 | 4 | Συνθήκες σημείου καμπής | x³/4 + x/2, x⁴/4 + x/2, x⁵/8 + x/2 και συνάρτηση χωρίς f΄(0): αλλαγή κυρτότητας, εφαπτομένη, συμπέρασμα |
 | 5 | Ανισότητες με κυρτότητα | Η κοίλη ln x: ln(λα + (1 − λ)β) ≥ λ ln α + (1 − λ) ln β και α<sup>λ</sup>β<sup>1−λ</sup> ≤ λα + (1 − λ)β (4 ζεύγη α, β) |
 | 6 | Μέγιστος ρυθμός μεταβολής | Λογιστική P(t) = K/(1 + e^(−r(t − t₀))), το σημείο καμπής Σ(t₀ ; K/2) και το μέγιστο της P΄ ίσο με Kr/4 (4 τριάδες K, r, t₀) |
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+## Γραμμικά συστήματα στο Κέντρο Καινοτομίας (σενάριο 56, Γ΄ Λυκείου, εκτός της ύλης των εξετάσεων)
+
+Συνοδεύει τις 12 εφαρμογές GeoGebra «Γραμμικά συστήματα - …» του σεναρίου.
+
+- `grammika-systimata-lykeiou.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/grammika-systimata-lykeiou.html. Χρειάζεται δίπλα της το `grammika-systimata-lykeiou-lib.js`, που έχει τη σκηνή (three.js, από CDN).
+  Η διεύθυνση `grammika-systimata-lykeiou.html?k=3` ανοίγει κατευθείαν μια κατάσταση (από 0 έως 5). Χρώματα όπως στις εφαρμογές GeoGebra.
+  Δεν υπάρχει μοντέλο `.glb`: τα tablet Samsung χρησιμοποιούν το WebXR AR ή την προβολή 3D της σελίδας.
+  Δεν συγχέεται με το `grammika-systimata.html` της Γ΄ Γυμνασίου (σύστημα 2×2 και δύο επίπεδα).
+- Οι ολισθητές είναι HTML στην οθόνη και στο AR του tablet (DOM overlay). Στα γυαλιά εμφανίζεται 3D πάνελ με κουμπιά − και + και τα πατάς με την ακτίνα του χειριστηρίου και τη σκανδάλη. Στο AR του tablet η σκηνή τοποθετείται με πάτημα στο δάπεδο ή στο θρανίο (hit-test).
+- Έξι καταστάσεις:
+  0. Σύστημα 3×3: τρία επίπεδα και η λύση τους (σημείο, ευθεία, επίπεδο ή καμία λύση).
+  1. Λύση με αντίστροφο πίνακα X = A⁻¹B, με τον A⁻¹ και την ορίζουσα.
+  2. Ομογενές σύστημα 3×3: η λύση είναι η αρχή, ευθεία ή επίπεδο από την αρχή.
+  3. Παραμετρικό σύστημα 3×3 με παράμετρο λ (τρία συστήματα).
+  4. Γενικό σύστημα m×n με τρεις αγνώστους (τέσσερα παραδείγματα, με βαθμό r(A) και r(A|B)).
+  5. Παραβολή y = αx² + βx + γ από τρία σημεία (ορίζουσα Vandermonde).
+- Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript. Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
 
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
