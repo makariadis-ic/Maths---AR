@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Μέτρηση κύκλου - Maths - AR</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#EEF2F7;font-family:Arial,Helvetica,sans-serif;color:#1A237E}
+  canvas{display:block}
+  #ui{position:fixed;left:10px;top:10px;width:min(420px,calc(100vw - 20px));max-height:calc(100vh - 20px);overflow:auto;background:rgba(255,255,255,.94);border:1px solid #B0BEC5;border-radius:8px;padding:10px 12px;box-sizing:border-box}
+  #ui h1{font-size:17px;margin:0 0 2px 0}
+  #ui .sub{font-size:12px;color:#546E7A;margin-bottom:8px}
+  #ui select{width:100%;font-size:15px;padding:6px;margin-bottom:8px}
+  .row{display:flex;align-items:center;gap:8px;margin:6px 0;font-size:14px;color:#F57C00}
+  .row label{flex:0 0 150px}
+  .row input{flex:1}
+  .row output{flex:0 0 52px;text-align:right}
+  #info div{font-size:14px;margin:4px 0}
+  #btns{display:flex;gap:8px;margin-top:8px}
+  button{font-size:15px;padding:8px 12px;border:1px solid #1565C0;background:#fff;color:#1565C0;border-radius:6px;cursor:pointer}
+  button:disabled{opacity:.4}
+  #msg{font-size:12px;color:#546E7A;margin-top:6px}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}
+</script>
+</head>
+<body>
+<div id="ui">
+  <h1>Μέτρηση κύκλου</h1>
+  <div class="sub">Κέντρο Καινοτομίας Θεσσαλίας, Μαθηματικά Γ΄ Γυμνασίου</div>
+  <select id="sel"></select>
+  <div id="params"></div>
+  <div id="info"></div>
+  <div id="btns"><button id="arBtn" disabled>Είσοδος σε AR</button><button id="vrBtn" disabled>Είσοδος σε VR</button></div>
+  <div id="msg"></div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+
+/* ---------------------------------------------------------------- Μαθηματικά */
+const PI = Math.PI, C = { navy:'#1A237E', blue:'#1565C0', red:'#C62828', green:'#2E7D32', purple:'#6A1B9A', orange:'#F57C00', teal:'#00838F', gray:'#546E7A', yellow:'#FFB300', white:'#FFFFFF' };
+const fmt = (x, d = 2) => { const p = 10 ** d; return String(Math.round(x * p) / p).replace('.', ','); };
+const arc = (cx, cy, r, a0, a1, n = 96) => { const o = []; for (let i = 0; i <= n; i++) { const a = a0 + (a1 - a0) * i / n; o.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } return o; };
+const ngon = (cx, cy, r, n, rot) => { const o = []; for (let k = 0; k < n; k++) { const a = 2 * PI * k / n + rot; o.push([cx + r * Math.cos(a), cy + r * Math.sin(a)]); } return o; };
+const F = (pts, color, a = 1, z = 0) => ({ t: 'fill', pts, color, a, z });
+const L = (pts, color, w = 0.14, z = 5, closed = false) => ({ t: 'line', pts, color, w, z, closed });
+const D = (p, color, r = 0.28, z = 8) => ({ t: 'dot', p, color, r, z });
+const circ = (cx, cy, r) => arc(cx, cy, r, 0, 2 * PI, 128);
+
+/* Κάθε κατάσταση: τίτλος, παράμετροι, build(v) -> {shapes, info:[[κλειδί, κείμενο]], off:[x,y]} */
+const STATES = [
+ { title: '1. Κανονικά πολύγωνα και κύκλος',
+   params: [{ id:'nn', label:'ν (πλήθος πλευρών)', min:3, max:60, step:1, def:6 }, { id:'R', label:'R (ακτίνα)', min:1, max:8, step:.5, def:6 }],
+   build(v) { const { nn, R } = v, O = [0, 0], V = ngon(0, 0, R, nn, PI/2), A1 = V[0], A2 = V[1], M = [(A1[0]+A2[0])/2, (A1[1]+A2[1])/2];
+     const lam = 2*R*Math.sin(PI/nn), al = R*Math.cos(PI/nn), E = .5*nn*lam*al;
+     return { off:[0,0], shapes:[ F(V, C.blue, .12, 1), F([O,A1,A2], C.red, .25, 2), L(circ(0,0,R), C.teal, .16), L(V, C.blue, .14, 5, true),
+       L([O,A1], C.red, .2), L([O,A2], C.red, .2), L([O,M], C.green, .2), L([A1,A2], C.purple, .2), ...V.map(p => D(p, C.orange)), D(O, '#37474F') ],
+       info:[ ['t1', 'Κεντρική γωνία ω = 360° / ν = ' + fmt(360/nn) + '°'], ['t2', 'Γωνία του πολυγώνου φ = 180° − 360° / ν = ' + fmt(180-360/nn) + '°'],
+         ['t3', 'Πλευρά λ = 2R ημ(180° / ν) = ' + fmt(lam)], ['t4', 'Απόστημα α = R συν(180° / ν) = ' + fmt(al)], ['t5', 'Περίμετρος Ρ = ν · λ = ' + fmt(nn*lam)],
+         ['t6', 'Εμβαδόν Ε = ½ · Ρ · α = ' + fmt(E)], ['t7', 'Εμβαδόν κύκλου πR² = ' + fmt(PI*R*R)], ['t8', 'Λόγος Ε / πR² = ' + fmt(E/(PI*R*R), 4)] ] }; } },
+ { title: '2. Ο αριθμός π από πολύγωνα',
+   params: [{ id:'nn', label:'ν (πλήθος πλευρών)', min:3, max:96, step:1, def:6 }],
+   build(v) { const { nn } = v, lo = nn*Math.sin(PI/nn), hi = nn*Math.tan(PI/nn);
+     return { off:[0,0], shapes:[ F(ngon(0,0,4/Math.cos(PI/nn),nn,PI/2+PI/nn), C.red, .06, 1), F(ngon(0,0,4,nn,PI/2), C.blue, .15, 2),
+       L(ngon(0,0,4/Math.cos(PI/nn),nn,PI/2+PI/nn), C.red, .12, 4, true), L(ngon(0,0,4,nn,PI/2), C.blue, .12, 5, true), L(circ(0,0,4), C.teal, .14, 6), D([0,0], '#37474F') ],
+       info:[ ['t0', 'Διάμετρος του κύκλου δ = 8'], ['t1', 'Εγγεγραμμένο ν-γωνο: Ρ / δ = ' + fmt(lo, 5)], ['t2', 'Περιγεγραμμένο ν-γωνο: Ρ / δ = ' + fmt(hi, 5)],
+         ['t3', fmt(lo, 5) + ' < π < ' + fmt(hi, 5)], ['t4', 'Διαφορά των δύο φραγμάτων = ' + fmt(hi - lo, 5)], ['t5', 'Ο αριθμός π = 3,14159265... (δεν έχει πεπερασμένο πλήθος δεκαδικών)'],
+         ['t6', 'Αρχιμήδης, ν = 96: 3 10/71 < π < 3 1/7, δηλαδή 3,14085 < π < 3,14286'] ] }; } },
+ { title: '3. Μήκος κύκλου: ο τροχός που κυλά',
+   params: [{ id:'rho', label:'ρ (ακτίνα)', min:1, max:4, step:.5, def:2 }, { id:'tt', label:'Στροφές του τροχού', min:.01, max:1, step:.005, def:.5 }],
+   build(v) { const { rho, tt } = v, x0 = -13.5, cx = x0 + 2*PI*rho*tt, cy = rho, th = 2*PI*tt, M = [cx - rho*Math.sin(th), cy - rho*Math.cos(th)];
+     const trav = []; for (let i = 0; i <= 64; i++) { const s = th*i/64; trav.push([cx - rho*Math.sin(s), cy - rho*Math.cos(s)]); }
+     return { off:[0,2], shapes:[ L([[-15,0],[15,0]], C.gray, .12, 1), F(circ(cx,cy,rho), C.blue, .1, 2), L(circ(cx,cy,rho), C.blue, .16, 4), L(trav, C.red, .26, 6), L([[x0,0],[x0+2*PI*rho*tt,0]], C.red, .26, 6),
+       L([[cx,cy],M], C.orange, .12, 5), D(M, C.orange, .32), L([[x0,-.9],[x0+2*PI*rho,-.9]], C.green, .2), L([[x0,-.5],[x0,-1.3]], C.green, .14), L([[x0+2*PI*rho,-.5],[x0+2*PI*rho,-1.3]], C.green, .14) ],
+       info:[ ['t1', 'Μήκος κύκλου L = 2πρ = ' + fmt(2*PI*rho)], ['t2', 'Διάμετρος δ = 2ρ = ' + fmt(2*rho)], ['t3', 'Λόγος L / δ = ' + fmt(PI, 5) + ' = π (ο ίδιος για κάθε κύκλο)'],
+         ['t4', 'Απόσταση που διένυσε ο τροχός = ' + fmt(2*PI*rho*tt)], ['t5', 'Μήκος του τόξου που ακούμπησε στο έδαφος = ' + fmt(2*PI*rho*tt)], ['t6', 'Μία πλήρης στροφή: η απόσταση ισούται με το μήκος του κύκλου L'] ] }; } },
+ { title: '4. Μήκος τόξου',
+   params: [{ id:'rho', label:'ρ (ακτίνα)', min:1, max:8, step:.5, def:5 }, { id:'mu', label:'μ (μοίρες)', min:1, max:360, step:1, def:60 }],
+   build(v) { const { rho, mu } = v, a = mu*PI/180, A = [rho,0], B = [rho*Math.cos(a), rho*Math.sin(a)], l = PI*rho*mu/180, Lc = 2*PI*rho;
+     return { off:[0,0], shapes:[ L(circ(0,0,rho), C.teal, .12, 2), L(arc(0,0,rho,0,a), C.green, .34, 6), L(arc(0,0,1.2,0,a,40), C.purple, .18, 5), L([[0,0],A], C.red, .2), L([[0,0],B], C.red, .2), D(A, C.orange, .34), D(B, C.orange, .34), D([0,0], '#37474F') ],
+       info:[ ['t1', 'Μήκος κύκλου L = 2πρ = ' + fmt(Lc)], ['t2', 'Μήκος τόξου μ° : l = π ρ μ / 180 = ' + fmt(l)], ['t3', 'Λόγος l / L = ' + fmt(l/Lc, 4)], ['t4', 'Λόγος μ / 360 = ' + fmt(mu/360, 4)],
+         ['t5', 'Ισχύει l = (μ / 360) · L, δηλαδή l / L = μ / 360'], ['t6', 'Το τόξο είναι το ' + fmt(100*mu/360) + '% του κύκλου'] ] }; } },
+ { title: '5. Εμβαδόν κυκλικού δίσκου',
+   params: [{ id:'rho', label:'ρ (ακτίνα)', min:1, max:4, step:.5, def:3 }, { id:'nn', label:'ν (άρτιο πλήθος τομέων)', min:4, max:60, step:2, def:12 }],
+   build(v) { const { rho, nn } = v, th = 2*PI/nn, w = rho*Math.sin(th/2), h = rho*Math.cos(th/2), D0 = [-5,3], x0 = 3, y0 = -3.5, sh = [];
+     for (let j = 0; j < nn; j++) sh.push(F([D0, ...arc(D0[0], D0[1], rho, j*th, (j+1)*th, 8)], j % 2 ? C.green : C.blue, .45, 2), L([D0, ...arc(D0[0], D0[1], rho, j*th, (j+1)*th, 8)], j % 2 ? C.green : C.blue, .07, 4, true));
+     for (let k = 0; k < nn/2; k++) { const U = [x0 + 2*w*k, y0], W = [x0 + w + 2*w*k, y0 + h];
+       const pu = [U, ...arc(U[0], U[1], rho, PI/2 - th/2, PI/2 + th/2, 8)], pd = [W, ...arc(W[0], W[1], rho, -PI/2 - th/2, -PI/2 + th/2, 8)];
+       sh.push(F(pu, C.blue, .45, 2), L(pu, C.blue, .07, 4, true), F(pd, C.green, .45, 2), L(pd, C.green, .07, 4, true)); }
+     sh.push(L([[x0,y0],[x0+PI*rho,y0],[x0+PI*rho,y0+rho],[x0,y0+rho]], C.red, .16, 7, true));
+     return { off:[3,1.5], shapes: sh,
+       info:[ ['t1', 'Μισό μήκος κύκλου: πρ = ' + fmt(PI*rho)], ['t2', 'Ύψος του σχήματος: ρ = ' + fmt(rho)], ['t3', 'Εμβαδόν σχήματος: βάση · ύψος = πρ · ρ = ' + fmt(PI*rho*rho)],
+         ['t4', 'Εμβαδόν κυκλικού δίσκου: Ε = πρ² = ' + fmt(PI*rho*rho)], ['t5', 'Ισχύει Ε = ½ · L · ρ, όπου L = 2πρ = ' + fmt(2*PI*rho)] ] }; } },
+ { title: '6. Εμβαδόν κυκλικού τομέα',
+   params: [{ id:'rho', label:'ρ (ακτίνα)', min:1, max:8, step:.5, def:5 }, { id:'mu', label:'μ (μοίρες)', min:1, max:360, step:1, def:90 }],
+   build(v) { const { rho, mu } = v, a = mu*PI/180, A = [rho,0], B = [rho*Math.cos(a), rho*Math.sin(a)], S = [[0,0], ...arc(0,0,rho,0,a,64)];
+     return { off:[0,0], shapes:[ F(circ(0,0,rho), C.teal, .08, 1), F(S, C.green, .45, 3), L(circ(0,0,rho), C.teal, .12, 4), L(S, C.green, .16, 5, true), L([[0,0],A], C.red, .2, 6), L([[0,0],B], C.red, .2, 6), D(A, C.orange, .34), D(B, C.orange, .34), D([0,0], '#37474F') ],
+       info:[ ['t1', 'Εμβαδόν δίσκου Ε = πρ² = ' + fmt(PI*rho*rho)], ['t2', 'Εμβαδόν τομέα μ° : Ε(τομέα) = πρ² μ / 360 = ' + fmt(PI*rho*rho*mu/360)], ['t3', 'Λόγος Ε(τομέα) / Ε = ' + fmt(mu/360, 4) + ' = μ / 360'],
+         ['t4', 'Μήκος τόξου l = π ρ μ / 180 = ' + fmt(PI*rho*mu/180)], ['t5', 'Έλεγχος: ½ · l · ρ = ' + fmt(.5*(PI*rho*mu/180)*rho) + ' = Ε(τομέα)'], ['t6', 'Ο τομέας είναι το ' + fmt(100*mu/360) + '% του δίσκου'] ] }; } },
+ { title: '7. Κυκλικός δακτύλιος',
+   params: [{ id:'rho', label:'ρ (εσωτερική ακτίνα)', min:.5, max:4, step:.5, def:2 }, { id:'ww', label:'w (πλάτος δακτυλίου)', min:.5, max:4, step:.5, def:2 }],
+   build(v) { const { rho, ww } = v, R = rho + ww;
+     return { off:[0,0], shapes:[ F(circ(0,0,R), C.blue, .4, 1), F(circ(0,0,rho), C.white, 1, 2), L(circ(0,0,R), C.blue, .16, 4), L(circ(0,0,rho), C.blue, .16, 4), L([[0,0],[R,0]], C.red, .2, 6), L([[0,0],[0,rho]], C.green, .2, 6), D([0,0], '#37474F') ],
+       info:[ ['t1', 'Εξωτερική ακτίνα R = ρ + w = ' + fmt(R)], ['t2', 'Εμβαδόν μεγάλου δίσκου πR² = ' + fmt(PI*R*R)], ['t3', 'Εμβαδόν μικρού δίσκου πρ² = ' + fmt(PI*rho*rho)],
+         ['t4', 'Εμβαδόν δακτυλίου Ε = πR² − πρ² = ' + fmt(PI*R*R - PI*rho*rho)], ['t5', 'Ε = π (R − ρ)(R + ρ) = π · w · (R + ρ) = ' + fmt(PI*ww*(R + rho))],
+         ['t6', 'Ξεδιπλωμένος δακτύλιος: τραπέζιο με βάσεις 2πρ = ' + fmt(2*PI*rho) + ' και 2πR = ' + fmt(2*PI*R)], ['t7', 'και ύψος w = ' + fmt(ww) + ': Ε = ½ (2πρ + 2πR) · w = ' + fmt(.5*(2*PI*rho + 2*PI*R)*ww)] ] }; } },
+ { title: '8. Οι μηνίσκοι του Ιπποκράτη',
+   params: [{ id:'aa', label:'α (κάθετες πλευρές)', min:2, max:7, step:.5, def:6 }],
+   build(v) { const { aa } = v, A = [2,-4], B = [2+aa,-4], Cc = [2,-4+aa], M = [2+aa/2, -4+aa/2], rr = aa/Math.SQRT2, seg = (PI*rr*rr)/4 - rr*rr/2, hd = PI*aa*aa/8, lune = hd - seg;
+     const h1 = arc(2+aa/2, -4, aa/2, PI, 2*PI, 40), h2 = arc(2, -4+aa/2, aa/2, PI/2, 3*PI/2, 40);
+     return { off:[4,-1], shapes:[ F(h1, C.green, .55, 1), F(h2, C.green, .55, 1), F(circ(M[0],M[1],rr), C.white, 1, 2), L(h1, C.green, .12, 3, true), L(h2, C.green, .12, 3, true), L(circ(M[0],M[1],rr), C.teal, .12, 4), F([A,B,Cc], C.yellow, .6, 5), L([A,B,Cc], C.yellow, .18, 6, true) ],
+       info:[ ['t1', 'Ορθογώνιο και ισοσκελές τρίγωνο ΑΒΓ, ΑΒ = ΑΓ = α = ' + fmt(aa)], ['t2', 'Εμβαδόν τριγώνου = α² / 2 = ' + fmt(aa*aa/2)], ['t3', 'Ημικύκλιο σε κάθετη πλευρά: πα² / 8 = ' + fmt(hd)],
+         ['t4', 'Κυκλικό τμήμα του περιγεγραμμένου κύκλου (πλευρά ΑΒ ή ΑΓ) = ' + fmt(seg)], ['t5', 'Κάθε μηνίσκος = ημικύκλιο − τμήμα = ' + fmt(lune)], ['t6', 'Άθροισμα των δύο μηνίσκων = ' + fmt(2*lune)], ['t7', 'Είναι ίσο με το εμβαδόν του τριγώνου: ' + fmt(aa*aa/2)] ] }; } },
+ { title: '9. Γραμμοσκιασμένα χωρία',
+   params: [{ id:'kk', label:'Σχήμα k (1, 2 ή 3)', min:1, max:3, step:1, def:1 }, { id:'rho', label:'ρ', min:1, max:7, step:.5, def:5 }],
+   build(v) { const { kk, rho } = v, sq = [[-rho,-rho],[rho,-rho],[rho,rho],[-rho,rho]], s2 = ngon(0,0,rho,4,PI/4), hx = ngon(0,0,rho,6,0), sh = [], c = circ(0,0,rho), P = PI*rho*rho; let info;
+     if (kk === 1) { sh.push(F(sq, C.orange, .5, 1), F(c, C.white, 1, 2), L(sq, C.orange, .16, 4, true), L(c, C.blue, .16, 5));
+       info = [['a1','Τετράγωνο πλευράς 2ρ: Ε = 4ρ² = ' + fmt(4*rho*rho)], ['a2','Εγγεγραμμένος κύκλος: πρ² = ' + fmt(P)], ['a3','Γραμμοσκιασμένο: (4 − π)ρ² = ' + fmt((4-PI)*rho*rho)], ['a4','Ποσοστό του τετραγώνου: ' + fmt(100*(1-PI/4)) + '%']]; }
+     else if (kk === 2) { sh.push(F(c, C.orange, .5, 1), F(s2, C.white, 1, 2), L(c, C.orange, .16, 4), L(s2, C.blue, .16, 5, true));
+       info = [['b1','Κύκλος: πρ² = ' + fmt(P)], ['b2','Εγγεγραμμένο τετράγωνο (διαγώνιος 2ρ): Ε = 2ρ² = ' + fmt(2*rho*rho)], ['b3','Γραμμοσκιασμένο: (π − 2)ρ² = ' + fmt((PI-2)*rho*rho)], ['b4','Ποσοστό του κύκλου: ' + fmt(100*(1-2/PI)) + '%']]; }
+     else { sh.push(F(c, C.orange, .5, 1), F(hx, C.white, 1, 2), L(c, C.orange, .16, 4), L(hx, C.blue, .16, 5, true));
+       info = [['c1','Κύκλος: πρ² = ' + fmt(P)], ['c2','Εγγεγραμμένο εξάγωνο (πλευρά ρ): Ε = 3√3 ρ² / 2 = ' + fmt(3*Math.sqrt(3)/2*rho*rho)], ['c3','Γραμμοσκιασμένο: (π − 3√3 / 2)ρ² = ' + fmt((PI-3*Math.sqrt(3)/2)*rho*rho)], ['c4','Ποσοστό του κύκλου: ' + fmt(100*(1-3*Math.sqrt(3)/(2*PI))) + '%']]; }
+     info.unshift(['m', 'k = 1: κύκλος σε τετράγωνο, k = 2: τετράγωνο σε κύκλο, k = 3: εξάγωνο σε κύκλο']);
+     return { off:[0,0], shapes: sh, info }; } }
+];
+
+/* ---------------------------------------------------------------- Κατάσταση εφαρμογής */
+const cur = { k: 0, v: {} };
+const qk = parseInt(new URLSearchParams(location.search).get('k'));
+function resetValues(k) { cur.k = k; cur.v = {}; for (const p of STATES[k].params) cur.v[p.id] = p.def; }
+resetValues(qk >= 0 && qk < STATES.length ? qk : 0);
+
+/* ---------------------------------------------------------------- Σκηνή three.js */
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2)); renderer.setSize(innerWidth, innerHeight); renderer.xr.enabled = true;
+document.body.appendChild(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(50, innerWidth / innerHeight, 0.05, 50);
+const SC = 0.04;                                      // μέτρα ανά μονάδα
+const world = new THREE.Group(); scene.add(world);    // τοποθετείται στο χώρο
+const fig = new THREE.Group(); world.add(fig);
+const board = new THREE.Mesh(new THREE.PlaneGeometry(32 * SC, 20 * SC), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.94, side: THREE.DoubleSide }));
+board.position.z = -0.002; board.renderOrder = -1; board.material.depthWrite = false; world.add(board);
+world.position.set(0, 0, 0);
+const matCache = {};
+const mat = (color, a) => { const key = color + a; return matCache[key] || (matCache[key] = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: a, side: THREE.DoubleSide, depthWrite: false })); };
+
+function strokeGeom(pts, w, closed) {
+  const pos = [], n = pts.length, segs = closed ? n : n - 1;
+  for (let i = 0; i < segs; i++) {
+    const a = pts[i], b = pts[(i + 1) % n], dx = b[0] - a[0], dy = b[1] - a[1], len = Math.hypot(dx, dy); if (len < 1e-9) continue;
+    const nx = -dy / len * w / 2, ny = dx / len * w / 2;
+    pos.push(a[0]+nx,a[1]+ny,0, a[0]-nx,a[1]-ny,0, b[0]+nx,b[1]+ny,0, b[0]+nx,b[1]+ny,0, a[0]-nx,a[1]-ny,0, b[0]-nx,b[1]-ny,0);
+  }
+  const g = new THREE.BufferGeometry(); g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); return g;
+}
+let shapeCount = 0;
+function rebuild() {
+  while (fig.children.length) { const o = fig.children.pop(); o.geometry && o.geometry.dispose(); }
+  const out = STATES[cur.k].build(cur.v); shapeCount = out.shapes.length;
+  fig.scale.setScalar(SC); fig.position.set(-out.off[0] * SC, -out.off[1] * SC, 0);
+  for (const s of out.shapes) {
+    let m;
+    if (s.t === 'fill') { const sh = new THREE.Shape(s.pts.map(p => new THREE.Vector2(p[0], p[1]))); m = new THREE.Mesh(new THREE.ShapeGeometry(sh), mat(s.color, s.a)); }
+    else if (s.t === 'line') m = new THREE.Mesh(strokeGeom(s.pts, s.w, s.closed), mat(s.color, 1));
+    else { m = new THREE.Mesh(new THREE.CircleGeometry(s.r, 20), mat(s.color, 1)); m.position.set(s.p[0], s.p[1], 0); }
+    m.position.z = (s.z || 0) * 0.02; m.renderOrder = s.z || 0; fig.add(m);
+  }
+  updateUI(out.info); drawPanel(out.info);
+  lastInfo = out.info;
+}
+let lastInfo = [];
+
+/* ---------------------------------------------------------------- HTML πάνελ */
+const $ = id => document.getElementById(id);
+const sel = $('sel'); STATES.forEach((s, i) => { const o = document.createElement('option'); o.value = i; o.textContent = s.title; sel.appendChild(o); });
+sel.onchange = () => setState(+sel.value);
+function buildParams() {
+  const box = $('params'); box.innerHTML = '';
+  for (const p of STATES[cur.k].params) {
+    const r = document.createElement('div'); r.className = 'row';
+    r.innerHTML = `<label>${p.label}</label><input type="range" min="${p.min}" max="${p.max}" step="${p.step}" value="${cur.v[p.id]}"><output></output>`;
+    const inp = r.querySelector('input'), out = r.querySelector('output'); out.textContent = fmt(cur.v[p.id], 3);
+    inp.oninput = () => { setParam(p.id, +inp.value); out.textContent = fmt(+inp.value, 3); };
+    box.appendChild(r);
+  }
+}
+function updateUI(info) { $('info').innerHTML = ''; for (const [, t] of info) { const d = document.createElement('div'); d.textContent = t; $('info').appendChild(d); } }
+function setState(k) { resetValues(k); sel.value = k; buildParams(); rebuild(); }
+function setParam(id, val) { const p = STATES[cur.k].params.find(q => q.id === id); cur.v[id] = Math.min(p.max, Math.max(p.min, Math.round(val / p.step) * p.step)); cur.v[id] = +cur.v[id].toFixed(6); rebuild(); }
+
+/* ---------------------------------------------------------------- 3D πάνελ (γυαλιά) */
+const pc = document.createElement('canvas'); pc.width = 1100; pc.height = 1300;
+const ptex = new THREE.CanvasTexture(pc);
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(0.88, 0.88 * 1300 / 1100), new THREE.MeshBasicMaterial({ map: ptex, transparent: true, side: THREE.DoubleSide }));
+panel.position.set(-0.95, 0.05, 0.05); panel.rotation.y = 0.35; panel.visible = false; world.add(panel);
+let regions = [];
+function drawPanel(info) {
+  const g = pc.getContext('2d'); g.clearRect(0, 0, pc.width, pc.height);
+  g.fillStyle = 'rgba(255,255,255,0.96)'; g.fillRect(0, 0, pc.width, pc.height); g.strokeStyle = '#B0BEC5'; g.lineWidth = 6; g.strokeRect(3, 3, pc.width - 6, pc.height - 6);
+  regions = []; g.textBaseline = 'middle';
+  g.fillStyle = C.navy; g.font = 'bold 44px Arial'; g.fillText(STATES[cur.k].title, 36, 60);
+  const btn = (x, y, w, h, label, act) => { g.fillStyle = '#E3F2FD'; g.fillRect(x, y, w, h); g.strokeStyle = C.blue; g.lineWidth = 4; g.strokeRect(x, y, w, h); g.fillStyle = C.blue; g.font = 'bold 44px Arial'; g.textAlign = 'center'; g.fillText(label, x + w / 2, y + h / 2 + 2); g.textAlign = 'left'; regions.push({ x, y, w, h, act }); };
+  btn(36, 110, 150, 80, '◀', () => setState((cur.k + STATES.length - 1) % STATES.length));
+  g.fillStyle = C.gray; g.font = '36px Arial'; g.textAlign = 'center'; g.fillText((cur.k + 1) + ' / ' + STATES.length, 550, 150); g.textAlign = 'left';
+  btn(914, 110, 150, 80, '▶', () => setState((cur.k + 1) % STATES.length));
+  let y = 250;
+  for (const p of STATES[cur.k].params) {
+    g.fillStyle = C.orange; g.font = '34px Arial'; g.fillText(p.label + ' = ' + fmt(cur.v[p.id], 3), 36, y);
+    const big = Math.max(p.step * 10, (p.max - p.min) / 10);
+    btn(560, y - 40, 120, 80, '−−', () => setParam(p.id, cur.v[p.id] - big)); btn(700, y - 40, 120, 80, '−', () => setParam(p.id, cur.v[p.id] - p.step));
+    btn(840, y - 40, 100, 80, '+', () => setParam(p.id, cur.v[p.id] + p.step)); btn(950, y - 40, 110, 80, '++', () => setParam(p.id, cur.v[p.id] + big));
+    y += 120;
+  }
+  y += 30; g.font = '30px Arial';
+  const cols = [C.blue, C.green, C.purple, C.red, C.teal, C.navy, C.gray, C.orange];
+  info.forEach(([, t], i) => { g.fillStyle = cols[i % cols.length]; wrap(g, t, 36, y, 1030, 40).forEach(l => { g.fillText(l, 36, y); y += 40; }); y += 12; });
+  ptex.needsUpdate = true;
+}
+function wrap(g, text, x, y, maxW) { const words = text.split(' '), lines = []; let cl = ''; for (const w of words) { const t = cl ? cl + ' ' + w : w; if (g.measureText(t).width > maxW && cl) { lines.push(cl); cl = w; } else cl = t; } lines.push(cl); return lines; }
+
+/* ---------------------------------------------------------------- XR */
+const ray = new THREE.Raycaster(), tmpM = new THREE.Matrix4();
+const controllers = [0, 1].map(i => {
+  const c = renderer.xr.getController(i);
+  c.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -2)]), new THREE.LineBasicMaterial({ color: 0xF57C00 })));
+  c.addEventListener('selectstart', () => onSelect(c)); scene.add(c); return c;
+});
+function onSelect(c) {
+  if (placing) { placeWorld(); return; }
+  if (!panel.visible) return;
+  tmpM.identity().extractRotation(c.matrixWorld); ray.ray.origin.setFromMatrixPosition(c.matrixWorld); ray.ray.direction.set(0, 0, -1).applyMatrix4(tmpM);
+  const hit = ray.intersectObject(panel)[0]; if (!hit || !hit.uv) return;
+  const px = hit.uv.x * pc.width, py = (1 - hit.uv.y) * pc.height;
+  for (const r of regions) if (px >= r.x && px <= r.x + r.w && py >= r.y && py <= r.y + r.h) { r.act(); break; }
+}
+let session = null, placing = false, hitSource = null, reticle = null;
+const reticleGeo = new THREE.RingGeometry(0.08, 0.1, 32).rotateX(-Math.PI / 2);
+reticle = new THREE.Mesh(reticleGeo, new THREE.MeshBasicMaterial({ color: 0xF57C00 })); reticle.matrixAutoUpdate = false; reticle.visible = false; scene.add(reticle);
+function placeWorld() {
+  if (reticle.visible) { world.position.setFromMatrixPosition(reticle.matrix); world.position.y += 0.45; const p = new THREE.Vector3().setFromMatrixPosition(camera.matrixWorld); world.lookAt(p.x, world.position.y, p.z); }
+  placing = false; reticle.visible = false;
+}
+async function startXR(mode) {
+  const dom = $('ui');
+  const init = { optionalFeatures: ['local-floor', 'hit-test', 'dom-overlay'], domOverlay: { root: document.body } };
+  session = await navigator.xr.requestSession(mode === 'ar' ? 'immersive-ar' : 'immersive-vr', init);
+  renderer.xr.setReferenceSpaceType('local-floor'); await renderer.xr.setSession(session);
+  const domOn = !!session.domOverlayState;
+  panel.visible = !domOn; dom.style.display = domOn ? '' : 'none';
+  world.rotation.set(0, 0, 0); world.position.set(0.25, 1.35, -1.5);
+  if (mode === 'ar' && domOn) { world.position.set(0, 0, -1); placing = true; }
+  if (mode === 'ar') { try { const rs = await session.requestReferenceSpace('viewer'); hitSource = await session.requestHitTestSource({ space: rs }); } catch (e) { hitSource = null; placing = false; } }
+  if (domOn) dom.addEventListener('beforexrselect', e => e.preventDefault());
+  session.addEventListener('end', () => { session = null; placing = false; hitSource = null; panel.visible = false; dom.style.display = ''; world.position.set(0, 0, 0); world.rotation.set(0, 0, 0); });
+}
+if (navigator.xr) {
+  navigator.xr.isSessionSupported('immersive-ar').then(ok => { if (ok) { $('arBtn').disabled = false; $('arBtn').onclick = () => startXR('ar'); } }).catch(() => {});
+  navigator.xr.isSessionSupported('immersive-vr').then(ok => { if (ok) { $('vrBtn').disabled = false; $('vrBtn').onclick = () => startXR('vr'); } }).catch(() => {});
+  $('msg').textContent = 'Σε AR με tablet: πατήστε στο δάπεδο ή το τραπέζι για να τοποθετηθεί ο πίνακας.';
+} else $('msg').textContent = 'Το WebXR δεν είναι διαθέσιμο σε αυτόν τον browser. Σύρετε για περιστροφή, τροχός ή τσίμπημα για μεγέθυνση.';
+
+/* ---------------------------------------------------------------- Προβολή σε οθόνη (χωρίς XR) */
+let yaw = 0, pitch = 0, dist = 0.95, drag = null;
+const cv = renderer.domElement;
+cv.addEventListener('pointerdown', e => { drag = [e.clientX, e.clientY]; cv.setPointerCapture(e.pointerId); });
+cv.addEventListener('pointermove', e => { if (!drag) return; yaw -= (e.clientX - drag[0]) * 0.005; pitch = Math.max(-1.2, Math.min(1.2, pitch - (e.clientY - drag[1]) * 0.005)); drag = [e.clientX, e.clientY]; });
+cv.addEventListener('pointerup', () => drag = null);
+cv.addEventListener('wheel', e => { dist = Math.max(0.5, Math.min(3, dist * (1 + e.deltaY * 0.001))); e.preventDefault(); }, { passive: false });
+function fitView() { camera.aspect = innerWidth / innerHeight; camera.setViewOffset(innerWidth, innerHeight, innerWidth > 800 ? -innerWidth * 0.14 : 0, 0, innerWidth, innerHeight); camera.updateProjectionMatrix(); renderer.setSize(innerWidth, innerHeight); }
+addEventListener('resize', fitView); fitView();
+
+renderer.setAnimationLoop((t, frame) => {
+  if (!renderer.xr.isPresenting) { camera.position.set(dist * Math.sin(yaw) * Math.cos(pitch), dist * Math.sin(pitch), dist * Math.cos(yaw) * Math.cos(pitch)); camera.lookAt(0, 0, 0); }
+  else if (placing && hitSource && frame) { const hits = frame.getHitTestResults(hitSource); if (hits.length) { const pose = hits[0].getPose(renderer.xr.getReferenceSpace()); reticle.visible = true; reticle.matrix.fromArray(pose.transform.matrix); } }
+  renderer.render(scene, camera);
+});
+
+setState(cur.k);
+window.__xr = { STATES, setState, setParam, get cur() { return cur; }, get info() { return lastInfo; }, get shapeCount() { return shapeCount; },
+  get regions() { return regions; }, panelPNG() { return pc.toDataURL('image/png'); }, infoFor(k, v) { return STATES[k].build(v).info; }, shapesFor(k, v) { return STATES[k].build(v).shapes; }, render() { renderer.render(scene, camera); } };
+</script>
+</body>
+</html>
