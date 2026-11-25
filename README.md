@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -52,6 +52,7 @@
 | Η ευθεία στο επίπεδο (`eutheia.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 2 (§2.1 έως §2.3) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μετρικές σχέσεις (`metrikes-scheseis.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 9 (§9.1 έως §9.5 και §9.7) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Εμβαδά (`emvada-b-lykeiou.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 10 (§10.1 έως §10.5) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Παράλληλες ευθείες (`paralliles-eutheies.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 4 (παράλληλες ευθείες, κύκλοι τριγώνου, άθροισμα γωνιών) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
 
 Όλα τα μοντέλα είναι περίπου **25 εκατοστά** — μέγεθος που κάθεται σε θρανίο.
 
@@ -65,7 +66,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -989,3 +990,51 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
   Η σκηνή ανοίγει απευθείας με `?k=0` έως `?k=9`.
 - Χειρισμός: ολισθητές στον πίνακα και κουμπιά για τις σκηνές. Δεν χρειάζεται αρχείο `.glb`.
 - Δοκιμάστηκε σε headless Chrome (και οι δέκα σκηνές, ακραίες τιμές ολισθητών). Δεν δοκιμάστηκε σε γυαλιά ή tablet.
+
+## Παράλληλες ευθείες στο Κέντρο Καινοτομίας (σενάριο 38, Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 4)
+
+Συνοδεύει τις 16 εφαρμογές GeoGebra «Παράλληλες ευθείες - …» του σεναρίου (αρχεία `.ggb` για ανέβασμα στο geogebra.org). Φτιάχτηκαν με τη μηχανή GeoGebra Classic του `node-geogebra`, ξανανοίχτηκαν από το αρχείο και ελέγχθηκαν (ολισθητές, χρώματα, συνθήκες εμφάνισης, σάρωση τιμών χωρίς «?» ή NaN, έλεγχοι ιδιοτήτων χωρίς αποτυχίες):
+
+| # | Εφαρμογή GeoGebra |
+|---|---|
+| 01 | Τέμνουσα και οι οκτώ γωνίες |
+| 02 | Παράλληλες και τέμνουσα |
+| 03 | Κριτήριο παραλληλίας |
+| 04 | Ευκλείδειο αίτημα |
+| 05 | Κατασκευή παράλληλης ευθείας |
+| 06 | Γωνίες με πλευρές παράλληλες |
+| 07 | Παράλληλη προς τη διχοτόμο |
+| 08 | Περιγεγραμμένος κύκλος |
+| 09 | Εγγεγραμμένος κύκλος |
+| 10 | Παρεγγεγραμμένοι κύκλοι |
+| 11 | Άθροισμα γωνιών τριγώνου |
+| 12 | Εξωτερική γωνία τριγώνου |
+| 13 | Άθροισμα γωνιών κυρτού πολυγώνου |
+| 14 | Γωνίες με πλευρές κάθετες |
+| 15 | Εξωτερικές γωνίες πολυγώνου |
+| 16 | Ευθύγραμμο τμήμα των μέσων |
+
+Χρώματα (ίδια σε GeoGebra και XR): ε₁ μπλε, ε₂ πράσινη, τέμνουσα και παράλληλη μωβ, ίσες γωνίες κόκκινες, παραπληρωματικές τιμές τιρκουάζ, ολισθητές πορτοκαλί. Στα τρίγωνα η γωνία Α είναι κόκκινη, η Β μπλε, η Γ πράσινη και η εξωτερική μωβ.
+
+- `paralliles-eutheies.html` — WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, για tablet Samsung και ως προβολή 3D σε κάθε συσκευή,
+  https://makariadis-ic.github.io/Maths---AR/paralliles-eutheies.html. Είναι ένα αυτόνομο αρχείο (η σκηνή είναι μέσα, το three.js
+  φορτώνεται από CDN). Η μονάδα του χώρου είναι τα 10 cm και το σχήμα εμφανίζεται 1,1 m μπροστά από τον μαθητή. Σύντομο πάτημα
+  σκανδάλης φορτώνει την επόμενη σκηνή, κράτημα (πλευρικό κουμπί) το μετακινεί, ο μοχλός αριστερά και δεξιά αλλάζει την τρέχουσα
+  παράμετρο, το πάτημα του μοχλού περνά στην επόμενη παράμετρο και πάνω και κάτω αλλάζει το μέγεθος. Στην προβολή 3D (tablet και
+  υπολογιστής) οι ολισθητές και τα κουμπιά του πίνακα ελέγχουν τη σκηνή και το σχήμα στρέφεται με σύρσιμο. Η σκηνή ανοίγει απευθείας
+  με `?k=0` έως `?k=7`. Δεν έχει αντίστοιχο μοντέλο `.glb`, γι' αυτό η κάρτα του `index.html` δείχνει ένα σχέδιο SVG και δεν υπάρχει
+  εγγραφή στο `m.html`.
+
+| # | Σκηνή | Τι δείχνει |
+|---|---|---|
+| 1 | Τέμνουσα και οκτώ γωνίες | Δύο ευθείες και τέμνουσα: με δ = 0 οι γωνίες 1, 3, 5, 7 είναι ίσες και οι 2, 4, 6, 8 παραπληρωματικές τους |
+| 2 | Παράλληλες και τέμνουσα | Επιλογή ζεύγους (εντός εναλλάξ, εντός και επί τα αυτά, αντίστοιχες) με τις τιμές και τα αθροίσματα |
+| 3 | Κριτήριο παραλληλίας | Η στροφή δ της ε₂: οι εντός εναλλάξ είναι ίσες ακριβώς όταν δ = 0, αλλιώς οι ευθείες τέμνονται στο Τ |
+| 4 | Γωνίες με πλευρές παράλληλες ή κάθετες | Η γωνία ω και η ω΄ με φορά x΄, y΄: ίσες ή παραπληρωματικές |
+| 5 | Κατασκευή παράλληλης | Ίση εντός εναλλάξ γωνία στο Ρ δίνει τη μοναδική παράλληλη προς την ε |
+| 6 | Κύκλοι και τρίγωνο | Μεσοκάθετοι και περιγεγραμμένος κύκλος (ΚΑ = ΚΒ = ΚΓ), διχοτόμοι και εγγεγραμμένος κύκλος (ίσες αποστάσεις) |
+| 7 | Άθροισμα γωνιών και εξωτερική γωνία | Παράλληλη από το Γ: Α + Β + Γ = 180°· παράλληλη από το Β: ω = Α + Γ |
+| 8 | Εξωτερικές γωνίες πολυγώνου | Κάθε εξωτερική γωνία 360°/ν και άθροισμα 360° για κάθε κυρτό πολύγωνο |
+
+Η σελίδα δεν έχει δοκιμαστεί μέσα στα γυαλιά ή στο tablet Samsung, μόνο σε headless Chrome (προβολή 3D, και οι οκτώ σκηνές, έλεγχος σφαλμάτων και ακραίες τιμές των παραμέτρων). Οι εφαρμογές GeoGebra 07, 10, 13 και 16 δεν έχουν αντίστοιχη σκηνή XR.
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).

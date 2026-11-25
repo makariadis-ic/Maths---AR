@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Παράλληλες ευθείες · WebXR</title>
+<style>
+  html,body{margin:0;height:100%;overflow:hidden;background:#0f172a;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;color:#0f172a}
+  canvas{display:block}
+  #ui{position:fixed;left:12px;top:12px;width:min(360px,calc(100vw - 24px));max-height:calc(100vh - 24px);overflow:auto;background:rgba(255,255,255,.96);border-radius:12px;padding:12px 14px;box-shadow:0 6px 24px rgba(0,0,0,.35)}
+  #ui h1{font-size:16px;margin:0 0 8px}
+  #scenes{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+  #scenes button{font:inherit;font-size:12.5px;line-height:1.25;padding:7px 8px;border:1px solid #cbd5e1;background:#f8fafc;border-radius:8px;cursor:pointer;text-align:left;color:#0f172a}
+  #scenes button.on{background:#1F6FB2;color:#fff;border-color:#1F6FB2}
+  .row{margin:8px 0}
+  .row label{display:flex;justify-content:space-between;font-size:13px;color:#E6730D;font-weight:600}
+  .row input[type=range]{width:100%;accent-color:#E6730D}
+  #concl{margin-top:10px;font-size:13.5px;line-height:1.4;font-weight:600;border-top:1px solid #e2e8f0;padding-top:8px}
+  #concl small{display:block;font-weight:400;color:#475569;margin-top:4px}
+  #xrbar{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+  #xrbar button{font:inherit;font-size:13px;padding:8px 10px;border:0;border-radius:8px;background:#0f172a;color:#fff;cursor:pointer}
+  #msg{font-size:12px;color:#64748b;margin-top:6px}
+</style>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+</head>
+<body>
+<div id="ui">
+  <h1>Παράλληλες ευθείες στην Α΄ Λυκείου</h1>
+  <div id="scenes"></div>
+  <div id="params"></div>
+  <div id="concl"></div>
+  <div id="xrbar"></div>
+  <div id="msg"></div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import {OrbitControls} from 'three/addons/controls/OrbitControls.js';
+
+const COL={e1:'#1F6FB2',e2:'#2E9E4F',e3:'#8E3FBF',eq:'#C0392B',sup:'#14B8A6',orange:'#E6730D',blk:'#1F2937',gray:'#9CA3AF',A:'#C0392B',B:'#1F6FB2',G:'#2E9E4F',ext:'#8E3FBF'};
+const D2R=Math.PI/180, deg=x=>x*180/Math.PI, r1=x=>(Math.round(x*10)/10).toString().replace('.',','), r2=x=>(Math.round(x*100)/100).toString().replace('.',',');
+const errors=[]; window.addEventListener('error',e=>errors.push(String(e.message)));
+
+// ---------- σκηνή three ----------
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.setSize(innerWidth,innerHeight);
+renderer.xr.enabled=true;
+document.body.appendChild(renderer.domElement);
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0xf1f5f9);
+const camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,0.05,50);
+const HOME=new THREE.Vector3(0,1.4,-1.1);          // το σχήμα, 1,1 m μπροστά
+camera.position.set(0,1.4,0.9);
+const controls=new OrbitControls(camera,renderer.domElement); controls.target.copy(HOME); controls.update();
+const fig=new THREE.Group(); fig.scale.setScalar(0.1); const HOME2D=HOME.clone().add(new THREE.Vector3(innerWidth>900?0.45:0,0,0)); fig.position.copy(HOME2D); scene.add(fig);   // 1 μονάδα = 10 cm
+const content=new THREE.Group(); fig.add(content);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+
+// ---------- βοηθητικά σχεδίασης ----------
+let zc=0;                          // μικρή αύξηση ύψους ώστε να μη «τρεμοπαίζουν» τα επίπεδα
+const mats=new Map(); const mat=(c,o=1)=>{const k=c+o;if(!mats.has(k))mats.set(k,new THREE.MeshBasicMaterial({color:c,transparent:o<1,opacity:o,side:THREE.DoubleSide,depthWrite:o>=1}));return mats.get(k)};
+const own=[];                      // πόροι προς καθαρισμό
+function add(m){content.add(m);own.push(m);return m}
+function seg(a,b,c,w=0.07,dash=false){const dx=b[0]-a[0],dy=b[1]-a[1],L=Math.hypot(dx,dy);if(!(L>1e-6))return;
+  const n=dash?Math.max(1,Math.floor(L/0.35)):1;
+  for(let i=0;i<n;i++){const t0=dash?i/n:0,t1=dash?(i+0.55)/n:1;const x0=a[0]+dx*t0,y0=a[1]+dy*t0,x1=a[0]+dx*t1,y1=a[1]+dy*t1;
+    const l=Math.hypot(x1-x0,y1-y0);const m=new THREE.Mesh(new THREE.PlaneGeometry(l,w),mat(c));m.position.set((x0+x1)/2,(y0+y1)/2,zc+=0.0005);m.rotation.z=Math.atan2(dy,dx);add(m)}}
+function clipLine(p,d,X=7.4,Y=4.6){let t0=-1e9,t1=1e9;
+  for(const [pp,dd,lim] of [[p[0],d[0],X],[p[1],d[1],Y]]){if(Math.abs(dd)<1e-12){if(Math.abs(pp)>lim)return null}else{let a=(-lim-pp)/dd,b=(lim-pp)/dd;if(a>b)[a,b]=[b,a];t0=Math.max(t0,a);t1=Math.min(t1,b)}}
+  return t0<t1?[[p[0]+d[0]*t0,p[1]+d[1]*t0],[p[0]+d[0]*t1,p[1]+d[1]*t1]]:null}
+function line(p,ang,c,w=0.07,dash=false){const d=[Math.cos(ang*D2R),Math.sin(ang*D2R)];const s=clipLine(p,d);if(s)seg(s[0],s[1],c,w,dash)}
+function lineThrough(p,q,c,w=0.07,dash=false){const d=[q[0]-p[0],q[1]-p[1]];const L=Math.hypot(...d);if(L<1e-9)return;const s=clipLine(p,[d[0]/L,d[1]/L]);if(s)seg(s[0],s[1],c,w,dash)}
+function dot(p,c,r=0.16){const m=new THREE.Mesh(new THREE.CircleGeometry(r,24),mat(c));m.position.set(p[0],p[1],zc+=0.0005+0.02);add(m)}
+function sector(V,a1,a2,r,c,op=0.55){const sh=new THREE.Shape();sh.moveTo(0,0);sh.absarc(0,0,r,a1*D2R,a2*D2R,false);sh.lineTo(0,0);
+  const m=new THREE.Mesh(new THREE.ShapeGeometry(sh,48),mat(c,op));m.position.set(V[0],V[1],zc+=0.0005);add(m)}
+function ring(C,R,c,w=0.07){const N=96;let prev=null;for(let i=0;i<=N;i++){const a=i/N*2*Math.PI,p=[C[0]+R*Math.cos(a),C[1]+R*Math.sin(a)];if(prev)seg(prev,p,c,w);prev=p}}
+function tri(P,Q,R,c,op=0.08){const sh=new THREE.Shape();sh.moveTo(P[0],P[1]);sh.lineTo(Q[0],Q[1]);sh.lineTo(R[0],R[1]);const m=new THREE.Mesh(new THREE.ShapeGeometry(sh),mat(c,op));m.position.z=zc+=0.0005;add(m)}
+function label(str,x,y,c=COL.blk,h=0.55,bold=true,align='c'){
+  const cv=document.createElement('canvas');const ctx=cv.getContext('2d');const px=72,f=`${bold?'bold ':''}${px}px system-ui,Arial,sans-serif`;ctx.font=f;
+  const w=Math.ceil(ctx.measureText(str).width)+24;cv.width=w;cv.height=px+28;ctx.font=f;ctx.fillStyle=c;ctx.textBaseline='middle';ctx.fillText(str,12,cv.height/2+3);
+  const tex=new THREE.CanvasTexture(cv);tex.anisotropy=4;tex.colorSpace=THREE.SRGBColorSpace;const W=h*cv.width/cv.height;
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(W,h),new THREE.MeshBasicMaterial({map:tex,transparent:true,depthWrite:false,depthTest:false,side:THREE.DoubleSide}));
+  m.renderOrder=5;m.position.set(align==='l'?x+W/2:x,y,zc+=0.0005+0.05);add(m);}
+function polar(V,a,r){return [V[0]+r*Math.cos(a*D2R),V[1]+r*Math.sin(a*D2R)]}
+function mid(a1,a2){return (a1+a2)/2}
+function dirDeg(P,Q){return deg(Math.atan2(Q[1]-P[1],Q[0]-P[0]))}
+function concl(lines){return lines}
+
+// ---------- οι οκτώ σκηνές ----------
+// κάθε σκηνή: name, params[{id,label,min,max,step,val}], draw(p) → {t:'κείμενο',s:'δεύτερη γραμμή'}
+const Y1=1.6,Y2=-1.6;
+function transv(p,de){ // ε1, ε2, ε3 και σημεία Α, Β
+  const ph=p.ph;const A=[Y1/Math.tan(ph*D2R),Y1];
+  const t=-1.6/(Math.sin(ph*D2R)-Math.cos(ph*D2R)*Math.tan(de*D2R));const B=[t*Math.cos(ph*D2R),t*Math.sin(ph*D2R)];
+  line([0,Y1],0,COL.e1,0.09);line([0,Y2],de,COL.e2,0.09);line([0,0],ph,COL.e3,0.09);
+  label('ε₁',-6.9,Y1+0.45,COL.e1,0.6);{const sg=clipLine([0,Y2],[Math.cos(de*D2R),Math.sin(de*D2R)]);const e=Math.abs(sg[0][1])<4.2?sg[0]:sg[1];label('ε₂',e[0]+(e===sg[0]?0.45:-0.45),e[1]+0.45,COL.e2,0.6)}
+  const e3e=polar([0,0],p.ph,3.9);label('ε₃',e3e[0]+0.3,e3e[1]+0.2,COL.e3,0.6);
+  dot(A,COL.blk);dot(B,COL.blk);label('Α',A[0]-0.35,A[1]+0.35,COL.blk,0.5);label('Β',B[0]-0.35,B[1]-0.45,COL.blk,0.5);
+  return {A,B}}
+function eightRanges(ph,d){return {A:[[0,ph],[ph,180],[180,180+ph],[180+ph,360]],B:[[d,ph],[ph,180+d],[180+d,180+ph],[180+ph,360+d]]}}
+
+const S=[];
+S.push({name:'Τέμνουσα και οκτώ γωνίες',params:[{id:'ph',label:'Γωνία φ (°)',min:30,max:150,step:1,val:65},{id:'de',label:'Στροφή δ της ε₂ (°)',min:-30,max:30,step:1,val:0}],
+ draw(p){const {A,B}=transv(p,p.de);const R=eightRanges(p.ph,p.de);const par=Math.abs(p.de)<0.5;
+  const eqs=[0,2,4,6];
+  R.A.forEach((r,i)=>{sector(A,r[0],r[1],1.0,par?(eqs.includes(i)?COL.eq:COL.sup):COL.gray,0.5);label(String(i+1),...polar(A,mid(...r),1.6),COL.blk,0.45)});
+  R.B.forEach((r,i)=>{sector(B,r[0],r[1],1.0,par?(eqs.includes(i)?COL.eq:COL.sup):COL.gray,0.5);label(String(i+5),...polar(B,mid(...r),1.6),COL.blk,0.45)});
+  return par?{t:'ε₁ ∥ ε₂: οι γωνίες 1, 3, 5, 7 είναι ίσες με φ = '+r1(p.ph)+'° και οι 2, 4, 6, 8 ίσες με 180° − φ = '+r1(180-p.ph)+'°',s:'Κόκκινες: ίσες. Τιρκουάζ: παραπληρωματικές.'}
+     :{t:'Οι ε₁ και ε₂ δεν είναι παράλληλες: γωνία 3 = '+r1(p.ph)+'°, γωνία 5 = '+r1(p.ph-p.de)+'°',s:'Οι ισότητες γωνιών ισχύουν μόνο όταν η ε₂ γίνει παράλληλη (δ = 0).'}}});
+
+S.push({name:'Παράλληλες και τέμνουσα',params:[{id:'ph',label:'Γωνία φ (°)',min:30,max:150,step:1,val:65},{id:'pr',label:'Ζεύγος γωνιών (1, 2 ή 3)',min:1,max:3,step:1,val:1}],
+ draw(p){const {A,B}=transv(p,0);const R=eightRanges(p.ph,0);
+  const pairs={1:{a:[2,'A'],b:[4,'B'],c:COL.eq,n:'Εντός εναλλάξ',eq:true},2:{a:[3,'A'],b:[4,'B'],c:COL.sup,n:'Εντός και επί τα αυτά',eq:false},3:{a:[0,'A'],b:[4,'B'],c:COL.eq,n:'Εντός εκτός και επί τα αυτά (αντίστοιχες)',eq:true}};
+  const q=pairs[p.pr];const all=[...R.A.map((r,i)=>[A,r,i]),...R.B.map((r,i)=>[B,r,i+4])];
+  all.forEach(([V,r,i])=>{const on=(i===q.a[0])||(i===q.b[0]);sector(V,r[0],r[1],on?1.25:0.8,on?q.c:COL.gray,on?0.7:0.25);if(on)label(i===q.a[0]?'ω₁':'ω₂',...polar(V,mid(...r),1.9),q.c,0.55)});
+  const w1=q.a[0]===2?p.ph:(q.a[0]===0?p.ph:p.ph), w2=q.b[0]===4?p.ph:p.ph; // τιμές με βάση τη φ
+  const a1=[p.ph,180-p.ph,p.ph,180-p.ph][q.a[0]], a2=[p.ph,180-p.ph,p.ph,180-p.ph][q.b[0]-4];
+  return {t:q.n+': ω₁ = '+r1(a1)+'°, ω₂ = '+r1(a2)+'°'+(q.eq?' → ίσες':' → ω₁ + ω₂ = '+r1(a1+a2)+'°'),s:q.eq?'Ίσες γωνίες όταν ε₁ ∥ ε₂.':'Παραπληρωματικές όταν ε₁ ∥ ε₂.'}}});
+
+S.push({name:'Κριτήριο παραλληλίας',params:[{id:'ph',label:'Γωνία φ (°)',min:30,max:150,step:1,val:65},{id:'de',label:'Στροφή δ της ε₂ (°)',min:-45,max:45,step:1,val:30}],
+ draw(p){const {A,B}=transv(p,p.de);const R=eightRanges(p.ph,p.de);
+  sector(A,...R.A[2],1.3,COL.e1,0.6);sector(B,...R.B[0],1.3,COL.e2,0.6);
+  label('ω₁',...polar(A,mid(...R.A[2]),1.9),COL.e1,0.55);label('ω₂',...polar(B,mid(...R.B[0]),1.9),COL.e2,0.55);
+  const par=Math.abs(p.de)<0.5;
+  if(!par){const x=(Y1-Y2)/Math.tan(p.de*D2R);if(Math.abs(x)<7.2){dot([x,Y1],COL.eq,0.2);label('Τ',x+0.3,Y1+0.4,COL.eq,0.55)}}
+  return par?{t:'Οι εντός εναλλάξ ω₁ = ω₂ = '+r1(p.ph)+'° → οι ευθείες ε₁ και ε₂ είναι παράλληλες',s:'Ίσες εντός εναλλάξ γωνίες είναι αρκετό για παραλληλία.'}
+    :{t:'ω₁ = '+r1(p.ph)+'° και ω₂ = '+r1(p.ph-p.de)+'° → οι ευθείες τέμνονται',s:'Για δ ≠ 0 οι εντός εναλλάξ είναι άνισες και οι ευθείες έχουν κοινό σημείο.'}}});
+
+S.push({name:'Γωνίες με πλευρές παράλληλες ή κάθετες',params:[{id:'ph',label:'Γωνία ω (°)',min:30,max:150,step:1,val:60},{id:'c1',label:'Φορά της x΄ (0 ή 1)',min:0,max:1,step:1,val:0},{id:'c2',label:'Φορά της y΄ (0 ή 1)',min:0,max:1,step:1,val:0},{id:'mo',label:'Πλευρές: 0 παράλληλες, 1 κάθετες',min:0,max:1,step:1,val:0}],
+ draw(p){const perp=p.mo===1,L=3.3,O1=[-4.2,0.4],O2=[2.2,0.4];
+  const a=perp?90-180*p.c1:180*p.c1,b=perp?p.ph+90-180*p.c2:p.ph+180*p.c2;
+  seg(O1,polar(O1,0,L),COL.e1,0.1);seg(O1,polar(O1,p.ph,L),COL.e2,0.1);seg(O2,polar(O2,a,L),COL.e1,0.1);seg(O2,polar(O2,b,L),COL.e2,0.1);
+  [['x',O1,0,COL.e1],['y',O1,p.ph,COL.e2],['x΄',O2,a,COL.e1],['y΄',O2,b,COL.e2]].forEach(([n,O,ang,c])=>label(n,...polar(O,ang,L+0.5),c,0.6));
+  dot(O1,COL.blk);dot(O2,COL.blk);label('Ο',O1[0]-0.4,O1[1]-0.45,COL.blk,0.5);label('Ο΄',O2[0]-0.4,O2[1]-0.45,COL.blk,0.5);
+  const dm=((b-a)%360+360)%360,m2=dm<=180?dm:360-dm,s0=dm<=180?a:b,same=p.c1===p.c2;
+  sector(O1,0,p.ph,1.2,COL.eq,0.55);label('ω',...polar(O1,p.ph/2,1.9),COL.eq,0.55);
+  sector(O2,s0,s0+m2,1.2,same?COL.eq:COL.sup,0.6);label('ω΄',...polar(O2,s0+m2/2,1.9),COL.blk,0.55);
+  return {t:'ω = '+r1(p.ph)+'°, ω΄ = '+r1(m2)+'° → '+(same?'ίσες':'παραπληρωματικές (άθροισμα 180°)'),s:(perp?'Πλευρές κάθετες: ':'Πλευρές παράλληλες: ')+(same?(perp?'ίδια φορά στροφής.':'και οι δύο ομόρροπες ή και οι δύο αντίρροπες.'):(perp?'αντίθετη φορά στροφής.':'η μία ομόρροπη και η άλλη αντίρροπη.'))}}});
+
+S.push({name:'Κατασκευή παράλληλης',params:[{id:'kx',label:'Θέση του Κ στην ε',min:-5,max:3,step:0.1,val:-2.5},{id:'px',label:'Θέση του Ρ',min:-3,max:4,step:0.1,val:1.5}],
+ draw(p){const Ye=-1.8,P=[p.px,2.2],K=[p.kx,Ye];line([0,Ye],0,COL.e1,0.09);label('ε',-6.9,Ye+0.45,COL.e1,0.6);
+  lineThrough(K,P,COL.e3,0.08);const th=dirDeg(K,P);
+  sector(K,0,th,1.2,COL.eq,0.6);sector(P,180,180+th,1.2,COL.eq,0.6);label('θ',...polar(K,th/2,1.9),COL.eq,0.55);label('θ',...polar(P,180+th/2,1.9),COL.eq,0.55);
+  line(P,0,COL.e2,0.09);label('ε΄',-6.9,P[1]+0.45,COL.e2,0.6);
+  dot(K,COL.blk);dot(P,COL.eq,0.2);label('Κ',K[0]-0.3,K[1]-0.5,COL.blk,0.5);label('Ρ',P[0]+0.4,P[1]+0.35,COL.eq,0.55);
+  return {t:'Η γωνία στο Κ και η εντός εναλλάξ της στο Ρ είναι ίσες (θ = '+r1(th)+'°) → ε΄ ∥ ε',s:'Η ε΄ είναι η μοναδική παράλληλη προς την ε από το Ρ (Ευκλείδειο αίτημα).'}}});
+
+S.push({name:'Κύκλοι και τρίγωνο',params:[{id:'cx',label:'Θέση του Γ (x)',min:-2.5,max:3,step:0.1,val:0.8},{id:'cy',label:'Ύψος του Γ',min:1.5,max:3.5,step:0.1,val:2.8},{id:'mo',label:'Κύκλος: 0 περιγεγραμμένος, 1 εγγεγραμμένος',min:0,max:1,step:1,val:0}],
+ draw(p){const A=[-3.5,-2.3],B=[3.5,-2.3],C=[p.cx,p.cy];tri(A,B,C,COL.blk,0.07);seg(A,B,COL.blk,0.09);seg(B,C,COL.blk,0.09);seg(C,A,COL.blk,0.09);
+  [['Α',A,-0.4,-0.5],['Β',B,0.35,-0.5],['Γ',C,0.1,0.5]].forEach(([n,P,dx,dy])=>{dot(P,COL.blk);label(n,P[0]+dx,P[1]+dy,COL.blk,0.5)});
+  const a=Math.hypot(B[0]-C[0],B[1]-C[1]),b=Math.hypot(A[0]-C[0],A[1]-C[1]),c=Math.hypot(A[0]-B[0],A[1]-B[1]);
+  if(p.mo===0){const d=2*(A[0]*(B[1]-C[1])+B[0]*(C[1]-A[1])+C[0]*(A[1]-B[1]));
+    const ux=((A[0]**2+A[1]**2)*(B[1]-C[1])+(B[0]**2+B[1]**2)*(C[1]-A[1])+(C[0]**2+C[1]**2)*(A[1]-B[1]))/d,uy=((A[0]**2+A[1]**2)*(C[0]-B[0])+(B[0]**2+B[1]**2)*(A[0]-C[0])+(C[0]**2+C[1]**2)*(B[0]-A[0]))/d;
+    const K=[ux,uy],R=Math.hypot(K[0]-A[0],K[1]-A[1]);
+    [[A,B],[B,C],[C,A]].forEach(([P,Q])=>{const M=[(P[0]+Q[0])/2,(P[1]+Q[1])/2];line(M,dirDeg(P,Q)+90,COL.e2,0.05)});
+    ring(K,R,COL.e1,0.09);[A,B,C].forEach(P=>seg(K,P,COL.e3,0.05,true));dot(K,COL.eq,0.2);label('Κ',K[0]+0.35,K[1]+0.35,COL.eq,0.55);
+    return {t:'Οι τρεις μεσοκάθετοι περνούν από το Κ: ΚΑ = ΚΒ = ΚΓ = R = '+r2(R),s:'Περιγεγραμμένος κύκλος: το κέντρο ισαπέχει από τις κορυφές.'}}
+  const per=a+b+c,I=[(a*A[0]+b*B[0]+c*C[0])/per,(a*A[1]+b*B[1]+c*C[1])/per],rr=I[1]-A[1];
+  [A,B,C].forEach(P=>lineThrough(P,I,COL.e2,0.05));ring(I,rr,COL.e1,0.09);dot(I,COL.eq,0.2);label('Ι',I[0]+0.35,I[1]+0.35,COL.eq,0.55);
+  const foot=(P,Q)=>{const d=[Q[0]-P[0],Q[1]-P[1]],L2=d[0]**2+d[1]**2,t=((I[0]-P[0])*d[0]+(I[1]-P[1])*d[1])/L2;return [P[0]+t*d[0],P[1]+t*d[1]]};
+  [[A,B],[B,C],[C,A]].forEach(([P,Q])=>{const F=foot(P,Q);seg(I,F,COL.e3,0.05,true);dot(F,COL.blk,0.1)});
+  return {t:'Οι τρεις διχοτόμοι περνούν από το Ι: οι αποστάσεις από τις πλευρές είναι ίσες, ρ = '+r2(rr),s:'Εγγεγραμμένος κύκλος: το κέντρο ισαπέχει από τις πλευρές.'}}});
+
+S.push({name:'Άθροισμα γωνιών και εξωτερική γωνία',params:[{id:'cx',label:'Θέση του Γ (x)',min:-3,max:4,step:0.1,val:0.8},{id:'cy',label:'Ύψος του Γ',min:1.5,max:3.8,step:0.1,val:2.9},{id:'md',label:'Σχήμα: 0 άθροισμα, 1 εξωτερική γωνία',min:0,max:1,step:1,val:0}],
+ draw(p){const A=[-4,-2.2],B=[2.5,-2.2],C=[p.cx,p.cy];tri(A,B,C,COL.blk,0.06);seg(A,B,COL.blk,0.09);seg(B,C,COL.blk,0.09);seg(C,A,COL.blk,0.09);
+  const tA=dirDeg(A,C),tB=dirDeg(B,C),gA=tA,gB=180-tB,gC=180-gA-gB;
+  sector(A,0,gA,1.2,COL.A,0.6);sector(B,tB,180,1.2,COL.B,0.6);sector(C,tA+180,tB+180,1.2,COL.G,0.6);
+  label('Α',...polar(A,gA/2,1.8),COL.A,0.55);label('Β',...polar(B,tB+gB/2,1.8),COL.B,0.55);label('Γ',...polar(C,tA+180+gC/2,1.8),COL.G,0.55);
+  [['Α',A,-0.4,-0.5],['Β',B,0.4,-0.5],['Γ',C,0.1,0.5]].forEach(([n,P,dx,dy])=>{dot(P,COL.blk);label(n,P[0]+dx,P[1]+dy,COL.blk,0.5)});
+  if(p.md===0){line(C,0,COL.e3,0.08);sector(C,180,180+gA,1.2,COL.A,0.6);sector(C,tB+180,360,1.2,COL.B,0.6);
+    return {t:'Α + Β + Γ = '+r1(gA)+'° + '+r1(gB)+'° + '+r1(gC)+'° = 180°',s:'Η παράλληλη από το Γ προς την ΑΒ δίνει δύο εντός εναλλάξ γωνίες ίσες με Α και Β.'}}
+  const D=[B[0]+4,B[1]];seg(B,D,COL.blk,0.09);dot(D,COL.blk,0.1);label('Δ',D[0]+0.1,D[1]-0.5,COL.blk,0.5);
+  sector(B,0,tB,1.7,COL.ext,0.4);label('ω',...polar(B,tB/2,2.35),COL.ext,0.55);
+  lineThrough(B,[B[0]+Math.cos(tA*D2R),B[1]+Math.sin(tA*D2R)],COL.e3,0.07);
+  sector(B,0,tA,0.8,COL.A,0.7);sector(B,tA,tB,0.8,COL.G,0.7);
+  return {t:'ω = '+r1(tB)+'° = Α + Γ = '+r1(gA)+'° + '+r1(gC)+'°',s:'Η εξωτερική γωνία τριγώνου είναι ίση με το άθροισμα των δύο απέναντι εσωτερικών γωνιών.'}}});
+
+S.push({name:'Εξωτερικές γωνίες πολυγώνου',params:[{id:'n',label:'Πλευρές ν',min:3,max:9,step:1,val:6},{id:'k',label:'Πόσες εξωτερικές γωνίες',min:1,max:9,step:1,val:9}],
+ draw(p){const n=p.n,R=2.9,V=i=>polar([0,-0.2],90+360*(i-1)/n,R);
+  for(let i=1;i<=n;i++)seg(V(i),V(i%n+1),COL.blk,0.09);
+  const kk=Math.min(p.k,n);
+  for(let i=1;i<=n;i++){dot(V(i),COL.blk,0.1);if(i>kk)continue;const arr=90+360*(i-1)/n+90-180/n;
+    seg(V(i),polar(V(i),arr,1.6),COL.gray,0.05,true);sector(V(i),arr,arr+360/n,1.0,COL.ext,0.55)}
+  const tot=kk*360/n;
+  return {t:'ν = '+n+': κάθε εξωτερική γωνία = 360° / '+n+' = '+r2(360/n)+'° (εσωτερική + εξωτερική = 180°)',s:'Άθροισμα των '+kk+' εξωτερικών γωνιών = '+r2(tot)+'°'+(kk>=n?' → για κάθε κυρτό πολύγωνο είναι 360°.':'.')}}});
+
+// ---------- κατάσταση και διεπαφή ----------
+let pi=0,wasPress=false,sc=0.1;
+let cur=Math.min(7,Math.max(0,parseInt(new URLSearchParams(location.search).get('k')||'0',10)||0));
+const P={};const acc={};
+function initParams(){pi=0;const s=S[cur];s.params.forEach(q=>{P[q.id]=q.val;acc[q.id]=q.val})}
+const elScenes=document.getElementById('scenes'),elParams=document.getElementById('params'),elConcl=document.getElementById('concl');
+S.forEach((s,i)=>{const b=document.createElement('button');b.textContent=(i+1)+'. '+s.name;b.onclick=()=>setScene(i);elScenes.appendChild(b)});
+function buildUI(){[...elScenes.children].forEach((b,i)=>b.classList.toggle('on',i===cur));elParams.innerHTML='';
+  S[cur].params.forEach(q=>{const d=document.createElement('div');d.className='row';d.innerHTML=`<label><span>${q.label}</span><span id="v_${q.id}"></span></label><input type="range" id="r_${q.id}" min="${q.min}" max="${q.max}" step="${q.step}" value="${P[q.id]}">`;elParams.appendChild(d);
+    d.querySelector('input').addEventListener('input',e=>setParam(q.id,parseFloat(e.target.value)))})}
+function clearFig(){own.splice(0).forEach(m=>{content.remove(m);m.geometry&&m.geometry.dispose();if(m.material&&m.material.map)m.material.map.dispose();if(m.material&&m.material.map)m.material.dispose()});zc=0}
+let last=null;
+function redraw(){clearFig();let r;try{r=S[cur].draw(P)}catch(e){errors.push('draw '+cur+': '+e.message);r={t:'',s:''}}
+  last=r;S[cur].params.forEach(q=>{const v=document.getElementById('v_'+q.id);if(v)v.textContent=r1(P[q.id]);const rg=document.getElementById('r_'+q.id);if(rg&&parseFloat(rg.value)!==P[q.id])rg.value=P[q.id]});
+  elConcl.innerHTML=r.t+'<small>'+r.s+'</small>';
+  if(renderer.xr.isPresenting){const q=S[cur].params[pi];label('Ρυθμίζεται: '+q.label+' = '+r1(P[q.id])+'  (πάτημα μοχλού: επόμενη παράμετρος)',-7.2,4.9,COL.orange,0.4,true,'l')}
+  label(r.t,-7.2,-5.15,COL.blk,0.5,true,'l');label(r.s,-7.2,-5.85,'#475569',0.42,false,'l');
+  // πλαίσιο που κρατά κάθε γραμμή μέσα στο πλάτος
+  content.children.slice(-3).filter(m=>m.position.y<-4.5).forEach(m=>{const w=m.geometry.parameters.width;if(w>14.4){const k=14.4/w;m.scale.set(k,k,1);m.position.x=-7.2+w*k/2}})}
+function setParam(id,v){const q=S[cur].params.find(x=>x.id===id);v=Math.min(q.max,Math.max(q.min,v));P[id]=Math.round(v/q.step)*q.step;P[id]=Math.round(P[id]*1000)/1000;redraw()}
+function setScene(i){cur=((i%S.length)+S.length)%S.length;initParams();buildUI();redraw();history.replaceState(null,'','?k='+cur)}
+setScene(cur);
+
+// ---------- WebXR ----------
+const xrbar=document.getElementById('xrbar'),msg=document.getElementById('msg');
+async function enter(mode){try{const s=await navigator.xr.requestSession(mode,{optionalFeatures:['local-floor','bounded-floor','hand-tracking']});
+  await renderer.xr.setSession(s);fig.position.copy(HOME);fig.scale.setScalar(sc);document.getElementById('ui').style.display='none';scene.background=mode==='immersive-ar'?null:new THREE.Color(0xf1f5f9);
+  s.addEventListener('end',()=>{document.getElementById('ui').style.display='';scene.background=new THREE.Color(0xf1f5f9);fig.position.copy(HOME2D)})}catch(e){msg.textContent='Σφάλμα εισόδου: '+e.message}}
+if(navigator.xr){[['immersive-ar','Είσοδος σε AR (Magic Leap 2, Quest 3)'],['immersive-vr','Είσοδος σε VR']].forEach(([m,t])=>navigator.xr.isSessionSupported(m).then(ok=>{if(ok){const b=document.createElement('button');b.textContent=t;b.onclick=()=>enter(m);xrbar.appendChild(b)}}).catch(()=>{}))}
+else msg.textContent='Η συσκευή δεν υποστηρίζει WebXR: χρησιμοποιήστε την προβολή 3D (σύρετε για περιστροφή).';
+const held=[null,null],grab=[new THREE.Vector3(),new THREE.Vector3()];
+for(let i=0;i<2;i++){const c=renderer.xr.getController(i);scene.add(c);
+  c.addEventListener('select',()=>setScene(cur+1));
+  c.addEventListener('squeezestart',()=>{held[i]=true;grab[i].copy(fig.position).sub(c.getWorldPosition(new THREE.Vector3()))});
+  c.addEventListener('squeezeend',()=>{held[i]=null});
+  const ray=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(0,0,-1)]),new THREE.LineBasicMaterial({color:0xE6730D}));ray.scale.z=0.5;c.add(ray)}
+let tPrev=performance.now(),axCool=0;
+renderer.setAnimationLoop(()=>{const now=performance.now(),dt=Math.min(0.1,(now-tPrev)/1000);tPrev=now;
+  if(renderer.xr.isPresenting){
+    for(let i=0;i<2;i++)if(held[i]){const c=renderer.xr.getController(i);fig.position.copy(c.getWorldPosition(new THREE.Vector3())).add(grab[i])}
+    const s=renderer.xr.getSession();let ch=false,press=false;
+    for(const src of s.inputSources){const g=src.gamepad;if(!g||g.axes.length<4)continue;const ax=g.axes[2],ay=g.axes[3];
+      if(g.buttons[3]&&g.buttons[3].pressed)press=true;
+      const q=S[cur].params[pi];
+      if(Math.abs(ax)>0.4){acc[q.id]=Math.min(q.max,Math.max(q.min,acc[q.id]+ax*dt*(q.max-q.min)*0.35));const nv=Math.round(acc[q.id]/q.step)*q.step;if(Math.abs(nv-P[q.id])>1e-9){P[q.id]=Math.round(nv*1000)/1000;ch=true}}
+      if(Math.abs(ay)>0.4){sc=Math.min(0.22,Math.max(0.04,sc*(1-ay*dt*0.8)));fig.scale.setScalar(sc)}}
+    if(press&&!wasPress){pi=(pi+1)%S[cur].params.length;ch=true}wasPress=press;
+    if(ch)redraw()}
+  else controls.update();
+  renderer.render(scene,camera)});
+
+// για έλεγχο σε headless Chrome
+window.__ppe={S:()=>S.map(s=>({name:s.name,params:s.params})),setScene,setParam,get cur(){return cur},get P(){return P},get last(){return last},errors,get meshes(){return content.children.length}};
+</script>
+</body>
+</html>
