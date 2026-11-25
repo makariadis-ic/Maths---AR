@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Εγγεγραμμένα σχήματα - Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 6</title>
+<style>
+  :root{ --blue:#1565C0; --green:#2E7D32; --red:#C62828; --purple:#6A1B9A; --teal:#00897B; --orange:#E65100; --ink:#1f2933; --mut:#64748B; }
+  *{ box-sizing:border-box; }
+  html,body{ margin:0; height:100%; overflow:hidden; background:#eef2f7; font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif; color:var(--ink); }
+  #c{ position:fixed; left:0; width:100%; display:block; touch-action:none; }
+  #ui{ position:fixed; inset:0; pointer-events:none; display:flex; flex-direction:column; justify-content:space-between; }
+  header{ pointer-events:auto; display:flex; align-items:center; gap:12px; padding:10px 14px; background:rgba(255,255,255,.92); border-bottom:1px solid #d5dde8; }
+  header a{ color:var(--blue); text-decoration:none; font-weight:600; }
+  header h1{ font-size:16px; margin:0; flex:1; font-weight:650; }
+  button{ font:inherit; cursor:pointer; border:1px solid #b9c6d6; background:#fff; color:var(--ink); padding:8px 14px; border-radius:8px; }
+  button:hover{ background:#f1f5fa; }
+  button.primary{ background:var(--blue); color:#fff; border-color:var(--blue); font-weight:600; }
+  button:disabled{ opacity:.45; cursor:default; }
+  footer{ pointer-events:auto; background:rgba(255,255,255,.94); border-top:1px solid #d5dde8; padding:10px 14px calc(10px + env(safe-area-inset-bottom)); display:grid; gap:8px; }
+  #tabs{ display:flex; gap:6px; flex-wrap:wrap; }
+  #tabs button{ padding:6px 10px; font-size:13px; }
+  #tabs button.on{ background:var(--blue); color:#fff; border-color:var(--blue); }
+  #ctl{ display:flex; align-items:center; gap:10px; }
+  #ctl label{ font-size:14px; white-space:nowrap; }
+  #u{ flex:1; accent-color:var(--orange); min-width:80px; }
+  #info{ font-size:15px; line-height:1.45; min-height:3.2em; }
+  #info div{ font-variant-numeric:tabular-nums; }
+  #info .t{ font-weight:650; }
+  #msg{ font-size:13px; color:var(--mut); }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">
+  <header>
+    <a href="index.html">Πίνακας σεναρίων</a>
+    <h1 id="title">Εγγεγραμμένα σχήματα</h1>
+    <button id="enter" class="primary" disabled>Έναρξη AR</button>
+  </header>
+  <footer id="dom">
+    <div id="tabs"></div>
+    <div id="ctl">
+      <button id="play">Παύση</button>
+      <label for="u">Μεταβολή</label>
+      <input id="u" type="range" min="0" max="1000" value="300">
+    </div>
+    <div id="info"></div>
+    <div id="msg"></div>
+  </footer>
+</div>
+
+<script type="importmap">
+{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.187.0/build/three.module.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.187.0/examples/jsm/"
+} }
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { Line2 } from 'three/addons/lines/Line2.js';
+import { LineMaterial } from 'three/addons/lines/LineMaterial.js';
+import { LineGeometry } from 'three/addons/lines/LineGeometry.js';
+
+/* ---------- Σταθερές ---------- */
+const COL={ circle:0x1565C0, insc:0x2E7D32, cent:0xC62828, tang:0x6A1B9A, eq:0x00897B, other:0xF57C00, pt:0x263238, grey:0x64748B };
+const HEX=c=>'#'+c.toString(16).padStart(6,'0');
+const D2R=Math.PI/180, R2D=180/Math.PI;
+const fmt=(x,n=1)=>x.toFixed(n).replace('.',',');     // υποδιαστολή
+const deg=(r,n=1)=>fmt(r*R2D,n)+'°';
+
+/* ---------- Σκηνή three.js ---------- */
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.xr.enabled=true;
+renderer.xr.setReferenceSpaceType('local-floor');
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0xeef2f7);
+const camera=new THREE.PerspectiveCamera(45,innerWidth/innerHeight,0.05,50);
+camera.position.set(0,0,5.2);
+scene.add(new THREE.HemisphereLight(0xffffff,0x8899aa,1.2));
+
+const root=new THREE.Group();        // ολόκληρο το σχήμα (Κύκλος κ.λπ.)
+scene.add(root);
+const fig=new THREE.Group();         // το περιεχόμενο της τρέχουσας σκηνής
+root.add(fig);
+
+/* ---------- Βοηθητικά σχεδίασης ---------- */
+const lineMats=[];
+function lmat(color,w,dashed=false){
+  const m=new LineMaterial({color,linewidth:w,worldUnits:true,dashed,dashSize:0.06,gapSize:0.05,transparent:true});
+  m.resolution.set(innerWidth,innerHeight); lineMats.push(m); return m;
+}
+function mkLine(color,w=0.018,dashed=false){
+  const g=new LineGeometry(); g.setPositions([0,0,0,0,0,0]);
+  const l=new Line2(g,lmat(color,w,dashed)); l.frustumCulled=false; fig.add(l); return l;
+}
+function setLine(l,pts){
+  const a=[]; pts.forEach(p=>a.push(p.x,p.y,p.z||0));
+  if(a.length<6) a.push(a[0],a[1],a[2]);
+  l.geometry.dispose(); const g=new LineGeometry(); g.setPositions(a); l.geometry=g;
+  if(l.material.dashed) l.computeLineDistances();
+}
+const V=(x,y)=>new THREE.Vector3(x,y,0);
+const P=(a,r=1,cx=0,cy=0)=>V(cx+r*Math.cos(a),cy+r*Math.sin(a));
+function arcPts(c,r,a0,a1,n=40){ const o=[]; for(let i=0;i<=n;i++){ const a=a0+(a1-a0)*i/n; o.push(V(c.x+r*Math.cos(a),c.y+r*Math.sin(a))); } return o; }
+function fan(color,op=0.28){
+  const m=new THREE.Mesh(new THREE.BufferGeometry(),new THREE.MeshBasicMaterial({color,transparent:true,opacity:op,side:THREE.DoubleSide,depthWrite:false}));
+  m.frustumCulled=false; fig.add(m); return m;
+}
+function setFan(m,c,r,a0,a1,n=24){
+  const v=[]; for(let i=0;i<n;i++){ const s=a0+(a1-a0)*i/n, e=a0+(a1-a0)*(i+1)/n;
+    v.push(c.x,c.y,0.001, c.x+r*Math.cos(s),c.y+r*Math.sin(s),0.001, c.x+r*Math.cos(e),c.y+r*Math.sin(e),0.001); }
+  m.geometry.dispose(); const g=new THREE.BufferGeometry(); g.setAttribute('position',new THREE.Float32BufferAttribute(v,3)); m.geometry=g;
+}
+// Γωνία με κορυφή q, από την ημιευθεία προς a έως την ημιευθεία προς b (η μικρότερη γωνία)
+function angleOf(q,a,b){
+  const u=a.clone().sub(q), w=b.clone().sub(q);
+  return Math.acos(THREE.MathUtils.clamp(u.dot(w)/(u.length()*w.length()),-1,1));
+}
+function setAngle(fm,ln,q,a,b,r=0.2){
+  const a0=Math.atan2(a.y-q.y,a.x-q.x), a1=Math.atan2(b.y-q.y,b.x-q.x);
+  let d=a1-a0; while(d>Math.PI)d-=2*Math.PI; while(d<-Math.PI)d+=2*Math.PI;
+  setFan(fm,q,r,a0,a0+d); if(ln) setLine(ln,arcPts(q,r,a0,a0+d,24));
+}
+function dot(color,r=0.035){
+  const m=new THREE.Mesh(new THREE.SphereGeometry(r,20,14),new THREE.MeshStandardMaterial({color,roughness:.5}));
+  fig.add(m); return m;
+}
+const labelTex=new Map();
+function label(text,color=COL.pt,size=0.16){
+  const key=text+color; let t=labelTex.get(key);
+  if(!t){
+    const c=document.createElement('canvas'); c.width=c.height=128; const x=c.getContext('2d');
+    x.font='bold 84px system-ui,Arial'; x.textAlign='center'; x.textBaseline='middle';
+    x.lineWidth=14; x.strokeStyle='rgba(255,255,255,.95)'; x.strokeText(text,64,70);
+    x.fillStyle=HEX(color); x.fillText(text,64,70);
+    t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace; labelTex.set(key,t);
+  }
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));
+  s.scale.set(size,size,1); s.renderOrder=10; fig.add(s); return s;
+}
+function Pt(name,color=COL.pt,r=0.035){ const d=dot(color,r), l=label(name); return {d,l,set(p,off){ d.position.copy(p); const o=off||p.clone().normalize().multiplyScalar(0.13); l.position.set(p.x+o.x,p.y+o.y,0.02); },color(c){ d.material.color.setHex(c); }}; }
+const circleLine=()=>{ const l=mkLine(COL.circle,0.022); setLine(l,arcPts(V(0,0),1,0,2*Math.PI,96)); return l; };
+
+/* ---------- Σκηνές ---------- */
+// Κάθε σκηνή: { title, init(), update(u) → [[κείμενο,χρώμα],…] }, u στο [0,1]
+const S=[];
+
+// 0 Στοιχεία του κύκλου
+S.push({ title:'Στοιχεία του κύκλου', init(){
+  const o={}; circleLine(); o.cen=Pt('Ο'); o.cen.set(V(0,0),V(.1,-.12));
+  o.A=Pt('Α'); o.B=Pt('Β'); o.Ap=Pt('Α΄');
+  o.oa=mkLine(COL.grey,.012,true); o.ob=mkLine(COL.grey,.012,true);
+  o.ch=mkLine(COL.insc,.03); o.di=mkLine(COL.tang,.02); o.ar=mkLine(COL.cent,.04); o.an=fan(COL.cent);
+  return o; },
+  update(u,o){
+    const th=(10+u*340)*D2R, a=30*D2R, A=P(a), B=P(a+th), Ap=P(a+Math.PI), O=V(0,0);
+    o.A.set(A); o.B.set(B); o.Ap.set(Ap);
+    setLine(o.oa,[O,A]); setLine(o.ob,[O,B]); setLine(o.ch,[A,B]); setLine(o.di,[A,Ap]);
+    setLine(o.ar,arcPts(O,1,a,a+th,64)); setFan(o.an,O,.25,a,a+th);
+    const om=th>Math.PI?2*Math.PI-th:th;
+    return [['Ακτίνα ΟΑ = ρ = 1,0',COL.pt],['Διάμετρος ΑΑ΄ = 2ρ = 2,0',COL.tang],
+      ['Χορδή ΑΒ = '+fmt(2*Math.sin(om/2),2),COL.insc],['Τόξο ΑΒ = '+deg(om),COL.cent],['Επίκεντρη ΑΟΒ = '+deg(om),COL.cent],
+      ['Η διάμετρος είναι η μεγαλύτερη χορδή',COL.eq]]; } });
+
+// 1 Εφαπτόμενα τμήματα από σημείο
+S.push({ cx:1.05, w:4.6, h:2.8, title:'Εφαπτόμενα τμήματα από σημείο', init(){
+  const o={}; circleLine(); o.cen=Pt('Ο'); o.cen.set(V(0,0),V(-.12,-.12));
+  o.A=Pt('Α'); o.B=Pt('Β'); o.Pp=Pt('Ρ');
+  o.oa=mkLine(COL.grey,.012,true); o.ob=mkLine(COL.grey,.012,true); o.op=mkLine(COL.grey,.01,true);
+  o.pa=mkLine(COL.tang,.03); o.pb=mkLine(COL.tang,.03); o.f1=fan(COL.cent); o.f2=fan(COL.insc); return o; },
+  update(u,o){
+    const d=1.2+u*1.9, th=Math.acos(1/d), O=V(0,0), Pp=V(d,0), A=P(th), B=P(-th);
+    o.Pp.set(Pp,V(.1,.12)); o.A.set(A); o.B.set(B);
+    setLine(o.oa,[O,A]); setLine(o.ob,[O,B]); setLine(o.op,[O,Pp]); setLine(o.pa,[Pp,A]); setLine(o.pb,[Pp,B]);
+    setAngle(o.f1,null,Pp,A,B,.3); setAngle(o.f2,null,O,A,B,.25);
+    const l=Math.sqrt(d*d-1);
+    return [['ΟΡ = '+fmt(d,2),COL.pt],['ΡΑ = '+fmt(l,2),COL.tang],['ΡΒ = '+fmt(l,2),COL.tang],
+      ['ΑΡΒ = '+deg(2*Math.asin(1/d)),COL.cent],['ΑΟΒ = '+deg(2*th),COL.insc],
+      ['ΟΑ ⟂ ΡΑ και ΟΒ ⟂ ΡΒ: ίσα εφαπτόμενα τμήματα',COL.eq]]; } });
+
+// 2 Εγγεγραμμένη και επίκεντρη
+S.push({ title:'Εγγεγραμμένη και επίκεντρη γωνία', init(){
+  const o={}; circleLine(); o.cen=Pt('Ο'); o.cen.set(V(0,0),V(.1,.12));
+  o.A=Pt('Α'); o.B=Pt('Β'); o.G=Pt('Γ');
+  o.ab=mkLine(COL.insc,.022); o.ag=mkLine(COL.insc,.022); o.ob=mkLine(COL.cent,.016); o.og=mkLine(COL.cent,.016);
+  o.ar=mkLine(COL.cent,.04); o.f1=fan(COL.cent,.3); o.f2=fan(COL.insc,.4); return o; },
+  update(u,o){
+    const th=(30+u*300)*D2R, O=V(0,0), A=P(Math.PI/2), B=P(1.5*Math.PI-th/2), G=P(1.5*Math.PI+th/2);
+    o.A.set(A); o.B.set(B); o.G.set(G);
+    setLine(o.ab,[A,B]); setLine(o.ag,[A,G]); setLine(o.ob,[O,B]); setLine(o.og,[O,G]);
+    setLine(o.ar,arcPts(O,1,1.5*Math.PI-th/2,1.5*Math.PI+th/2,64));
+    setAngle(o.f1,null,O,B,G,.28); setAngle(o.f2,null,A,B,G,.2);
+    const w=angleOf(A,B,G);
+    return [['Επίκεντρη ΒΟΓ = '+deg(th),COL.cent],['Εγγεγραμμένη ΒΑΓ = '+deg(w),COL.insc],['Τόξο ΒΓ = '+deg(th),COL.cent],
+      ['2 · ΒΑΓ = '+deg(2*w),COL.eq],['Η εγγεγραμμένη είναι ίση με το μισό του τόξου της',COL.eq]]; } });
+
+// 3 Γωνίες που βαίνουν στο ίδιο τόξο
+S.push({ title:'Γωνίες στο ίδιο τόξο', init(){
+  const o={}; circleLine(); o.cen=Pt('Ο'); o.cen.set(V(0,0),V(.1,.12));
+  o.B=Pt('Β'); o.G=Pt('Γ'); o.D=Pt('Δ',COL.other); o.As=[1,2,3].map(i=>Pt('Α'+'₁₂₃'[i-1])); o.ls=[]; o.fs=[];
+  for(let i=0;i<3;i++){ o.ls.push([mkLine(COL.insc,.018),mkLine(COL.insc,.018)]); o.fs.push(fan(COL.insc,.35)); }
+  o.db=mkLine(COL.other,.018); o.dg=mkLine(COL.other,.018); o.fd=fan(COL.other,.4); o.ar=mkLine(COL.cent,.04); return o; },
+  update(u,o){
+    const th=100*D2R, a0=1.5*Math.PI-th/2, a1=1.5*Math.PI+th/2, B=P(a0), G=P(a1);
+    o.B.set(B); o.G.set(G); setLine(o.ar,arcPts(V(0,0),1,a0,a1,48));
+    const arcLen=2*Math.PI-th; const ws=[];
+    for(let i=0;i<3;i++){ const f=0.08+0.84*(((u*0.6+i/3)%1)); const A=P(a1+f*arcLen);
+      o.As[i].set(A); setLine(o.ls[i][0],[A,B]); setLine(o.ls[i][1],[A,G]); setAngle(o.fs[i],null,A,B,G,.2); ws.push(angleOf(A,B,G)); }
+    const D=P(1.5*Math.PI); o.D.set(D,V(0,-.13)); setLine(o.db,[D,B]); setLine(o.dg,[D,G]); setAngle(o.fd,null,D,B,G,.18);
+    const wd=angleOf(D,B,G);
+    return [['ΒΑ₁Γ = '+deg(ws[0]),COL.insc],['ΒΑ₂Γ = '+deg(ws[1]),COL.insc],['ΒΑ₃Γ = '+deg(ws[2]),COL.insc],
+      ['Μισό του τόξου ΒΓ = '+deg(th/2),COL.eq],['ΒΔΓ = '+deg(wd),COL.other],['ΒΔΓ + ΒΑ₁Γ = '+deg(wd+ws[0]),COL.eq]]; } });
+
+// 4 Γωνία σε ημικύκλιο
+S.push({ title:'Γωνία σε ημικύκλιο', init(){
+  const o={}; circleLine(); o.cen=Pt('Ο'); o.cen.set(V(0,0),V(.05,-.14));
+  o.A=Pt('Α'); o.B=Pt('Β'); o.G=Pt('Γ'); o.bg=mkLine(COL.tang,.03);
+  o.ab=mkLine(COL.insc,.022); o.ag=mkLine(COL.insc,.022); o.ao=mkLine(COL.cent,.014,true); o.f=fan(COL.cent,.35); o.sq=mkLine(COL.cent,.012); return o; },
+  update(u,o){
+    const ph=(15+u*150)*D2R, A=P(ph), B=P(Math.PI), G=P(0), O=V(0,0);
+    o.A.set(A); o.B.set(B,V(-.13,-.1)); o.G.set(G,V(.13,-.1)); setLine(o.bg,[B,G]); setLine(o.ab,[A,B]); setLine(o.ag,[A,G]); setLine(o.ao,[A,O]);
+    setAngle(o.f,null,A,B,G,.2);
+    const e1=B.clone().sub(A).normalize().multiplyScalar(.12), e2=G.clone().sub(A).normalize().multiplyScalar(.12);
+    setLine(o.sq,[A.clone().add(e1),A.clone().add(e1).add(e2),A.clone().add(e2)]);
+    return [['ΒΓ = διάμετρος = 2,00',COL.tang],['ΒΑΓ = '+deg(angleOf(A,B,G),2),COL.cent],
+      ['ΑΟ = '+fmt(A.length(),2)+' και ΒΓ/2 = 1,00',COL.pt],['Η εγγεγραμμένη σε ημικύκλιο είναι ορθή',COL.eq]]; } });
+
+// 5 Γωνία χορδής και εφαπτομένης
+S.push({ w:3.9, h:2.8, title:'Γωνία χορδής και εφαπτομένης', init(){
+  const o={}; circleLine(); o.cen=Pt('Ο'); o.cen.set(V(0,0),V(-.1,.12));
+  o.A=Pt('Α'); o.B=Pt('Β'); o.G=Pt('Γ'); o.tg=mkLine(COL.tang,.028); o.ab=mkLine(COL.cent,.026);
+  o.ga=mkLine(COL.insc,.018); o.gb=mkLine(COL.insc,.018); o.ar=mkLine(COL.cent,.04); o.f1=fan(COL.cent,.35); o.f2=fan(COL.insc,.4); return o; },
+  update(u,o){
+    const th=(30+u*300)*D2R, a=1.5*Math.PI, A=P(a), B=P(a+th), G=P(a+th+(2*Math.PI-th)/2), T=V(1.7,-1);
+    o.A.set(A,V(-.1,-.13)); o.B.set(B); o.G.set(G);
+    setLine(o.tg,[V(-1.7,-1),T]); setLine(o.ab,[A,B]); setLine(o.ga,[G,A]); setLine(o.gb,[G,B]); setLine(o.ar,arcPts(V(0,0),1,a,a+th,64));
+    const wt=angleOf(A,T,B), wi=angleOf(G,A,B);
+    setAngle(o.f1,null,A,T,B,.3); setAngle(o.f2,null,G,A,B,.2);
+    return [['Γωνία εφαπτομένης και ΑΒ = '+deg(wt),COL.cent],['Εγγεγραμμένη ΑΓΒ = '+deg(wi),COL.insc],
+      ['Τόξο ΑΒ = '+deg(th),COL.cent],['Μισό του τόξου ΑΒ = '+deg(th/2),COL.eq]]; } });
+
+// 6 Εγγεγραμμένο τετράπλευρο
+S.push({ title:'Εγγεγραμμένο τετράπλευρο', init(){
+  const o={}; circleLine(); o.cen=Pt('Ο'); o.cen.set(V(0,0),V(.05,-.05));
+  o.pts=['Α','Β','Γ','Δ'].map(n=>Pt(n)); o.sd=[0,1,2,3].map(()=>mkLine(COL.circle,.028));
+  o.fs=[COL.cent,COL.insc,COL.cent,COL.insc].map(c=>fan(c,.38)); return o; },
+  update(u,o){
+    const m1=80, m2=60+u*80, m3=90, s=20*D2R, ang=[s,s+m1*D2R,s+(m1+m2)*D2R,s+(m1+m2+m3)*D2R];
+    const p=ang.map(a=>P(a)); const names=[0,1,2,3];
+    names.forEach(i=>{ o.pts[i].set(p[i]); setLine(o.sd[i],[p[i],p[(i+1)%4]]); setAngle(o.fs[i],null,p[i],p[(i+3)%4],p[(i+1)%4],.2); });
+    const w=names.map(i=>angleOf(p[i],p[(i+3)%4],p[(i+1)%4]));
+    return [['Α = '+deg(w[0])+'   Γ = '+deg(w[2]),COL.cent],['Β = '+deg(w[1])+'   Δ = '+deg(w[3]),COL.insc],
+      ['Α + Γ = '+deg(w[0]+w[2]),COL.eq],['Β + Δ = '+deg(w[1]+w[3]),COL.eq],['Οι απέναντι γωνίες είναι παραπληρωματικές',COL.eq]]; } });
+
+// 7 Κριτήριο εγγραψιμότητας
+S.push({ title:'Κριτήριο εγγραψιμότητας', init(){
+  const o={}; const c=circleLine(); c.material.dashed=true; c.material.dashSize=.08; c.material.gapSize=.05; c.computeLineDistances();
+  o.cen=Pt('Ο'); o.cen.set(V(0,0),V(.05,-.12));
+  o.A=Pt('Α'); o.B=Pt('Β'); o.G=Pt('Γ'); o.D=Pt('Δ',COL.cent,.05);
+  o.ab=mkLine(COL.circle,.028); o.bg=mkLine(COL.circle,.028); o.gd=mkLine(COL.tang,.028); o.da=mkLine(COL.tang,.028);
+  o.fb=fan(COL.cent,.38); o.fd=fan(COL.insc,.4); return o; },
+  update(u,o){
+    const A=P(210*D2R), B=P(330*D2R), G=P(60*D2R), d=0.6+u*1.2, D=P(135*D2R,d);
+    o.A.set(A); o.B.set(B); o.G.set(G); o.D.set(D,V(-.1,.12));
+    setLine(o.ab,[A,B]); setLine(o.bg,[B,G]); setLine(o.gd,[G,D]); setLine(o.da,[D,A]);
+    setAngle(o.fb,null,B,G,A,.2); setAngle(o.fd,null,D,A,G,.2);
+    const wB=angleOf(B,G,A), wD=angleOf(D,A,G), on=Math.abs(wB+wD-Math.PI)<0.5*D2R;
+    o.D.color(on?COL.eq:COL.cent);
+    return [['Β = '+deg(wB),COL.cent],['Δ = '+deg(wD),COL.insc],['Β + Δ = '+deg(wB+wD),COL.eq],
+      [on?'Β + Δ = 180°: το ΑΒΓΔ είναι εγγράψιμο':'Β + Δ ≠ 180°: το ΑΒΓΔ δεν είναι εγγράψιμο',on?COL.eq:COL.tang],
+      [on?'Το Δ ανήκει στον κύκλο ΑΒΓ':'Το Δ δεν ανήκει στον κύκλο ΑΒΓ',on?COL.eq:COL.grey]]; } });
+
+/* ---------- Κατάσταση ---------- */
+let cur=-1, o=null, u=0.3, playing=true, dir=1, lastLines=[];
+const qs=new URLSearchParams(location.search);
+const $=id=>document.getElementById(id);
+
+function clearFig(){ while(fig.children.length){ const c=fig.children[0]; fig.remove(c); c.geometry?.dispose?.(); } lineMats.length=0; }
+function load(k){
+  k=((k%S.length)+S.length)%S.length;
+  clearFig(); cur=k; o=S[k].init(); u=0.3; playing=true;
+  $('title').textContent=S[k].title; document.title=S[k].title+' - Εγγεγραμμένα σχήματα';
+  [...$('tabs').children].forEach((b,i)=>b.classList.toggle('on',i===k));
+  $('u').value=Math.round(u*1000); $('play').textContent='Παύση';
+  history.replaceState(null,'','?k='+k); refresh(); drawPanel();
+}
+function refresh(){
+  lastLines=S[cur].update(u,o);
+  const h=lastLines.map(([t,c],i)=>'<div'+(i===0?' class="t"':'')+' style="color:'+HEX(c)+'">'+t+'</div>').join('');
+  if(h!==refresh.h){ refresh.h=h; $('info').innerHTML=h; if(typeof resize==='function'&&refresh.n!==lastLines.length){ refresh.n=lastLines.length; resize(); } }
+}
+S.forEach((s,i)=>{ const b=document.createElement('button'); b.textContent=(i+1)+'. '+s.title; b.onclick=()=>load(i); $('tabs').appendChild(b); });
+$('u').oninput=e=>{ u=e.target.value/1000; playing=false; $('play').textContent='Συνέχεια'; refresh(); drawPanel(); };
+$('play').onclick=togglePlay;
+function togglePlay(){ playing=!playing; $('play').textContent=playing?'Παύση':'Συνέχεια'; drawPanel(); }
+function step(dv){ u=Math.min(1,Math.max(0,u+dv)); playing=false; $('play').textContent='Συνέχεια'; $('u').value=Math.round(u*1000); refresh(); drawPanel(); }
+
+/* ---------- Πίνακας μέσα στο XR ---------- */
+const panelCanvas=document.createElement('canvas'); panelCanvas.width=1024; panelCanvas.height=640;
+const panelTex=new THREE.CanvasTexture(panelCanvas); panelTex.colorSpace=THREE.SRGBColorSpace;
+const panel=new THREE.Mesh(new THREE.PlaneGeometry(1.6,1),new THREE.MeshBasicMaterial({map:panelTex,transparent:true}));
+panel.position.set(2.05,0.1,0); panel.visible=false; root.add(panel);
+const BTN=[['◀ Προηγούμενη',()=>load(cur-1)],['Παύση / Συνέχεια',togglePlay],['Επόμενη ▶',()=>load(cur+1)],['−',()=>step(-0.05)],['+',()=>step(0.05)]];
+const btnMeshes=[];
+function mkBtn(text,i){
+  const c=document.createElement('canvas'); c.width=256; c.height=96; const x=c.getContext('2d');
+  x.fillStyle='#ffffff'; x.fillRect(0,0,256,96); x.strokeStyle='#1565C0'; x.lineWidth=6; x.strokeRect(3,3,250,90);
+  x.fillStyle='#1f2933'; x.font='bold 30px system-ui,Arial'; x.textAlign='center'; x.textBaseline='middle'; x.fillText(text,128,50);
+  const t=new THREE.CanvasTexture(c); t.colorSpace=THREE.SRGBColorSpace;
+  const m=new THREE.Mesh(new THREE.PlaneGeometry(.5,.1875),new THREE.MeshBasicMaterial({map:t}));
+  m.userData.i=i; return m;
+}
+BTN.forEach(([t],i)=>{ const m=mkBtn(t,i);
+  const small=i>=3; m.scale.setScalar(small?.5:1);
+  m.position.set(small?(i===3?2.05-.3:2.05+.3):2.05+(i-1)*.55, small?-.82:-.62,.01); panel.userData.dummy=1; root.add(m); btnMeshes.push(m); m.visible=false; });
+function drawPanel(){
+  const x=panelCanvas.getContext('2d'); x.clearRect(0,0,1024,640);
+  x.fillStyle='rgba(255,255,255,.94)'; x.fillRect(0,0,1024,640); x.strokeStyle='#d5dde8'; x.lineWidth=4; x.strokeRect(2,2,1020,636);
+  x.fillStyle='#1f2933'; x.font='bold 42px system-ui,Arial'; x.fillText(S[cur].title,32,70);
+  x.font='36px system-ui,Arial';
+  lastLines.forEach(([t,c],i)=>{ x.fillStyle=HEX(c); x.font=(i===0?'bold ':'')+'34px system-ui,Arial'; x.fillText(t,32,140+i*68,960); });
+  panelTex.needsUpdate=true;
+}
+
+/* ---------- Είσοδος σε AR / XR ---------- */
+let session=null, tabletMode=false, hitSource=null, reticle=null;
+const ctrls=[0,1].map(i=>{ const c=renderer.xr.getController(i); scene.add(c);
+  const ray=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(0,0,-1)]),new THREE.LineBasicMaterial({color:0x1565C0}));
+  ray.scale.z=3; c.add(ray);
+  c.addEventListener('select',()=>onSelect(c)); return c; });
+const ray=new THREE.Raycaster(), tmpM=new THREE.Matrix4();
+function onSelect(c){
+  if(tabletMode){ if(reticle&&reticle.visible){ root.position.setFromMatrixPosition(reticle.matrix); root.position.y+=0.45; root.scale.setScalar(.22); } return; }
+  tmpM.identity().extractRotation(c.matrixWorld);
+  ray.ray.origin.setFromMatrixPosition(c.matrixWorld); ray.ray.direction.set(0,0,-1).applyMatrix4(tmpM);
+  const hit=ray.intersectObjects(btnMeshes.filter(b=>b.visible))[0];
+  if(hit) BTN[hit.object.userData.i][1](); else togglePlay();
+}
+const supports={ar:false,vr:false};
+async function detect(){
+  const msg=$('msg');
+  if(!navigator.xr){ msg.textContent='Η συσκευή δεν υποστηρίζει WebXR. Μπορείτε να περιστρέψετε το σχήμα με το δάχτυλο ή το ποντίκι.'; return; }
+  try{ supports.ar=await navigator.xr.isSessionSupported('immersive-ar'); }catch(e){}
+  try{ supports.vr=await navigator.xr.isSessionSupported('immersive-vr'); }catch(e){}
+  if(supports.ar||supports.vr){ $('enter').disabled=false; $('enter').textContent=supports.ar?'Έναρξη AR':'Έναρξη VR'; }
+  else msg.textContent='Δεν βρέθηκε συσκευή AR/VR. Η προβολή 3D στην οθόνη λειτουργεί κανονικά.';
+}
+$('enter').onclick=async()=>{
+  if(session){ session.end(); return; }
+  const mode=supports.ar?'immersive-ar':'immersive-vr';
+  const init={ optionalFeatures:['local-floor','hit-test','dom-overlay','hand-tracking'], domOverlay:{root:document.getElementById('ui')} };
+  try{ session=await navigator.xr.requestSession(mode,init); }catch(e){ $('msg').textContent='Δεν ήταν δυνατή η έναρξη της συνεδρίας: '+e.message; return; }
+  const isAR=mode==='immersive-ar';
+  renderer.xr.setReferenceSpaceType('local-floor');
+  await renderer.xr.setSession(session);
+  tabletMode=isAR && !!session.domOverlayState;   // tablet ή κινητό: DOM overlay διαθέσιμο
+  scene.background=isAR?null:new THREE.Color(0x101820);
+  root.position.set(0,1.25,-1.3); root.scale.setScalar(.34); root.rotation.set(0,0,0);
+  const headset=!tabletMode;
+  panel.visible=headset; btnMeshes.forEach(b=>b.visible=headset);
+  if(headset) document.getElementById('dom').style.display='none';
+  $('enter').textContent='Έξοδος'; resize();
+  if(tabletMode){
+    const ref=await session.requestReferenceSpace('viewer');
+    try{ hitSource=await session.requestHitTestSource({space:ref});
+      reticle=new THREE.Mesh(new THREE.RingGeometry(.12,.16,32).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x1565C0}));
+      reticle.matrixAutoUpdate=false; reticle.visible=false; scene.add(reticle); }catch(e){}
+    root.position.set(0,1,-1.2); root.scale.setScalar(.22);
+  }
+  drawPanel();
+  session.addEventListener('end',()=>{
+    session=null; hitSource=null; if(reticle){ scene.remove(reticle); reticle=null; }
+    panel.visible=false; btnMeshes.forEach(b=>b.visible=false); document.getElementById('dom').style.display='';
+    scene.background=new THREE.Color(0xeef2f7); root.position.set(0,0,0); root.scale.setScalar(1);
+    $('enter').textContent=supports.ar?'Έναρξη AR':'Έναρξη VR'; resize();
+  });
+};
+
+/* ---------- Περιστροφή και ζουμ στην οθόνη ---------- */
+let drag=null, yaw=0, pitch=0, zoom=1;
+canvas.addEventListener('pointerdown',e=>{ if(session)return; drag={x:e.clientX,y:e.clientY}; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove',e=>{ if(!drag||session)return; yaw+=(e.clientX-drag.x)*.008; pitch=Math.max(-1.2,Math.min(1.2,pitch+(e.clientY-drag.y)*.008)); drag={x:e.clientX,y:e.clientY}; });
+canvas.addEventListener('pointerup',()=>{ drag=null; });
+canvas.addEventListener('wheel',e=>{ zoom=Math.min(2.2,Math.max(.5,zoom*(e.deltaY>0?.92:1.08))); },{passive:true});
+
+/* ---------- Βρόχος σχεδίασης ---------- */
+const clock=new THREE.Clock(); let acc=0;
+function resize(){
+  const hh=session&&!tabletMode?0:document.querySelector('header').offsetHeight;
+  const fh=session&&!tabletMode?0:document.getElementById('dom').offsetHeight;
+  const w=innerWidth, h=session?innerHeight:Math.max(160,innerHeight-hh-fh);
+  if(!session){ canvas.style.top=hh+'px'; canvas.style.height=h+'px'; }
+  renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix();
+  lineMats.forEach(m=>m.resolution.set(w,h));
+}
+function fitCamera(){
+  if(session) return;
+  const sc=S[cur]||{}, ww=sc.w||2.8, hh=sc.h||2.8, t=Math.tan(camera.fov*D2R/2);
+  camera.position.z=Math.max(hh/2/t, ww/2/(t*camera.aspect))/zoom;
+  root.position.set(-(sc.cx||0),0,0);
+}
+addEventListener('resize',resize);
+renderer.setAnimationLoop((t,frame)=>{
+  const dt=Math.min(clock.getDelta(),.1);
+  if(playing){ u+=dir*dt/9; if(u>=1){u=1;dir=-1;} if(u<=0){u=0;dir=1;} acc+=dt; }
+  // Μοχλός αναλογικής εισόδου (XR): ο αριστερός/δεξιός μοχλός αλλάζει τη μεταβολή
+  if(session){ for(const src of session.inputSources){ const g=src.gamepad; if(g&&g.axes.length>=4&&Math.abs(g.axes[2])>.3){ u=Math.min(1,Math.max(0,u+g.axes[2]*dt*.4)); playing=false; } } }
+  if(frame&&hitSource&&reticle){ const hits=frame.getHitTestResults(hitSource); if(hits.length){ const pose=hits[0].getPose(renderer.xr.getReferenceSpace()); reticle.visible=true; reticle.matrix.fromArray(pose.transform.matrix);} else reticle.visible=false; }
+  if(!session){ root.rotation.set(pitch,yaw,0); fitCamera(); }
+  refresh();
+  if(session && !tabletMode && (acc>.15)){ acc=0; drawPanel(); }
+  if(!session) $('u').value=Math.round(u*1000);
+  renderer.render(scene,camera);
+});
+
+resize();
+load(Math.max(0,Math.min(S.length-1,parseInt(qs.get('k')||'0',10)||0)));
+detect();
+window.__egg={load,S,get u(){return u;},set u(v){u=v;playing=false;refresh();}};   // για δοκιμές
+</script>
+</body>
+</html>

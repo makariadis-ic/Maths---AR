@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -53,6 +53,7 @@
 | Μετρικές σχέσεις (`metrikes-scheseis.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 9 (§9.1 έως §9.5 και §9.7) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Εμβαδά (`emvada-b-lykeiou.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 10 (§10.1 έως §10.5) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Παράλληλες ευθείες (`paralliles-eutheies.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 4 (παράλληλες ευθείες, κύκλοι τριγώνου, άθροισμα γωνιών) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Εγγεγραμμένα σχήματα (`egegrammena-sximata.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 6 (§6.1 έως §6.6, κύκλος, εγγεγραμμένες γωνίες και εγγεγραμμένο τετράπλευρο) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
 
 Όλα τα μοντέλα είναι περίπου **25 εκατοστά** — μέγεθος που κάθεται σε θρανίο.
 
@@ -66,7 +67,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -1038,3 +1039,52 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 
 Η σελίδα δεν έχει δοκιμαστεί μέσα στα γυαλιά ή στο tablet Samsung, μόνο σε headless Chrome (προβολή 3D, και οι οκτώ σκηνές, έλεγχος σφαλμάτων και ακραίες τιμές των παραμέτρων). Οι εφαρμογές GeoGebra 07, 10, 13 και 16 δεν έχουν αντίστοιχη σκηνή XR.
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+
+## Εγγεγραμμένα σχήματα στο Κέντρο Καινοτομίας (σενάριο 39, Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 6, §6.1 έως §6.6)
+
+Το σενάριο έχει 17 εφαρμογές GeoGebra (αρχεία `Εγγεγραμμένα σχήματα - NN Τίτλος.ggb`) και μία σελίδα WebXR με 8 σκηνές. Τα αρχεία .ggb ανεβαίνουν στον λογαριασμό στο geogebra.org (δεν μπαίνουν στο GitHub). Σε κάθε αρχείο το σχήμα είναι αριστερά, οι πορτοκαλί ολισθητές πάνω δεξιά και τα κείμενα με τις τιμές (υποδιαστολή με κόμμα) κάτω από αυτούς.
+
+| Αρχείο GeoGebra | Παράγραφος | Τι δείχνει |
+|---|---|---|
+| 01 Στοιχεία του κύκλου | §6.1 | Ακτίνα, διάμετρος, χορδή, τόξο και επίκεντρη γωνία, η διάμετρος ως μεγαλύτερη χορδή |
+| 02 Ίσα τόξα και ίσες χορδές | §6.1 | Δύο ίσα τόξα δίνουν ίσες χορδές |
+| 03 Χορδές και αποστήματα | §6.1 | Μεγαλύτερη χορδή, μικρότερο απόστημα |
+| 04 Εφαπτομένη κύκλου | §6.1 | Η εφαπτομένη είναι κάθετη στην ακτίνα του σημείου επαφής |
+| 05 Εφαπτόμενα τμήματα από σημείο | §6.1 | ΡΑ = ΡΒ και η ΟΡ διχοτομεί τη γωνία ΑΡΒ |
+| 06 Σχετική θέση ευθείας και κύκλου | §6.1 | Τέμνουσα, εφαπτομένη, εκτός, με σύγκριση του d και του ρ |
+| 07 Σχετική θέση δύο κύκλων | §6.1 | Έξι θέσεις ανάλογα με τη διάκεντρο δ |
+| 08 Εγγεγραμμένη και επίκεντρη γωνία | §6.2 | ΒΑΓ = ½ ΒΟΓ, με το κέντρο εντός, επί ή εκτός της γωνίας |
+| 09 Γωνίες που βαίνουν στο ίδιο τόξο | §6.2 | Ίσες γωνίες στο ίδιο τόξο, παραπληρωματική στο άλλο |
+| 10 Γωνία σε ημικύκλιο | §6.2 | Η εγγεγραμμένη σε ημικύκλιο είναι ορθή |
+| 11 Γωνία χορδής και εφαπτομένης | §6.3 | Ίση με την εγγεγραμμένη στο ίδιο τόξο |
+| 12 Τόξο που δέχεται γνωστή γωνία | §6.4 | Τα δύο συμμετρικά τόξα πάνω στην ΑΒ |
+| 13 Εγγεγραμμένο τετράπλευρο | §6.5 | Α + Γ = 180° και Β + Δ = 180° |
+| 14 Εξωτερική γωνία εγγεγραμμένου | §6.5 | Η εξωτερική γωνία ισούται με την απέναντι εσωτερική |
+| 15 Εγγράψιμο τετράπλευρο: κριτήριο | §6.6 | Β + Δ = 180° όταν το Δ βρίσκεται στον κύκλο ΑΒΓ |
+| 16 Ίσες γωνίες προς την ίδια πλευρά | §6.6 | ΑΓΒ = ΑΔΒ μόνο για ομοκυκλικά σημεία |
+| 17 Εγγεγραμμένο τραπέζιο και ορθογώνιο | §6.5, §6.6 | Ισοσκελές τραπέζιο με ίσες διαγωνίους, ορθογώνιο όταν τα τόξα ισούνται |
+
+Χρώματα (ίδια σε GeoGebra και XR): κύκλος μπλε, εγγεγραμμένες γωνίες και χορδές πράσινα, επίκεντρες γωνίες και τόξα κόκκινα, εφαπτομένες και διάμετροι μωβ, ισότητες και συμπεράσματα τιρκουάζ, ολισθητές πορτοκαλί.
+
+- `egegrammena-sximata.html` — WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, για tablet Samsung και ως προβολή 3D σε κάθε συσκευή,
+  https://makariadis-ic.github.io/Maths---AR/egegrammena-sximata.html. Είναι ένα αυτόνομο αρχείο (το three.js 0.187 φορτώνεται από CDN,
+  χρειάζεται σύνδεση στο διαδίκτυο). Η σκηνή ανοίγει με `?k=0` έως `?k=7`. Στα γυαλιά ο πίνακας με τις τιμές και τα κουμπιά
+  (Προηγούμενη, Παύση / Συνέχεια, Επόμενη, − και +) βρίσκεται δίπλα στο σχήμα· η σκανδάλη (ή το τσίμπημα στα χέρια) πατά το κουμπί
+  που δείχνει η ακτίνα και αλλιώς σταματά ή συνεχίζει την κίνηση, και ο μοχλός αριστερά και δεξιά αλλάζει την παράμετρο. Στο tablet
+  Samsung η σελίδα ανοίγει σε AR με επιφάνεια: το πάτημα στην οθόνη τοποθετεί το σχήμα στην επιφάνεια που δείχνει ο κύκλος-στόχος, και
+  οι ολισθητές και τα κουμπιά του πίνακα (DOM overlay) ελέγχουν τη σκηνή. Στην προβολή 3D (υπολογιστής ή tablet χωρίς AR) το σχήμα
+  στρέφεται με σύρσιμο και ο τροχός του ποντικιού το μεγεθύνει.
+
+| Σκηνή | Τίτλος | Τι δείχνει |
+|---|---|---|
+| 1 | Στοιχεία του κύκλου | Χορδή, διάμετρος, τόξο και επίκεντρη γωνία, με μεταβλητό τόξο ΑΒ |
+| 2 | Εφαπτόμενα τμήματα από σημείο | ΡΑ = ΡΒ, γωνίες ΑΡΒ και ΑΟΒ, με μεταβλητή απόσταση ΟΡ |
+| 3 | Εγγεγραμμένη και επίκεντρη γωνία | ΒΑΓ = ½ ΒΟΓ για κάθε τόξο ΒΓ |
+| 4 | Γωνίες στο ίδιο τόξο | Τρεις ίσες γωνίες που κινούνται και η παραπληρωματική στο άλλο τόξο |
+| 5 | Γωνία σε ημικύκλιο | Πάντα ορθή, με το Α να κινείται στον κύκλο |
+| 6 | Γωνία χορδής και εφαπτομένης | Ίση με το μισό του τόξου και με την εγγεγραμμένη |
+| 7 | Εγγεγραμμένο τετράπλευρο | Α + Γ = 180° και Β + Δ = 180° |
+| 8 | Κριτήριο εγγραψιμότητας | Το Δ διασχίζει τον κύκλο και το Β + Δ γίνεται 180° μόνο πάνω σε αυτόν |
+
+Η σελίδα δεν έχει δοκιμαστεί μέσα στα γυαλιά ή στο tablet Samsung, μόνο σε headless Chrome (προβολή 3D, και οι οκτώ σκηνές, έλεγχος σφαλμάτων και τιμές των παραμέτρων). Οι εφαρμογές GeoGebra 03, 06, 07, 12, 14, 16 και 17 δεν έχουν αντίστοιχη σκηνή XR. Στο GeoGebra οι αριθμοί στους ολισθητές και στους άξονες εμφανίζονται με τελεία, ενώ τα κείμενα του πίνακα έχουν κόμμα.
