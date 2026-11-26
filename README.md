@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -50,6 +50,7 @@
 | Μέτρηση κύκλου (`metrisi-kyklou.html`) | Γ΄ Γυμνασίου, Μέτρηση κύκλου (κανονικά πολύγωνα, μήκος κύκλου και τόξου, εμβαδόν δίσκου και τομέα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Πραγματικοί αριθμοί και ρίζες (`pragmatikoi-rizes.html`) | Β΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 2 (τετραγωνική ρίζα, άρρητοι και πραγματικοί αριθμοί, προβλήματα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Αλγεβρικές παραστάσεις (`algebrikes-parastaseis.html`) | Β΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 1 (§1.1 Η έννοια της μεταβλητής – Αλγεβρικές παραστάσεις και §1.3 Επίλυση τύπων) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
+| Τριγωνομετρία οξείας γωνίας (`trigonometria-oxeias-gonias.html`) | Β΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 2 (§2.1 Εφαπτομένη, §2.2 Ημίτονο και συνημίτονο οξείας γωνίας, §2.3 Μεταβολές, §2.4 Οι γωνίες 30°, 45° και 60°) και εφαρμογές | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Διανύσματα (`dianysmata.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 1 (§1.1 έως §1.5) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Η ευθεία στο επίπεδο (`eutheia.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 2 (§2.1 έως §2.3) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μετρικές σχέσεις (`metrikes-scheseis.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 9 (§9.1 έως §9.5 και §9.7) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
@@ -70,7 +71,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -1162,5 +1163,45 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
   8. Επίλυση τύπου: F = 1,8 · C + 32 και C = (F − 32) / 1,8, με σημείο πάνω στην ευθεία.
   9. Επίλυση τύπου: Ε = ½ · β · υ και υ = 2Ε / β, με τρίγωνο και ύψος.
 - Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι εννέα σκηνές, ακραίες τιμές όλων των ολισθητών). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+## Τριγωνομετρία οξείας γωνίας στο Κέντρο Καινοτομίας (σενάριο 33, Β΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 2, §2.1 έως §2.4)
+
+Συνοδεύει τις 13 εφαρμογές GeoGebra «Τριγωνομετρία οξείας γωνίας - …» του σεναρίου (αρχεία `.ggb` για ανέβασμα στο geogebra.org). Οι παράγραφοι είναι του βιβλίου «Μαθηματικά Β΄ Γυμνασίου» (Μέρος Β, Κεφάλαιο 2 «Τριγωνομετρία – Διανύσματα»). Κατά τις Οδηγίες 2024-25 διδάσκονται οι §2.1 και §2.2 (4 + 4 ώρες, χωρίς την παρατήρηση β της σελίδας 143), ενώ από την §2.3 επιλέγονται ασκήσεις με τον πίνακα των τριγωνομετρικών αριθμών και οι γωνίες 45°, 30° και 60° δίνονται ως εφαρμογές. Οι Οδηγίες 2026-27 δεν έχουν ελεγχθεί.
+
+| # | Εφαρμογή GeoGebra | Παράγραφος |
+|---|---|---|
+| 01 | Ίδια γωνία, ίδιος λόγος | §2.1 |
+| 02 | Η εφαπτομένη ως κλίση της ευθείας y = αx | §2.1 |
+| 03 | Η κλίση του δρόμου | Εφαρμογή των §2.1 και §2.2 |
+| 04 | Ημίτονο, συνημίτονο και εφαπτομένη | §2.2 |
+| 05 | Κατασκευή γωνίας από τον λόγο | §2.1 και §2.2 (Εφαρμογή 2) |
+| 06 | Ο κύκλος με ακτίνα 1 και οι μεταβολές | §2.3 |
+| 07 | Ο πίνακας των τριγωνομετρικών αριθμών | §2.3 |
+| 08 | Η γωνία 45° | §2.4 |
+| 09 | Οι γωνίες 30° και 60° | §2.4 |
+| 10 | Το ύψος του δέντρου | Εφαρμογή: γωνία ανύψωσης |
+| 11 | Η σκάλα στον τοίχο | Εφαρμογή: ημίτονο και συνημίτονο |
+| 12 | Ο φάρος και το πλοίο | Εφαρμογή: γωνία κατάδυσης |
+| 13 | Το πλάτος του ποταμού | Εφαρμογή: μέτρηση απόστασης |
+
+Χρώματα (ίδια σε GeoGebra και XR): απέναντι κάθετη και ημίτονο κόκκινα, προσκείμενη κάθετη και συνημίτονο μπλε, υποτείνουσα μωβ, εφαπτομένη και κλίση πράσινες, γωνία ω και ολισθητές πορτοκαλί, δεύτερη οξεία γωνία γαλαζοπράσινη.
+
+- `trigonometria-oxeias-gonias.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/trigonometria-oxeias-gonias.html. Είναι ένα αυτόνομο αρχείο (η σκηνή είναι μέσα, το three.js 0.160.0 φορτώνεται από CDN).
+  Η διεύθυνση `trigonometria-oxeias-gonias.html?k=3` ανοίγει κατευθείαν μια σκηνή (από 0 έως 8). Δεν υπάρχει μοντέλο `.glb`. Τα μοντέλα έχουν πραγματικό μέγεθος περίπου 60 εκατοστά, για να κάθονται στο θρανίο.
+- Οι ολισθητές είναι HTML στην οθόνη και στο AR του tablet (DOM overlay): στο AR ο κύκλος-στόχος δείχνει την επιφάνεια και το πάτημα στο θρανίο τοποθετεί τη σκηνή, ενώ το κουμπί «Επανατοποθέτηση» την ξαναφέρνει μπροστά. Στα γυαλιά εμφανίζεται 3D πίνακας αριστερά από τη σκηνή, με τα κουμπιά ◀ ▶ (σκηνή) και − + (παράμετροι), που τα πατάς με την ακτίνα του χειριστηρίου ή με τσίμπημα. Η σκανδάλη έξω από τον πίνακα φέρνει την επόμενη σκηνή, το πλαϊνό κουμπί ξαναφέρνει τη σκηνή μπροστά σου, και ο μοχλός αριστερά και δεξιά αλλάζει την τιμή, πάνω και κάτω το μέγεθος. Στο VR του Meta Quest 3 η σκηνή στέκεται πάνω σε θρανίο. Στην οθόνη του υπολογιστή: σύρσιμο για περιστροφή, τροχός για μεγέθυνση.
+- Εννέα σκηνές:
+  0. Ίδια γωνία, ίδιος λόγος: τρία ορθογώνια τρίγωνα σε διαφορετικό βάθος, με την ίδια γωνία ω και τον ίδιο λόγο ΑΔ/ΟΑ = ΒΕ/ΟΒ = ΓΖ/ΟΓ = εφω (ω από 10° έως 70°).
+  1. Η κλίση του δρόμου: δρόμος με κλίση p % (1 έως 30), πινακίδα και πεζός που ανεβαίνει s·ημω μετά από s μέτρα πάνω στον δρόμο.
+  2. Ημίτονο, συνημίτονο και εφαπτομένη: ορθογώνιο τρίγωνο ΑΒΓ με Α = 90°, γωνία Β = ω και υποτείνουσα ΒΓ από 10 έως 40 cm.
+  3. Ο κύκλος με ακτίνα 1: Μ(συνω, ημω), το εφαπτόμενο τμήμα ΑΤ = εφω και τρεις ράβδοι που δείχνουν πώς μεταβάλλονται τα ημω, συνω, εφω.
+  4. Οι γωνίες 30°, 45° και 60°: το μισό τετράγωνο (1, 1, √2) και το μισό ισόπλευρο τρίγωνο (1, √3, 2).
+  5. Το ύψος του δέντρου: γωνία ανύψωσης ω και απόσταση d, Η = 1,60 + d · εφω.
+  6. Η σκάλα στον τοίχο: h = L · ημω και d = L · συνω, με τον κανόνα «1 προς 4» (ω ≈ 76°).
+  7. Ο φάρος και το πλοίο: γωνία κατάδυσης ω, ίση με τη γωνία ανύψωσης από το πλοίο, d = H / εφω.
+  8. Το πλάτος του ποταμού: κάτοψη στο θρανίο, ΑΔ = d · εφω.
+- Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι εννέα σκηνές, ακραίες τιμές όλων των ολισθητών, χωρίς NaN). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
 
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
