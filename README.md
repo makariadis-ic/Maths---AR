@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -48,6 +48,7 @@
 | Μεσοκάθετος, συμμετρία και παράλληλες (`symmetria-paralliles.html`) | Α΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 2 (§2.3 έως §2.6) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Στερεά και όγκοι (`sterea-ogkoi.html`) | Γ΄ Γυμνασίου, Στερεά και όγκοι | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μέτρηση κύκλου (`metrisi-kyklou.html`) | Γ΄ Γυμνασίου, Μέτρηση κύκλου (κανονικά πολύγωνα, μήκος κύκλου και τόξου, εμβαδόν δίσκου και τομέα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
+| Πραγματικοί αριθμοί και ρίζες (`pragmatikoi-rizes.html`) | Β΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 2 (τετραγωνική ρίζα, άρρητοι και πραγματικοί αριθμοί, προβλήματα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Διανύσματα (`dianysmata.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 1 (§1.1 έως §1.5) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Η ευθεία στο επίπεδο (`eutheia.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 2 (§2.1 έως §2.3) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μετρικές σχέσεις (`metrikes-scheseis.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 9 (§9.1 έως §9.5 και §9.7) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
@@ -68,7 +69,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -979,6 +980,29 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
   7. Οι μηνίσκοι του Ιπποκράτη: το άθροισμα των δύο μηνίσκων ισούται με το εμβαδόν του τριγώνου.
   8. Γραμμοσκιασμένα χωρία: κύκλος σε τετράγωνο, τετράγωνο σε κύκλο, εξάγωνο σε κύκλο (k = 1, 2, 3).
 - Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (399 συνδυασμοί τιμών, οι αριθμοί συμφωνούν με τους τύπους). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+## Πραγματικοί αριθμοί και ρίζες στο Κέντρο Καινοτομίας (σενάριο 31, Β΄ Γυμνασίου)
+
+Συνοδεύει τις 13 εφαρμογές GeoGebra «Πραγματικοί αριθμοί και ρίζες - …» του σεναρίου. Οι παράγραφοι του βιβλίου (Μέρος Α, Κεφάλαιο 2: §2.1 Τετραγωνική ρίζα θετικού αριθμού, §2.2 Άρρητοι αριθμοί – Πραγματικοί αριθμοί, §2.3 Προβλήματα) επαληθεύτηκαν από δύο πηγές στο διαδίκτυο. Δεν έχουν ελεγχθεί οι Οδηγίες 2026-27.
+
+- `pragmatikoi-rizes.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/pragmatikoi-rizes.html. Είναι ένα αυτόνομο αρχείο (η σκηνή είναι μέσα, το three.js 0.160.0 φορτώνεται από CDN).
+  Η διεύθυνση `pragmatikoi-rizes.html?k=3` ανοίγει κατευθείαν μια κατάσταση (από 0 έως 8). Χρώματα όπως στις εφαρμογές GeoGebra.
+  Δεν υπάρχει μοντέλο `.glb`: τα tablet Samsung χρησιμοποιούν το WebXR AR ή την προβολή 3D της σελίδας.
+- Οι ολισθητές είναι HTML στην οθόνη και στο AR του tablet (DOM overlay). Στα γυαλιά εμφανίζεται 3D πάνελ με κουμπιά ◀ ▶ (κατάσταση) και −−, −, +, ++ (παράμετροι) και τα πατάς με την ακτίνα του χειριστηρίου και τη σκανδάλη. Στο AR η σκηνή τοποθετείται με πάτημα στο δάπεδο ή στο θρανίο (hit-test), και το κουμπί «Επανατοποθέτηση στο δάπεδο» την ξαναβάζει. Στην οθόνη του υπολογιστή: σύρσιμο για περιστροφή, τροχός για μεγέθυνση.
+- Εννέα καταστάσεις, ίδιες με τις εφαρμογές GeoGebra (το εκκρεμές και η σκάλα είναι τα δύο προβλήματα της §2.3):
+  0. Το τετράγωνο και η πλευρά του: Ε από 0,25 έως 36, πλευρά √Ε και το μεγαλύτερο τετράγωνο με ακέραια πλευρά.
+  1. Μεταξύ ποιων ακεραίων βρίσκεται η ρίζα: Ν από 1 έως 100, k² ≤ Ν < (k + 1)², k ≤ √Ν < k + 1.
+  2. Τα δεκαδικά ψηφία της ρίζας: x και n (από 0 έως 6), το διάστημα L < √x < U που στενεύει.
+  3. Η διαγώνιος του τετραγώνου και το √2: η διαγώνιος στρέφεται πάνω στην ευθεία των αριθμών και το τετράγωνό της έχει εμβαδόν 2.
+  4. Η σπείρα των ριζών: έως 16 ορθογώνια τρίγωνα, υποτείνουσες √2, √3, …, √17.
+  5. Σε ποιο σύνολο ανήκει ο αριθμός: δώδεκα αριθμοί και τα σύνολα ℕ ⊂ ℤ ⊂ ℚ ⊂ ℝ ως ομόκεντροι δίσκοι.
+  6. Ο χρυσός λόγος: έως 9 τετράγωνα που αφαιρούνται από ορθογώνιο φ × 1 και η σπείρα, φ = (1 + √5) / 2.
+  7. Η σκάλα στον τοίχο: h = √(L² − d²) με L και d.
+  8. Η περίοδος του εκκρεμούς: T = 2π√(L / g), με κινούμενο εκκρεμές.
+- Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (ακραίες και ενδιάμεσες τιμές όλων των ολισθητών, χωρίς NaN). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
 
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
 

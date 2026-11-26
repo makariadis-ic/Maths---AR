@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Πραγματικοί αριθμοί και ρίζες | Κέντρο Καινοτομίας Θεσσαλίας</title>
+<style>
+  :root{--bg:#0e1420;--panel:#17263c;--line:#2a3b55;--tx:#e8eef7;--mut:#9fb0c6;--or:#E36C09}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--tx);font-family:Arial,Helvetica,sans-serif;overflow:hidden}
+  canvas#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  #ui{position:fixed;left:0;top:0;bottom:0;width:min(420px,100%);padding:12px;overflow:auto;pointer-events:none}
+  #ui .box{pointer-events:auto;background:rgba(23,38,60,.92);border:1px solid var(--line);border-radius:10px;padding:12px;margin-bottom:10px}
+  h1{font-size:17px;margin:0 0 2px;color:#fff}
+  .sub{font-size:12px;color:var(--mut);margin:0}
+  .par{font-size:12px;color:var(--mut);margin:2px 0 0}
+  select,button{font:inherit;color:var(--tx);background:#0e1626;border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+  select{width:100%}
+  button{cursor:pointer}
+  button.pri{background:#1F6FB2;border-color:#1F6FB2;color:#fff}
+  button:disabled{opacity:.4;cursor:default}
+  .row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
+  .row button{flex:1}
+  .sl{margin-top:10px}
+  .sl label{display:block;font-size:13px;color:var(--or);margin-bottom:4px}
+  .sl input{width:100%;accent-color:var(--or)}
+  .info div{font-size:14px;margin:5px 0;line-height:1.35}
+  #msg{font-size:12px;color:var(--mut);margin-top:8px}
+  body.xr #ui .box.hideInXR{display:none}
+  @media (max-width:640px){#ui{width:100%;max-height:48vh;top:auto}}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">
+  <div class="box" id="head">
+    <h1>Πραγματικοί αριθμοί και ρίζες</h1>
+    <p class="sub">Κέντρο Καινοτομίας Θεσσαλίας, Μαθηματικά Β΄ Γυμνασίου</p>
+    <p class="par" id="par"></p>
+    <div style="margin-top:8px"><select id="sel" aria-label="Κατάσταση"></select></div>
+    <div class="row"><button id="prev">◀ Προηγούμενη</button><button id="next">Επόμενη ▶</button></div>
+  </div>
+  <div class="box" id="ctl"><div id="sliders"></div></div>
+  <div class="box info" id="info"></div>
+  <div class="box" id="xrbox">
+    <div class="row"><button class="pri" id="bAR" disabled>Είσοδος σε AR</button><button class="pri" id="bVR" disabled>Είσοδος σε VR</button></div>
+    <div class="row"><button id="bReset" style="display:none">Επανατοποθέτηση στο δάπεδο</button></div>
+    <div id="msg"></div>
+  </div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+
+/* ---------- Χρώματα (ίδια με τις εφαρμογές GeoGebra) ---------- */
+const COL={BLUE:0x1F6FB2,GREEN:0x2E9E4F,RED:0xC0392B,ORANGE:0xE36C09,PURPLE:0x7B4FA0,TEAL:0x12898B,GRAY:0x6B7785,GOLD:0xC99A1B,LGRAY:0xB8C0CC};
+const hex=c=>'#'+c.toString(16).padStart(6,'0');
+const fmt=(x,d=3)=>{let s=(+x).toFixed(d); if(s.indexOf('.')>=0) s=s.replace(/0+$/,'').replace(/\.$/,''); return s.replace('.',',').replace('-','−');};
+const fmtN=(x,d)=>(+x).toFixed(d).replace('.',',');
+
+/* ---------- Σκηνή ---------- */
+const canvas=document.getElementById('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.xr.enabled=true;
+const scene=new THREE.Scene(); scene.background=new THREE.Color(0x0e1420);
+const camera=new THREE.PerspectiveCamera(50,1,0.01,100);
+scene.add(new THREE.HemisphereLight(0xffffff,0x334455,1.1));
+const dl=new THREE.DirectionalLight(0xffffff,1.3); dl.position.set(3,6,4); scene.add(dl);
+const world=new THREE.Group(); scene.add(world);      // τοποθετείται στο δάπεδο ή στο θρανίο
+const root=new THREE.Group(); world.add(root);        // κλίμακα 1 μονάδα = 3 cm
+const UNIT=0.03; root.scale.setScalar(UNIT);
+const dyn=new THREE.Group(); root.add(dyn);
+{ const b=new THREE.Mesh(new THREE.BoxGeometry(16,0.4,10),new THREE.MeshStandardMaterial({color:0x17263c,roughness:.8}));
+  b.position.y=-0.2; root.add(b);
+  const g=new THREE.GridHelper(16,16,0x2a3b55,0x22324a); g.scale.z=10/16; g.position.y=0.01; root.add(g); }
+
+/* ---------- Εργαλεία σχεδίασης ---------- */
+const W=(x,y,h=0)=>new THREE.Vector3(x,h,-y);                // (x,y) του πίνακα, ύψος h
+const mat=(c,o=1)=>new THREE.MeshStandardMaterial({color:c,roughness:.55,metalness:.05,transparent:o<1,opacity:o});
+function slab(pts,h,c,o=.7,y0=0){ const sh=new THREE.Shape(pts.map(p=>new THREE.Vector2(p[0],p[1])));
+  const m=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:h,bevelEnabled:false}),mat(c,o)); m.rotation.x=-Math.PI/2; m.position.y=y0; dyn.add(m); return m; }
+function bar3(a,b,r,c){ const d=b.clone().sub(a),L=d.length(); if(L<1e-6) return null;
+  const m=new THREE.Mesh(new THREE.CylinderGeometry(r,r,L,10),mat(c)); m.position.copy(a.clone().add(b).multiplyScalar(.5));
+  m.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),d.normalize()); dyn.add(m); return m; }
+const bar=(a,b,r,c,h=.2)=>bar3(W(a[0],a[1],h),W(b[0],b[1],h),r,c);
+function ball(p,r,c,h=.3){ const m=new THREE.Mesh(new THREE.SphereGeometry(r,20,14),mat(c)); m.position.copy(W(p[0],p[1],h)); dyn.add(m); return m; }
+const tcache={};
+function label(text,pos,size=1.1,col='#ffffff',h=.5){ const key=text+col; let t=tcache[key];
+  if(!t){ const cv=document.createElement('canvas'),x=cv.getContext('2d'); x.font='bold 64px Arial'; const w=Math.ceil(x.measureText(text).width)+24; cv.width=w; cv.height=96;
+    x.font='bold 64px Arial'; x.fillStyle=col; x.textBaseline='middle'; x.textAlign='center'; x.fillText(text,w/2,50);
+    const tex=new THREE.CanvasTexture(cv); tex.colorSpace=THREE.SRGBColorSpace; t=tcache[key]={tex,ar:w/96}; }
+  const s=new THREE.Sprite(new THREE.SpriteMaterial({map:t.tex,transparent:true,depthTest:false})); s.scale.set(size*t.ar,size,1);
+  s.position.copy(W(pos[0],pos[1],h)); s.renderOrder=10; dyn.add(s); return s; }
+function tube(pts,r,c){ if(pts.length<2) return; const cu=new THREE.CatmullRomCurve3(pts); const m=new THREE.Mesh(new THREE.TubeGeometry(cu,Math.max(8,pts.length*2),r,8),mat(c)); dyn.add(m); }
+function clear(){ while(dyn.children.length){ const o=dyn.children.pop(); o.geometry&&o.geometry.dispose(); } }
+let tickFn=null;
+
+/* ---------- Οι καταστάσεις ---------- */
+const sq=(x,y,s)=>[[x,y],[x+s,y],[x+s,y+s],[x,y+s]];
+const SC=[
+ { name:'Το τετράγωνο και η πλευρά του', par:'§ 2.1 Τετραγωνική ρίζα θετικού αριθμού',
+   P:[{k:'E',lab:'Εμβαδόν Ε',min:.25,max:36,step:.25,def:7}],
+   build(p){ const E=p.E,s=Math.sqrt(E),k=Math.floor(s),ox=-6,oy=-3.5;
+     slab(sq(ox,oy,s),.5,COL.BLUE,.6); slab(sq(ox,oy,k),.9,COL.GREEN,.75);
+     bar([ox,oy-.6],[ox+s,oy-.6],.12,COL.BLUE);
+     label('√Ε = '+fmt(s),[ox+s/2,oy-1.5],1.2,hex(COL.BLUE));
+     if(k>0) label('Πλευρά '+k,[ox+k/2,oy+k/2],.9,'#ffffff',1.3);
+     return [{t:'Η πλευρά του τετραγώνου με εμβαδόν Ε = '+fmt(E)+' είναι'},{t:'√Ε = '+fmt(s),c:COL.BLUE,b:1},{t:'Το πράσινο τετράγωνο έχει πλευρά '+k+' και εμβαδόν '+k*k,c:COL.GREEN}]; } },
+ { name:'Μεταξύ ποιων ακεραίων βρίσκεται η ρίζα', par:'§ 2.1 Τετραγωνική ρίζα θετικού αριθμού',
+   P:[{k:'N',lab:'Αριθμός Ν',min:1,max:100,step:1,def:55}],
+   build(p){ const N=p.N,s=Math.sqrt(N),k=Math.floor(s),X=v=>-7+1.4*v;
+     bar([X(0),0],[X(10),0],.1,COL.LGRAY);
+     for(let i=0;i<=10;i++){ bar([X(i),-.35],[X(i),.35],.06,COL.LGRAY); label(''+i,[X(i),-1.2],.9); }
+     bar([X(k),0],[X(k+1),0],.2,COL.GREEN); ball([X(s),0],.4,COL.RED,.4);
+     bar([X(s),.2],[X(s),2.6],.05,COL.RED);
+     label('√'+N+' = '+fmt(s),[X(s),3.5],1.1,hex(COL.RED));
+     return [{t:'Ν = '+N+' και ο Ν βρίσκεται μεταξύ των τετραγώνων'},{t:k*k+' ≤ '+N+' < '+(k+1)*(k+1),c:COL.GREEN,b:1},{t:'Άρα '+k+' ≤ √'+N+' < '+(k+1),c:COL.BLUE,b:1},{t:'Ακριβής τιμή: √'+N+' = '+fmt(s),c:COL.RED},
+       {t:k*k===N?'Ο '+N+' είναι τέλειο τετράγωνο: η ρίζα του είναι ακέραιος':'Ο '+N+' δεν είναι τέλειο τετράγωνο: η ρίζα του δεν είναι ακέραιος'}]; } },
+ { name:'Τα δεκαδικά ψηφία της ρίζας', par:'§ 2.2 Άρρητοι αριθμοί – Πραγματικοί αριθμοί',
+   P:[{k:'w',lab:'Ο αριθμός x',min:2,max:50,step:1,def:2},{k:'n',lab:'Δεκαδικά ψηφία n',min:0,max:6,step:1,def:2}],
+   build(p){ const w=p.w,n=p.n,s=Math.sqrt(w),f=Math.pow(10,n),L=Math.floor(s*f+1e-9)/f,U=L+1/f,X=v=>-6+12*v;
+     bar([X(0),0],[X(1),0],.1,COL.LGRAY); bar([X(0),-.5],[X(0),.5],.12,0xffffff); bar([X(1),-.5],[X(1),.5],.12,0xffffff);
+     for(let i=1;i<10;i++) bar([X(i/10),-.25],[X(i/10),.25],.06,COL.LGRAY);
+     const t=(s-L)/(U-L); ball([X(t),0],.4,COL.RED,.4);
+     label(fmtN(L,n),[X(0),-1.3],1),label(fmtN(U,n),[X(1),-1.3],1);
+     label(fmt(s,8),[X(t),1.6],1.1,hex(COL.RED));
+     return [{t:'Με n = '+n+' δεκαδικά ψηφία η τιμή √'+w+' εγκλωβίζεται:'},{t:fmtN(L,n)+' < √'+w+' < '+fmtN(U,n),c:COL.BLUE,b:1},{t:'Μήκος διαστήματος: '+fmt(1/f,6),c:COL.GRAY},{t:'√'+w+' = '+fmt(s,7)+'…',c:COL.RED,b:1},
+       {t:Math.floor(s)**2===w?'Ο x είναι τέλειο τετράγωνο: το διάστημα συγκλίνει στον '+Math.sqrt(w):'Άρρητος: το διάστημα στενεύει, η ακριβής τιμή δεν εμφανίζεται'}]; } },
+ { name:'Η διαγώνιος του τετραγώνου και το √2', par:'§ 2.2 Άρρητοι αριθμοί – Πραγματικοί αριθμοί',
+   P:[{k:'t',lab:'Περιστροφή t',min:0,max:1,step:.01,def:0}],
+   build(p){ const a=3,ox=-5,oy=-3,r2=Math.SQRT2*a,th=Math.PI/4*(1-p.t);
+     slab([[ox,oy],[ox+a,oy+a],[ox,oy+2*a],[ox-a,oy+a]],.2,COL.GOLD,.3);
+     slab(sq(ox,oy,a),.5,COL.BLUE,.6);
+     bar([ox-1.5,oy],[ox+10,oy],.1,COL.LGRAY);
+     for(let i=0;i<=3;i++){ bar([ox+a*i,oy-.3],[ox+a*i,oy+.3],.06,COL.LGRAY); label(''+i,[ox+a*i,oy-1.1],.9,'#6fdc8c'); }
+     for(let u=0;u<=20;u++){ const q=Math.PI/4*u/20; ball([ox+r2*Math.cos(q),oy+r2*Math.sin(q)],.07,COL.RED,.2); }
+     bar([ox,oy],[ox+r2*Math.cos(th),oy+r2*Math.sin(th)],.2,COL.RED,.6); ball([ox+r2*Math.cos(th),oy+r2*Math.sin(th)],.4,COL.RED,.6);
+     label('√2',[ox+r2,oy-1.2],1,hex(COL.RED));
+     return [{t:'Η διαγώνιος του τετραγώνου με πλευρά 1 έχει μήκος'},{t:'δ = √(1² + 1²) = √2 = '+fmt(Math.SQRT2,6)+'…',c:COL.RED,b:1},{t:'Το τετράγωνο της διαγωνίου (χρυσό) έχει εμβαδόν 2',c:COL.GOLD},{t:'Ο √2 δεν γράφεται ως κλάσμα ακεραίων: είναι άρρητος'}]; } },
+ { name:'Η σπείρα των ριζών', par:'§ 2.2 Άρρητοι αριθμοί – Πραγματικοί αριθμοί',
+   P:[{k:'n',lab:'Αριθμός τριγώνων n',min:1,max:16,step:1,def:6}],
+   build(p){ const n=p.n,a=1.7; let ph=0,prev=[a,0]; ball([0,0],.25,COL.LGRAY);
+     for(let k=1;k<=n;k++){ ph+=Math.atan(1/Math.sqrt(k)); const r=Math.sqrt(k+1)*a,pt=[r*Math.cos(ph),r*Math.sin(ph)];
+       slab([[0,0],prev,pt],.15,COL.BLUE,.55); bar([0,0],pt,k===n?.16:.07,k===n?COL.RED:COL.GREEN,.3); bar(prev,pt,.05,COL.LGRAY,.3); ball(pt,.15,0xffffff,.3); prev=pt; }
+     const m=Math.sqrt(n+1);
+     return [{t:'Κάθε τρίγωνο είναι ορθογώνιο με μια κάθετη πλευρά 1'},{t:'Η υποτείνουσα του τριγώνου '+n+' είναι'},{t:'√'+(n+1)+' = '+fmt(m),c:COL.RED,b:1},
+       {t:Number.isInteger(m)?'Εδώ ο √'+(n+1)+' είναι ακέραιος: '+m:'Εδώ ο √'+(n+1)+' είναι άρρητος'},{t:'Οι υποτείνουσες √2, √3, √5, √6, … είναι όλες άρρητοι, εκτός από τις √4, √9, √16',c:COL.GRAY}]; } },
+ { name:'Σε ποιο σύνολο ανήκει ο αριθμός', par:'§ 2.2 Άρρητοι αριθμοί – Πραγματικοί αριθμοί',
+   P:[{k:'ix',lab:'Αριθμός νο.',min:1,max:12,step:1,def:7}],
+   build(p){ const V=[-3,0,7,.5,.75,3,Math.SQRT2,Math.PI,-Math.sqrt(5),.5,22/7,Math.sqrt(8)],NM=['−3','0','7','1/2','0,75','√9','√2','π','−√5','√(1/4)','22/7','√8'],IRR=[0,0,0,0,0,0,1,1,1,0,0,1];
+     const v=V[p.ix-1],nm=NM[p.ix-1],cl=IRR[p.ix-1]?4:(Math.abs(v-Math.round(v))>1e-9?3:(v<0?2:1));
+     const E=[[7,3.8,COL.GRAY,.12,'ℝ',3.3],[5.5,3,COL.TEAL,.24,'ℚ',2.6],[4,2.2,COL.BLUE,.36,'ℤ',1.9],[2.4,1.2,COL.GREEN,.48,'ℕ',.8]];
+     E.forEach(e=>{ const m=new THREE.Mesh(new THREE.CylinderGeometry(1,1,e[3],64),mat(e[2],.55)); m.scale.set(e[0],1,e[1]); m.position.y=e[3]/2; dyn.add(m); label(e[4],[e[4]==='ℕ'?0:-(e[0]+(e[4]==='ℝ'?5.5:e[4]==='ℚ'?4:2.4))/2,0],.9,'#ffffff',e[3]+.4); });
+     const X=[0,3.2,4.75,6.25][cl-1]; ball([X,0],.45,COL.RED,.9); label(nm,[X,1.3],1.1,hex(COL.RED),1);
+     return [{t:'Αριθμός: '+nm+' = '+fmt(v),c:COL.BLUE,b:1},{t:'Φυσικός (ℕ): '+(cl===1?'ναι':'όχι'),c:COL.GREEN},{t:'Ακέραιος (ℤ): '+(cl<=2?'ναι':'όχι'),c:COL.BLUE},{t:'Ρητός (ℚ): '+(cl<=3?'ναι':'όχι'),c:COL.TEAL},{t:'Άρρητος: '+(cl===4?'ναι':'όχι'),c:COL.RED},{t:'Πραγματικός (ℝ): ναι',c:COL.GRAY}]; } },
+ { name:'Ο χρυσός λόγος', par:'§ 2.2 Άρρητοι αριθμοί – Πραγματικοί αριθμοί',
+   P:[{k:'n',lab:'Αριθμός τετραγώνων n',min:0,max:9,step:1,def:5}],
+   build(p){ const phi=(1+Math.sqrt(5))/2,sc=6,ox=-5,oy=-3,cols=[COL.BLUE,COL.GREEN,COL.TEAL,COL.PURPLE],dirs=['L','T','R','B'];
+     let r={x0:0,y0:0,x1:phi,y1:1},S=[0,0],sp=[]; const P=(x,y)=>[ox+sc*x,oy+sc*y];
+     const rc=[P(0,0),P(phi,0),P(phi,1),P(0,1)]; for(let i=0;i<4;i++) bar(rc[i],rc[(i+1)%4],.07,COL.LGRAY,.3);
+     for(let k=1;k<=p.n;k++){ const w=r.x1-r.x0,h=r.y1-r.y0,s=Math.min(w,h),d=dirs[(k-1)%4]; let q;
+       if(d==='L'){q={x0:r.x0,y0:r.y0,x1:r.x0+s,y1:r.y1};r={...r,x0:r.x0+s};} else if(d==='T'){q={x0:r.x0,y0:r.y1-s,x1:r.x1,y1:r.y1};r={...r,y1:r.y1-s};}
+       else if(d==='R'){q={x0:r.x1-s,y0:r.y0,x1:r.x1,y1:r.y1};r={...r,x1:r.x1-s};} else {q={x0:r.x0,y0:r.y0,x1:r.x1,y1:r.y0+s};r={...r,y0:r.y0+s};}
+       const cs=[[q.x0,q.y0],[q.x1,q.y0],[q.x1,q.y1],[q.x0,q.y1]],eq=(a,b)=>Math.abs(a[0]-b[0])<1e-9&&Math.abs(a[1]-b[1])<1e-9;
+       const st=cs.find(c=>eq(c,S)),E=cs.find(c=>Math.abs(Math.abs(c[0]-st[0])-s)<1e-9&&Math.abs(Math.abs(c[1]-st[1])-s)<1e-9);
+       const adj=cs.filter(c=>c!==st&&c!==E); let C=adj[0]; if((st[0]-C[0])*(E[1]-C[1])-(st[1]-C[1])*(E[0]-C[0])>0) C=adj[1];
+       slab(cs.map(c=>P(c[0],c[1])),.2+.03*k,cols[(k-1)%4],.6);
+       let a0=Math.atan2(st[1]-C[1],st[0]-C[0]); const rad=s; for(let u=0;u<=16;u++){ const aa=a0-Math.PI/2*u/16; sp.push(W(...P(C[0]+rad*Math.cos(aa),C[1]+rad*Math.sin(aa)),.8)); }
+       S=E; }
+     if(sp.length>1){ const cu=new THREE.CatmullRomCurve3(sp.map(v=>v.clone()),false); const m=new THREE.Mesh(new THREE.TubeGeometry(cu,sp.length*2,.09,8),mat(COL.RED)); dyn.add(m); }
+     return [{t:'Το ορθογώνιο έχει διαστάσεις φ και 1, με'},{t:'φ = (1 + √5) / 2 = '+fmt(phi,6),c:COL.BLUE,b:1},{t:'Κάθε τετράγωνο που αφαιρούμε αφήνει ορθογώνιο με τον ίδιο λόγο φ'},{t:'φ² = '+fmt(phi*phi,6)+' = φ + 1 = '+fmt(phi+1,6),c:COL.RED},{t:'Ο φ είναι άρρητος, γιατί περιέχει τον √5',c:COL.GRAY}]; } },
+ { name:'Η σκάλα στον τοίχο', par:'§ 2.3 Προβλήματα',
+   P:[{k:'L',lab:'Μήκος σκάλας L (m)',min:6.5,max:12,step:.5,def:10},{k:'d',lab:'Απόσταση από τον τοίχο d (m)',min:.5,max:6,step:.5,def:3}],
+   build(p){ const L=p.L,d=p.d,h=Math.sqrt(L*L-d*d),a=.7,ox=-2,oy=-4.2;
+     slab([[ox-2,oy],[ox,oy],[ox,oy+9],[ox-2,oy+9]],.6,COL.GRAY,.55); slab([[ox-2,oy-.5],[ox+9,oy-.5],[ox+9,oy],[ox-2,oy]],.6,COL.GRAY,.55);
+     bar([ox+d*a,oy],[ox,oy+h*a],.16,COL.RED,.7); ball([ox+d*a,oy],.25,COL.RED,.7); ball([ox,oy+h*a],.25,COL.RED,.7);
+     bar([ox,oy-1.1],[ox+d*a,oy-1.1],.1,COL.BLUE,.3); bar([ox-.9,oy],[ox-.9,oy+h*a],.1,COL.GREEN,.9);
+     label('d = '+fmt(d),[ox+d*a/2,oy-2],.9,hex(COL.BLUE)); label('h = '+fmt(h),[ox+1.3,oy+h*a/2],1,'#6fdc8c',.9); label('L = '+fmt(L),[ox+d*a/2+1.4,oy+h*a/2+.6],.9,hex(COL.RED),.9);
+     return [{t:'Η σκάλα ακουμπά στον τοίχο και στο έδαφος σχηματίζοντας ορθογώνιο τρίγωνο'},{t:'h = √(L² − d²) = √('+fmt(L*L)+' − '+fmt(d*d)+')'},{t:'h = √'+fmt(L*L-d*d)+' = '+fmt(h)+' m',c:COL.GREEN,b:1},
+       {t:Math.abs(h-Math.round(h))<5e-4?'Ακέραιο ύψος: τριάδα Πυθαγόρα ('+fmt(d)+', '+Math.round(h)+', '+fmt(L)+')':'Το ύψος δεν είναι ακέραιος αριθμός',c:COL.GRAY}]; } },
+ { name:'Η περίοδος του εκκρεμούς', par:'§ 2.3 Προβλήματα',
+   P:[{k:'L',lab:'Μήκος L (m)',min:.1,max:4,step:.05,def:1}],
+   build(p){ const L=p.L,T=2*Math.PI*Math.sqrt(L/9.81),s=1.9,piv=W(0,0,8.4);
+     bar3(W(-1.6,0,8.4),W(1.6,0,8.4),.14,COL.GRAY); bar3(W(0,0,8.4),W(0,0,0),.02,0x3a4b66);
+     const rod=bar3(W(0,0,8.4),W(0,0,8.4-L*s),.05,COL.LGRAY); dyn.remove(rod);
+     const rodM=new THREE.Mesh(new THREE.CylinderGeometry(.05,.05,1,8),mat(COL.LGRAY)); dyn.add(rodM);
+     const bob=new THREE.Mesh(new THREE.SphereGeometry(.45,20,14),mat(COL.PURPLE)); dyn.add(bob);
+     const up=new THREE.Vector3(0,1,0);
+     tickFn=(t)=>{ const th=.3*Math.cos(2*Math.PI*t/T),B=new THREE.Vector3(L*s*Math.sin(th),8.4-L*s*Math.cos(th),0);
+       bob.position.copy(B); const dv=B.clone().sub(piv),len=dv.length(); rodM.scale.set(1,len,1); rodM.position.copy(piv.clone().add(B).multiplyScalar(.5)); rodM.quaternion.setFromUnitVectors(up,dv.normalize()); };
+     label('T = '+fmt(T,3)+' s',[4.5,0],1.2,hex(COL.PURPLE),3);
+     return [{t:'Περίοδος: T = 2π·√(L / g), με g = 9,81 m/s²'},{t:'T = 2π·√('+fmt(L)+' / 9,81) = '+fmt(T)+' s',c:COL.PURPLE,b:1},{t:'Συχνότητα f = 1/T = '+fmt(1/T)+' Hz',c:COL.BLUE},{t:'Τετραπλάσιο μήκος, διπλάσια περίοδος',c:COL.GREEN}]; } }
+];
+
+/* ---------- Κατάσταση και DOM ---------- */
+const $=id=>document.getElementById(id);
+let cur=0,vals={},lines=[];
+const sel=$('sel'); SC.forEach((s,i)=>{ const o=document.createElement('option'); o.value=i; o.textContent=(i+1)+'. '+s.name; sel.appendChild(o); });
+function setScene(k){ cur=Math.max(0,Math.min(SC.length-1,k)); sel.value=cur; vals={}; SC[cur].P.forEach(q=>vals[q.k]=q.def);
+  $('par').textContent=SC[cur].par; const box=$('sliders'); box.innerHTML='';
+  SC[cur].P.forEach(q=>{ const d=document.createElement('div'); d.className='sl'; d.innerHTML='<label></label><input type="range">'; const inp=d.querySelector('input'),lb=d.querySelector('label');
+    inp.min=q.min; inp.max=q.max; inp.step=q.step; inp.value=q.def; lb.textContent=q.lab+' = '+fmt(q.def,2);
+    inp.addEventListener('input',()=>{ vals[q.k]=+inp.value; lb.textContent=q.lab+' = '+fmt(vals[q.k],2); rebuild(); }); q.inp=inp; q.lb=lb; box.appendChild(d); });
+  rebuild(); }
+function changeVal(i,delta){ const q=SC[cur].P[i]; if(!q) return; let v=vals[q.k]+delta*q.step; v=Math.round(v/q.step)*q.step; v=Math.max(q.min,Math.min(q.max,v)); vals[q.k]=+v.toFixed(6); q.inp.value=vals[q.k]; q.lb.textContent=q.lab+' = '+fmt(vals[q.k],2); rebuild(); }
+function rebuild(){ clear(); tickFn=null; lines=SC[cur].build(vals); const el=$('info'); el.innerHTML='';
+  lines.forEach(l=>{ const d=document.createElement('div'); d.textContent=l.t; if(l.c) d.style.color=hex(l.c); if(l.b) d.style.fontWeight='bold'; el.appendChild(d); }); drawPanel(); }
+sel.addEventListener('change',()=>setScene(+sel.value)); $('prev').onclick=()=>setScene(cur-1); $('next').onclick=()=>setScene(cur+1);
+
+/* ---------- Κάμερα στην οθόνη (σύρσιμο και τροχός) ---------- */
+let yaw=0,pitch=.8,dist=.62; const tgt=new THREE.Vector3(0,0.02,0);
+function placeCam(){ camera.position.set(tgt.x+dist*Math.sin(yaw)*Math.cos(pitch),tgt.y+dist*Math.sin(pitch),tgt.z+dist*Math.cos(yaw)*Math.cos(pitch)); camera.lookAt(tgt); }
+let drag=null; canvas.addEventListener('pointerdown',e=>{ drag={x:e.clientX,y:e.clientY}; canvas.setPointerCapture(e.pointerId); });
+canvas.addEventListener('pointermove',e=>{ if(!drag||renderer.xr.isPresenting) return; yaw-=(e.clientX-drag.x)*.006; pitch=Math.max(.1,Math.min(1.5,pitch+(e.clientY-drag.y)*.006)); drag={x:e.clientX,y:e.clientY}; });
+canvas.addEventListener('pointerup',()=>drag=null);
+canvas.addEventListener('wheel',e=>{ dist=Math.max(.2,Math.min(1.5,dist*(1+e.deltaY*.001))); e.preventDefault(); },{passive:false});
+function resize(){ const w=innerWidth,h=innerHeight; renderer.setSize(w,h,false); camera.aspect=w/h; if(w>640){ camera.setViewOffset(w,h,-Math.min(420,w*.33)/2,0,w,h); } else camera.clearViewOffset(); camera.updateProjectionMatrix(); }
+addEventListener('resize',resize); resize();
+
+/* ---------- Πάνελ 3D για τα γυαλιά ---------- */
+const pc=document.createElement('canvas'); pc.width=1024; pc.height=700; const px=pc.getContext('2d');
+const ptex=new THREE.CanvasTexture(pc); ptex.colorSpace=THREE.SRGBColorSpace;
+const panel=new THREE.Mesh(new THREE.PlaneGeometry(.6,.6*700/1024),new THREE.MeshBasicMaterial({map:ptex,transparent:true})); panel.visible=false; scene.add(panel);
+let btns=[],hover=-1;
+function wrap(t,max){ const ws=t.split(' '),out=[]; let l=''; ws.forEach(w=>{ if(px.measureText(l+' '+w).width>max&&l){out.push(l);l=w;} else l=l?l+' '+w:w; }); if(l) out.push(l); return out; }
+function drawPanel(){ px.clearRect(0,0,1024,700); px.fillStyle='rgba(23,38,60,.96)'; px.fillRect(0,0,1024,700); px.strokeStyle='#2a3b55'; px.lineWidth=4; px.strokeRect(2,2,1020,696);
+  px.textBaseline='top'; px.font='bold 36px Arial'; px.fillStyle='#ffffff'; px.fillText((cur+1)+'. '+SC[cur].name,24,18,976);
+  px.font='22px Arial'; px.fillStyle='#9fb0c6'; px.fillText(SC[cur].par,24,62);
+  let y=100; lines.forEach(l=>{ px.font=(l.b?'bold ':'')+'28px Arial'; px.fillStyle=l.c?hex(l.c):'#e8eef7'; wrap(l.t,976).forEach(s=>{ px.fillText(s,24,y); y+=34; }); y+=6; });
+  btns=[]; const bt=(x,yy,w,h,txt,fn,col)=>{ btns.push({x,y:yy,w,h,fn}); const hv=btns.length-1===hover; px.fillStyle=hv?'#2a4a73':(col||'#0e1626'); px.fillRect(x,yy,w,h); px.strokeStyle='#2a3b55'; px.strokeRect(x,yy,w,h); px.fillStyle='#fff'; px.font='bold 30px Arial'; px.textAlign='center'; px.textBaseline='middle'; px.fillText(txt,x+w/2,yy+h/2+2); px.textAlign='left'; px.textBaseline='top'; };
+  bt(24,620,230,60,'◀ Προηγούμενη',()=>setScene(cur-1)); bt(270,620,230,60,'Επόμενη ▶',()=>setScene(cur+1));
+  SC[cur].P.forEach((q,i)=>{ const yy=470+i*72-(SC[cur].P.length-1)*72+ (SC[cur].P.length===1?0:0); const base=(SC[cur].P.length===2)?(i===0?468-8:540-8):540-8-0;
+    const row=(SC[cur].P.length===1)?548:(i===0?476:548); px.font='bold 26px Arial'; px.fillStyle=hex(COL.ORANGE); px.textBaseline='top'; px.fillText(q.lab+' = '+fmt(vals[q.k],2),24,row+14,420);
+    [['−−',-5],['−',-1],['+',1],['++',5]].forEach((b,j)=>bt(470+j*130,row,118,62,b[0],()=>changeVal(i,b[1]))); }); ptex.needsUpdate=true; }
+function panelHit(ctrl){ const m=new THREE.Matrix4().identity().extractRotation(ctrl.matrixWorld); const ray=new THREE.Raycaster(); ray.ray.origin.setFromMatrixPosition(ctrl.matrixWorld); ray.ray.direction.set(0,0,-1).applyMatrix4(m);
+  if(!panel.visible) return null; const h=ray.intersectObject(panel)[0]; if(!h||!h.uv) return null; const X=h.uv.x*1024,Y=(1-h.uv.y)*700; return btns.findIndex(b=>X>=b.x&&X<=b.x+b.w&&Y>=b.y&&Y<=b.y+b.h); }
+
+/* ---------- WebXR ---------- */
+let session=null,hitSrc=null,viewer=null,placed=false,mode='';
+const reticle=new THREE.Mesh(new THREE.RingGeometry(.07,.09,32).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0x2E9E4F})); reticle.matrixAutoUpdate=false; reticle.visible=false; scene.add(reticle);
+const ctrls=[0,1].map(i=>{ const c=renderer.xr.getController(i); c.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(0,0,-1.2)]),new THREE.LineBasicMaterial({color:0x7bb7ff}))); scene.add(c);
+  c.addEventListener('selectstart',()=>{ const h=panelHit(c); if(h!==null&&h>=0) btns[h].fn(); else if(mode==='ar'&&!placed&&reticle.visible) place(); }); return c; });
+function place(){ world.position.setFromMatrixPosition(reticle.matrix); world.quaternion.setFromRotationMatrix(reticle.matrix); world.position.y+=0.0; placed=true; reticle.visible=false; panelToWorld(); $('bReset').style.display='block'; }
+function panelToWorld(){ const p=new THREE.Vector3(0,.34,-.2).applyMatrix4(world.matrixWorld); panel.position.copy(p); panel.lookAt(viewerPos()); }
+const viewerPos=()=>{ const v=new THREE.Vector3(); renderer.xr.getCamera().getWorldPosition(v); return v; };
+$('bReset').onclick=()=>{ placed=false; };
+async function start(m){ try{
+  const opts=m==='ar'?{requiredFeatures:['hit-test'],optionalFeatures:['dom-overlay','local-floor'],domOverlay:{root:document.body}}:{optionalFeatures:['local-floor']};
+  session=await navigator.xr.requestSession(m==='ar'?'immersive-ar':'immersive-vr',opts); mode=m; await renderer.xr.setSession(session); document.body.classList.add('xr');
+  session.addEventListener('end',()=>{ document.body.classList.remove('xr'); session=null; hitSrc=null; panel.visible=false; reticle.visible=false; world.position.set(0,0,0); world.quaternion.identity(); placed=false; mode=''; scene.background=new THREE.Color(0x0e1420); $('bReset').style.display='none'; });
+  const overlay=!!session.domOverlayState;
+  if(m==='ar'){ scene.background=null; placed=false; const rs=await session.requestReferenceSpace('viewer'); hitSrc=await session.requestHitTestSource({space:rs}); panel.visible=!overlay;
+    if(overlay){ document.body.addEventListener('beforexrselect',e=>{ if(e.target.closest('#ui')) e.preventDefault(); }); document.body.addEventListener('pointerdown',e=>{}); } }
+  else { world.position.set(0,.9,-.9); panel.position.set(0,1.32,-.85); panel.rotation.set(-.12,0,0); panel.visible=true; document.body.classList.add('xr'); placed=true; }
+  drawPanel(); }catch(e){ $('msg').textContent='Δεν άνοιξε η συνεδρία: '+e.message; } }
+$('bAR').onclick=()=>start('ar'); $('bVR').onclick=()=>start('vr');
+if(navigator.xr){ navigator.xr.isSessionSupported('immersive-ar').then(s=>{ $('bAR').disabled=!s; }).catch(()=>{}); navigator.xr.isSessionSupported('immersive-vr').then(s=>{ $('bVR').disabled=!s; }).catch(()=>{});
+  $('msg').textContent='Στο tablet Samsung ή στα γυαλιά: πάτησε Είσοδος σε AR ή VR. Στον υπολογιστή: σύρσιμο για περιστροφή και τροχός για μεγέθυνση.'; }
+else $('msg').textContent='Αυτή η συσκευή δεν υποστηρίζει WebXR. Η σκηνή είναι διαθέσιμη στην οθόνη: σύρσιμο για περιστροφή και τροχός για μεγέθυνση.';
+
+/* ---------- Βρόχος ---------- */
+const clock=new THREE.Clock(); let hv=-1;
+renderer.setAnimationLoop((t,frame)=>{ const time=clock.getElapsedTime();
+  if(!renderer.xr.isPresenting){ placeCam(); }
+  else {
+    if(mode==='ar'&&frame&&hitSrc&&!placed){ const ref=renderer.xr.getReferenceSpace(),hr=frame.getHitTestResults(hitSrc); if(hr.length){ const pose=hr[0].getPose(ref); reticle.visible=true; reticle.matrix.fromArray(pose.transform.matrix); } else reticle.visible=false; }
+    if(panel.visible&&mode==='ar'&&placed) panelToWorld();
+    let nh=-1; for(const c of ctrls){ const h=panelHit(c); if(h!==null&&h>=0) nh=h; } if(nh!==hover){ hover=nh; drawPanel(); }
+  }
+  if(tickFn) tickFn(time);
+  renderer.render(scene,camera); });
+
+const k0=parseInt(new URLSearchParams(location.search).get('k')||'0',10); setScene(isNaN(k0)?0:k0);
+window.__ready=true; window.__setScene=setScene; window.__vals=()=>vals;
+</script>
+</body>
+</html>
