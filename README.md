@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -54,6 +54,7 @@
 | Εμβαδά (`emvada-b-lykeiou.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 10 (§10.1 έως §10.5) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Παράλληλες ευθείες (`paralliles-eutheies.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 4 (παράλληλες ευθείες, κύκλοι τριγώνου, άθροισμα γωνιών) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Εγγεγραμμένα σχήματα (`egegrammena-sximata.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 6 (§6.1 έως §6.6, κύκλος, εγγεγραμμένες γωνίες και εγγεγραμμένο τετράπλευρο) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Πρόοδοι (`proodoi.html`) | Α΄ Λυκείου, Άλγεβρα, Κεφάλαιο 5 (ακολουθίες, αριθμητική και γεωμετρική πρόοδος, ανατοκισμός) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
 
 Όλα τα μοντέλα είναι περίπου **25 εκατοστά** — μέγεθος που κάθεται σε θρανίο.
 
@@ -67,7 +68,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -1088,3 +1089,30 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 | 8 | Κριτήριο εγγραψιμότητας | Το Δ διασχίζει τον κύκλο και το Β + Δ γίνεται 180° μόνο πάνω σε αυτόν |
 
 Η σελίδα δεν έχει δοκιμαστεί μέσα στα γυαλιά ή στο tablet Samsung, μόνο σε headless Chrome (προβολή 3D, και οι οκτώ σκηνές, έλεγχος σφαλμάτων και τιμές των παραμέτρων). Οι εφαρμογές GeoGebra 03, 06, 07, 12, 14, 16 και 17 δεν έχουν αντίστοιχη σκηνή XR. Στο GeoGebra οι αριθμοί στους ολισθητές και στους άξονες εμφανίζονται με τελεία, ενώ τα κείμενα του πίνακα έχουν κόμμα.
+
+
+## Πρόοδοι στο Κέντρο Καινοτομίας (σενάριο 37, Α΄ Λυκείου, Άλγεβρα, Κεφάλαιο 5)
+
+Η αρίθμηση των παραγράφων (§5.1 ακολουθίες, §5.2 αριθμητική πρόοδος, §5.3 γεωμετρική πρόοδος) προέρχεται από τη θεματική διάρθρωση του κεφαλαίου και δεν έχει ελεγχθεί με το σχολικό βιβλίο και τις Οδηγίες 2026-27. Το σενάριο 37 δεν έχει ακόμη κείμενο στο Project.
+
+Χρώματα (ίδια σε GeoGebra και XR): αριθμητική πρόοδος μπλε, γεωμετρική πρόοδος πράσινη, ισότητες και συμπεράσματα κόκκινα, αθροίσματα μωβ, αντίστροφη σειρά τιρκουάζ, ολισθητές πορτοκαλί.
+
+- `proodoi.html` — WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, για tablet Samsung και ως προβολή 3D σε κάθε συσκευή,
+  https://makariadis-ic.github.io/Maths---AR/proodoi.html. Είναι ένα αυτόνομο αρχείο (το three.js 0.160 φορτώνεται από CDN,
+  χρειάζεται σύνδεση στο διαδίκτυο). Η σκηνή ανοίγει με `?k=0` έως `?k=7`. Στα γυαλιά η σκανδάλη αλλάζει σκηνή, το σύνολο ελέγχου
+  πιάνει και μετακινεί το σχήμα, ο μοχλός αριστερά και δεξιά αλλάζει την παράμετρο, το πάτημα του μοχλού επιλέγει την επόμενη παράμετρο
+  και ο μοχλός πάνω και κάτω αλλάζει το μέγεθος. Στο tablet Samsung οι ολισθητές του πίνακα ελέγχουν τη σκηνή. Στην προβολή 3D το σχήμα
+  στρέφεται με σύρσιμο και ο τροχός του ποντικιού το μεγεθύνει.
+
+| Σκηνή | Τίτλος | Τι δείχνει |
+|---|---|---|
+| 1 | Ακολουθία και γραφική παράσταση | Τα σημεία (ν, α_ν) του τύπου α_ν = κν² + λν + μ, με τη συνάρτηση διακεκομμένη |
+| 2 | Αναδρομικός τύπος | α_{ν+1} = λα_ν + δ και οι ειδικές περιπτώσεις λ = 1 (αριθμητική) και δ = 0 (γεωμετρική) |
+| 3 | Αριθμητική πρόοδος | Σταθερή διαφορά ω και γραμμική εξάρτηση του α_ν από το ν |
+| 4 | Ο αριθμητικός μέσος | α_ν = (α_{ν−1} + α_{ν+1})/2, με μεταβλητή θέση του μεσαίου όρου |
+| 5 | Άθροισμα όρων: η ιδέα του Gauss | 2S_ν = ν(α_1 + α_ν) με τον κάθε όρο και τον αντίστροφό του |
+| 6 | Γεωμετρική πρόοδος | Σταθερός λόγος λ, αύξουσα, φθίνουσα και εναλλασσόμενη πρόοδος |
+| 7 | Άθροισμα όρων γεωμετρικής προόδου | S_ν = α_1(λ^ν − 1)/(λ − 1) |
+| 8 | Ανατοκισμός και απλός τόκος | Αριθμητική και γεωμετρική αύξηση κεφαλαίου σε σύγκριση |
+
+Η σελίδα δεν έχει δοκιμαστεί μέσα στα γυαλιά ή στο tablet Samsung, μόνο σε headless Chrome (προβολή 3D, και οι οκτώ σκηνές, έλεγχος σφαλμάτων και ακραίες τιμές των παραμέτρων). Οι εφαρμογές GeoGebra 07, 08, 10 και 13 δεν έχουν αντίστοιχη σκηνή XR. Οι υπόλοιπες αντιστοιχούν ως εξής: 01 και 03 στη σκηνή 1, 02 στη 2, 04 στη 3, 05 στην 4, 06 στην 5, 09 στη 6, 11 στην 7 και 12 στην 8.
