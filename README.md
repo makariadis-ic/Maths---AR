@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -49,6 +49,7 @@
 | Στερεά και όγκοι (`sterea-ogkoi.html`) | Γ΄ Γυμνασίου, Στερεά και όγκοι | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μέτρηση κύκλου (`metrisi-kyklou.html`) | Γ΄ Γυμνασίου, Μέτρηση κύκλου (κανονικά πολύγωνα, μήκος κύκλου και τόξου, εμβαδόν δίσκου και τομέα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Πραγματικοί αριθμοί και ρίζες (`pragmatikoi-rizes.html`) | Β΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 2 (τετραγωνική ρίζα, άρρητοι και πραγματικοί αριθμοί, προβλήματα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
+| Αλγεβρικές παραστάσεις (`algebrikes-parastaseis.html`) | Β΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 1 (§1.1 Η έννοια της μεταβλητής – Αλγεβρικές παραστάσεις και §1.3 Επίλυση τύπων) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Διανύσματα (`dianysmata.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 1 (§1.1 έως §1.5) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Η ευθεία στο επίπεδο (`eutheia.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 2 (§2.1 έως §2.3) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μετρικές σχέσεις (`metrikes-scheseis.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 9 (§9.1 έως §9.5 και §9.7) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
@@ -69,7 +70,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -1140,3 +1141,26 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
 | 8 | Ανατοκισμός και απλός τόκος | Αριθμητική και γεωμετρική αύξηση κεφαλαίου σε σύγκριση |
 
 Η σελίδα δεν έχει δοκιμαστεί μέσα στα γυαλιά ή στο tablet Samsung, μόνο σε headless Chrome (προβολή 3D, και οι οκτώ σκηνές, έλεγχος σφαλμάτων και ακραίες τιμές των παραμέτρων). Οι εφαρμογές GeoGebra 07, 08, 10 και 13 δεν έχουν αντίστοιχη σκηνή XR. Οι υπόλοιπες αντιστοιχούν ως εξής: 01 και 03 στη σκηνή 1, 02 στη 2, 04 στη 3, 05 στην 4, 06 στην 5, 09 στη 6, 11 στην 7 και 12 στην 8.
+
+## Αλγεβρικές παραστάσεις στο Κέντρο Καινοτομίας (σενάριο 32, Β΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 1, §1.1 και §1.3)
+
+Συνοδεύει τις 9 εφαρμογές GeoGebra «Αλγεβρικές παραστάσεις - …» του σεναρίου. Οι παράγραφοι είναι από τα Μαθηματικά Β΄ Γυμνασίου: §1.1 Η έννοια της μεταβλητής – Αλγεβρικές παραστάσεις (οι εφαρμογές 1 έως 7) και §1.3 Επίλυση τύπων (οι εφαρμογές 8 και 9). Η §1.3 δεν διδάσκεται το 2024-25 σύμφωνα με τις οδηγίες διδασκαλίας.
+
+- `algebrikes-parastaseis.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/algebrikes-parastaseis.html. Είναι ένα αυτόνομο αρχείο (η σκηνή είναι μέσα, το three.js 0.160.0 φορτώνεται από CDN).
+  Η διεύθυνση `algebrikes-parastaseis.html?k=3` ανοίγει κατευθείαν μια κατάσταση (από 1 έως 9). Χρώματα όπως στις εφαρμογές GeoGebra.
+  Δεν υπάρχει μοντέλο `.glb`: τα tablet Samsung χρησιμοποιούν το WebXR AR ή την προβολή 3D της σελίδας.
+- Οι ολισθητές είναι HTML στην οθόνη και στο AR του tablet (DOM overlay, με πάτημα στο τραπέζι για τοποθέτηση). Στα γυαλιά εμφανίζεται 3D πάνελ με κουμπιά ‹ › (κατάσταση), − και + (παράμετροι) και γραμμή που μπορείς να πατήσεις ή να σύρεις με τον ελεγκτή. Με το κουμπί πίεσης (squeeze) ο πίνακας ξανατοποθετείται μπροστά σου.
+- Εννέα καταστάσεις, ίδιες με τις εφαρμογές GeoGebra:
+  1. Μεταβλητή και κόστος τηλεφωνήματος: κόστος = τιμή ανά δευτερόλεπτο · διάρκεια, με x από 0 έως 120 s.
+  2. Από τις λέξεις στην παράσταση: έξι φράσεις (2x + 3, x − 2, 3x − 4, x/2 + 1, τρεις διαδοχικοί ακέραιοι, περίμετρος ορθογωνίου) ως ταινίες μήκους, x από 4 έως 10.
+  3. Επιμεριστική ιδιότητα: (α + β) · γ = α · γ + β · γ με εμβαδά ορθογωνίων, α, β, γ από 1 έως 6.
+  4. Όμοιοι όροι: αx + βx = (α + β)x με βέλη πάνω στην ευθεία, συντελεστές από −3 έως 3.
+  5. Απλοποίηση και τιμή παράστασης: τέσσερις παραστάσεις, x από −5 έως 5 (αρχικά −0,45 στην πρώτη, όπου η τιμή είναι 2,9) και προαιρετική λανθασμένη απλοποίηση με λάθος πρόσημο.
+  6. Περίμετρος: x + y + (x + 1) + (y + 2) = 2(x + y) + 3, με x + y = 10 να δίνει 23.
+  7. Δείκτης μάζας σώματος: ΔΜΣ = Β / υ² με περιοχές τιμών και υπενθύμιση ότι η τιμή είναι ένδειξη και όχι διάγνωση (τα όρια αφορούν ενήλικες).
+  8. Επίλυση τύπου: F = 1,8 · C + 32 και C = (F − 32) / 1,8, με σημείο πάνω στην ευθεία.
+  9. Επίλυση τύπου: Ε = ½ · β · υ και υ = 2Ε / β, με τρίγωνο και ύψος.
+- Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι εννέα σκηνές, ακραίες τιμές όλων των ολισθητών). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).

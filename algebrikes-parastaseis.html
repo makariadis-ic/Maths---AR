@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<title>Αλγεβρικές παραστάσεις: AR και VR</title>
+<style>
+  :root{--ink:#1F2733;--dim:#5B6676;--blue:#1F6FB2;--bg:#0e1420}
+  html,body{margin:0;height:100%;background:var(--bg);color:#fff;font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden}
+  canvas{display:block;touch-action:none}
+  #ui{position:fixed;inset:0;pointer-events:none}
+  #top{position:absolute;left:0;right:0;top:0;padding:10px 14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center;pointer-events:auto;background:linear-gradient(#0e1420e6,#0e142000)}
+  #top h1{font-size:16px;margin:0;font-weight:700;flex:1 1 220px}
+  #top h1 small{display:block;font-weight:400;font-size:12px;color:#aab6c8;margin-top:2px}
+  select,button{font:inherit;font-size:14px;padding:8px 12px;border-radius:8px;border:1px solid #3a4a63;background:#1a2538;color:#fff}
+  button.go{background:#1F6FB2;border-color:#1F6FB2;font-weight:600}
+  button[disabled]{opacity:.45}
+  #ctl{position:absolute;right:12px;bottom:12px;width:min(380px,calc(100vw - 24px));background:#0e1420dd;border:1px solid #2a3850;border-radius:12px;padding:10px 14px;pointer-events:auto}
+  #ctl .row{margin:8px 0}
+  #ctl label{display:block;font-size:14px;font-weight:600;margin-bottom:4px}
+  #ctl input[type=range]{width:100%;accent-color:#E36C09}
+  #msg{position:absolute;left:12px;bottom:12px;max-width:min(360px,calc(100vw - 24px));font-size:13px;color:#aab6c8;text-align:left;pointer-events:none}
+  body.xr #top,body.xr #msg{display:none}
+  body.xr.dom #ctl{display:block}
+  body.xr:not(.dom) #ctl{display:none}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+</head>
+<body>
+<div id="ui">
+  <div id="top">
+    <h1>Αλγεβρικές παραστάσεις<small>Κέντρο Καινοτομίας Θεσσαλίας, Μαθηματικά Β΄ Γυμνασίου</small></h1>
+    <select id="sel" aria-label="Σκηνή"></select>
+    <button id="bAR" class="go" disabled>AR (tablet)</button>
+    <button id="bVR" class="go" disabled>AR / VR (Magic Leap 2, Meta Quest 3)</button>
+  </div>
+  <div id="ctl"></div>
+  <div id="msg"></div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+
+/* ---------- βοηθητικά ---------- */
+const C={blue:'#1F6FB2',red:'#C0392B',green:'#2E9E4F',orange:'#E36C09',purple:'#7B4FA0',teal:'#1A9E94',gold:'#E8A32C',ink:'#1F2733',dim:'#5B6676',panel:'#EDF0F5',bar:'#E5B98F'};
+const fm=(v,d=2)=>{const r=Math.round(v*10**d)/10**d;return (Object.is(r,-0)?0:r).toString().replace('.',',').replace('-','−');};
+const cs=v=>v<0?'('+fm(v,0)+')':fm(v,0);
+const BW=22,BH=14,U=0.05;               // πίνακας: 22 × 14 μονάδες, 1 μονάδα = 5 cm
+
+/* ---------- κείμενο ως υφή ---------- */
+const cache=new Map();
+function label(str,col,size,bold=true){
+  const key=str+'|'+col+'|'+size+'|'+bold; if(cache.has(key))return cache.get(key);
+  const px=Math.round(size*60), c=document.createElement('canvas'), x=c.getContext('2d');
+  x.font=(bold?'700 ':'400 ')+px+'px system-ui,Arial,sans-serif';
+  const w=Math.ceil(x.measureText(str).width)+12, h=Math.ceil(px*1.4);
+  c.width=w;c.height=h; x.font=(bold?'700 ':'400 ')+px+'px system-ui,Arial,sans-serif';
+  x.fillStyle=col;x.textBaseline='middle';x.fillText(str,6,h/2+1);
+  const tex=new THREE.CanvasTexture(c); tex.colorSpace=THREE.SRGBColorSpace; tex.anisotropy=4;
+  const r={tex,w:w/60,h:h/60}; cache.set(key,r); return r;
+}
+
+/* ---------- πίνακας σχεδίασης ---------- */
+class Board{
+  constructor(g){this.g=g;this.n=0;}
+  clear(){while(this.g.children.length){const m=this.g.children.pop();m.geometry.dispose();if(!m.userData.cached&&m.material.map)m.material.map.dispose();m.material.dispose();}this.n=0;}
+  mat(col,a=1){return new THREE.MeshBasicMaterial({color:col,transparent:true,opacity:a,depthTest:false,depthWrite:false,side:THREE.DoubleSide});}
+  add(m){m.renderOrder=++this.n+10;this.g.add(m);return m;}
+  rect(x,y,w,h,col,a=1){if(w<=0||h<=0)return;const m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),this.mat(col,a));m.position.set(x+w/2,y+h/2,0);return this.add(m);}
+  line(x1,y1,x2,y2,col,w=0.12,a=1){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);if(L<1e-6)return;const m=new THREE.Mesh(new THREE.PlaneGeometry(L,w),this.mat(col,a));m.position.set((x1+x2)/2,(y1+y2)/2,0);m.rotation.z=Math.atan2(dy,dx);return this.add(m);}
+  dash(x1,y1,x2,y2,col,w=0.08){const L=Math.hypot(x2-x1,y2-y1),n=Math.max(1,Math.floor(L/0.5));for(let i=0;i<n;i++){const a=i/n,b=(i+0.55)/n;this.line(x1+(x2-x1)*a,y1+(y2-y1)*a,x1+(x2-x1)*b,y1+(y2-y1)*b,col,w);}}
+  dot(x,y,col,r=0.28){const m=new THREE.Mesh(new THREE.CircleGeometry(r,28),this.mat(col));m.position.set(x,y,0);return this.add(m);}
+  tri(p,col,a=1){const s=new THREE.Shape();s.moveTo(p[0][0],p[0][1]);s.lineTo(p[1][0],p[1][1]);s.lineTo(p[2][0],p[2][1]);s.closePath();return this.add(new THREE.Mesh(new THREE.ShapeGeometry(s),this.mat(col,a)));}
+  arrow(x1,x2,y,col,w=0.22){const L=Math.abs(x2-x1);if(L<0.06){return this.dot(x1,y,col,0.15);}const s=Math.sign(x2-x1),hl=Math.min(0.8,L*0.6);this.line(x1,y,x2-s*hl*0.7,y,col,w);return this.tri([[x2,y],[x2-s*hl,y+0.4],[x2-s*hl,y-0.4]],col);}
+  text(str,x,y,col=C.ink,size=0.8,align='c',bold=true){const t=label(str,col,size,bold);const m=new THREE.Mesh(new THREE.PlaneGeometry(t.w,t.h),new THREE.MeshBasicMaterial({map:t.tex,transparent:true,depthTest:false,depthWrite:false,side:THREE.DoubleSide}));m.userData.cached=true;m.position.set(x+(align==='c'?0:align==='l'?t.w/2:-t.w/2),y,0);return this.add(m);}
+}
+// άξονες και βαθμονόμηση
+function plot(B,o){
+  const X=v=>o.x0+(v-o.xmin)/(o.xmax-o.xmin)*o.w, Y=v=>o.y0+(v-o.ymin)/(o.ymax-o.ymin)*o.h;
+  if(o.ymin<=0&&o.ymax>=0)B.line(o.x0,Y(0),o.x0+o.w,Y(0),C.ink,0.07);
+  if(o.xmin<=0&&o.xmax>=0)B.line(X(0),o.y0,X(0),o.y0+o.h,C.ink,0.07);
+  const ax=Math.min(Math.max(0,o.ymin),o.ymax), ay=Math.min(Math.max(0,o.xmin),o.xmax);
+  for(let v=Math.ceil(o.xmin/o.xs)*o.xs;v<=o.xmax+1e-9;v+=o.xs){if(Math.abs(v)<1e-9)continue;B.line(X(v),Y(ax)-0.12,X(v),Y(ax)+0.12,C.ink,0.06);B.text(fm(v,o.xd??0),X(v),Y(ax)-0.55,C.dim,0.62,'c',false);}
+  for(let v=Math.ceil(o.ymin/o.ys)*o.ys;v<=o.ymax+1e-9;v+=o.ys){if(Math.abs(v)<1e-9)continue;B.line(X(ay)-0.12,Y(v),X(ay)+0.12,Y(v),C.ink,0.06);B.text(fm(v,o.yd??0),X(ay)-0.3,Y(v),C.dim,0.62,'r',false);}
+  if(o.xl)B.text(o.xl,o.x0+o.w-0.2,Y(ax)+0.6,C.dim,0.7,'r');
+  if(o.yl)B.text(o.yl,X(ay)+0.3,o.y0+o.h+0.35,C.dim,0.7,'l');
+  return{X,Y};
+}
+// ευθεία y = m x + c, περικομμένη στο ορθογώνιο του διαγράμματος
+function drawLine(B,pl,o,m,c,col,w,dashed){
+  let xa=o.xmin,xb=o.xmax;
+  if(m!==0){const t1=(o.ymin-c)/m,t2=(o.ymax-c)/m;const lo=Math.min(t1,t2),hi=Math.max(t1,t2);xa=Math.max(xa,lo);xb=Math.min(xb,hi);}
+  if(xa>=xb)return;
+  const x1=pl.X(xa),y1=pl.Y(m*xa+c),x2=pl.X(xb),y2=pl.Y(m*xb+c);
+  dashed?B.dash(x1,y1,x2,y2,col,w):B.line(x1,y1,x2,y2,col,w);
+}
+
+/* ---------- σκηνές ---------- */
+const PH=['Το διπλάσιο του x, αυξημένο κατά 3','Το x μειωμένο κατά 2','Το τριπλάσιο του x, μειωμένο κατά 4','Το μισό του x, αυξημένο κατά 1','Το άθροισμα τριών διαδοχικών ακεραίων, με μικρότερο τον x','Η περίμετρος ορθογωνίου με πλάτος x και μήκος κατά 4 μεγαλύτερο'];
+const EX=['2x + 3','x − 2','3x − 4','x/2 + 1','x + (x + 1) + (x + 2) = 3x + 3','x + (x + 4) + x + (x + 4) = 4x + 8'];
+const EXP5=['2(x + 3) − 4(x − 1) − 8','3(x − 1) + 2(x + 4)','5x − 2(x − 3)','4(2x − 1) − 3(x + 2)'];
+const SIM5=['−2x + 2','5x + 5','3x + 6','5x − 10'], M5=[-2,5,3,5], K5=[2,5,6,-10], WR5=['−2x − 6','5x + 7','3x − 6','5x − 2'], WM5=[-2,5,3,5], WK5=[-6,7,-6,-2];
+
+const SC=[
+{ id:'kostos', n:'Μεταβλητή: το κόστος ενός τηλεφωνήματος', sec:'§ 1.1',
+  params:[{k:'d',l:'Διάρκεια x',u:' s',min:0,max:120,st:1,v:27,d:0},{k:'p',l:'Τιμή ανά δευτερόλεπτο',u:' €',min:0.005,max:0.012,st:0.001,v:0.005,d:3}],
+  draw(B,P){const o={x0:2.2,y0:2,w:18.5,h:10.5,xmin:0,xmax:125,ymin:0,ymax:1.5,xs:25,ys:0.5,yd:1,xl:'Διάρκεια (s)',yl:'Κόστος (€)'};const pl=plot(B,o);
+    B.line(pl.X(0),pl.Y(0),pl.X(120),pl.Y(P.p*120),C.blue,0.22);
+    B.dash(pl.X(P.d),pl.Y(0),pl.X(P.d),pl.Y(P.p*P.d),C.orange);B.dash(pl.X(0),pl.Y(P.p*P.d),pl.X(P.d),pl.Y(P.p*P.d),C.orange);
+    B.dot(pl.X(P.d),pl.Y(P.p*P.d),C.orange,0.36);},
+  info:P=>[['Κόστος = τιμή ανά δευτερόλεπτο · διάρκεια',C.ink],['Κόστος = '+fm(P.p,3)+' · '+fm(P.d,0)+' = '+fm(P.p*P.d,3)+' €',C.purple,1.15],['Για 10 s: '+fm(P.p*10,3)+' €     Για 15 s: '+fm(P.p*15,3)+' €     Για 27 s: '+fm(P.p*27,3)+' €',C.dim]]},
+
+{ id:'lekseis', n:'Από τις λέξεις στην αλγεβρική παράσταση', sec:'§ 1.1',
+  params:[{k:'k',l:'Φράση',u:'',min:1,max:6,st:1,v:1,d:0},{k:'x',l:'Τιμή του x',u:'',min:4,max:10,st:1,v:4,d:0}],
+  draw(B,P){const x=P.x,k=P.k;
+    const L=[[x,x,3],[x-2,2],[x,x,x-4,4],[x/2,1],[x,x,1,x,2],[x,x,4,x,x,4]][k-1];
+    const T=[[1,1,2],[1,3],[1,1,1,3],[1,2],[1,1,2,1,2],[1,1,2,1,1,2]][k-1];
+    const LB=[['x','x','3'],['x − 2','2'],['x','x','x − 4','4'],['x/2','1'],['x','x','1','x','2'],['x','x','4','x','x','4']][k-1];
+    const VAL=[2*x+3,x-2,3*x-4,x/2+1,3*x+3,4*x+8][k-1];
+    const tot=L.reduce((a,b)=>a+b,0),u=Math.min(1,19/tot);let s=1.5;
+    L.forEach((l,i)=>{const w=u*l;B.rect(s+0.04,6.4,Math.max(0,w-0.08),1.8,[C.orange,C.blue,C.red][T[i]-1],0.95);if(w>0.6)B.text(LB[i],s+w/2,7.3,'#FFFFFF',0.8);s+=w;});
+    const e=1.5+u*VAL;B.line(1.5,5.4,e,5.4,C.purple,0.14);B.line(1.5,5.1,1.5,5.7,C.purple,0.1);B.line(e,5.1,e,5.7,C.purple,0.1);
+    B.text('Το μήκος της μωβ γραμμής είναι η τιμή της παράστασης',1.5,4.2,C.dim,0.7,'l',false);
+    [['x',C.orange],['αριθμός',C.blue],['αφαιρείται',C.red]].forEach(([t,c],i)=>{B.rect(1.5+i*6.2,1.6,0.7,0.7,c);B.text(t,2.4+i*6.2,1.95,C.dim,0.7,'l',false);});},
+  info:P=>{const x=P.x,k=P.k,X=fm(x,0);
+    const SB=['2 · '+X+' + 3 = '+fm(2*x+3,0),X+' − 2 = '+fm(x-2,0),'3 · '+X+' − 4 = '+fm(3*x-4,0),X+'/2 + 1 = '+fm(x/2+1,1),X+' + '+fm(x+1,0)+' + '+fm(x+2,0)+' = '+fm(3*x+3,0),X+' + '+fm(x+4,0)+' + '+X+' + '+fm(x+4,0)+' = '+fm(4*x+8,0)];
+    return [[PH[k-1],C.ink,1.0],['Παράσταση:  '+EX[k-1],C.blue,1.1],['Για x = '+X+':  '+SB[k-1],C.purple,1.0]];}},
+
+{ id:'epimeristiki', n:'Η επιμεριστική ιδιότητα και το εμβαδόν', sec:'§ 1.1',
+  params:[{k:'a',l:'α',u:'',min:1,max:6,st:0.1,v:2.5,d:1},{k:'b',l:'β',u:'',min:1,max:6,st:0.1,v:3,d:1},{k:'g',l:'γ',u:'',min:1,max:6,st:0.1,v:2,d:1}],
+  draw(B,P){const s=1.5,x0=1.8,y0=2.2,A=P.a*s,Bb=P.b*s,G=P.g*s;
+    B.rect(x0,y0,A,G,C.blue,0.4);B.rect(x0+A,y0,Bb,G,C.green,0.4);
+    const pc=C.purple;B.line(x0,y0,x0+A+Bb,y0,pc,0.14);B.line(x0,y0+G,x0+A+Bb,y0+G,pc,0.14);B.line(x0,y0,x0,y0+G,pc,0.14);B.line(x0+A+Bb,y0,x0+A+Bb,y0+G,pc,0.14);
+    B.text('α',x0+A/2,y0-0.6,C.blue,0.9);B.text('β',x0+A+Bb/2,y0-0.6,C.green,0.9);B.text('γ',x0-0.6,y0+G/2,C.red,0.9);B.text('α + β',x0+(A+Bb)/2,y0+G+0.6,C.purple,0.9);
+    B.text('α · γ = '+fm(P.a*P.g),x0+A/2,y0+G/2,C.blue,0.75);B.text('β · γ = '+fm(P.b*P.g),x0+A+Bb/2,y0+G/2,C.green,0.75);},
+  info:P=>[['Εμβαδόν του μεγάλου ορθογωνίου:  (α + β) · γ = ('+fm(P.a,1)+' + '+fm(P.b,1)+') · '+fm(P.g,1)+' = '+fm((P.a+P.b)*P.g),C.purple,0.95],['Εμβαδά των δύο ορθογωνίων:  α · γ + β · γ = '+fm(P.a*P.g)+' + '+fm(P.b*P.g)+' = '+fm(P.a*P.g+P.b*P.g),C.blue,0.95],['Επιμεριστική ιδιότητα:  (α + β) · γ = α · γ + β · γ',C.ink,1.1]]},
+
+{ id:'omoioi', n:'Όμοιοι όροι: πρόσθεση και αφαίρεση', sec:'§ 1.1',
+  params:[{k:'a',l:'Συντελεστής α',u:'',min:-3,max:3,st:1,v:3,d:0},{k:'b',l:'Συντελεστής β',u:'',min:-3,max:3,st:1,v:-2,d:0},{k:'x',l:'Τιμή του x',u:'',min:1,max:3,st:1,v:2,d:0}],
+  draw(B,P){const sc=0.6*1.0,x=P.x,e1=P.a*x*sc,e2=(P.a+P.b)*x*sc,o=11;
+    B.dash(o,2.5,o,13,C.dim,0.06);
+    B.arrow(o,o+e1,11.8,C.orange,0.3);B.arrow(o+e1,o+e2,9.6,C.blue,0.3);B.arrow(o,o+e2,6.6,C.purple,0.34);
+    B.dash(o+e1,11.8,o+e1,9.6,C.dim,0.06);B.dash(o+e2,9.6,o+e2,6.6,C.dim,0.06);
+    B.text(fm(P.a,0)+'x = '+fm(P.a*x,0),o+e1/2,12.6,C.orange,0.8);B.text(fm(P.b,0)+'x = '+fm(P.b*x,0),o+(e1+e2)/2,10.4,C.blue,0.8);B.text('(α + β)x = '+fm((P.a+P.b)*x,0),o+e2/2,7.4,C.purple,0.8);},
+  info:P=>[[fm(P.a,0)+'x + '+cs(P.b)+'x',C.blue,1.2],['= ('+fm(P.a,0)+' + '+cs(P.b)+')x = '+fm(P.a+P.b,0)+'x',C.purple,1.2],['Για x = '+fm(P.x,0)+':  '+fm(P.a*P.x,0)+' + '+cs(P.b*P.x)+' = '+fm((P.a+P.b)*P.x,0),C.dim,0.95]]},
+
+{ id:'aplopoiisi', n:'Απλοποίηση και αριθμητική τιμή παράστασης', sec:'§ 1.1',
+  params:[{k:'k',l:'Παράσταση',u:'',min:1,max:4,st:1,v:1,d:0},{k:'x',l:'Τιμή του x',u:'',min:-5,max:5,st:0.05,v:-0.45,d:2},{k:'w',l:'Λάθος πρόσημο (0 όχι, 1 ναι)',u:'',min:0,max:1,st:1,v:0,d:0}],
+  draw(B,P){const o={x0:2.2,y0:1.2,w:18.5,h:11.4,xmin:-5.5,xmax:5.5,ymin:-32,ymax:32,xs:1,ys:10,xl:'x'},pl=plot(B,o),k=P.k-1,m=M5[k],c=K5[k];
+    drawLine(B,pl,o,m,c,C.blue,0.24);drawLine(B,pl,o,m,c,C.green,0.1,true);
+    if(P.w===1)drawLine(B,pl,o,WM5[k],WK5[k],C.red,0.14);
+    const y=m*P.x+c;B.dash(pl.X(P.x),pl.Y(0),pl.X(P.x),pl.Y(y),C.purple);B.dash(pl.X(0),pl.Y(y),pl.X(P.x),pl.Y(y),C.purple);B.dot(pl.X(P.x),pl.Y(y),C.purple,0.36);
+    if(P.w===1)B.dot(pl.X(P.x),pl.Y(WM5[k]*P.x+WK5[k]),C.red,0.28);},
+  info:P=>{const k=P.k-1,y=M5[k]*P.x+K5[k];const a=[['Αρχική: '+EXP5[k]+'      Απλοποιημένη: '+SIM5[k],C.blue,0.95],['Για x = '+fm(P.x,2)+':  τιμή = '+fm(y,2),C.purple,1.15]];
+    if(P.w===1)a.push(['Λάθος απλοποίηση: '+WR5[k]+'      Τιμή λάθους: '+fm(WM5[k]*P.x+WK5[k],2),C.red,0.95]);return a;}},
+
+{ id:'perimetros', n:'Περίμετρος: 2(x + y) + 3', sec:'§ 1.1',
+  params:[{k:'x',l:'Μήκος x',u:'',min:1,max:5,st:1,v:5,d:0},{k:'y',l:'Μήκος y',u:'',min:1,max:5,st:1,v:5,d:0}],
+  draw(B,P){const sc=0.8,x0=1.5,a1=P.x*sc,a2=P.y*sc,a3=(P.x+1)*sc,a4=(P.y+2)*sc;
+    const r1=[[a1,C.orange,'x'],[a2,C.blue,'y'],[a3,C.orange,'x + 1'],[a4,C.blue,'y + 2']];let s=x0;
+    r1.forEach(([w,c,t])=>{B.rect(s+0.04,9.8,w-0.08,1.6,c,0.95);B.text(t,s+w/2,10.6,'#FFFFFF',0.8);s+=w;});
+    const r2=[[a1,C.orange,'x'],[a2,C.blue,'y'],[a1,C.orange,'x'],[a2,C.blue,'y'],[sc,C.dim,'1'],[2*sc,C.dim,'2']];s=x0;
+    r2.forEach(([w,c,t])=>{B.rect(s+0.04,6.2,w-0.08,1.6,c,0.95);B.text(t,s+w/2,7.0,'#FFFFFF',0.8);s+=w;});
+    const e=x0+2*a1+2*a2;B.line(x0,5.4,e-0.08,5.4,C.purple,0.14);B.line(e+0.08,5.4,e+3*sc,5.4,C.dim,0.14);
+    B.text('2(x + y)',(x0+e)/2,4.5,C.purple,0.85);B.text('3',e+1.5*sc,4.5,C.dim,0.85);
+    B.text('Οι τέσσερις πλευρές',x0,12.3,C.dim,0.75,'l');B.text('Ομαδοποίηση όρων',x0,8.7,C.dim,0.75,'l');},
+  info:P=>[['Περίμετρος = x + y + (x + 1) + (y + 2) = 2(x + y) + 3',C.blue,1.05],['Για x = '+fm(P.x,0)+', y = '+fm(P.y,0)+':  2 · '+fm(P.x+P.y,0)+' + 3 = '+fm(2*(P.x+P.y)+3,0),C.purple,1.1],['x + y = '+fm(P.x+P.y,0),C.dim,0.95]]},
+
+{ id:'dms', n:'Δείκτης μάζας σώματος: ΔΜΣ = Β / υ²', sec:'§ 1.1',
+  params:[{k:'b',l:'Βάρος Β',u:' kg',min:40,max:120,st:1,v:70,d:0},{k:'h',l:'Ύψος υ',u:' m',min:1.4,max:2,st:0.01,v:1.75,d:2}],
+  draw(B,P){const bmi=P.b/(P.h*P.h),sc=0.72,x0=1.5,X=v=>x0+(v-15)*sc;
+    [[15,18.5,'#8FB8DE'],[18.5,25,C.green],[25,30,C.gold],[30,40,C.orange]].forEach(([a,b,c])=>B.rect(X(a),7,X(b)-X(a),1.5,c,0.95));
+    [15,18.5,25,30,40].forEach(v=>B.text(fm(v,v%1?1:0),X(v),6.3,C.dim,0.7,'c',false));
+    const pos=X(Math.min(40,Math.max(15,bmi)));B.line(pos,8.5,pos,9.9,C.purple,0.16);B.dot(pos,9.9,C.purple,0.3);B.text('ΔΜΣ = '+fm(bmi,1),pos,10.9,C.purple,1.0);
+    B.text('Η τιμή είναι ένδειξη και όχι διάγνωση',x0,3.2,C.ink,0.8,'l');B.text('Τα όρια ισχύουν για ενήλικες. Για παιδιά και εφήβους',x0,2.2,C.dim,0.65,'l',false);B.text('χρησιμοποιούνται καμπύλες ανά ηλικία και φύλο.',x0,1.5,C.dim,0.65,'l',false);},
+  info:P=>[['ΔΜΣ = Β / υ² = '+fm(P.b,0)+' / '+fm(P.h,2)+'² = '+fm(P.b/(P.h*P.h),1),C.blue,1.15],['υ² = '+fm(P.h*P.h,3)+' m²',C.dim,0.95]]},
+
+{ id:'kelsiou', n:'Επίλυση τύπου: από βαθμούς Κελσίου σε Φαρενάιτ', sec:'§ 1.3',
+  params:[{k:'c',l:'Θερμοκρασία C',u:' °C',min:-40,max:40,st:1,v:25,d:0}],
+  draw(B,P){const o={x0:2.2,y0:1.6,w:18.5,h:11,xmin:-50,xmax:50,ymin:-50,ymax:130,xs:10,ys:20,xl:'C (°C)',yl:'F (°F)'},pl=plot(B,o);
+    drawLine(B,pl,o,1.8,32,C.blue,0.22);const F=1.8*P.c+32;
+    B.dash(pl.X(P.c),pl.Y(0),pl.X(P.c),pl.Y(F),C.orange);B.dash(pl.X(0),pl.Y(F),pl.X(P.c),pl.Y(F),C.orange);B.dot(pl.X(P.c),pl.Y(F),C.orange,0.36);},
+  info:P=>[['F = 1,8 · C + 32',C.blue,1.2],['F = 1,8 · '+cs(P.c)+' + 32 = '+fm(1.8*P.c+32,1),C.orange,1.0],['Λύνουμε ως προς C:   F − 32 = 1,8 · C   και   C = (F − 32) / 1,8',C.purple,0.95],['C = ('+fm(1.8*P.c+32,1)+' − 32) / 1,8 = '+fm(P.c,0),C.purple,0.95]]},
+
+{ id:'trigono', n:'Επίλυση τύπου: το εμβαδόν τριγώνου', sec:'§ 1.3',
+  params:[{k:'b',l:'Βάση β',u:'',min:2,max:10,st:1,v:8,d:0},{k:'h',l:'Ύψος υ',u:'',min:1,max:8,st:0.5,v:5,d:1}],
+  draw(B,P){const s=1.3,x0=3,y0=2.4,b=P.b*s,h=P.h*s,ap=x0+0.35*b;
+    B.tri([[x0,y0],[x0+b,y0],[ap,y0+h]],C.blue,0.35);
+    B.line(x0,y0,x0+b,y0,C.blue,0.16);B.line(x0,y0,ap,y0+h,C.blue,0.16);B.line(x0+b,y0,ap,y0+h,C.blue,0.16);
+    B.dash(ap,y0,ap,y0+h,C.red,0.12);B.text('β',x0+b/2,y0-0.7,C.blue,1.0);B.text('υ',ap+0.6,y0+h/2,C.red,1.0);},
+  info:P=>[['Ε = ½ · β · υ',C.blue,1.2],['Ε = ½ · '+fm(P.b,0)+' · '+fm(P.h,1)+' = '+fm(P.b*P.h/2,2),C.purple,1.0],['Λύνουμε ως προς υ:   υ = 2Ε / β',C.red,1.1],['υ = 2 · '+fm(P.b*P.h/2,2)+' / '+fm(P.b,0)+' = '+fm(P.h,1),C.dim,0.95]]}
+];
+
+/* ---------- κατάσταση ---------- */
+const qs=new URLSearchParams(location.search);
+let idx=Math.min(SC.length,Math.max(1,parseInt(qs.get('k')||'1',10)||1))-1;
+const V={};  // τιμές ανά σκηνή
+SC.forEach((s,i)=>{V[i]={};s.params.forEach(p=>V[i][p.k]=p.v);});
+const cur=()=>SC[idx], vals=()=>V[idx];
+const clampStep=(p,v)=>{v=Math.round((v-p.min)/p.st)*p.st+p.min;return Math.min(p.max,Math.max(p.min,Math.round(v*1e6)/1e6));};
+
+/* ---------- THREE ---------- */
+const renderer=new THREE.WebGLRenderer({antialias:true,alpha:true,preserveDrawingBuffer:false});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);
+renderer.xr.enabled=true;document.body.prepend(renderer.domElement);
+const scene=new THREE.Scene(),bgCol=new THREE.Color('#0e1420');scene.background=bgCol;
+const camera=new THREE.PerspectiveCamera(50,innerWidth/innerHeight,0.05,50);
+const rig=new THREE.Group();scene.add(rig);               // όλο το έργο: πίνακας, πάνελ πληροφοριών, πάνελ ελέγχου
+rig.position.set(0,1.3,0);
+// πίνακας
+const boardW=BW*U,boardH=BH*U;
+const bgBoard=new THREE.Mesh(new THREE.PlaneGeometry(boardW,boardH),new THREE.MeshBasicMaterial({color:'#FFFFFF'}));rig.add(bgBoard);
+const bgFrame=new THREE.Mesh(new THREE.PlaneGeometry(boardW+0.03,boardH+0.03),new THREE.MeshBasicMaterial({color:'#2a3850'}));bgFrame.position.z=-0.002;rig.add(bgFrame);
+const bg=new THREE.Group();bg.scale.set(U,U,U);bg.position.set(-boardW/2,-boardH/2,0.002);rig.add(bg);
+const B=new Board(bg);
+// πάνελ πληροφοριών (κάτω από τον πίνακα)
+const infoCv=document.createElement('canvas');infoCv.width=1100;infoCv.height=300;
+const infoTex=new THREE.CanvasTexture(infoCv);infoTex.colorSpace=THREE.SRGBColorSpace;
+const infoMesh=new THREE.Mesh(new THREE.PlaneGeometry(1.1,0.3),new THREE.MeshBasicMaterial({map:infoTex}));infoMesh.position.set(0,-boardH/2-0.2,0);rig.add(infoMesh);
+// πάνελ ελέγχου (δεξιά, για headsets)
+const ctlCv=document.createElement('canvas');ctlCv.width=560;ctlCv.height=700;
+const ctlTex=new THREE.CanvasTexture(ctlCv);ctlTex.colorSpace=THREE.SRGBColorSpace;
+const ctlMesh=new THREE.Mesh(new THREE.PlaneGeometry(0.56,0.7),new THREE.MeshBasicMaterial({map:ctlTex}));ctlMesh.position.set(boardW/2+0.4,-0.02,0.01);ctlMesh.rotation.y=-0.25;rig.add(ctlMesh);
+let ctlHits=[];ctlMesh.visible=false;
+
+function drawInfo(){
+  const x=infoCv.getContext('2d');x.fillStyle=C.panel;x.fillRect(0,0,1100,300);
+  x.fillStyle=C.ink;x.font='700 26px system-ui,Arial,sans-serif';x.textBaseline='top';
+  x.fillText(cur().n,24,16);x.fillStyle=C.dim;x.font='400 18px system-ui,Arial,sans-serif';x.fillText('Κέντρο Καινοτομίας Θεσσαλίας, Μαθηματικά Β΄ Γυμνασίου, '+cur().sec,24,50);
+  let y=88;cur().info(vals()).forEach(([t,c,s=1])=>{x.fillStyle=c;x.font='700 '+Math.round(26*s)+'px system-ui,Arial,sans-serif';x.fillText(t,24,y);y+=Math.round(26*s)+16;});
+  infoTex.needsUpdate=true;
+}
+function rr(x,a,b,w,h,r,fill){x.fillStyle=fill;x.beginPath();x.roundRect(a,b,w,h,r);x.fill();}
+function drawCtl(){
+  const x=ctlCv.getContext('2d'),W=560;ctlHits=[];x.fillStyle=C.panel;x.fillRect(0,0,W,700);
+  rr(x,10,10,90,80,12,'#1F6FB2');rr(x,W-100,10,90,80,12,'#1F6FB2');
+  x.fillStyle='#fff';x.font='700 56px system-ui,Arial';x.textAlign='center';x.textBaseline='middle';x.fillText('‹',55,48);x.fillText('›',W-55,48);
+  x.fillStyle=C.ink;x.font='700 26px system-ui,Arial';x.fillText('Σκηνή '+(idx+1)+' / '+SC.length,W/2,50);
+  ctlHits.push({r:[10,10,90,80],f:()=>go(idx-1)},{r:[W-100,10,90,80],f:()=>go(idx+1)});
+  x.textAlign='left';x.fillStyle=C.dim;x.font='600 22px system-ui,Arial';
+  // τίτλος σε δύο γραμμές
+  const words=cur().n.split(' ');let l1='',l2='';words.forEach(w=>{if((l1+' '+w).length<30&&!l2)l1+=(l1?' ':'')+w;else l2+=(l2?' ':'')+w;});
+  x.fillText(l1,14,125);x.fillText(l2,14,153);
+  cur().params.forEach((p,i)=>{const y=190+i*165,v=vals()[p.k];
+    x.fillStyle=C.ink;x.font='700 26px system-ui,Arial';x.fillText(p.l+' = '+fm(v,p.d)+p.u,14,y+18);
+    rr(x,10,y+50,90,90,14,'#E36C09');rr(x,W-100,y+50,90,90,14,'#E36C09');
+    x.fillStyle='#fff';x.textAlign='center';x.font='700 60px system-ui,Arial';x.fillText('−',55,y+92);x.fillText('+',W-55,y+92);x.textAlign='left';
+    rr(x,120,y+85,W-240,20,10,'#E5B98F');const t=(v-p.min)/(p.max-p.min);rr(x,120,y+85,Math.max(20,(W-240)*t),20,10,'#E36C09');
+    x.beginPath();x.fillStyle='#E36C09';x.arc(120+(W-240)*t,y+95,18,0,7);x.fill();x.lineWidth=3;x.strokeStyle='#fff';x.stroke();
+    ctlHits.push({r:[10,y+50,90,90],f:()=>setP(p,v-p.st)},{r:[W-100,y+50,90,90],f:()=>setP(p,v+p.st)},{r:[110,y+60,W-220,70],f:(px)=>setP(p,p.min+(px-120)/(W-240)*(p.max-p.min)),drag:true});});
+  ctlTex.needsUpdate=true;
+}
+function setP(p,v){const n=clampStep(p,v);if(n===vals()[p.k])return;vals()[p.k]=n;refresh(false);}
+function go(i){idx=(i+SC.length)%SC.length;refresh(true);}
+function refresh(rebuildDom){
+  B.clear();cur().draw(B,vals());drawInfo();drawCtl();
+  if(rebuildDom)buildDom();else updateDom();
+  sel.value=idx;
+  const u=new URL(location.href);u.searchParams.set('k',idx+1);history.replaceState(null,'',u);
+}
+
+/* ---------- DOM ελέγχου (2D και tablet AR) ---------- */
+const sel=document.getElementById('sel'),ctl=document.getElementById('ctl'),msg=document.getElementById('msg');
+SC.forEach((s,i)=>{const o=document.createElement('option');o.value=i;o.textContent=(i+1)+'. '+s.n;sel.appendChild(o);});
+sel.onchange=()=>go(+sel.value);
+let sliders=[];
+function buildDom(){ctl.innerHTML='';sliders=[];
+  cur().params.forEach(p=>{const d=document.createElement('div');d.className='row';const l=document.createElement('label');const r=document.createElement('input');
+    r.type='range';r.min=p.min;r.max=p.max;r.step=p.st;r.value=vals()[p.k];r.oninput=()=>setP(p,+r.value);d.append(l,r);ctl.appendChild(d);sliders.push({p,l,r});});
+  updateDom();}
+function updateDom(){sliders.forEach(({p,l,r})=>{l.textContent=p.l+' = '+fm(vals()[p.k],p.d)+p.u;if(+r.value!==vals()[p.k])r.value=vals()[p.k];});}
+
+/* ---------- προβολή 2D: περιστροφή και ζουμ ---------- */
+let yaw=0,pitch=0.05,dist=1.75;
+function placeCam2D(){const tx=0.2,ty=1.15;camera.position.set(tx+Math.sin(yaw)*Math.cos(pitch)*dist,ty+Math.sin(pitch)*dist,Math.cos(yaw)*Math.cos(pitch)*dist);camera.lookAt(tx,ty,0);}
+const pts=new Map();let pd=0;
+renderer.domElement.addEventListener('pointerdown',e=>{pts.set(e.pointerId,[e.clientX,e.clientY]);if(pts.size===2){const a=[...pts.values()];pd=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);}});
+addEventListener('pointerup',e=>pts.delete(e.pointerId));addEventListener('pointercancel',e=>pts.delete(e.pointerId));
+renderer.domElement.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId)||renderer.xr.isPresenting)return;const o=pts.get(e.pointerId);
+  if(pts.size===1){yaw=Math.max(-1.2,Math.min(1.2,yaw-(e.clientX-o[0])*0.006));pitch=Math.max(-0.5,Math.min(0.9,pitch+(e.clientY-o[1])*0.005));}
+  pts.set(e.pointerId,[e.clientX,e.clientY]);
+  if(pts.size===2){const a=[...pts.values()],d=Math.hypot(a[0][0]-a[1][0],a[0][1]-a[1][1]);dist=Math.max(0.6,Math.min(4,dist*pd/d));pd=d;}});
+renderer.domElement.addEventListener('wheel',e=>{e.preventDefault();dist=Math.max(0.6,Math.min(4,dist*(1+e.deltaY*0.001)));},{passive:false});
+addEventListener('resize',()=>{if(renderer.xr.isPresenting)return;camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);});
+
+/* ---------- WebXR ---------- */
+let session=null,hitSource=null,placed=false,isAR=false,domMode=false,autoPlaced=false;
+const reticle=new THREE.Mesh(new THREE.RingGeometry(0.08,0.1,32).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:'#2E9E4F'}));reticle.matrixAutoUpdate=false;reticle.visible=false;scene.add(reticle);
+const ctrls=[0,1].map(i=>{const c=renderer.xr.getController(i);const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(0,0,-1)]),new THREE.LineBasicMaterial({color:'#ffffff'}));ln.scale.z=1.5;c.add(ln);c.userData.ln=ln;c.userData.sel=false;scene.add(c);return c;});
+const ray=new THREE.Raycaster();
+function hitPanel(c){const m=new THREE.Matrix4().extractRotation(c.matrixWorld);ray.ray.origin.setFromMatrixPosition(c.matrixWorld);ray.ray.direction.set(0,0,-1).applyMatrix4(m);const h=ray.intersectObject(ctlMesh,false)[0];return h&&ctlMesh.visible?h:null;}
+function clickAt(h,drag){const px=h.uv.x*ctlCv.width,py=(1-h.uv.y)*ctlCv.height;
+  for(const b of ctlHits){const[r0,r1,r2,r3]=b.r;if(px>=r0&&px<=r0+r2&&py>=r1&&py<=r1+r3){if(drag&&!b.drag)return false;b.f(px);return true;}}return false;}
+ctrls.forEach(c=>{
+  c.addEventListener('selectstart',()=>{c.userData.sel=true;const h=hitPanel(c);if(h){c.userData.drag=false;clickAt(h,false);c.userData.dragOn=true;}else if(isAR&&hitSource&&reticle.visible&&domMode){placeAtReticle();}});
+  c.addEventListener('selectend',()=>{c.userData.sel=false;c.userData.dragOn=false;});
+  c.addEventListener('squeezestart',()=>recenter());
+});
+function placeAtReticle(){rig.position.setFromMatrixPosition(reticle.matrix);rig.position.y+=0.45;faceCam();placed=true;rig.visible=true;}
+function faceCam(){const cp=new THREE.Vector3();(renderer.xr.isPresenting?renderer.xr.getCamera():camera).getWorldPosition(cp);rig.rotation.set(0,Math.atan2(cp.x-rig.position.x,cp.z-rig.position.z),0);}
+function recenter(){const cam=renderer.xr.getCamera();const p=new THREE.Vector3(),d=new THREE.Vector3();cam.getWorldPosition(p);cam.getWorldDirection(d);d.y=0;d.normalize();rig.position.copy(p).addScaledVector(d,1.3);rig.position.y=p.y-0.05;faceCam();placed=true;rig.visible=true;}
+
+async function startXR(mode){
+  try{
+    const opt=mode==='ar'?{optionalFeatures:['hit-test','dom-overlay','local-floor','bounded-floor'],domOverlay:{root:document.getElementById('ui')}}:{optionalFeatures:['local-floor']};
+    session=await navigator.xr.requestSession(mode==='ar'?'immersive-ar':'immersive-vr',opt);
+  }catch(e){msg.textContent='Δεν ήταν δυνατή η έναρξη της συνεδρίας: '+e.message;return;}
+  isAR=mode==='ar';await renderer.xr.setSession(session);
+  document.body.classList.add('xr');
+  domMode=!!(session.domOverlayState);document.body.classList.toggle('dom',domMode);
+  scene.background=isAR?null:bgCol;rig.position.set(0,1.3,-1.4);rig.rotation.set(0,0,0);ctlMesh.visible=!domMode;
+  placed=false;autoPlaced=false;rig.visible=!(isAR&&domMode);
+  if(isAR&&domMode&&session.requestHitTestSource){try{const vs=await session.requestReferenceSpace('viewer');hitSource=await session.requestHitTestSource({space:vs});}catch(e){hitSource=null;}}
+  if(domMode){session.addEventListener('select',e=>{if(e.inputSource.targetRayMode==='screen'&&reticle.visible)placeAtReticle();else if(e.inputSource.targetRayMode==='screen'&&!hitSource&&!placed)recenter();});}
+  session.addEventListener('end',()=>{document.body.classList.remove('xr','dom');session=null;hitSource=null;scene.background=bgCol;ctlMesh.visible=false;rig.visible=true;rig.position.set(0,1.3,0);rig.rotation.set(0,0,0);reticle.visible=false;setTimeout(()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);},50);});
+}
+const bAR=document.getElementById('bAR'),bVR=document.getElementById('bVR');
+if(navigator.xr){
+  navigator.xr.isSessionSupported('immersive-ar').then(ok=>{bAR.disabled=!ok;if(ok)bVR.textContent='AR / VR (Magic Leap 2, Meta Quest 3)';}).catch(()=>{});
+  navigator.xr.isSessionSupported('immersive-vr').then(ok=>{if(ok)bVR.disabled=false;}).catch(()=>{});
+  // Magic Leap 2 και Meta Quest 3: AR χωρίς dom-overlay, με ελεγκτές
+  bVR.onclick=async()=>{const ar=await navigator.xr.isSessionSupported('immersive-ar').catch(()=>false);
+    const vr=await navigator.xr.isSessionSupported('immersive-vr').catch(()=>false);
+    if(ar)startXRHeadset('ar');else if(vr)startXR('vr');};
+  bAR.onclick=()=>startXR('ar');
+  navigator.xr.isSessionSupported('immersive-ar').then(ok=>{if(ok)bVR.disabled=false;}).catch(()=>{});
+}else{msg.textContent='Το WebXR δεν υποστηρίζεται σε αυτόν τον φυλλομετρητή. Η τρισδιάστατη προβολή λειτουργεί κανονικά.';}
+async function startXRHeadset(){ // immersive-ar χωρίς dom-overlay: ελεγκτές και τρισδιάστατο πάνελ
+  try{session=await navigator.xr.requestSession('immersive-ar',{optionalFeatures:['local-floor','bounded-floor']});}
+  catch(e){try{session=await navigator.xr.requestSession('immersive-vr',{optionalFeatures:['local-floor']});isAR=false;}catch(e2){msg.textContent='Δεν ήταν δυνατή η έναρξη της συνεδρίας: '+e2.message;return;}}
+  if(session.environmentBlendMode==='opaque')isAR=false;else isAR=true;
+  await renderer.xr.setSession(session);document.body.classList.add('xr');document.body.classList.remove('dom');domMode=false;
+  scene.background=isAR?null:bgCol;ctlMesh.visible=true;placed=false;autoPlaced=false;rig.visible=true;
+  session.addEventListener('end',()=>{document.body.classList.remove('xr','dom');session=null;scene.background=bgCol;ctlMesh.visible=false;rig.position.set(0,1.3,0);rig.rotation.set(0,0,0);setTimeout(()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight);},50);});
+}
+
+/* ---------- βρόχος ---------- */
+const tmpHit=new THREE.Vector3();
+renderer.setAnimationLoop((t,frame)=>{
+  if(renderer.xr.isPresenting){
+    if(!autoPlaced&&!domMode&&frame){autoPlaced=true;recenter();}
+    if(frame&&hitSource){const ref=renderer.xr.getReferenceSpace();const hr=frame.getHitTestResults(hitSource);if(hr.length){const pose=hr[0].getPose(ref);reticle.visible=!placed||true;reticle.matrix.fromArray(pose.transform.matrix);}else reticle.visible=false;}
+    ctrls.forEach(c=>{const h=c.visible?hitPanel(c):null;c.userData.ln.scale.z=h?h.distance:1.5;
+      if(h&&c.userData.sel&&c.userData.dragOn)clickAt(h,true);});
+  }else placeCam2D();
+  renderer.render(scene,camera);
+});
+window.__xr={ctlCv,infoCv,SC,V};
+buildDom();refresh(true);
+</script>
+</body>
+</html>
