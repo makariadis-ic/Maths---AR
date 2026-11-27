@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -43,6 +43,7 @@
 | Γραμμικά συστήματα (`grammika-systimata-lykeiou.html`) | Γ΄ Λυκείου, Γραμμικά συστήματα (εκτός ύλης) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Παραλληλόγραμμα (`parallilogramma.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 5 (παραλληλόγραμμα, ορθογώνιο, ρόμβος, τετράγωνο, τραπέζιο) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Δεκαδικοί και ποσοστά (`dekadika-pososta.html`) | Α΄ Γυμνασίου, δεκαδικοί αριθμοί (§3.1) και ποσοστά (§5.1, §5.2) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Φυσικοί αριθμοί (`fysikoi-arithmoi.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 1 (§1.1 έως §1.4) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Ρητοί αριθμοί (`rhtoi.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 7 (§7.1 έως §7.9) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Εξισώσεις και προβλήματα (`eksiswseis.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 4 (§4.1 έως §4.3) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μεσοκάθετος, συμμετρία και παράλληλες (`symmetria-paralliles.html`) | Α΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 2 (§2.3 έως §2.6) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
@@ -71,7 +72,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -1203,5 +1204,44 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
   7. Ο φάρος και το πλοίο: γωνία κατάδυσης ω, ίση με τη γωνία ανύψωσης από το πλοίο, d = H / εφω.
   8. Το πλάτος του ποταμού: κάτοψη στο θρανίο, ΑΔ = d · εφω.
 - Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι εννέα σκηνές, ακραίες τιμές όλων των ολισθητών, χωρίς NaN). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+## Φυσικοί αριθμοί στο Κέντρο Καινοτομίας (σενάριο 50, Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 1, §1.1 έως §1.4)
+
+Συνοδεύει τις 13 εφαρμογές GeoGebra «Φυσικοί αριθμοί - …» του σεναρίου (αρχεία `.ggb` για ανέβασμα στο geogebra.org). Οι εφαρμογές φτιάχτηκαν μέσα στη μηχανή GeoGebra Classic (πακέτο `node-geogebra`) και ελέγχτηκαν ξανά ανοίγοντας τα αρχεία: ολισθητές, συναρτήσεις και χρώματα, με σάρωση των τιμών των ολισθητών.
+
+| # | Εφαρμογή GeoGebra | Παράγραφος |
+|---|---|---|
+| 01 | Η αριθμογραμμή και η διάταξη | §1.1 |
+| 02 | Η αξία των ψηφίων | §1.1 |
+| 03 | Στρογγυλοποίηση | §1.1 |
+| 04 | Πρόσθεση και αφαίρεση στην αριθμογραμμή | §1.2 |
+| 05 | Ιδιότητες της πρόσθεσης | §1.2 |
+| 06 | Πολλαπλασιασμός και επιμεριστική ιδιότητα | §1.2 |
+| 07 | Προτεραιότητα των πράξεων | §1.2 |
+| 08 | Το τετράγωνο και ο κύβος | §1.3 |
+| 09 | Ιδιότητες των δυνάμεων | §1.3 |
+| 10 | Οι δυνάμεις του 10 | §1.3 |
+| 11 | Η Ευκλείδεια διαίρεση | §1.4 |
+| 12 | Πολλαπλάσια και διαιρέτες | §1.4 |
+| 13 | Η διαίρεση ως άλματα στην αριθμογραμμή | §1.4 |
+
+Χρώματα (ίδια σε GeoGebra και XR): α και διαιρετέος μπλε, β και διαιρέτης πράσινοι, αποτέλεσμα μωβ, υπόλοιπο και αφαιρετέος κόκκινα, μεταβλητός αριθμός πορτοκαλί.
+
+- `fysikoi-arithmoi.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/fysikoi-arithmoi.html. Είναι ένα αυτόνομο αρχείο (το three.js 0.160.0 φορτώνεται από CDN), με την ίδια λειτουργία όπως η `trigonometria-oxeias-gonias.html`.
+  Η διεύθυνση `fysikoi-arithmoi.html?k=3` ανοίγει κατευθείαν μια σκηνή (από 0 έως 7). Δεν υπάρχει μοντέλο `.glb`.
+- Οι ολισθητές είναι HTML στην οθόνη και στο AR του tablet (DOM overlay): το πάτημα στο θρανίο τοποθετεί τη σκηνή και το κουμπί «Επανατοποθέτηση» την ξαναφέρνει μπροστά. Στα γυαλιά εμφανίζεται πίνακας με κουμπιά − και +, η σκανδάλη φορτώνει την επόμενη σκηνή, το πλαϊνό κουμπί φέρνει τη σκηνή μπροστά και ο μοχλός αλλάζει την τιμή και το μέγεθος.
+- Οκτώ σκηνές:
+  0. Η αριθμογραμμή και η διάταξη: α και β από 0 έως 30, η σχέση α < β, α = β ή α > β και η απόσταση τους (§1.1).
+  1. Πρόσθεση στην αριθμογραμμή: δύο άλματα +α και +β μέχρι το α + β (§1.2).
+  2. Αφαίρεση στην αριθμογραμμή: άλμα προς τα αριστερά, με έλεγχο α ≥ β (§1.2).
+  3. Η επιμεριστική ιδιότητα: ορθογώνιο από πλακίδια με α γραμμές, β μπλε και γ πράσινες στήλες, α · (β + γ) = α · β + α · γ (§1.2).
+  4. Το τετράγωνο και ο κύβος: στρώση α · α ή κύβος από α · α · α μοναδιαία κυβάκια, α από 1 έως 6 (§1.3).
+  5. Στρογγυλοποίηση: αριθμός από 0 έως 9.999 και τάξη (δεκάδες, εκατοντάδες, χιλιάδες), με το μέσο του διαστήματος (§1.1).
+  6. Η Ευκλείδεια διαίρεση: Δ = δ · π + υ με σφαίρες, μπλε οι πλήρεις ομάδες και κόκκινες το υπόλοιπο (§1.4).
+  7. Πολλαπλάσια και διαιρέτες: πλέγμα 1 έως Ν με υψωμένα τα πολλαπλάσια του δ (§1.4).
+- Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι οκτώ σκηνές, τιμές των ολισθητών, χωρίς NaN). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
 
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
