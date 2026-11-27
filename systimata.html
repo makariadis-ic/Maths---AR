@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Συστήματα — WebXR</title>
+<style>
+  :root{--bg:#0b0f18;--ink:#eaf1f8;--dim:#93a6bb;--line:rgba(255,255,255,.12);--acc:#2dd4bf}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,Roboto,"Noto Sans",sans-serif;overflow:hidden}
+  canvas{display:block}
+  #overlay{position:fixed;inset:0;pointer-events:none}
+  #ui{pointer-events:auto;position:absolute;top:12px;right:12px;bottom:12px;width:min(420px,calc(100vw - 24px));
+    background:rgba(11,15,24,.88);border:1px solid var(--line);border-radius:14px;padding:14px 16px;overflow:auto;
+    display:flex;flex-direction:column;gap:10px}
+  @media (max-width:820px) and (orientation:portrait){
+    #ui{top:auto;left:8px;right:8px;width:auto;bottom:8px;max-height:46vh}
+  }
+  .nav{display:flex;align-items:center;gap:10px}
+  .nav button{flex:0 0 44px;height:44px;font-size:22px}
+  .nav .t{flex:1;min-width:0}
+  #ttl{font-size:18px;font-weight:650;line-height:1.25}
+  #para{font-size:12.5px;color:var(--dim);margin-top:3px}
+  #kidx{font-size:12px;color:var(--dim)}
+  button{font:600 14px/1 "Segoe UI",system-ui,sans-serif;color:var(--ink);background:rgba(255,255,255,.05);
+    border:1px solid var(--line);border-radius:8px;padding:10px 12px;cursor:pointer}
+  button:hover{border-color:var(--acc)}
+  button.main{background:var(--acc);color:#08131a;border-color:transparent}
+  button:disabled{opacity:.4;cursor:default}
+  .prm{display:grid;grid-template-columns:1fr auto;gap:2px 10px;align-items:center;font-size:14px}
+  .prm input{grid-column:1 / 3;width:100%;accent-color:#E36C09}
+  .prm .v{font-weight:650;color:#F0A35E}
+  #info{font-size:15px;line-height:1.55;border-top:1px solid var(--line);padding-top:8px}
+  #info div{margin:2px 0}
+  .xr{display:flex;flex-wrap:wrap;gap:8px;border-top:1px solid var(--line);padding-top:10px}
+  #hint{position:absolute;left:50%;top:14px;transform:translateX(-50%);pointer-events:none;
+    background:rgba(11,15,24,.82);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;display:none}
+  a{color:#5ed0c0}
+  .back{font-size:13px}
+  #msg{font-size:12.5px;color:var(--dim)}
+</style>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body>
+<div id="overlay">
+  <div id="ui">
+    <div class="nav">
+      <button id="prev" title="Προηγούμενη σκηνή">‹</button>
+      <div class="t"><div id="ttl"></div><div id="para"></div><div id="kidx"></div></div>
+      <button id="next" title="Επόμενη σκηνή">›</button>
+    </div>
+    <div id="params"></div>
+    <div id="info"></div>
+    <div class="xr">
+      <button id="btnAR" class="main" disabled>Είσοδος σε AR</button>
+      <button id="btnVR" disabled>Είσοδος σε VR</button>
+      <button id="btnPlace" style="display:none">Επανατοποθέτηση</button>
+      <button id="btnExit" style="display:none">Έξοδος</button>
+    </div>
+    <div id="msg"></div>
+    <div class="back"><a href="index.html">‹ Πίσω στον πίνακα</a></div>
+  </div>
+  <div id="hint"></div>
+</div>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// ------------------------------------------------------------------ χρώματα (ίδια με τις εφαρμογές GeoGebra)
+const COL = { red:'#C0392B', blue:'#1F6FB2', purple:'#7B4FA0', green:'#2E9E4F', orange:'#E36C09', teal:'#138D75',
+  grey:'#7F8C8D', dark:'#1C2833', brown:'#8E5B2E', sand:'#C9A66B', road:'#566573', water:'#5DADE2', tree:'#239B56',
+  gold:'#E8A32C', light:'#AEB8C4', board:'#E5E8E8', wall:'#AAB7B8', lamp:'#F4D03F' };
+function light(hex, k = 0.38) { const c = new THREE.Color(hex); c.lerp(new THREE.Color('#ffffff'), k); return '#' + c.getHexString(); }
+const UI = { red: light(COL.red), blue: light(COL.blue, .45), purple: light(COL.purple, .45), green: light(COL.green, .35),
+  orange: light(COL.orange, .25), teal: light(COL.teal, .4), ink:'#eaf1f8', dim:'#93a6bb' };
+const D2R = Math.PI / 180;
+const dv = (v) => String(v).replace('.', ',').replace('-', '−');
+const fmt = (v, d = 2) => (v < 0 && Math.abs(v) >= 0.5 * Math.pow(10, -d) ? '−' : '') + Math.abs(v).toFixed(d).replace('.', ',');
+
+// ------------------------------------------------------------------ βασικά τρισδιάστατα αντικείμενα (μονάδα: εκατοστό)
+const V = (x, y, z = 0) => new THREE.Vector3(x, y, z);
+const MAT = {};
+function mat(color, opts = {}) {
+  const key = color + JSON.stringify(opts);
+  if (!MAT[key]) MAT[key] = opts.basic ? new THREE.MeshBasicMaterial({ color, transparent: !!opts.opacity, opacity: opts.opacity ?? 1, side: THREE.DoubleSide, depthWrite: !opts.opacity })
+                                       : new THREE.MeshStandardMaterial({ color, roughness: .55, metalness: .05, transparent: !!opts.opacity, opacity: opts.opacity ?? 1 });
+  return MAT[key];
+}
+const UP = new THREE.Vector3(0, 1, 0);
+function rod(g, a, b, color, r = 0.35) {
+  const d = new THREE.Vector3().subVectors(b, a), len = d.length();
+  if (len < 1e-4) return null;
+  const m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 12), mat(color));
+  m.position.copy(a).addScaledVector(d, 0.5);
+  m.quaternion.setFromUnitVectors(UP, d.normalize());
+  g.add(m); return m;
+}
+function dashed(g, a, b, color, r = 0.2, dash = 1.4, gap = 1.0) {
+  const d = new THREE.Vector3().subVectors(b, a), len = d.length(); if (len < 1e-4) return;
+  const u = d.clone().normalize();
+  for (let s = 0; s < len; s += dash + gap) rod(g, a.clone().addScaledVector(u, s), a.clone().addScaledVector(u, Math.min(s + dash, len)), color, r);
+}
+function ball(g, p, color, r = 0.8) { const m = new THREE.Mesh(new THREE.SphereGeometry(r, 20, 14), mat(color)); m.position.copy(p); g.add(m); return m; }
+function box(g, w, h, d, color, pos, opts = {}) { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), mat(color, opts)); m.position.copy(pos); g.add(m); return m; }
+// επίπεδο πολύγωνο σε επίπεδο z = σταθερό (σημεία στο xy)
+function plate(g, pts, color, opacity = 0.25) {
+  const sh = new THREE.Shape(pts.map(p => new THREE.Vector2(p.x, p.y)));
+  const m = new THREE.Mesh(new THREE.ShapeGeometry(sh), mat(color, { basic: true, opacity }));
+  m.position.z = pts[0].z; m.renderOrder = 1; g.add(m); return m;
+}
+// οριζόντιο πολύγωνο (σημεία στο xz) σε ύψος y
+function hplate(g, pts, color, opacity = 0.3) {
+  const sh = new THREE.Shape(pts.map(p => new THREE.Vector2(p.x, -p.z)));
+  const m = new THREE.Mesh(new THREE.ShapeGeometry(sh), mat(color, { basic: true, opacity }));
+  m.rotation.x = -Math.PI / 2; m.position.y = pts[0].y; m.renderOrder = 1; g.add(m); return m;
+}
+// τομέας γωνίας στο επίπεδο xy (κορυφή c, από τη γωνία a0 ως a1)
+function arc(g, c, r, a0, a1, color, opacity = 0.35) {
+  const s = new THREE.Mesh(new THREE.CircleGeometry(r, 40, a0, a1 - a0), mat(color, { basic: true, opacity }));
+  s.position.copy(c); s.position.z += 0.05; s.renderOrder = 2; g.add(s);
+  const t = new THREE.Mesh(new THREE.TorusGeometry(r, 0.18, 6, 40, a1 - a0), mat(color));
+  t.position.copy(c); t.position.z += 0.05; t.rotation.z = a0; g.add(t);
+  return s;
+}
+// τομέας γωνίας σε οριζόντιο επίπεδο (για κάτοψη)
+function harc(g, c, r, a0, a1, color, opacity = 0.35) {
+  const grp = new THREE.Group(); grp.position.copy(c); grp.rotation.x = -Math.PI / 2; g.add(grp);
+  arc(grp, V(0, 0, 0), r, a0, a1, color, opacity);
+}
+// σημάδι ορθής γωνίας: κορυφή p, μοναδιαία u, w στο επίπεδο
+function rightMark(g, p, u, w, s = 1.6, color = COL.dark) {
+  const a = p.clone().addScaledVector(u, s), b = a.clone().addScaledVector(w, s), c = p.clone().addScaledVector(w, s);
+  rod(g, a, b, color, 0.12); rod(g, b, c, color, 0.12);
+}
+// ετικέτα που κοιτάζει πάντα τον θεατή
+const texCache = new Set();
+const LS = 1.55; // συντελεστής μεγέθους ετικετών
+function label(g, text, pos, color = COL.dark, size = 2.2, opts = {}) {
+  const fs = 64, pad = 14, font = `${opts.bold === false ? 500 : 700} ${fs}px "Segoe UI",system-ui,Roboto,"Noto Sans",sans-serif`;
+  const cv = document.createElement('canvas'), cx = cv.getContext('2d');
+  cx.font = font; const w = Math.ceil(cx.measureText(text).width) + pad * 2;
+  cv.width = w; cv.height = fs + pad * 2;
+  cx.font = font; cx.textBaseline = 'middle'; cx.lineJoin = 'round';
+  cx.lineWidth = 12; cx.strokeStyle = 'rgba(255,255,255,0.92)'; cx.strokeText(text, pad, cv.height / 2);
+  cx.fillStyle = color; cx.fillText(text, pad, cv.height / 2);
+  const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace; texCache.add(tex);
+  const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, depthTest: false, transparent: true }));
+  const h = size * LS; sp.scale.set(h * cv.width / cv.height, h, 1);
+  sp.center.set(opts.ax ?? 0.5, opts.ay ?? 0.5);
+  sp.position.copy(pos); sp.renderOrder = 10; g.add(sp); return sp;
+}
+function base(g, w = 60, d = 24) { box(g, w, 1, d, COL.board, V(0, 0.5, 0)); }
+function disposeGroup(g) {
+  g.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material && o.material.map) { o.material.map.dispose(); texCache.delete(o.material.map); o.material.dispose(); } });
+  while (g.children.length) g.remove(g.children[0]);
+}
+
+// ------------------------------------------------------------------ οι σκηνές
+// ------------------------------------------------------------------ βοηθητικά για γραφήματα (πίνακας 40 x 40, μονάδα: cm)
+function ringXY(g, c, r, col, th = 0.3) { const m = new THREE.Mesh(new THREE.TorusGeometry(r, th, 8, 96), mat(col)); m.position.copy(c); g.add(m); return m; }
+const BW = 40, BY = 27;
+const nf = (v) => { const r = Math.round(v); return Math.abs(v - r) < 1e-9 ? fmt(r, 0) : fmt(v, 2); };
+const MN = (v) => v < 0 ? '−' + nf(-v) : nf(v);
+function lin(a, b, c, vx = 'x', vy = 'y') {
+  let s = '';
+  for (const [k, v] of [[a, vx], [b, vy]]) {
+    if (!k) continue; const m = Math.abs(k) === 1 ? '' : nf(Math.abs(k));
+    s += !s ? (k < 0 ? '−' : '') + m + v : (k < 0 ? ' − ' : ' + ') + m + v;
+  }
+  return (s || '0') + ' = ' + nf(c);
+}
+function lin3(a, b, c, d) {
+  let s = '';
+  for (const [k, v] of [[a, 'x'], [b, 'y'], [c, 'z']]) {
+    if (!k) continue; const m = Math.abs(k) === 1 ? '' : nf(Math.abs(k));
+    s += !s ? (k < 0 ? '−' : '') + m + v : (k < 0 ? ' − ' : ' + ') + m + v;
+  }
+  return s + ' = ' + nf(d);
+}
+function quadStr(B, C, v = 'x') {
+  let s = v + '²';
+  if (B) s += (B < 0 ? ' − ' : ' + ') + (Math.abs(B) === 1 ? '' : nf(Math.abs(B))) + v;
+  if (C) s += (C < 0 ? ' − ' : ' + ') + nf(Math.abs(C));
+  return s;
+}
+function chart(g, o) {
+  const sx = BW / (o.x1 - o.x0), sy = BW / (o.y1 - o.y0), cx = (o.x0 + o.x1) / 2, cy = (o.y0 + o.y1) / 2;
+  const ch = { ...o, sx, sy, P: (x, y, z = 0.3) => V((x - cx) * sx, (y - cy) * sy + BY, z) };
+  base(g, 64, 14);
+  box(g, BW + 12, BW + 12, 1, COL.board, V(0, BY, -0.8));
+  const grid = '#C3CAD1';
+  for (let x = Math.ceil(o.x0 / o.stx) * o.stx; x <= o.x1 + 1e-9; x += o.stx) {
+    rod(g, ch.P(x, o.y0, 0.05), ch.P(x, o.y1, 0.05), grid, 0.07);
+    if (Math.abs(x) > 1e-9 || o.x0 >= 0) label(g, nf(x), V(ch.P(x, o.y0).x, ch.P(x, o.y0).y - 2.6, 0.3), COL.grey, 1.3, { bold: false });
+  }
+  for (let y = Math.ceil(o.y0 / o.sty) * o.sty; y <= o.y1 + 1e-9; y += o.sty) {
+    rod(g, ch.P(o.x0, y, 0.05), ch.P(o.x1, y, 0.05), grid, 0.07);
+    if (Math.abs(y) > 1e-9 || o.y0 >= 0) label(g, nf(y), V(ch.P(o.x0, y).x - 1.6, ch.P(o.x0, y).y, 0.3), COL.grey, 1.3, { ax: 1, bold: false });
+  }
+  if (o.x0 <= 0 && o.x1 >= 0) rod(g, ch.P(0, o.y0, 0.1), ch.P(0, o.y1, 0.1), COL.dark, 0.14);
+  if (o.y0 <= 0 && o.y1 >= 0) rod(g, ch.P(o.x0, 0, 0.1), ch.P(o.x1, 0, 0.1), COL.dark, 0.14);
+  const e = [ch.P(o.x0, o.y0, 0.1), ch.P(o.x1, o.y0, 0.1), ch.P(o.x1, o.y1, 0.1), ch.P(o.x0, o.y1, 0.1)];
+  e.forEach((p, i) => rod(g, p, e[(i + 1) % 4], COL.grey, 0.1));
+  label(g, o.xn || 'x', V(e[1].x - 1, e[1].y - 5.2, 0.3), COL.dark, 1.9, { ax: 1 });
+  label(g, o.yn || 'y', V(e[3].x - 1.6, e[3].y + 2.8, 0.3), COL.dark, 1.9, { ax: 0 });
+  return ch;
+}
+function clipSeg(p, q, b) {
+  let t0 = 0, t1 = 1; const dx = q.x - p.x, dy = q.y - p.y;
+  for (const [pp, qq] of [[-dx, p.x - b.x0], [dx, b.x1 - p.x], [-dy, p.y - b.y0], [dy, b.y1 - p.y]]) {
+    if (Math.abs(pp) < 1e-12) { if (qq < 0) return null; }
+    else { const r = qq / pp; if (pp < 0) { if (r > t1) return null; if (r > t0) t0 = r; } else { if (r < t0) return null; if (r < t1) t1 = r; } }
+  }
+  return [{ x: p.x + t0 * dx, y: p.y + t0 * dy }, { x: p.x + t1 * dx, y: p.y + t1 * dy }];
+}
+function lineDraw(g, ch, a, b, c, col, r = 0.45) { // ευθεία ax + by = c μέσα στο παράθυρο
+  if (!a && !b) return;
+  const L = 1e4; let p, q;
+  if (Math.abs(b) >= Math.abs(a)) { p = { x: -L, y: (c + a * L) / b }; q = { x: L, y: (c - a * L) / b }; }
+  else { p = { y: -L, x: (c + b * L) / a }; q = { y: L, x: (c - b * L) / a }; }
+  const s = clipSeg(p, q, ch); if (s) rod(g, ch.P(s[0].x, s[0].y, 0.4), ch.P(s[1].x, s[1].y, 0.4), col, r);
+}
+function curveXY(g, ch, f, col, r = 0.45, n = 160) {
+  let run = []; const flush = () => { for (let i = 0; i + 1 < run.length; i++) rod(g, run[i], run[i + 1], col, r); run = []; };
+  for (let i = 0; i <= n; i++) {
+    const x = ch.x0 + (ch.x1 - ch.x0) * i / n, y = f(x);
+    if (y !== null && isFinite(y) && y >= ch.y0 && y <= ch.y1) run.push(ch.P(x, y, 0.4)); else flush();
+  }
+  flush();
+}
+function pt(g, ch, x, y, name, dx = 2, dy = 3, col = COL.orange) {
+  if (x < ch.x0 || x > ch.x1 || y < ch.y0 || y > ch.y1) return;
+  const p = ch.P(x, y, 0.8); ball(g, p, col, 0.95);
+  if (name) label(g, name, V(p.x + dx, p.y + dy, 1.2), COL.dark, 1.9);
+}
+function guides(g, ch, x, y) { // διακεκομμένες προς τους άξονες
+  if (x < ch.x0 || x > ch.x1 || y < ch.y0 || y > ch.y1) return;
+  dashed(g, ch.P(x, y, 0.35), ch.P(x, Math.max(ch.y0, Math.min(0, ch.y1)), 0.35), COL.teal, 0.14);
+  dashed(g, ch.P(x, y, 0.35), ch.P(Math.max(ch.x0, Math.min(0, ch.x1)), y, 0.35), COL.teal, 0.14);
+}
+// λύση 2x2 με ορίζουσες
+function sys2(a1, b1, c1, a2, b2, c2) {
+  const D = a1 * b2 - a2 * b1, Dx = c1 * b2 - c2 * b1, Dy = a1 * c2 - a2 * c1;
+  let type;
+  if (D !== 0) type = 'unique';
+  else if ((!a1 && !b1 && c1 !== 0) || (!a2 && !b2 && c2 !== 0)) type = 'none';
+  else type = (Dx === 0 && Dy === 0) ? 'inf' : 'none';
+  return { D, Dx, Dy, type, x: D ? Dx / D : null, y: D ? Dy / D : null };
+}
+function twoLines(g, ch, a1, b1, c1, a2, b2, c2, S) {
+  lineDraw(g, ch, a1, b1, c1, COL.blue, S.type === 'inf' ? 0.75 : 0.5);
+  lineDraw(g, ch, a2, b2, c2, COL.green, S.type === 'inf' ? 0.32 : 0.5);
+  if (S.type === 'unique') { guides(g, ch, S.x, S.y); pt(g, ch, S.x, S.y, `(${nf(S.x)}; ${nf(S.y)})`); }
+}
+const sysInfo = (e1, e2, c1 = UI.blue, c2 = UI.green) => [[['(1)  ', UI.dim], [e1, c1]], [['(2)  ', UI.dim], [e2, c2]]];
+function resInfo(S) {
+  const dets = [[['D = ', UI.ink], [nf(S.D), UI.purple], ['    Dx = ', UI.ink], [nf(S.Dx), UI.purple], ['    Dy = ', UI.ink], [nf(S.Dy), UI.purple]]];
+  if (S.type === 'unique') return dets.concat([[['Μοναδική λύση: (x, y) = ', UI.ink], [`(${nf(S.x)}; ${nf(S.y)})`, UI.orange]], [['Οι ευθείες τέμνονται σε ένα σημείο.', UI.dim]]]);
+  if (S.type === 'inf') return dets.concat([[['Αόριστο σύστημα: άπειρες λύσεις.', UI.orange]], [['Οι ευθείες ταυτίζονται.', UI.dim]]]);
+  return dets.concat([[['Αδύνατο σύστημα: καμία λύση.', UI.orange]], [['Οι ευθείες είναι παράλληλες.', UI.dim]]]);
+}
+
+// ------------------------------------------------------------------ βοηθητικά για την τρισδιάστατη σκηνή (σύστημα 3x3)
+const L3 = 6, S3 = 3, Y3 = 22;
+const M3 = (x, y, z) => V(x * S3, z * S3 + Y3, -y * S3);
+const dot3 = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+const cross3 = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+const det3 = (m) => m[0][0] * (m[1][1] * m[2][2] - m[1][2] * m[2][1]) - m[0][1] * (m[1][0] * m[2][2] - m[1][2] * m[2][0]) + m[0][2] * (m[1][0] * m[2][1] - m[1][1] * m[2][0]);
+function solve3(m, r) {
+  const D = det3(m); if (Math.abs(D) < 1e-9) return null;
+  const rep = (c) => m.map((row, i) => row.map((v, j) => j === c ? r[i] : v));
+  return [det3(rep(0)) / D, det3(rep(1)) / D, det3(rep(2)) / D];
+}
+function planePoly(n, d) {
+  const cs = []; for (const x of [-L3, L3]) for (const y of [-L3, L3]) for (const z of [-L3, L3]) cs.push([x, y, z]);
+  const pts = [];
+  for (let i = 0; i < 8; i++) for (let j = i + 1; j < 8; j++) {
+    const A = cs[i], B = cs[j]; if ((A[0] !== B[0]) + (A[1] !== B[1]) + (A[2] !== B[2]) !== 1) continue;
+    const da = dot3(n, A) - d, db = dot3(n, B) - d;
+    if (da * db > 0 || Math.abs(da - db) < 1e-12) continue;
+    const t = da / (da - db), p = [A[0] + t * (B[0] - A[0]), A[1] + t * (B[1] - A[1]), A[2] + t * (B[2] - A[2])];
+    if (!pts.some(q => Math.hypot(q[0] - p[0], q[1] - p[1], q[2] - p[2]) < 1e-6)) pts.push(p);
+  }
+  if (pts.length < 3) return null;
+  const c = [0, 1, 2].map(k => pts.reduce((s, p) => s + p[k], 0) / pts.length), nl = Math.hypot(...n), nn = n.map(v => v / nl);
+  let u = [pts[0][0] - c[0], pts[0][1] - c[1], pts[0][2] - c[2]]; const ul = Math.hypot(...u); u = u.map(v => v / ul);
+  const w = cross3(nn, u);
+  pts.sort((p, q) => { const f = (r) => Math.atan2(dot3([r[0] - c[0], r[1] - c[1], r[2] - c[2]], w), dot3([r[0] - c[0], r[1] - c[1], r[2] - c[2]], u)); return f(p) - f(q); });
+  return { pts, c };
+}
+function planeMesh(g, n, d, col) {
+  const P = planePoly(n, d); if (!P) return;
+  const pos = []; const C = M3(...P.c);
+  for (let i = 0; i < P.pts.length; i++) { const a = M3(...P.pts[i]), b = M3(...P.pts[(i + 1) % P.pts.length]); pos.push(C.x, C.y, C.z, a.x, a.y, a.z, b.x, b.y, b.z); }
+  const geo = new THREE.BufferGeometry(); geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  const m = new THREE.Mesh(geo, mat(col, { basic: true, opacity: 0.3 })); m.renderOrder = 1; g.add(m);
+}
+function segInCube(p0, dir) { // τμήμα της ευθείας p0 + t·dir μέσα στον κύβο
+  let t0 = -1e9, t1 = 1e9;
+  for (let k = 0; k < 3; k++) {
+    if (Math.abs(dir[k]) < 1e-9) { if (Math.abs(p0[k]) > L3) return null; continue; }
+    const a = (-L3 - p0[k]) / dir[k], b = (L3 - p0[k]) / dir[k]; t0 = Math.max(t0, Math.min(a, b)); t1 = Math.min(t1, Math.max(a, b));
+  }
+  if (t0 > t1) return null; return [0, 1, 2].map(k => [p0[k] + t0 * dir[k], p0[k] + t1 * dir[k]]);
+}
+function pairLine(g, n1, d1, n2, d2, col, r) {
+  const dir = cross3(n1, n2); if (Math.hypot(...dir) < 1e-9) return;
+  const p0 = solve3([n1, n2, dir], [d1, d2, 0]); if (!p0) return;
+  const s = segInCube(p0, dir); if (!s) return;
+  rod(g, M3(s[0][0], s[1][0], s[2][0]), M3(s[0][1], s[1][1], s[2][1]), col, r);
+}
+const SYS3 = [
+  { e: [[1, 1, 1, 6], [2, -1, 1, 3], [1, -1, 2, 5]] },
+  { e: [[1, 1, 0, 2], [0, 1, 1, 3], [1, 0, -1, 0]] },
+  { e: [[1, 1, 1, 6], [2, -1, 1, 3], [3, 0, 2, 9]] }
+];
+
+const SC = [
+{ // 0
+  title: 'Γραμμική εξίσωση με δύο αγνώστους', para: '§1.1 Γραμμικά συστήματα: η εξίσωση αx + βy = γ',
+  params: [{ k: 'a', n: 'α', min: -5, max: 5, step: 1, v: 2, u: '' }, { k: 'b', n: 'β', min: -5, max: 5, step: 1, v: 1, u: '' }, { k: 'c', n: 'γ', min: -10, max: 10, step: 1, v: 4, u: '' }],
+  build(g, P) {
+    const ch = chart(g, { x0: -10, x1: 10, y0: -10, y1: 10, stx: 5, sty: 5 });
+    lineDraw(g, ch, P.a, P.b, P.c, COL.blue, 0.55);
+    for (let x = -10; x <= 10; x++) for (let y = -10; y <= 10; y++) if (P.a * x + P.b * y === P.c) pt(g, ch, x, y, '', 0, 0, COL.orange);
+  },
+  info(P) {
+    const deg = !P.a && !P.b;
+    const out = [[['Εξίσωση: ', UI.ink], [lin(P.a, P.b, P.c), UI.blue]]];
+    if (deg) out.push([[P.c === 0 ? 'Ισχύει για κάθε (x, y): όλο το επίπεδο.' : 'Δεν έχει καμία λύση.', UI.purple]]);
+    else {
+      out.push([['Η γραφική παράσταση είναι ευθεία.', UI.purple]]);
+      out.push([[P.b ? `Κλίση λ = −α/β = ${nf(-P.a / P.b)}` : 'Κατακόρυφη ευθεία: x = ' + nf(P.c / P.a), UI.ink]]);
+      out.push([['Κάθε σημείο της ευθείας είναι λύση (x, y).', UI.dim]]);
+      out.push([['Οι πορτοκαλί κουκκίδες δείχνουν λύσεις με ακέραιες συντεταγμένες.', UI.dim]]);
+    }
+    return out;
+  }
+},
+{ // 1
+  title: 'Γραφική επίλυση συστήματος 2×2', para: '§1.1 Γραμμικά συστήματα: γεωμετρική ερμηνεία και ορίζουσες',
+  params: [{ k: 'a1', n: 'α₁', min: -5, max: 5, step: 1, v: 2, u: '' }, { k: 'b1', n: 'β₁', min: -5, max: 5, step: 1, v: 1, u: '' }, { k: 'c1', n: 'γ₁', min: -10, max: 10, step: 1, v: 5, u: '' },
+    { k: 'a2', n: 'α₂', min: -5, max: 5, step: 1, v: 1, u: '' }, { k: 'b2', n: 'β₂', min: -5, max: 5, step: 1, v: -1, u: '' }, { k: 'c2', n: 'γ₂', min: -10, max: 10, step: 1, v: 1, u: '' }],
+  build(g, P) {
+    const ch = chart(g, { x0: -10, x1: 10, y0: -10, y1: 10, stx: 5, sty: 5 });
+    twoLines(g, ch, P.a1, P.b1, P.c1, P.a2, P.b2, P.c2, sys2(P.a1, P.b1, P.c1, P.a2, P.b2, P.c2));
+  },
+  info(P) { return sysInfo(lin(P.a1, P.b1, P.c1), lin(P.a2, P.b2, P.c2)).concat(resInfo(sys2(P.a1, P.b1, P.c1, P.a2, P.b2, P.c2))); }
+},
+{ // 2
+  title: 'Σύστημα με παράμετρο λ', para: '§1.1 Γραμμικά συστήματα: διερεύνηση',
+  params: [{ k: 'l', n: 'λ', min: -4, max: 4, step: 0.5, v: 2, u: '' }],
+  build(g, P) {
+    const ch = chart(g, { x0: -6, x1: 6, y0: -6, y1: 6, stx: 2, sty: 2 });
+    twoLines(g, ch, P.l, 1, 1, 1, P.l, 1, sys2(P.l, 1, 1, 1, P.l, 1));
+  },
+  info(P) {
+    const S = sys2(P.l, 1, 1, 1, P.l, 1);
+    return sysInfo(lin(P.l, 1, 1), lin(1, P.l, 1)).concat([[['D = λ² − 1 = ', UI.ink], [nf(S.D), UI.purple]]]).concat(
+      S.type === 'unique' ? [[['λ ≠ ±1: μοναδική λύση x = y = 1/(λ + 1) = ', UI.ink], [nf(S.x), UI.orange]]]
+      : S.type === 'inf' ? [[['λ = 1: αόριστο, οι ευθείες ταυτίζονται.', UI.orange]]] : [[['λ = −1: αδύνατο, οι ευθείες είναι παράλληλες.', UI.orange]]]);
+  }
+},
+{ // 3
+  title: 'Εφαρμογή: εισιτήρια θεάτρου', para: '§1.1 Γραμμικά συστήματα: προβλήματα',
+  params: [{ k: 'N', n: 'Εισιτήρια Ν', min: 50, max: 150, step: 10, v: 100, u: '' }, { k: 'a', n: 'Ενηλίκων α (€)', min: 6, max: 12, step: 1, v: 8, u: '' },
+    { k: 'b', n: 'Παιδικό β (€)', min: 3, max: 6, step: 1, v: 5, u: '' }, { k: 'R', n: 'Είσπραξη R (€)', min: 300, max: 1200, step: 10, v: 620, u: '' }],
+  build(g, P) {
+    const W = Math.ceil(P.N * 1.2 / 10) * 10, ch = chart(g, { x0: 0, x1: W, y0: 0, y1: W, stx: W <= 80 ? 10 : 20, sty: W <= 80 ? 10 : 20, xn: 'x: ενήλικες', yn: 'y: παιδικά' });
+    const S = sys2(1, 1, P.N, P.a, P.b, P.R); twoLines(g, ch, 1, 1, P.N, P.a, P.b, P.R, S);
+  },
+  info(P) {
+    const S = sys2(1, 1, P.N, P.a, P.b, P.R), ok = S.type === 'unique' && Number.isInteger(S.x) && Number.isInteger(S.y) && S.x >= 0 && S.y >= 0;
+    const out = [[['x: εισιτήρια ενηλίκων, y: παιδικά', UI.dim]]].concat(sysInfo(`x + y = ${P.N}`, `${P.a}x + ${P.b}y = ${P.R}`));
+    if (S.type === 'unique') out.push([['x = ', UI.ink], [nf(S.x), UI.orange], ['    y = ', UI.ink], [nf(S.y), UI.orange]]);
+    out.push([[ok ? `Δεκτή λύση: ${S.x} ενήλικες και ${S.y} παιδιά.` : 'Η λύση δεν είναι δεκτή: οι αριθμοί των εισιτηρίων πρέπει να είναι φυσικοί.', UI.purple]]);
+    if (ok) out.push([[`Έλεγχος: ${P.a}·${S.x} + ${P.b}·${S.y} = ${P.a * S.x + P.b * S.y} €`, UI.dim]]);
+    return out;
+  }
+},
+{ // 4
+  title: 'Εφαρμογή: σύγκριση προσφορών', para: '§1.1 Γραμμικά συστήματα: προβλήματα',
+  params: [{ k: 'A', n: 'Πάγιο Α (€)', min: 0, max: 40, step: 5, v: 10, u: '' }, { k: 'p', n: 'Τιμή ανά GB, Α (€)', min: 1, max: 10, step: 1, v: 5, u: '' },
+    { k: 'B', n: 'Πάγιο Β (€)', min: 20, max: 80, step: 5, v: 40, u: '' }, { k: 'q', n: 'Τιμή ανά GB, Β (€)', min: 1, max: 6, step: 1, v: 2, u: '' }],
+  build(g, P) {
+    const ch = chart(g, { x0: 0, x1: 20, y0: 0, y1: 120, stx: 5, sty: 20, xn: 'x: GB', yn: 'y: κόστος (€)' });
+    const S = sys2(-P.p, 1, P.A, -P.q, 1, P.B);
+    lineDraw(g, ch, -P.p, 1, P.A, COL.blue, S.type === 'inf' ? 0.75 : 0.5); lineDraw(g, ch, -P.q, 1, P.B, COL.green, S.type === 'inf' ? 0.32 : 0.5);
+    if (S.type === 'unique') { guides(g, ch, S.x, S.y); pt(g, ch, S.x, S.y, `(${nf(S.x)}; ${nf(S.y)})`); }
+  },
+  info(P) {
+    const S = sys2(-P.p, 1, P.A, -P.q, 1, P.B), out = [[['x: GB που καταναλώνονται, y: κόστος σε €', UI.dim]]].concat(sysInfo(`y = ${P.A} + ${P.p}x   (Πακέτο Α)`, `y = ${P.B} + ${P.q}x   (Πακέτο Β)`));
+    if (S.type !== 'unique') { out.push([[S.type === 'inf' ? 'Τα δύο πακέτα κοστίζουν πάντα το ίδιο.' : 'Οι ευθείες είναι παράλληλες: το ένα πακέτο είναι πάντα φθηνότερο.', UI.purple]]); return out; }
+    out.push([['x₀ = ', UI.ink], [nf(S.x), UI.orange], [' GB,   y₀ = ', UI.ink], [nf(S.y), UI.orange], [' €', UI.ink]]);
+    if (S.x <= 0) out.push([['Το σημείο τομής είναι εκτός πεδίου (x₀ ≤ 0): το ένα πακέτο συμφέρει πάντα.', UI.purple]]);
+    else { const lowA = P.p < P.q; out.push([[`x < x₀: συμφέρει το πακέτο ${lowA ? 'Β' : 'Α'}`, lowA ? UI.green : UI.blue]], [[`x > x₀: συμφέρει το πακέτο ${lowA ? 'Α' : 'Β'}`, lowA ? UI.blue : UI.green]]); }
+    return out;
+  }
+},
+{ // 5
+  title: 'Σύστημα 3×3: τρία επίπεδα', para: 'Επέκταση της §1.1: γραμμικό σύστημα τριών εξισώσεων',
+  params: [{ k: 'c', n: 'Περίπτωση', min: 1, max: 3, step: 1, v: 1, u: '' }],
+  build(g, P) {
+    const E = SYS3[P.c - 1].e, cols = [COL.blue, COL.green, COL.red];
+    base(g, 64, 40);
+    const cube = []; for (const x of [-L3, L3]) for (const y of [-L3, L3]) for (const z of [-L3, L3]) cube.push([x, y, z]);
+    for (let i = 0; i < 8; i++) for (let j = i + 1; j < 8; j++) if ((cube[i][0] !== cube[j][0]) + (cube[i][1] !== cube[j][1]) + (cube[i][2] !== cube[j][2]) === 1) rod(g, M3(...cube[i]), M3(...cube[j]), COL.light, 0.1);
+    rod(g, M3(-L3, 0, 0), M3(L3, 0, 0), COL.dark, 0.12); rod(g, M3(0, -L3, 0), M3(0, L3, 0), COL.dark, 0.12); rod(g, M3(0, 0, -L3), M3(0, 0, L3), COL.dark, 0.12);
+    label(g, 'x', M3(L3 + 0.9, 0, 0), COL.dark, 1.9); label(g, 'y', M3(0, L3 + 0.9, 0), COL.dark, 1.9); label(g, 'z', M3(0, 0, L3 + 0.9), COL.dark, 1.9);
+    E.forEach((e, i) => planeMesh(g, e.slice(0, 3), e[3], cols[i]));
+    const pairs = [[0, 1], [0, 2], [1, 2]];
+    pairs.forEach(([i, j]) => pairLine(g, E[i].slice(0, 3), E[i][3], E[j].slice(0, 3), E[j][3], COL.dark, P.c === 3 ? 0.18 : 0.3));
+    if (P.c === 1) { const s = solve3(E.map(e => e.slice(0, 3)), E.map(e => e[3])); const p = M3(...s); ball(g, p, COL.orange, 1.1); label(g, `(${s.map(nf).join('; ')})`, V(p.x + 3, p.y + 3, p.z), COL.dark, 1.9); }
+    if (P.c === 3) pairLine(g, E[0].slice(0, 3), E[0][3], E[1].slice(0, 3), E[1][3], COL.purple, 0.5);
+  },
+  info(P) {
+    const E = SYS3[P.c - 1].e, D = det3(E.map(e => e.slice(0, 3)));
+    const out = [[['Περίπτωση ' + P.c + ' από 3', UI.dim]]].concat(E.map((e, i) => [[`(${i + 1})  `, UI.dim], [lin3(...e), [UI.blue, UI.green, UI.red][i]]]));
+    out.push([['D = ', UI.ink], [nf(D), UI.purple]]);
+    if (P.c === 1) out.push([['Μοναδική λύση (x, y, z) = (1; 2; 3)', UI.orange]], [['Τα τρία επίπεδα τέμνονται σε ένα σημείο.', UI.dim]]);
+    else if (P.c === 2) out.push([['Αδύνατο σύστημα: καμία κοινή λύση.', UI.orange]], [['Τα επίπεδα τέμνονται ανά δύο σε παράλληλες ευθείες.', UI.dim]]);
+    else out.push([['Αόριστο σύστημα: άπειρες λύσεις.', UI.orange]], [['Τα επίπεδα έχουν κοινή ευθεία: (3 + 2t; 3 + t; −3t).', UI.dim]]);
+    return out;
+  }
+},
+{ // 6
+  title: 'Ευθεία και κύκλος', para: '§1.2 Μη γραμμικά συστήματα',
+  params: [{ k: 'a', n: 'α', min: -4, max: 4, step: 1, v: 1, u: '' }, { k: 'b', n: 'β', min: -4, max: 4, step: 1, v: 1, u: '' }, { k: 'c', n: 'γ', min: -10, max: 10, step: 1, v: 1, u: '' }, { k: 'r', n: 'ρ', min: 1, max: 8, step: 1, v: 5, u: '' }],
+  build(g, P) {
+    const ch = chart(g, { x0: -9, x1: 9, y0: -9, y1: 9, stx: 3, sty: 3 });
+    ringXY(g, ch.P(0, 0, 0.4), P.r * ch.sx, COL.green, 0.28);
+    lineDraw(g, ch, P.a, P.b, P.c, COL.blue, 0.5);
+    const q = P.a * P.a + P.b * P.b; if (!q) return;
+    const d2v = P.c * P.c / q, r2 = P.r * P.r; if (d2v > r2 + 1e-9) return;
+    const Fx = P.a * P.c / q, Fy = P.b * P.c / q, h = Math.sqrt(Math.max(0, r2 - d2v)), n = Math.sqrt(q), ux = -P.b / n, uy = P.a / n;
+    if (h < 1e-9) pt(g, ch, Fx, Fy, `(${nf(Fx)}; ${nf(Fy)})`); else { pt(g, ch, Fx + h * ux, Fy + h * uy, `A(${nf(Fx + h * ux)}; ${nf(Fy + h * uy)})`); pt(g, ch, Fx - h * ux, Fy - h * uy, `B(${nf(Fx - h * ux)}; ${nf(Fy - h * uy)})`); }
+  },
+  info(P) {
+    const out = sysInfo(lin(P.a, P.b, P.c), `x² + y² = ${P.r * P.r}`);
+    const q = P.a * P.a + P.b * P.b; if (!q) { out.push([['Η (1) δεν ορίζει ευθεία (α = β = 0).', UI.purple]]); return out; }
+    const d = Math.abs(P.c) / Math.sqrt(q), cmp = P.c * P.c - P.r * P.r * q;
+    out.push([['d = |γ| / √(α² + β²) = ', UI.ink], [nf(d), UI.purple], ['    ρ = ' + P.r, UI.ink]]);
+    out.push([[cmp < 0 ? 'd < ρ: δύο λύσεις, η ευθεία τέμνει τον κύκλο' : cmp === 0 ? 'd = ρ: μία λύση, η ευθεία εφάπτεται στον κύκλο' : 'd > ρ: καμία λύση, η ευθεία δεν τέμνει τον κύκλο', UI.orange]]);
+    if (cmp <= 0) {
+      const Fx = P.a * P.c / q, Fy = P.b * P.c / q, h = Math.sqrt(Math.max(0, -cmp / q)), n = Math.sqrt(q), ux = -P.b / n, uy = P.a / n;
+      if (h < 1e-9) out.push([[`(x, y) = (${nf(Fx)}; ${nf(Fy)})`, UI.ink]]);
+      else out.push([[`A(${nf(Fx + h * ux)}; ${nf(Fy + h * uy)})`, UI.ink]], [[`B(${nf(Fx - h * ux)}; ${nf(Fy - h * uy)})`, UI.ink]]);
+    }
+    return out;
+  }
+},
+{ // 7
+  title: 'Ευθεία και παραβολή', para: '§1.2 Μη γραμμικά συστήματα',
+  params: [{ k: 'p', n: 'p', min: -4, max: 4, step: 1, v: 0, u: '' }, { k: 'q', n: 'q', min: -6, max: 6, step: 1, v: 0, u: '' }, { k: 'm', n: 'μ', min: -4, max: 4, step: 1, v: 1, u: '' }, { k: 'n', n: 'ν', min: -6, max: 6, step: 1, v: 2, u: '' }],
+  build(g, P) {
+    const ch = chart(g, { x0: -6, x1: 6, y0: -3, y1: 9, stx: 2, sty: 2 });
+    curveXY(g, ch, x => x * x + P.p * x + P.q, COL.blue, 0.5);
+    lineDraw(g, ch, -P.m, 1, P.n, COL.green, 0.5);
+    const B = P.p - P.m, C = P.q - P.n, D = B * B - 4 * C; if (D < 0) return;
+    const xs = D === 0 ? [-B / 2] : [(-B - Math.sqrt(D)) / 2, (-B + Math.sqrt(D)) / 2];
+    xs.forEach((x, i) => { const y = P.m * x + P.n; pt(g, ch, x, y, xs.length === 1 ? `(${nf(x)}; ${nf(y)})` : `${'AB'[i]}(${nf(x)}; ${nf(y)})`); });
+  },
+  info(P) {
+    const B = P.p - P.m, C = P.q - P.n, D = B * B - 4 * C;
+    const out = sysInfo('y = ' + quadStr(P.p, P.q), 'y = ' + (P.m ? (Math.abs(P.m) === 1 ? (P.m < 0 ? '−' : '') : nf(P.m)) + 'x' + (P.n ? (P.n < 0 ? ' − ' : ' + ') + nf(Math.abs(P.n)) : '') : nf(P.n)));
+    out.push([['(1) και (2) ⇒ ' + quadStr(B, C) + ' = 0', UI.ink]], [['Δ = ', UI.ink], [nf(D), UI.purple]]);
+    if (D < 0) out.push([['Δ < 0: καμία λύση, η ευθεία δεν τέμνει την παραβολή.', UI.orange]]);
+    else if (D === 0) out.push([['Δ = 0: μία λύση, η ευθεία εφάπτεται στην παραβολή.', UI.orange]]);
+    else out.push([['Δ > 0: δύο λύσεις, η ευθεία τέμνει την παραβολή.', UI.orange]]);
+    if (D >= 0) { const s = Math.sqrt(D), xs = D === 0 ? [-B / 2] : [(-B - s) / 2, (-B + s) / 2]; xs.forEach(x => out.push([[`(x, y) = (${nf(x)}; ${nf(P.m * x + P.n)})`, UI.ink]])); }
+    return out;
+  }
+},
+{ // 8
+  title: 'Άθροισμα και γινόμενο', para: '§1.2 Μη γραμμικά συστήματα: x + y = S, xy = P',
+  params: [{ k: 'S', n: 'S', min: -8, max: 8, step: 1, v: 5, u: '' }, { k: 'P', n: 'P', min: -10, max: 12, step: 1, v: 6, u: '' }],
+  build(g, P) {
+    const ch = chart(g, { x0: -9, x1: 9, y0: -9, y1: 9, stx: 3, sty: 3 });
+    if (P.P === 0) { lineDraw(g, ch, 0, 1, 0, COL.green, 0.5); lineDraw(g, ch, 1, 0, 0, COL.green, 0.5); }
+    else curveXY(g, ch, x => Math.abs(x) < 1e-9 ? null : P.P / x, COL.green, 0.5, 360);
+    lineDraw(g, ch, 1, 1, P.S, COL.blue, 0.5);
+    const D = P.S * P.S - 4 * P.P; if (D < 0) return;
+    const s = Math.sqrt(D), t1 = (P.S - s) / 2, t2 = (P.S + s) / 2;
+    if (D === 0) pt(g, ch, t1, t1, `(${nf(t1)}; ${nf(t1)})`); else { pt(g, ch, t1, t2, `(${nf(t1)}; ${nf(t2)})`); pt(g, ch, t2, t1, `(${nf(t2)}; ${nf(t1)})`, 2, -3); }
+  },
+  info(P) {
+    const D = P.S * P.S - 4 * P.P, out = sysInfo(`x + y = ${P.S}`, `xy = ${P.P}`);
+    out.push([['Τα x, y είναι ρίζες της t² − St + P = 0, δηλαδή ', UI.ink], [quadStr(-P.S, P.P, 't') + ' = 0', UI.ink]], [['Δ = S² − 4P = ', UI.ink], [nf(D), UI.purple]]);
+    if (D < 0) out.push([['Δ < 0: καμία λύση.', UI.orange]]);
+    else if (D === 0) out.push([['Δ = 0: μία λύση.', UI.orange]], [[`(x, y) = (${nf(P.S / 2)}; ${nf(P.S / 2)})`, UI.ink]]);
+    else { const s = Math.sqrt(D), t1 = (P.S - s) / 2, t2 = (P.S + s) / 2; out.push([['Δ > 0: δύο λύσεις (x, y) και (y, x).', UI.orange]], [[`(x, y) = (${nf(t1)}; ${nf(t2)})`, UI.ink]], [[`(x, y) = (${nf(t2)}; ${nf(t1)})`, UI.ink]]); }
+    return out;
+  }
+}
+];
+
+// ------------------------------------------------------------------ κατάσταση
+const qs = new URLSearchParams(location.search);
+let K = Math.max(0, Math.min(SC.length - 1, parseInt(qs.get('k') || '0', 10) || 0));
+const PV = SC.map(s => Object.fromEntries(s.params.map(p => [p.k, p.v])));
+let activeParam = 0;
+
+// ------------------------------------------------------------------ three.js
+const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.setSize(innerWidth, innerHeight);
+renderer.xr.enabled = true;
+document.body.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+const BG = new THREE.Color('#0e1420');
+scene.background = BG;
+const camera = new THREE.PerspectiveCamera(45, innerWidth / innerHeight, 0.01, 50);
+camera.position.set(0.0, 0.3, 0.95);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.target.set(0.0, 0.26, 0); controls.enableDamping = true; controls.minDistance = 0.25; controls.maxDistance = 3; controls.update();
+scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.6));
+const dl = new THREE.DirectionalLight(0xffffff, 1.4); dl.position.set(0.6, 1.5, 1.2); scene.add(dl);
+const anchor = new THREE.Group(); scene.add(anchor);
+const model = new THREE.Group(); anchor.add(model);
+let userScale = 1;
+function applyScale() { model.scale.setScalar(0.01 * userScale); }
+applyScale();
+
+// περιβάλλον VR: δάπεδο και θρανίο
+const vrEnv = new THREE.Group(); vrEnv.visible = false; scene.add(vrEnv);
+{
+  const grid = new THREE.GridHelper(20, 40, 0x335066, 0x1d2b3a); vrEnv.add(grid);
+  const fl = new THREE.Mesh(new THREE.PlaneGeometry(20, 20), new THREE.MeshStandardMaterial({ color: 0x1a2332, roughness: 1 })); fl.rotation.x = -Math.PI / 2; fl.position.y = -0.002; vrEnv.add(fl);
+}
+const desk = new THREE.Group(); desk.visible = false; anchor.add(desk);
+{
+  const top = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.03, 0.5), new THREE.MeshStandardMaterial({ color: 0xb08d63, roughness: .8 })); top.position.y = -0.016; desk.add(top);
+  for (const [x, z] of [[-0.41, -0.21], [0.41, -0.21], [-0.41, 0.21], [0.41, 0.21]]) { const l = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.8, 0.04), new THREE.MeshStandardMaterial({ color: 0x6b5a45 })); l.position.set(x, -0.43, z); desk.add(l); }
+}
+
+// δείκτης επιφάνειας (tablet)
+const reticle = new THREE.Mesh(new THREE.RingGeometry(0.05, 0.065, 32).rotateX(-Math.PI / 2), new THREE.MeshBasicMaterial({ color: 0x2dd4bf }));
+reticle.matrixAutoUpdate = false; reticle.visible = false; scene.add(reticle);
+
+// ------------------------------------------------------------------ πίνακας μέσα στα γυαλιά
+const PW = 1024, PH = 760;
+const pcv = document.createElement('canvas'); pcv.width = PW; pcv.height = PH;
+const pcx = pcv.getContext('2d');
+const ptex = new THREE.CanvasTexture(pcv); ptex.colorSpace = THREE.SRGBColorSpace;
+const panel = new THREE.Mesh(new THREE.PlaneGeometry(0.6, 0.6 * PH / PW), new THREE.MeshBasicMaterial({ map: ptex, transparent: true, side: THREE.DoubleSide }));
+panel.visible = false; anchor.add(panel);
+panel.position.set(-0.68, 0.3, 0.1); panel.rotation.y = 0.42;
+let buttons = [], hover = null;
+function rrect(c, x, y, w, h, r) { c.beginPath(); c.moveTo(x + r, y); c.arcTo(x + w, y, x + w, y + h, r); c.arcTo(x + w, y + h, x, y + h, r); c.arcTo(x, y + h, x, y, r); c.arcTo(x, y, x + w, y, r); c.closePath(); }
+function wrapSegs(c, segs, maxW) { // σπάει μια γραμμή με χρωματιστά κομμάτια σε γραμμές πλάτους maxW
+  const words = []; segs.forEach(([t, col]) => t.split(/(\s+)/).forEach(w => { if (w) words.push([w, col]); }));
+  const lines = [[]]; let w = 0;
+  for (const [t, col] of words) { const tw = c.measureText(t).width; if (w + tw > maxW && w > 0 && t.trim()) { lines.push([]); w = 0; if (!t.trim()) continue; } lines[lines.length - 1].push([t, col]); w += tw; }
+  return lines;
+}
+function drawPanel() {
+  const c = pcx, S = SC[K], P = PV[K];
+  c.clearRect(0, 0, PW, PH);
+  c.fillStyle = 'rgba(11,15,24,0.93)'; rrect(c, 2, 2, PW - 4, PH - 4, 18); c.fill();
+  c.strokeStyle = 'rgba(255,255,255,0.18)'; c.lineWidth = 3; c.stroke();
+  buttons = [];
+  const btn = (id, x, y, w, h, text, size = 38) => {
+    buttons.push({ id, x, y, w, h });
+    c.fillStyle = hover === id ? '#2dd4bf' : 'rgba(255,255,255,0.08)'; rrect(c, x, y, w, h, 10); c.fill();
+    c.strokeStyle = 'rgba(255,255,255,0.25)'; c.lineWidth = 2; c.stroke();
+    c.fillStyle = hover === id ? '#08131a' : '#eaf1f8'; c.font = `700 ${size}px "Segoe UI",system-ui,sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(text, x + w / 2, y + h / 2 + 2); c.textAlign = 'left';
+  };
+  c.textBaseline = 'alphabetic'; c.fillStyle = '#eaf1f8'; c.font = '700 40px "Segoe UI",system-ui,sans-serif';
+  c.fillText(S.title, 32, 62);
+  c.fillStyle = '#93a6bb'; c.font = '500 25px "Segoe UI",system-ui,sans-serif'; c.fillText(S.para, 32, 98); c.font = '500 20px "Segoe UI",system-ui,sans-serif'; c.fillText(`Σκηνή ${K + 1} από ${SC.length}`, 32, 126);
+  btn('prev', PW - 196, 22, 76, 76, '◀', 34); btn('next', PW - 108, 22, 76, 76, '▶', 34);
+  c.font = '500 29px "Segoe UI",system-ui,sans-serif'; c.textBaseline = 'alphabetic';
+  let y = 170;
+  for (const segs of S.info(P)) {
+    for (const line of wrapSegs(c, segs, PW - 64)) {
+      let x = 32; for (const [t, col] of line) { c.fillStyle = col; c.fillText(t, x, y); x += c.measureText(t).width; }
+      y += 40; if (y > (S.params.length > 3 ? 500 : 560)) break;
+    }
+  }
+  const np = S.params.length, cols = np > 3 ? 2 : 1, rows = Math.ceil(np / cols);
+  S.params.forEach((p, i) => {
+    const col = Math.floor(i / rows), row = i % rows, x0 = 32 + col * 500, w = cols === 2 ? 440 : 522;
+    const yy = PH - 70 - (rows - 1 - row) * 74 - (cols === 2 ? 26 : 0);
+    btn('m' + i, x0, yy - 28, 70, 62, '−', 44); btn('p' + i, x0 + w - 70, yy - 28, 70, 62, '+', 44);
+    c.fillStyle = i === activeParam ? '#F0A35E' : '#eaf1f8'; c.font = `700 ${cols === 2 ? 26 : 34}px "Segoe UI",system-ui,sans-serif`; c.textAlign = 'center'; c.textBaseline = 'middle';
+    c.fillText(`${p.n} = ${dv(PV[K][p.k])}${p.u}`, x0 + w / 2, yy + 4); c.textAlign = 'left'; c.textBaseline = 'alphabetic';
+  });
+  c.fillStyle = '#93a6bb';
+  if (cols === 2) { c.font = '500 19px "Segoe UI",system-ui,sans-serif'; c.fillText('Σκανδάλη: κουμπί ή επόμενη σκηνή.  Πλαϊνό κουμπί: η σκηνή μπροστά σου.  Μοχλός: τιμή και μέγεθος.', 32, PH - 12); }
+  else { c.font = '500 22px "Segoe UI",system-ui,sans-serif'; c.fillText('Σκανδάλη: κουμπί ή επόμενη σκηνή', 600, PH - 92); c.fillText('Πλαϊνό κουμπί: η σκηνή μπροστά σου', 600, PH - 60); c.fillText('Μοχλός: τιμή και μέγεθος', 600, PH - 28); }
+  ptex.needsUpdate = true;
+}
+
+// ------------------------------------------------------------------ HTML πίνακας
+const $ = (id) => document.getElementById(id);
+function buildUI() {
+  const S = SC[K], P = PV[K];
+  $('ttl').textContent = S.title; $('para').textContent = S.para; $('kidx').textContent = `Σκηνή ${K + 1} από ${SC.length}`;
+  const box = $('params'); box.innerHTML = '';
+  S.params.forEach((p, i) => {
+    const d = document.createElement('div'); d.className = 'prm';
+    d.innerHTML = `<span>${p.n}</span><span class="v" id="pv${i}"></span><input type="range" min="${p.min}" max="${p.max}" step="${p.step}" value="${P[p.k]}" id="pr${i}">`;
+    box.appendChild(d);
+    d.querySelector('input').addEventListener('input', (e) => { setParam(i, parseFloat(e.target.value), false); });
+  });
+  updateInfo();
+}
+function updateInfo() {
+  const S = SC[K], P = PV[K];
+  S.params.forEach((p, i) => { const el = $('pv' + i); if (el) el.textContent = `${dv(P[p.k])}${p.u}`; const r = $('pr' + i); if (r && +r.value !== P[p.k]) r.value = P[p.k]; });
+  $('info').innerHTML = S.info(P).map(segs => '<div>' + segs.map(([t, c]) => `<span style="color:${c}">${t.replace(/&/g, '&amp;').replace(/</g, '&lt;')}</span>`).join('') + '</div>').join('');
+}
+function rebuild() { disposeGroup(model); SC[K].build(model, PV[K]); updateInfo(); if (panel.visible) drawPanel(); }
+function setScene(k) {
+  K = (k + SC.length) % SC.length; activeParam = 0;
+  try { history.replaceState(null, '', '?k=' + K); } catch (e) {}
+  buildUI(); rebuild();
+}
+function setParam(i, v, fromXR = true) {
+  const p = SC[K].params[i]; if (!p) return;
+  v = Math.round((Math.min(p.max, Math.max(p.min, v)) - p.min) / p.step) * p.step + p.min;
+  v = +v.toFixed(6);
+  if (PV[K][p.k] === v) return;
+  PV[K][p.k] = v; activeParam = i; rebuild();
+}
+$('prev').onclick = () => setScene(K - 1);
+$('next').onclick = () => setScene(K + 1);
+
+// ------------------------------------------------------------------ WebXR
+let handheld = false, refType = 'local-floor', hitSource = null, viewerSpace = null, needPlace = false, xrMode = null;
+const hint = $('hint');
+function showHint(t) { hint.textContent = t || ''; hint.style.display = t ? 'block' : 'none'; }
+async function checkXR() {
+  if (!navigator.xr) { $('msg').textContent = 'Ο browser δεν υποστηρίζει WebXR: προβολή 3D (σύρσιμο για περιστροφή, τροχός για μεγέθυνση).'; return; }
+  try { $('btnAR').disabled = !(await navigator.xr.isSessionSupported('immersive-ar')); } catch (e) {}
+  try { $('btnVR').disabled = !(await navigator.xr.isSessionSupported('immersive-vr')); } catch (e) {}
+  if ($('btnAR').disabled && $('btnVR').disabled) $('msg').textContent = 'Δεν βρέθηκε συσκευή AR/VR: προβολή 3D (σύρσιμο για περιστροφή, τροχός για μεγέθυνση).';
+}
+checkXR();
+$('ui').addEventListener('beforexrselect', (e) => e.preventDefault());
+async function startXR(mode) {
+  try {
+    const opt = { optionalFeatures: ['local-floor', 'hand-tracking', 'hit-test', 'dom-overlay'], domOverlay: { root: $('overlay') } };
+    const session = await navigator.xr.requestSession(mode, opt);
+    refType = 'local-floor';
+    try { await session.requestReferenceSpace('local-floor'); } catch (e) { refType = 'local'; }
+    renderer.xr.setReferenceSpaceType(refType);
+    await renderer.xr.setSession(session);
+    xrMode = mode;
+    handheld = !!session.domOverlayState;
+    scene.background = mode === 'immersive-vr' ? BG : null;
+    vrEnv.visible = mode === 'immersive-vr'; desk.visible = mode === 'immersive-vr';
+    panel.visible = !handheld; if (panel.visible) drawPanel();
+    $('btnAR').style.display = $('btnVR').style.display = 'none'; $('btnExit').style.display = ''; $('btnPlace').style.display = handheld ? '' : 'none';
+    userScale = handheld ? 0.8 : 1; applyScale();
+    needPlace = true;
+    if (handheld) {
+      try { viewerSpace = await session.requestReferenceSpace('viewer'); hitSource = await session.requestHitTestSource({ space: viewerSpace }); } catch (e) { hitSource = null; }
+      showHint(hitSource ? 'Πάτησε σε μια επιφάνεια (θρανίο ή δάπεδο) για να τοποθετήσεις τη σκηνή.' : '');
+    }
+    session.addEventListener('select', onScreenSelect);
+    session.addEventListener('end', onEnd);
+  } catch (e) { $('msg').textContent = 'Δεν ξεκίνησε η συνεδρία XR: ' + (e && e.message || e); }
+}
+function onEnd() {
+  xrMode = null; handheld = false; hitSource = null; reticle.visible = false; showHint('');
+  scene.background = BG; vrEnv.visible = false; desk.visible = false; panel.visible = false;
+  anchor.position.set(0, 0, 0); anchor.rotation.set(0, 0, 0); userScale = 1; applyScale();
+  $('btnAR').style.display = $('btnVR').style.display = ''; $('btnExit').style.display = 'none'; $('btnPlace').style.display = 'none';
+}
+$('btnAR').onclick = () => startXR('immersive-ar');
+$('btnVR').onclick = () => startXR('immersive-vr');
+$('btnExit').onclick = () => { const s = renderer.xr.getSession(); if (s) s.end(); };
+$('btnPlace').onclick = () => { needPlace = true; };
+function onScreenSelect(e) { // πάτημα στην οθόνη του tablet
+  if (!handheld) return;
+  if (reticle.visible) {
+    const m = new THREE.Matrix4().copy(reticle.matrix), p = new THREE.Vector3().setFromMatrixPosition(m);
+    const cp = lastPose ? new THREE.Vector3(lastPose.position.x, lastPose.position.y, lastPose.position.z) : p.clone().add(V(0, 0, 1));
+    anchor.position.copy(p); anchor.rotation.set(0, Math.atan2(cp.x - p.x, cp.z - p.z), 0);
+    showHint('');
+  }
+}
+// τοποθέτηση μπροστά στον θεατή (από τη θέση του κεφαλιού ή του tablet)
+let lastPose = null;
+function placeInFront(t) {
+  const p = new THREE.Vector3(t.position.x, t.position.y, t.position.z);
+  const f = new THREE.Vector3(0, 0, -1).applyQuaternion(new THREE.Quaternion(t.orientation.x, t.orientation.y, t.orientation.z, t.orientation.w)); f.y = 0;
+  if (f.lengthSq() < 1e-6) f.set(0, 0, -1); f.normalize();
+  const dist = handheld ? 0.7 : 0.95;
+  anchor.position.copy(p).addScaledVector(f, dist);
+  anchor.position.y = handheld ? p.y - 0.4 : (refType === 'local-floor' ? 0.8 : p.y - 0.45);
+  anchor.rotation.set(0, Math.atan2(-f.x, -f.z), 0);
+}
+// χειριστήρια
+const ray = new THREE.Raycaster(), tmpM = new THREE.Matrix4();
+const ctrls = [0, 1].map(i => {
+  const c = renderer.xr.getController(i);
+  const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([V(0, 0, 0), V(0, 0, -1)]), new THREE.LineBasicMaterial({ color: 0x2dd4bf }));
+  line.scale.z = 1.5; c.add(line);
+  c.addEventListener('selectstart', () => onCtrlSelect(c));
+  c.addEventListener('squeezestart', () => { needPlace = true; });
+  scene.add(c); return c;
+});
+function panelHit(c) {
+  if (!panel.visible) return null;
+  tmpM.identity().extractRotation(c.matrixWorld);
+  ray.ray.origin.setFromMatrixPosition(c.matrixWorld); ray.ray.direction.set(0, 0, -1).applyMatrix4(tmpM);
+  const h = ray.intersectObject(panel, false)[0]; if (!h || !h.uv) return null;
+  const x = h.uv.x * PW, y = (1 - h.uv.y) * PH;
+  const b = buttons.find(b => x >= b.x && x <= b.x + b.w && y >= b.y && y <= b.y + b.h);
+  return b ? b.id : 'panel';
+}
+function press(id) {
+  if (id === 'prev') setScene(K - 1); else if (id === 'next') setScene(K + 1);
+  else if (/^[mp]\d$/.test(id)) { const i = +id[1], p = SC[K].params[i]; setParam(i, PV[K][p.k] + (id[0] === 'p' ? 1 : -1) * p.step); activeParam = i; drawPanel(); }
+}
+function onCtrlSelect(c) {
+  if (handheld) return;
+  const id = panelHit(c);
+  if (id && id !== 'panel') press(id); else if (!id) setScene(K + 1);
+}
+let lastStick = 0;
+function pollSticks(t) {
+  const s = renderer.xr.getSession(); if (!s || handheld) return;
+  for (const src of s.inputSources) {
+    const gp = src.gamepad; if (!gp || gp.axes.length < 4) continue;
+    const ax = gp.axes[2], ay = gp.axes[3];
+    if (Math.abs(ax) > 0.6 && t - lastStick > 260) { const p = SC[K].params[activeParam]; if (p) setParam(activeParam, PV[K][p.k] + Math.sign(ax) * p.step); lastStick = t; }
+    if (Math.abs(ay) > 0.3) { userScale = Math.min(2.5, Math.max(0.4, userScale * (1 - ay * 0.015))); applyScale(); }
+  }
+}
+
+// ------------------------------------------------------------------ βρόχος
+function render(t, frame) {
+  if (frame) {
+    const rs = renderer.xr.getReferenceSpace();
+    const vp = frame.getViewerPose(rs);
+    if (vp) { lastPose = vp.transform; if (needPlace) { placeInFront(vp.transform); needPlace = false; } }
+    if (handheld && hitSource) {
+      const hits = frame.getHitTestResults(hitSource);
+      if (hits.length) { const pose = hits[0].getPose(rs); reticle.visible = true; reticle.matrix.fromArray(pose.transform.matrix); }
+      else reticle.visible = false;
+    }
+    if (panel.visible) {
+      let h = null; for (const c of ctrls) { const id = panelHit(c); if (id && id !== 'panel') h = id; }
+      if (h !== hover) { hover = h; drawPanel(); }
+    }
+    pollSticks(t);
+  } else controls.update();
+  renderer.render(scene, camera);
+}
+renderer.setAnimationLoop(render);
+function fitView() {
+  const W = innerWidth, H = innerHeight;
+  camera.aspect = W / H;
+  const portrait = W <= 820 && H > W;
+  if (portrait) camera.setViewOffset(W, H, 0, Math.round(H * 0.2), W, H);
+  else if (W > 700) camera.setViewOffset(W, H, Math.round(Math.min(440, W * 0.33) / 2), 0, W, H);
+  else camera.clearViewOffset();
+  camera.updateProjectionMatrix(); renderer.setSize(W, H);
+  // απόσταση κάμερας ώστε το μοντέλο (περίπου 0,65 m) να χωράει στο ελεύθερο πλάτος
+  const free = portrait ? 1 : (W > 700 ? (W - Math.min(440, W * 0.33)) / W : 1);
+  const hf = 2 * Math.atan(Math.tan(camera.fov * D2R / 2) * camera.aspect * free);
+  const dist = Math.max(0.9, 0.4 / Math.tan(hf / 2), 0.34 / Math.tan(camera.fov * D2R / 2));
+  const dir = camera.position.clone().sub(controls.target).normalize();
+  camera.position.copy(controls.target).addScaledVector(dir, dist); controls.update();
+}
+addEventListener('resize', fitView); fitView();
+
+setScene(K);
+// για αυτόματο έλεγχο
+window.__sys = { SC, PV, setScene, setParam, get k() { return K; }, model, drawPanel, panel, pcv };
+</script>
+</body>
+</html>

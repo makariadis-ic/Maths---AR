@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `systimata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -58,6 +58,7 @@
 | Η ευθεία στο επίπεδο (`eutheia.html`) | Β΄ Λυκείου, Μαθηματικά Προσανατολισμού, Κεφάλαιο 2 (§2.1 έως §2.3) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μετρικές σχέσεις (`metrikes-scheseis.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 9 (§9.1 έως §9.5 και §9.7) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Εμβαδά (`emvada-b-lykeiou.html`) | Β΄ Λυκείου, Γεωμετρία, Κεφάλαιο 10 (§10.1 έως §10.5) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Συστήματα (`systimata.html`) | Β΄ Λυκείου, Άλγεβρα, Κεφάλαιο 1 (§1.1 Γραμμικά συστήματα, §1.2 Μη γραμμικά συστήματα) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Παράλληλες ευθείες (`paralliles-eutheies.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 4 (παράλληλες ευθείες, κύκλοι τριγώνου, άθροισμα γωνιών) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Εγγεγραμμένα σχήματα (`egegrammena-sximata.html`) | Α΄ Λυκείου, Γεωμετρία, Κεφάλαιο 6 (§6.1 έως §6.6, κύκλος, εγγεγραμμένες γωνίες και εγγεγραμμένο τετράπλευρο) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Πρόοδοι (`proodoi.html`) | Α΄ Λυκείου, Άλγεβρα, Κεφάλαιο 5 (ακολουθίες, αριθμητική και γεωμετρική πρόοδος, ανατοκισμός) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
@@ -74,7 +75,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `systimata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -1332,5 +1333,42 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
   7. Ιδιότητες ισοσκελούς τραπεζίου: ίσες διαγώνιοι και ίσες γωνίες βάσης (§3.4).
   8. Είδη τετραπλεύρων: ποιες ιδιότητες έχει το καθένα (§3.3).
 - Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι εννέα σκηνές, ακραίες τιμές όλων των ολισθητών, χωρίς NaN). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+## Συστήματα στο Κέντρο Καινοτομίας (σενάριο 42, Β΄ Λυκείου, Άλγεβρα, Κεφάλαιο 1, §1.1 και §1.2)
+
+Συνοδεύει τις 12 εφαρμογές GeoGebra «Συστήματα - …» του σεναρίου (αρχεία `.ggb` για ανέβασμα στο geogebra.org), φτιαγμένες μέσα στη μηχανή GeoGebra Classic του πακέτου `node-geogebra` και ελεγμένες σε καθαρό GeoGebra (συναρτήσεις, ολισθητές και χρώματα, ακραίες και τυχαίες τιμές των ολισθητών, χωρίς `?`, `NaN` ή `undefined` στα κείμενα).
+
+| # | Εφαρμογή GeoGebra | Παράγραφος |
+|---|---|---|
+| 01 | Γραμμική εξίσωση δύο αγνώστων | §1.1 |
+| 02 | Γραφική επίλυση συστήματος 2×2 | §1.1 |
+| 03 | Μέθοδος της αντικατάστασης | §1.1 |
+| 04 | Μέθοδος των αντίθετων συντελεστών | §1.1 |
+| 05 | Ορίζουσες και κανόνας του Cramer | §1.1 |
+| 06 | Σύστημα με παράμετρο λ | §1.1 |
+| 07 | Εφαρμογή: εισιτήρια θεάτρου | §1.1 |
+| 08 | Εφαρμογή: σύγκριση προσφορών | §1.1 |
+| 09 | Σύστημα 3×3: τρία επίπεδα | Επέκταση της §1.1 |
+| 10 | Ευθεία και κύκλος | §1.2 |
+| 11 | Ευθεία και παραβολή | §1.2 |
+| 12 | Άθροισμα και γινόμενο | §1.2 |
+
+- `systimata.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/systimata.html. Είναι ένα αυτόνομο αρχείο (το three.js 0.160.0 φορτώνεται από CDN), με την ίδια λειτουργία όπως η `trigona-tetraplevra.html`.
+  Η διεύθυνση `systimata.html?k=3` ανοίγει κατευθείαν μια σκηνή (από 0 έως 8). Δεν υπάρχει μοντέλο `.glb`.
+- Εννέα σκηνές:
+  0. Γραμμική εξίσωση αx + βy = γ: η ευθεία και οι λύσεις με ακέραιες συντεταγμένες (§1.1).
+  1. Γραφική επίλυση συστήματος 2×2 με έξι ολισθητές, τις ορίζουσες D, Dx, Dy και τις τρεις περιπτώσεις (μοναδική λύση, αδύνατο, αόριστο) (§1.1).
+  2. Σύστημα με παράμετρο λ: λx + y = 1, x + λy = 1, με D = λ² − 1 (§1.1).
+  3. Εισιτήρια θεάτρου: x + y = Ν, αx + βy = R, με έλεγχο ότι η λύση είναι δεκτή (§1.1).
+  4. Σύγκριση προσφορών: το σημείο ίσου κόστους και ποιο πακέτο συμφέρει πριν και μετά από αυτό (§1.1).
+  5. Σύστημα 3×3 ως τρία επίπεδα στον χώρο, σε τρεις περιπτώσεις: ένα κοινό σημείο, καμία κοινή λύση (τα επίπεδα τέμνονται ανά δύο σε παράλληλες ευθείες) και κοινή ευθεία.
+  6. Ευθεία και κύκλος με απόσταση d = |γ| / √(α² + β²) και σύγκριση με την ακτίνα ρ (§1.2).
+  7. Ευθεία και παραβολή με διακρίνουσα Δ της εξίσωσης που προκύπτει (§1.2).
+  8. Άθροισμα και γινόμενο: τα x, y ως ρίζες της t² − St + P = 0 (§1.2).
+- Στα γυαλιά, στον πίνακα μέσα στη σκηνή οι σκηνές με περισσότερους από τρεις ολισθητές δείχνουν τις παραμέτρους σε δύο στήλες. Οι τιμές εμφανίζονται με δεκαδικό κόμμα.
+- Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι εννέα σκηνές, ακραίες και τυχαίες τιμές όλων των ολισθητών, χωρίς NaN, και ο πίνακας των γυαλιών). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
 
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
