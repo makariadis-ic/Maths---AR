@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -47,6 +47,8 @@
 | Ρητοί αριθμοί (`rhtoi.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 7 (§7.1 έως §7.9) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Εξισώσεις και προβλήματα (`eksiswseis.html`) | Α΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 4 (§4.1 έως §4.3) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μεσοκάθετος, συμμετρία και παράλληλες (`symmetria-paralliles.html`) | Α΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 2 (§2.3 έως §2.6) | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Βασικές γεωμετρικές έννοιες (`vasikes-ennoies.html`) | Α΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 1 (§1.1 έως §1.4, §1.9 έως §1.11, §1.13: ευθεία, ημιευθεία, τμήμα, μέσο, θέσεις ευθειών, απόσταση, κύκλος, ευθεία και κύκλος) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
+| Τρίγωνα και τετράπλευρα (`trigona-tetraplevra.html`) | Α΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 3 (§3.1 Στοιχεία και είδη τριγώνων, §3.3 Παραλληλόγραμμο, ορθογώνιο, ρόμβος, τετράγωνο, τραπέζιο, §3.4 Ιδιότητες) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Στερεά και όγκοι (`sterea-ogkoi.html`) | Γ΄ Γυμνασίου, Στερεά και όγκοι | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μέτρηση κύκλου (`metrisi-kyklou.html`) | Γ΄ Γυμνασίου, Μέτρηση κύκλου (κανονικά πολύγωνα, μήκος κύκλου και τόξου, εμβαδόν δίσκου και τομέα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Πραγματικοί αριθμοί και ρίζες (`pragmatikoi-rizes.html`) | Β΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 2 (τετραγωνική ρίζα, άρρητοι και πραγματικοί αριθμοί, προβλήματα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
@@ -72,7 +74,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -1243,5 +1245,92 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
   6. Η Ευκλείδεια διαίρεση: Δ = δ · π + υ με σφαίρες, μπλε οι πλήρεις ομάδες και κόκκινες το υπόλοιπο (§1.4).
   7. Πολλαπλάσια και διαιρέτες: πλέγμα 1 έως Ν με υψωμένα τα πολλαπλάσια του δ (§1.4).
 - Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι οκτώ σκηνές, τιμές των ολισθητών, χωρίς NaN). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+
+## Βασικές γεωμετρικές έννοιες στο Κέντρο Καινοτομίας (σενάριο 51, Α΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 1, §1.1 έως §1.4, §1.9 έως §1.11, §1.13)
+
+Συνοδεύει τις 15 εφαρμογές GeoGebra «Βασικές έννοιες - …» του σεναρίου (αρχεία `.ggb` για ανέβασμα στο geogebra.org). Οι εφαρμογές φτιάχτηκαν μέσα στη μηχανή GeoGebra Classic (πακέτο `node-geogebra`), ξανάνοιξαν σε καθαρή μηχανή και ελέγχθηκαν: ολισθητές ορατοί, σταθεροί, πορτοκαλί και στη θέση τους πάνω δεξιά, χρώματα όλων των αντικειμένων, κείμενα χωρίς «?», NaN ή άπειρο σε σάρωση των τιμών των ολισθητών και των πλαισίων. Οι παράγραφοι είναι του βιβλίου «Μαθηματικά Α΄ Γυμνασίου» (Μέρος Β, Κεφάλαιο 1 «Βασικές γεωμετρικές έννοιες»): §1.1 Σημείο, ευθύγραμμο τμήμα, ευθεία, ημιευθεία, επίπεδο, ημιεπίπεδο, §1.2 Γωνία, γραμμή, επίπεδα σχήματα, ευθύγραμμα σχήματα, ίσα σχήματα, §1.3 Μέτρηση, σύγκριση και ισότητα ευθυγράμμων τμημάτων, απόσταση σημείων, μέσο ευθυγράμμου τμήματος, §1.4 Πρόσθεση και αφαίρεση ευθυγράμμων τμημάτων, §1.9 Θέσεις ευθειών στο επίπεδο, §1.10 Απόσταση σημείου από ευθεία, απόσταση παραλλήλων, §1.11 Κύκλος και στοιχεία του κύκλου, §1.13 Θέσεις ευθείας και κύκλου. Οι τίτλοι ελέγχθηκαν με τα περιεχόμενα του κεφαλαίου στο διαδίκτυο και όχι με το ίδιο το βιβλίο.
+
+| # | Εφαρμογή GeoGebra | Παράγραφος |
+|---|---|---|
+| 01 | Ευθεία, ημιευθεία και ευθύγραμμο τμήμα | §1.1 |
+| 02 | Ημιεπίπεδα | §1.1 |
+| 03 | Δύο ημιευθείες και δύο γωνίες | §1.2 |
+| 04 | Ίσα σχήματα | §1.2 |
+| 05 | Σύγκριση ευθυγράμμων τμημάτων | §1.3 |
+| 06 | Μέσο ευθυγράμμου τμήματος | §1.3 |
+| 07 | Πρόσθεση και αφαίρεση ευθυγράμμων τμημάτων | §1.4 |
+| 08 | Σημείο μεταξύ δύο σημείων | §1.4 |
+| 09 | Θέσεις ευθειών στο επίπεδο | §1.9 |
+| 10 | Απόσταση σημείου από ευθεία | §1.10 |
+| 11 | Απόσταση παραλλήλων | §1.10 |
+| 12 | Κύκλος και στοιχεία του κύκλου | §1.11 |
+| 13 | Χορδή και διάμετρος | §1.11 |
+| 14 | Θέσεις ευθείας και κύκλου | §1.13 |
+| 15 | Εφαπτομένη του κύκλου | §1.13 |
+
+Χρώματα (ίδια σε GeoGebra και XR): μπλε και κόκκινο για τα δύο τμήματα ή τις δύο ευθείες που συγκρίνονται, πράσινο για το κάθετο τμήμα, την απόσταση και την ακτίνα, μωβ για τη χορδή και τα συμπεράσματα, πορτοκαλί για τα κινούμενα σημεία και τους ολισθητές, χρυσό για τα κοινά σημεία. Οι αριθμοί στα κείμενα έχουν κόμμα στα δεκαδικά· στις ετικέτες των ολισθητών φαίνονται με τελεία. Δεν υπάρχει συνάρτηση με την έννοια του GeoGebra, είναι γεωμετρικές κατασκευές.
+
+- `vasikes-ennoies.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/vasikes-ennoies.html. Είναι ένα αυτόνομο αρχείο (η σκηνή είναι μέσα, το three.js 0.160.0 φορτώνεται από CDN).
+  Η διεύθυνση `vasikes-ennoies.html?k=3` ανοίγει κατευθείαν μια σκηνή (από 0 έως 8). Δεν υπάρχει μοντέλο `.glb`. Η λειτουργία είναι ίδια με της `trigonometria-oxeias-gonias.html`.
+- Εννέα σκηνές:
+  0. Ευθεία, ημιευθεία και ευθύγραμμο τμήμα με το κινούμενο σημείο Ρ (§1.1).
+  1. Δύο ημιευθείες και δύο γωνίες, φ από 10° έως 350° (§1.2).
+  2. Μέσο ευθυγράμμου τμήματος, μήκος ΑΒ και θέση του Ρ (§1.3).
+  3. Άθροισμα και διαφορά ευθυγράμμων τμημάτων α και β (§1.4).
+  4. Θέσεις δύο ευθειών: τέμνονται, παράλληλες, συμπίπτουν (§1.9).
+  5. Απόσταση σημείου από ευθεία: το κάθετο τμήμα ΡΗ και το πλάγιο ΡΚ (§1.10).
+  6. Απόσταση παράλληλων ευθειών, με κλίση και απόσταση d (§1.10).
+  7. Κύκλος: ακτίνα, χορδή, διάμετρος και τόξο (§1.11).
+  8. Θέσεις ευθείας και κύκλου με τη σύγκριση της απόστασης δ με την ακτίνα ρ (§1.13).
+- Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι εννέα σκηνές, ακραίες τιμές όλων των ολισθητών, χωρίς NaN). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+
+## Τρίγωνα και τετράπλευρα στο Κέντρο Καινοτομίας (σενάριο 53, Α΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 3, §3.1, §3.3, §3.4)
+
+Συνοδεύει τις 18 εφαρμογές GeoGebra «Τρίγωνα και τετράπλευρα - …» του σεναρίου (αρχεία `.ggb` για ανέβασμα στο geogebra.org), φτιαγμένες και ελεγμένες όπως οι εφαρμογές του σεναρίου 51. Οι παράγραφοι είναι του βιβλίου «Μαθηματικά Α΄ Γυμνασίου» (Μέρος Β, Κεφάλαιο 3 «Τρίγωνα, Παραλληλόγραμμα, Τραπέζια»): §3.1 Στοιχεία τριγώνου, είδη τριγώνων, §3.3 Παραλληλόγραμμο, ορθογώνιο, ρόμβος, τετράγωνο, τραπέζιο, ισοσκελές τραπέζιο, §3.4 Ιδιότητες των παραλληλογράμμων, του τραπεζίου και του ισοσκελούς τραπεζίου. Η §3.2 είναι στο σενάριο 30. Οι τίτλοι ελέγχθηκαν με τα περιεχόμενα του κεφαλαίου στο διαδίκτυο και όχι με το ίδιο το βιβλίο. Η εφαρμογή 04 (τριγωνική ανισότητα) δεν έχει ελεγχθεί αν ανήκει στην ύλη της §3.1 με τις Οδηγίες Διδασκαλίας.
+
+| # | Εφαρμογή GeoGebra | Παράγραφος |
+|---|---|---|
+| 01 | Στοιχεία τριγώνου | §3.1 |
+| 02 | Είδη τριγώνων ως προς τις πλευρές | §3.1 |
+| 03 | Είδη τριγώνων ως προς τις γωνίες | §3.1 |
+| 04 | Πότε υπάρχει τρίγωνο | §3.1 |
+| 05 | Διάμεσοι και βαρύκεντρο | §3.1 |
+| 06 | Ύψη και ορθόκεντρο | §3.1 |
+| 07 | Διχοτόμοι και έγκεντρο | §3.1 |
+| 08 | Παραλληλόγραμμο | §3.3 |
+| 09 | Ορθογώνιο | §3.3 |
+| 10 | Ρόμβος | §3.3 |
+| 11 | Τετράγωνο | §3.3 |
+| 12 | Τραπέζιο | §3.3 |
+| 13 | Ισοσκελές τραπέζιο | §3.3 |
+| 14 | Είδη τετραπλεύρων | §3.3 |
+| 15 | Ιδιότητες παραλληλογράμμου | §3.4 |
+| 16 | Ιδιότητες ορθογωνίου | §3.4 |
+| 17 | Ιδιότητες ρόμβου | §3.4 |
+| 18 | Ιδιότητες ισοσκελούς τραπεζίου | §3.4 |
+
+Χρώματα (ίδια σε GeoGebra και XR): κόκκινη, πράσινη και μπλε πλευρά α, β, γ του τριγώνου, μπλε και κόκκινες οι απέναντι πλευρές και γωνίες του παραλληλογράμμου, πράσινη και μωβ οι διαγώνιοι, πορτοκαλί το σημείο τομής των διαγωνίων και τα κέντρα του τριγώνου, ολισθητές πορτοκαλί.
+
+- `trigona-tetraplevra.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/trigona-tetraplevra.html. Είναι ένα αυτόνομο αρχείο (το three.js 0.160.0 φορτώνεται από CDN), με την ίδια λειτουργία όπως η `trigonometria-oxeias-gonias.html`.
+  Η διεύθυνση `trigona-tetraplevra.html?k=3` ανοίγει κατευθείαν μια σκηνή (από 0 έως 8). Δεν υπάρχει μοντέλο `.glb`.
+- Εννέα σκηνές:
+  0. Είδη τριγώνων ως προς τις πλευρές: ισόπλευρο, ισοσκελές, σκαληνό, με έλεγχο ύπαρξης τριγώνου (§3.1).
+  1. Είδη τριγώνων ως προς τις γωνίες: οξυγώνιο, ορθογώνιο, αμβλυγώνιο (§3.1).
+  2. Διάμεσοι (βαρύκεντρο G), ύψη (ορθόκεντρο Η) και διχοτόμοι (έγκεντρο Ι με εγγεγραμμένο κύκλο), με επιλογή από τον ολισθητή (§3.1).
+  3. Παραλληλόγραμμο και οι ιδιότητές του (§3.3 και §3.4).
+  4. Ορθογώνιο και τετράγωνο: ίσες διαγώνιοι και κύκλος γύρω από το ορθογώνιο (§3.3 και §3.4).
+  5. Ρόμβος: κάθετες διαγώνιοι και διχοτόμοι των γωνιών (§3.3 και §3.4).
+  6. Τραπέζιο και ισοσκελές τραπέζιο (§3.3).
+  7. Ιδιότητες ισοσκελούς τραπεζίου: ίσες διαγώνιοι και ίσες γωνίες βάσης (§3.4).
+  8. Είδη τετραπλεύρων: ποιες ιδιότητες έχει το καθένα (§3.3).
+- Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι εννέα σκηνές, ακραίες τιμές όλων των ολισθητών, χωρίς NaN). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
 
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
