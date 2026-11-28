@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `systimata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `sfaira-epifaneia-ogkos.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `ritei-parastaseis.html`, `kanonikotites-an2.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `systimata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `sfaira-epifaneia-ogkos.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `ritei-parastaseis.html`, `eksiswseis-paragontopoiisi-anisoseis.html`, `kanonikotites-an2.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -56,6 +56,7 @@
 | Σφαίρα: επιφάνεια και όγκος (`sfaira-epifaneia-ogkos.html`) | Γ΄ Γυμνασίου, Σφαίρα (επιφάνεια, όγκος, μέτρηση και εφαρμογές, σενάριο 68) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μέτρηση κύκλου (`metrisi-kyklou.html`) | Γ΄ Γυμνασίου, Μέτρηση κύκλου (κανονικά πολύγωνα, μήκος κύκλου και τόξου, εμβαδόν δίσκου και τομέα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Μονώνυμα, ΕΚΠ και ρητές παραστάσεις (`ritei-parastaseis.html`) | Γ΄ Γυμνασίου, Άλγεβρα, Κεφάλαιο 3 (§3.1 Μονώνυμα, §3.2 Πράξεις με μονώνυμα, §3.7 ΕΚΠ πολυωνύμων, §3.8 έως §3.10 Ρητές παραστάσεις, σενάριο 66) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Εξισώσεις με παραγοντοποίηση και ανισώσεις 1ου βαθμού (`eksiswseis-paragontopoiisi-anisoseis.html`) | Γ΄ Γυμνασίου, Άλγεβρα (§5.4 Εξισώσεις με παραγοντοποίηση, §5.5 Ανισώσεις 1ου βαθμού, σενάριο 67) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Κανονικότητες α·ν² (`kanonikotites-an2.html`) | Γ΄ Γυμνασίου, Άλγεβρα, Κεφάλαιο 2 «Κανονικότητες», §2.1 Κανονικότητες της μορφής α·ν² (σενάριο 65) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Πραγματικοί αριθμοί και ρίζες (`pragmatikoi-rizes.html`) | Β΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 2 (τετραγωνική ρίζα, άρρητοι και πραγματικοί αριθμοί, προβλήματα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Αλγεβρικές παραστάσεις (`algebrikes-parastaseis.html`) | Β΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 1 (§1.1 Η έννοια της μεταβλητής – Αλγεβρικές παραστάσεις και §1.3 Επίλυση τύπων) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
@@ -81,7 +82,7 @@
 2. Επίλεξε **όλα** τα αρχεία αυτού του φακέλου:
    `index.html`, `m.html`, `check.html`, `404.html`, `.nojekyll`,
    31 × `.glb`, 7 × `.usdz`, `QR_pythagoras.png`, `pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`,
-   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `systimata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `ritei-parastaseis.html`, `kanonikotites-an2.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`, `README.md`.
+   `trionymo.html`, `kare-kare.html`, `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `grammika-systimata.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `systimata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `sterea-ogkoi.html`, `rolle.html`, `rolle-lib.js`, `mvt.html`, `mvt-lib.js`, `kyrtotita.html`, `kyrtotita-lib.js`, `asymptotes.html`, `asymptotes-lib.js`, `migadikoi.html`, `migadikoi-lib.js`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `grammika-systimata-lykeiou-lib.js`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `ritei-parastaseis.html`, `eksiswseis-paragontopoiisi-anisoseis.html`, `kanonikotites-an2.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`, `README.md`.
    (Σύρε τα αρχεία, **όχι** τον φάκελο — αλλιώς μπαίνουν σε υποφάκελο και σπάνε οι διευθύνσεις.)
 3. **Commit changes**.
 4. **Settings → Pages** → Deploy from a branch → **main / (root)** → **Save**.
@@ -1016,6 +1017,31 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
   8. Σφαιρικός φλοιός: V = 4/3 π (R³ − ρ³).
   9. Εύρεση της ακτίνας από τον όγκο ή το εμβαδόν.
 - Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι 10 καταστάσεις, ακραίες και μέσες τιμές των ολισθητών, χωρίς NaN). Δεν έχει δοκιμαστεί μέσα στα γυαλιά ή σε tablet.
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+## Εξισώσεις με παραγοντοποίηση και ανισώσεις 1ου βαθμού στο Κέντρο Καινοτομίας (σενάριο 67, Γ΄ Γυμνασίου, Άλγεβρα, §5.4 και §5.5)
+
+Συνοδεύει τις 14 εφαρμογές GeoGebra «Εξισώσεις με παραγοντοποίηση - …» (01 έως 08) και «Ανισώσεις 1ου βαθμού - …» (09 έως 14) του σεναρίου. Οι αριθμοί των παραγράφων §5.4 και §5.5 δεν έχουν ελεγχθεί ακόμη με το βιβλίο και τις Οδηγίες 2026-27.
+
+- `eksiswseis-paragontopoiisi-anisoseis.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/eksiswseis-paragontopoiisi-anisoseis.html. Είναι ένα αυτόνομο αρχείο (η σκηνή είναι μέσα, το three.js 0.160.0 φορτώνεται από CDN).
+  Η διεύθυνση `eksiswseis-paragontopoiisi-anisoseis.html?k=6` ανοίγει κατευθείαν μια κατάσταση (από 1 έως 9). Χρώματα όπως στις εφαρμογές GeoGebra: μπλε #1F6FB2, πράσινο #2E9E4F, μοβ #7B4FA0, κόκκινο #C0392B, πορτοκαλί #E36C09 για ολισθητές και σημεία.
+  Δεν υπάρχει μοντέλο `.glb`: τα tablet Samsung χρησιμοποιούν το WebXR AR ή την προβολή 3D της σελίδας. Δεν συγκρούεται με το υπάρχον `eksiswseis.html`.
+- Οι ολισθητές είναι HTML στην οθόνη και στο AR του tablet (DOM overlay, με πάτημα στο τραπέζι για τοποθέτηση). Στα γυαλιά εμφανίζεται 3D πάνελ με κουμπιά ‹ › (κατάσταση), −− − + ++ (παράμετροι) και ακτίνα του χειριστηρίου. Στις ανισώσεις η λύση σχεδιάζεται ως έγχρωμη λωρίδα στον άξονα, με κλειστό κύκλο για ≤ και ≥ και ανοιχτό κύκλο για < και >.
+- Εννέα καταστάσεις, ίδιες με τις αντίστοιχες εφαρμογές GeoGebra:
+  1. Γινόμενο ίσο με μηδέν: (x − p)(x − q) = 0 (εφαρμογή 01).
+  2. Κοινός παράγοντας: αx² + βx = x(αx + β) (εφαρμογή 02).
+  3. Εξίσωση x² = c και διαφορά τετραγώνων (εφαρμογή 03).
+  4. Τριώνυμο x² + (m + n)x + mn = (x + m)(x + n) (εφαρμογή 04).
+  5. Εφαρμογή: βολή μπάλας h = vt − 5t² (εφαρμογή 07).
+  6. Ανίσωση ax + b ⋄ c με επιλογή φοράς (εφαρμογή 09).
+  7. Σύστημα δύο ανισώσεων και κοινή λύση (εφαρμογή 12).
+  8. Εφαρμογή: σύγκριση δύο προσφορών (εφαρμογή 13).
+  9. Εφαρμογή: πόσα εισιτήρια επαρκούν για προϋπολογισμό (εφαρμογή 14).
+  Οι εφαρμογές GeoGebra 05, 06, 08, 10 και 11 δεν έχουν αντίστοιχη σκηνή XR.
+- Οι 14 εφαρμογές GeoGebra (αρχεία `.ggb` στον φάκελο «ggb», που τα ανεβάζεις μόνος σου στο geogebra.org): 01 Γινόμενο μηδέν, 02 Κοινός παράγοντας, 03 Διαφορά τετραγώνων, 04 Τριώνυμο και παραγοντοποίηση, 05 Γινόμενο τριών παραγόντων, 06 Μην διαιρείς με x, 07 Εφαρμογή: Βολή μπάλας, 08 Εφαρμογή: Διαστάσεις ορθογωνίου, 09 Ανίσωση ax+b με c, 10 Πολλαπλασιασμός με αρνητικό, 11 Ανίσωση ax+b με cx+d, 12 Σύστημα δύο ανισώσεων, 13 Εφαρμογή: Σύγκριση προσφορών, 14 Εφαρμογή: Πόσα εισιτήρια. Έγιναν με τη μηχανή GeoGebra Classic (πακέτο `node-geogebra`), ξανάνοιξαν από το αρχείο και ελέγχθηκαν σε 43 έως 58 συνδυασμούς τιμών ολισθητών η καθεμία: δεν βρέθηκε «?», NaN, undefined ή άπειρο σε κείμενο.
+- Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι 9 καταστάσεις, ακραίες, μέσες και 300 τυχαίες τιμές των ολισθητών, χωρίς NaN). Δεν έχει δοκιμαστεί μέσα στα γυαλιά Magic Leap 2 και Meta Quest 3 ή στο tablet Samsung.
 
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
 
