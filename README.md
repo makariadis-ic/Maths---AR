@@ -13,7 +13,7 @@
 - `.nojekyll` — λέει στο GitHub Pages να σερβίρει τα αρχεία ως έχουν.
 - 31 μοντέλα `.glb` + 7 `.usdz` (για iPhone).
 - Οι σελίδες WebXR για τα γυαλιά (`pythagoras.html`, `emvada.html`, `klasmata.html`, `gonies-symmetria.html`, `trigona.html`, `trionymo.html`,
-  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `systimata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
+  `mkd-ekp.html`, `analoga.html`, `trigonometria.html`, `oria.html`, `olokliromata.html`, `kanonika-polygona.html`, `parallilogramma.html`, `paralliles-eutheies.html`, `egegrammena-sximata.html`, `systimata.html`, `proodoi.html`, `polyonyma.html`, `dekadika-pososta.html`, `fysikoi-arithmoi.html`, `rhtoi.html`, `eksiswseis.html`, `dianysmata.html`, `eutheia.html`, `metrikes-scheseis.html`, `emvada-b-lykeiou.html`, `symmetria-paralliles.html`, `rolle.html`, `mvt.html`, `kyrtotita.html`, `asymptotes.html`, `migadikoi.html`, `pinakes-orizouses.html`, `grammika-systimata-lykeiou.html`, `metrisi-kyklou.html`, `sfaira-epifaneia-ogkos.html`, `pragmatikoi-rizes.html`, `algebrikes-parastaseis.html`, `trigonometria-oxeias-gonias.html`, `vasikes-ennoies.html`, `trigona-tetraplevra.html`) και το εργαλείο `kare-kare.html` για βίντεο καρέ-καρέ.
 - Η βιβλιοθήκη QR είναι **ενσωματωμένη** μέσα στο `index.html` (δεν χρειάζεται ξεχωριστό αρχείο).
 
 | Μοντέλο | Επίπεδο | AR |
@@ -53,6 +53,7 @@
 | Βασικές γεωμετρικές έννοιες (`vasikes-ennoies.html`) | Α΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 1 (§1.1 έως §1.4, §1.9 έως §1.11, §1.13: ευθεία, ημιευθεία, τμήμα, μέσο, θέσεις ευθειών, απόσταση, κύκλος, ευθεία και κύκλος) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Τρίγωνα και τετράπλευρα (`trigona-tetraplevra.html`) | Α΄ Γυμνασίου, Μέρος Β, Κεφάλαιο 3 (§3.1 Στοιχεία και είδη τριγώνων, §3.3 Παραλληλόγραμμο, ορθογώνιο, ρόμβος, τετράγωνο, τραπέζιο, §3.4 Ιδιότητες) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Στερεά και όγκοι (`sterea-ogkoi.html`) | Γ΄ Γυμνασίου, Στερεά και όγκοι | Γυαλιά XR και προβολή 3D, χωρίς μοντέλο `.glb` |
+| Σφαίρα: επιφάνεια και όγκος (`sfaira-epifaneia-ogkos.html`) | Γ΄ Γυμνασίου, Σφαίρα (επιφάνεια, όγκος, μέτρηση και εφαρμογές, σενάριο 68) | Γυαλιά XR, tablet Samsung και προβολή 3D, χωρίς μοντέλο `.glb` |
 | Μέτρηση κύκλου (`metrisi-kyklou.html`) | Γ΄ Γυμνασίου, Μέτρηση κύκλου (κανονικά πολύγωνα, μήκος κύκλου και τόξου, εμβαδόν δίσκου και τομέα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Πραγματικοί αριθμοί και ρίζες (`pragmatikoi-rizes.html`) | Β΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 2 (τετραγωνική ρίζα, άρρητοι και πραγματικοί αριθμοί, προβλήματα) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
 | Αλγεβρικές παραστάσεις (`algebrikes-parastaseis.html`) | Β΄ Γυμνασίου, Μέρος Α, Κεφάλαιο 1 (§1.1 Η έννοια της μεταβλητής – Αλγεβρικές παραστάσεις και §1.3 Επίλυση τύπων) | Γυαλιά XR και tablet Samsung, χωρίς μοντέλο `.glb` |
@@ -989,6 +990,30 @@ g και το επίπεδό της, χρυσό #E8A32C η λύση, πορτο�
   7. Οι μηνίσκοι του Ιπποκράτη: το άθροισμα των δύο μηνίσκων ισούται με το εμβαδόν του τριγώνου.
   8. Γραμμοσκιασμένα χωρία: κύκλος σε τετράγωνο, τετράγωνο σε κύκλο, εξάγωνο σε κύκλο (k = 1, 2, 3).
 - Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (399 συνδυασμοί τιμών, οι αριθμοί συμφωνούν με τους τύπους). Δεν έχει δοκιμαστεί ακόμη στα γυαλιά και στο tablet Samsung.
+
+Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
+
+## Σφαίρα: επιφάνεια και όγκος στο Κέντρο Καινοτομίας (σενάριο 68, Γ΄ Γυμνασίου)
+
+Συνοδεύει τις 10 εφαρμογές GeoGebra «Σφαίρα - …» του σεναρίου.
+
+- `sfaira-epifaneia-ogkos.html`: WebXR για τα γυαλιά Magic Leap 2 και Meta Quest 3, και AR ή προβολή 3D στο tablet Samsung (και σε κάθε άλλη συσκευή),
+  https://makariadis-ic.github.io/Maths---AR/sfaira-epifaneia-ogkos.html. Είναι ένα αυτόνομο αρχείο (η σκηνή είναι μέσα, το three.js 0.160.0 φορτώνεται από CDN).
+  Η διεύθυνση `sfaira-epifaneia-ogkos.html?k=3` ανοίγει κατευθείαν μια κατάσταση (από 0 έως 9). Χρώματα όπως στις εφαρμογές GeoGebra: σφαίρα μπλε, κύλινδρος τιρκουάζ, κώνος μωβ, ακτίνα κόκκινο, εμβαδά και όγκοι πράσινο, ολισθητές πορτοκαλί.
+  Δεν υπάρχει μοντέλο `.glb`: τα tablet Samsung χρησιμοποιούν το WebXR AR ή την προβολή 3D της σελίδας.
+- Οι ολισθητές είναι HTML στην οθόνη και στο AR του tablet (DOM overlay). Στα γυαλιά εμφανίζεται 3D πάνελ με κουμπιά ◀ ▶ (κατάσταση) και −−, −, +, ++ (παράμετροι) και τα πατάς με την ακτίνα του χειριστηρίου και τη σκανδάλη. Στο AR η σκηνή τοποθετείται με πάτημα στο δάπεδο ή στο θρανίο (hit-test). Στην οθόνη του υπολογιστή: σύρσιμο για περιστροφή, τροχός για μεγέθυνση.
+- Δέκα καταστάσεις, ίδιες με τις εφαρμογές GeoGebra:
+  0. Η σφαίρα και η τομή της με επίπεδο: R² = d² + r².
+  1. Το εμβαδόν της επιφάνειας: E = 4πR², ίσο με τέσσερις μέγιστους κύκλους.
+  2. Σφαίρα και περιγεγραμμένος κύλινδρος: ίδια επιφάνεια με την παράπλευρη, λόγοι 2/3.
+  3. Ο όγκος και η αρχή του Cavalieri: ημισφαίριο και κύλινδρος χωρίς κώνο, ίσα εμβαδά τομών.
+  4. Κώνος, σφαίρα, κύλινδρος: ο λόγος 1 : 2 : 3 με νερό στον κύλινδρο.
+  5. Μεγέθυνση με λόγο λ: εμβαδά × λ², όγκοι × λ³.
+  6. Μπάλες σε κυλινδρικό σωλήνα: κενός χώρος 1/3.
+  7. Η Γη ως σφαίρα: R = 6371 km, ωκεανοί και σφαιρική ζώνη E = 4πR² ημφ.
+  8. Σφαιρικός φλοιός: V = 4/3 π (R³ − ρ³).
+  9. Εύρεση της ακτίνας από τον όγκο ή το εμβαδόν.
+- Ελεγμένο σε headless Chromium χωρίς σφάλματα JavaScript (και οι 10 καταστάσεις, ακραίες και μέσες τιμές των ολισθητών, χωρίς NaN). Δεν έχει δοκιμαστεί μέσα στα γυαλιά ή σε tablet.
 
 Όπως στις άλλες σελίδες XR, απαιτείται σύνδεση στο διαδίκτυο (το three.js φορτώνεται από CDN).
 

@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Σφαίρα: επιφάνεια και όγκος</title>
+<style>
+:root{--bg:#0e1420;--panel:#15202f;--ink:#eaf1f8;--mut:#93a4b8;--acc:#EF6C00}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",Arial,sans-serif;overflow:hidden}
+#c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+#ui{position:fixed;left:0;top:0;bottom:0;width:372px;max-width:100%;background:rgba(21,32,47,.94);padding:14px 16px;overflow:auto;border-right:1px solid #243449}
+h1{font-size:18px;margin:0 0 2px;color:#fff}
+.sub{font-size:12px;color:var(--mut);margin-bottom:10px}
+.nav{display:flex;gap:6px;align-items:center;margin-bottom:10px}
+.nav button,.nav select,.xr button{background:#1d2c40;color:var(--ink);border:1px solid #2c415d;border-radius:8px;padding:8px 10px;font-size:14px;font-family:inherit}
+.nav select{flex:1;min-width:0}
+.nav button:active,.xr button:active{background:#2c415d}
+.sl{margin:10px 0}
+.sl label{display:block;font-size:13px;color:var(--acc);margin-bottom:3px}
+.sl input{width:100%;accent-color:var(--acc)}
+.info{margin-top:12px;border-top:1px solid #243449;padding-top:8px}
+.info p{margin:7px 0;font-size:14px;line-height:1.35}
+.xr{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.xr button{flex:1}
+#ov{display:none}
+body.ar #c{display:none}
+@media(max-width:720px){#ui{width:100%;bottom:auto;max-height:46%;border-right:0;border-bottom:1px solid #243449}}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">
+  <h1>Σφαίρα: επιφάνεια και όγκος</h1>
+  <div class="sub">Κέντρο Καινοτομίας Θεσσαλίας, Γ΄ Γυμνασίου</div>
+  <div class="nav"><button id="prev">◀</button><select id="sel"></select><button id="next">▶</button></div>
+  <div id="sliders"></div>
+  <div class="info" id="info"></div>
+  <div class="xr" id="xr"></div>
+</div>
+<script type="importmap">
+{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}
+</script>
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+// Χρώματα όπως στις εφαρμογές GeoGebra
+const C = { sph: 0x1565C0, cyl: 0x00838F, cone: 0x6A1B9A, rad: 0xC62828, res: 0x2E7D32, sl: 0xEF6C00, gray: 0x90A4AE };
+const HEX = h => '#' + h.toString(16).padStart(6, '0');
+const LIGHT = h => { const m = (v) => Math.round(v + (255 - v) * .55); return HEX((m(h >> 16 & 255) << 16) | (m(h >> 8 & 255) << 8) | m(h & 255)); };
+const PI = Math.PI;
+const fx = (x, n = 2) => { let s = (Math.round(x * 10 ** n) / 10 ** n).toString(); return s.replace('.', ','); };
+
+// ---------- Βοηθητικά για γεωμετρία ----------
+const mat = (c, o = 1, extra = {}) => new THREE.MeshStandardMaterial({ color: c, transparent: o < 1, opacity: o, roughness: .55, metalness: 0, side: THREE.DoubleSide, depthWrite: o >= .9, ...extra });
+const add = (g, m, x = 0, y = 0, z = 0) => { m.position.set(x, y, z); g.add(m); return m; };
+const sphere = (g, r, c, o, x, y, z) => add(g, new THREE.Mesh(new THREE.SphereGeometry(r, 48, 32), mat(c, o)), x, y, z);
+const cylinder = (g, r, h, c, o, x, y, z, open = false) => add(g, new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 48, 1, open), mat(c, o)), x, y, z);
+const cone = (g, r, h, c, o, x, y, z, flip = false) => { const m = new THREE.Mesh(new THREE.ConeGeometry(r, h, 48, 1, true), mat(c, o)); if (flip) m.rotation.x = PI; return add(g, m, x, y, z); };
+const disc = (g, r, c, o, x, y, z, r0 = 0) => { const m = new THREE.Mesh(new THREE.RingGeometry(r0, r, 64), mat(c, o)); m.rotation.x = -PI / 2; return add(g, m, x, y, z); };
+const ring = (g, r, c, x, y, z, t = .06) => { const m = new THREE.Mesh(new THREE.TorusGeometry(r, t, 8, 96), mat(c)); m.rotation.x = PI / 2; return add(g, m, x, y, z); };
+const seg = (g, a, b, c, t = .05) => { const A = new THREE.Vector3(...a), B = new THREE.Vector3(...b), d = B.clone().sub(A); const m = new THREE.Mesh(new THREE.CylinderGeometry(t, t, d.length(), 10), mat(c)); m.position.copy(A.clone().add(B).multiplyScalar(.5)); m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.clone().normalize()); g.add(m); return m; };
+const floor = (g, s, y = 0) => { const m = new THREE.Mesh(new THREE.PlaneGeometry(s, s), mat(0x37474F, .25)); m.rotation.x = -PI / 2; m.position.y = y - .02; g.add(m); };
+
+// ---------- Οι δέκα καταστάσεις, ίδιες με τις εφαρμογές GeoGebra ----------
+const L = (t, c) => ({ t, c });
+const S = [
+ { name: '1. Η σφαίρα και η τομή της με επίπεδο',
+   par: [{ k: 'R', l: 'Ακτίνα R (cm)', min: 1, max: 6, st: .5, v: 5 }, { k: 'd', l: 'Απόσταση d του επιπέδου (cm)', min: 0, max: 6, st: .5, v: 3 }],
+   build(g, P) { const R = P.R, d = Math.min(P.d, R), r = Math.sqrt(Math.max(R * R - d * d, 0));
+     sphere(g, R, C.sph, .35, 0, R, 0); floor(g, 4 * R);
+     if (d < R - 1e-9) { disc(g, r, C.res, .55, 0, R + d, 0); ring(g, r, C.res, 0, R + d, 0); }
+     ring(g, R, C.res, 0, R, 0, .05); seg(g, [0, R, 0], [0, R + d, 0], C.cone); seg(g, [0, R + d, 0], [r, R + d, 0], C.res); seg(g, [0, R, 0], [r, R + d, 0], C.rad); },
+   info(P) { const R = P.R, d = Math.min(P.d, R), r = Math.sqrt(Math.max(R * R - d * d, 0));
+     return [L(`Ακτίνα R = ${fx(R, 1)} cm, διάμετρος 2R = ${fx(2 * R, 1)} cm`, C.rad), L('R² = d² + r²', C.cyl), L(`r = √(R² − d²) = ${fx(r)} cm`, C.res), L(`Εμβαδόν κύκλου τομής: πr² = ${fx(PI * r * r)} cm²`, C.res), L('Κόκκινο: ακτίνα R = KP. Μωβ: απόσταση d = KM. Πράσινο: ακτίνα r = MP', 0x93a4b8)]; } },
+ { name: '2. Το εμβαδόν της επιφάνειας της σφαίρας',
+   par: [{ k: 'R', l: 'Ακτίνα R (cm)', min: 1, max: 4, st: .5, v: 3 }],
+   build(g, P) { const R = P.R; sphere(g, R, C.res, .6, -1.6 * R, R, 0); ring(g, R, C.rad, -1.6 * R, R, 0, .06);
+     [[.5, -1.2], [.5, 1.2], [2.8, -1.2], [2.8, 1.2]].forEach(([a, b]) => { disc(g, R, C.sph, .85, a * R, .02, b * R); ring(g, R, C.rad, a * R, .02, b * R, .05); }); },
+   info(P) { const R = P.R; return [L(`Μέγιστος κύκλος (μπλε): πR² = ${fx(PI * R * R)} cm²`, C.sph), L(`E = 4πR² = 4 · π · ${fx(R, 1)}² = ${fx(4 * PI * R * R, 1)} cm²`, C.res), L('Η επιφάνεια της σφαίρας (πράσινη) ισούται με το εμβαδόν τεσσάρων μέγιστων κύκλων', 0xeaf1f8), L('Λόγος E / (πR²) = 4', 0xeaf1f8)]; } },
+ { name: '3. Σφαίρα και περιγεγραμμένος κύλινδρος',
+   par: [{ k: 'R', l: 'Ακτίνα R (cm)', min: 1, max: 6, st: .5, v: 4 }],
+   build(g, P) { const R = P.R; sphere(g, R, C.sph, .45, 0, R, 0); cylinder(g, R, 2 * R, C.cyl, .16, 0, R, 0); ring(g, R, C.rad, 0, R, 0, .06); seg(g, [R, 0, 0], [R, 2 * R, 0], C.cyl, .06); seg(g, [0, R, 0], [R, R, 0], C.rad, .06); floor(g, 4 * R); },
+   info(P) { const R = P.R; return [L(`Κύλινδρος: ακτίνα R = ${fx(R, 1)} cm, ύψος 2R = ${fx(2 * R, 1)} cm`, C.cyl), L(`E(σφαίρας) = 4πR² = ${fx(4 * PI * R * R)} cm²`, C.sph), L(`E(παράπλευρη) = 2πR · 2R = ${fx(4 * PI * R * R)} cm²`, C.cyl), L(`E(ολική) = 6πR² = ${fx(6 * PI * R * R)} cm²`, 0xeaf1f8), L(`V(σφαίρας) = 4/3 πR³ = ${fx(4 / 3 * PI * R ** 3)} cm³, V(κυλίνδρου) = 2πR³ = ${fx(2 * PI * R ** 3)} cm³`, C.res), L('Λόγος επιφανειών και λόγος όγκων: 2/3', C.res)]; } },
+ { name: '4. Ο όγκος της σφαίρας και η αρχή του Cavalieri',
+   par: [{ k: 'R', l: 'Ακτίνα R (cm)', min: 1, max: 5, st: .5, v: 4 }, { k: 't', l: 'Ύψος της τομής t (cm)', min: 0, max: 5, st: .25, v: 2.5 }],
+   build(g, P) { const R = P.R, t = Math.min(P.t, R), q = Math.sqrt(Math.max(R * R - t * t, 0)), x1 = -1.4 * R, x2 = 1.4 * R;
+     const h = new THREE.Mesh(new THREE.SphereGeometry(R, 48, 24, 0, 2 * PI, 0, PI / 2), mat(C.sph, .25)); add(g, h, x1, 0, 0); disc(g, R, C.sph, .15, x1, .01, 0);
+     cylinder(g, R, R, C.cyl, .14, x2, R / 2, 0); add(g, new THREE.Mesh(new THREE.ConeGeometry(R, R, 48, 1, true), mat(C.cone, .22)), x2, R / 2, 0).rotation.x = PI;
+     if (t < R - 1e-9) { disc(g, q, C.sph, .85, x1, t, 0); ring(g, q, C.sph, x1, t, 0, .05); disc(g, R, C.res, .85, x2, t, 0, t); ring(g, R, C.res, x2, t, 0, .05); if (t > 0) ring(g, t, C.cone, x2, t, 0, .05); seg(g, [x1, 0, 0], [x1 + q, t, 0], C.rad); } },
+   info(P) { const R = P.R, t = Math.min(P.t, R); const o = [L('Αριστερά: ημισφαίριο. Δεξιά: κύλινδρος χωρίς τον κώνο του.', 0x93a4b8)];
+     if (P.t < R) { o.push(L(`A₁ = π(R² − t²) = ${fx(PI * (R * R - t * t))} cm²`, C.sph), L(`A₂ = πR² − πt² = ${fx(PI * R * R - PI * t * t)} cm²`, C.res), L('Σε κάθε ύψος t οι τομές έχουν ίσα εμβαδά', 0xeaf1f8)); } else o.push(L('Το επίπεδο τομής βρίσκεται πάνω από τα στερεά (t ≥ R)', 0xeaf1f8));
+     o.push(L(`V(ημισφαιρίου) = πR²R − 1/3 πR²R = 2/3 πR³ = ${fx(2 / 3 * PI * R ** 3)} cm³`, 0xeaf1f8), L(`V(σφαίρας) = 4/3 πR³ = ${fx(4 / 3 * PI * R ** 3)} cm³`, C.res)); return o; } },
+ { name: '5. Κώνος, σφαίρα και κύλινδρος: ο λόγος 1 : 2 : 3',
+   par: [{ k: 'R', l: 'Ακτίνα R (cm)', min: 1, max: 4, st: .5, v: 3 }, { k: 'k', l: 'Γεμάτοι κώνοι νερού στον κύλινδρο', min: 0, max: 3, st: 1, v: 2 }],
+   build(g, P) { const R = P.R, k = Math.round(P.k), x0 = -2.6 * R, x2 = 2.6 * R; cone(g, R, 2 * R, C.cone, .35, x0, R, 0, true); sphere(g, R, C.sph, .35, 0, R, 0); cylinder(g, R, 2 * R, C.cyl, .14, x2, R, 0);
+     if (k > 0) cylinder(g, .97 * R, k * 2 / 3 * R, C.sph, .75, x2, k / 3 * R, 0); floor(g, 8 * R); },
+   info(P) { const R = P.R, k = Math.round(P.k), V = 2 / 3 * PI * R ** 3; return [L('Και τα τρία στερεά έχουν ακτίνα R και ύψος 2R', 0xeaf1f8), L(`V(κώνου) = 1/3 πR² · 2R = ${fx(V)} cm³`, C.cone), L(`V(σφαίρας) = 4/3 πR³ = ${fx(2 * V)} cm³`, C.sph), L(`V(κυλίνδρου) = πR² · 2R = ${fx(3 * V)} cm³`, C.cyl), L(`Όγκος νερού στον κύλινδρο: ${fx(k * V)} cm³${k == 2 ? ' (όσος και της σφαίρας)' : k == 3 ? ' (όσος και του κυλίνδρου)' : ''}`, C.res), L('Λόγος όγκων κώνου, σφαίρας, κυλίνδρου: 1 : 2 : 3', C.res)]; } },
+ { name: '6. Μεγεθύνω τη σφαίρα με λόγο λ',
+   par: [{ k: 'R', l: 'Ακτίνα R της αρχικής σφαίρας (cm)', min: 1, max: 3, st: .5, v: 2 }, { k: 'lam', l: 'Λόγος μεγέθυνσης λ', min: .5, max: 2.5, st: .5, v: 2 }],
+   build(g, P) { const R = P.R, l = P.lam; sphere(g, R, C.sph, .4, -R - 1, R, 0); sphere(g, l * R, C.res, .4, l * R + 1, l * R, 0); seg(g, [-R - 1, R, 0], [-1, R, 0], C.rad); seg(g, [l * R + 1, l * R, 0], [2 * l * R + 1, l * R, 0], C.rad); floor(g, 12 * R); },
+   info(P) { const R = P.R, l = P.lam; return [L(`Νέα ακτίνα λR = ${fx(l * R)} cm`, C.rad), L(`E₂ = λ²E₁: ${fx(4 * PI * (l * R) ** 2)} = ${fx(l * l)} · ${fx(4 * PI * R * R)}`, C.res), L(`V₂ = λ³V₁: ${fx(4 / 3 * PI * (l * R) ** 3)} = ${fx(l ** 3)} · ${fx(4 / 3 * PI * R ** 3)}`, C.cone), L(`Η επιφάνεια γίνεται ${fx(l * l)} φορές και ο όγκος ${fx(l ** 3)} φορές`, 0xeaf1f8)]; } },
+ { name: '7. Μπάλες σε κυλινδρικό σωλήνα',
+   par: [{ k: 'R', l: 'Ακτίνα R των μπαλών (cm)', min: 1, max: 2.5, st: .5, v: 2 }, { k: 'n', l: 'Πλήθος μπαλών n', min: 1, max: 4, st: 1, v: 3 }],
+   build(g, P) { const R = P.R, n = Math.round(P.n); cylinder(g, R, 2 * n * R, C.cyl, .14, 0, n * R, 0); for (let i = 0; i < n; i++) sphere(g, R, C.sph, .6, 0, (2 * i + 1) * R, 0); floor(g, 6 * R); },
+   info(P) { const R = P.R, n = Math.round(P.n), a = n * 4 / 3 * PI * R ** 3, b = 2 * n * PI * R ** 3; return [L(`Σωλήνας: ακτίνα R = ${fx(R, 1)} cm, ύψος 2nR = ${fx(2 * n * R, 1)} cm`, C.cyl), L(`V(μπαλών) = n · 4/3 πR³ = ${fx(a)} cm³`, C.sph), L(`V(σωλήνα) = πR² · 2nR = ${fx(b)} cm³`, C.cyl), L(`V(κενού) = V(σωλήνα) − V(μπαλών) = ${fx(b - a)} cm³`, 0x93a4b8), L(`Ποσοστό κενού χώρου: ${fx((b - a) / b * 100, 1)} %, για κάθε R και n`, 0xeaf1f8)]; } },
+ { name: '8. Η Γη ως σφαίρα',
+   par: [{ k: 'p', l: 'Ποσοστό ωκεανών (%)', min: 50, max: 80, st: 1, v: 71 }, { k: 'phi', l: 'Γεωγραφικό πλάτος φ (μοίρες)', min: 0, max: 90, st: .5, v: 23.5 }],
+   build(g, P) { const R = 5, ph = P.phi * PI / 180; sphere(g, R, C.sph, .35, 0, R + .5, 0);
+     if (ph > 0) add(g, new THREE.Mesh(new THREE.SphereGeometry(R * 1.003, 64, 24, 0, 2 * PI, PI / 2 - ph, 2 * ph), mat(C.res, .85)), 0, R + .5, 0); ring(g, R, C.rad, 0, R + .5, 0, .06); seg(g, [0, .5 - 1.2, 0], [0, 2 * R + .5 + 1.2, 0], 0x37474F, .05); },
+   info(P) { const RE = 6371, E = 4 * PI * RE * RE / 1e6, ph = P.phi * PI / 180; return [L('Ακτίνα της Γης R = 6371 km', C.rad), L(`E = 4πR² ≈ ${fx(E, 1)} εκατ. km²`, C.res), L(`Ωκεανοί: ${fx(P.p / 100 * E, 1)} εκατ. km², ξηρά: ${fx((100 - P.p) / 100 * E, 1)} εκατ. km²`, C.sph), L('Ζώνη μεταξύ των πλατών −φ και φ: E = 2πRh = 4πR² ημφ, με h = 2R ημφ', C.res), L(`Ύψος ζώνης h = ${fx(2 * RE * Math.sin(ph), 0)} km`, 0xeaf1f8), L(`Εμβαδόν ζώνης: ${fx(E * Math.sin(ph), 1)} εκατ. km²`, C.res), L(`Ποσοστό της επιφάνειας της Γης: ${fx(Math.sin(ph) * 100, 1)} %`, 0xeaf1f8)]; } },
+ { name: '9. Σφαιρικός φλοιός',
+   par: [{ k: 'R', l: 'Εξωτερική ακτίνα R (cm)', min: 3, max: 6, st: .5, v: 5 }, { k: 'rho', l: 'Εσωτερική ακτίνα ρ (cm)', min: .5, max: 2.5, st: .5, v: 2 }],
+   build(g, P) { const R = P.R, r = P.rho, y = R + .3; const so = new THREE.Mesh(new THREE.SphereGeometry(R, 56, 32, 0, 1.5 * PI), mat(C.sph, .4)); add(g, so, 0, y, 0);
+     add(g, new THREE.Mesh(new THREE.SphereGeometry(r, 40, 24, 0, 1.5 * PI), mat(C.rad, .6)), 0, y, 0);
+     const h1 = new THREE.Mesh(new THREE.RingGeometry(r, R, 48, 1, PI / 2, PI), mat(C.res, .9)); add(g, h1, 0, y, 0);
+     const h2 = new THREE.Mesh(new THREE.RingGeometry(r, R, 48, 1, PI / 2, PI), mat(C.res, .9)); h2.rotation.y = -PI / 2; add(g, h2, 0, y, 0);
+     const h3 = new THREE.Mesh(new THREE.RingGeometry(r, R, 48, 1, 0, 1.5 * PI), mat(C.res, .9)); h3.rotation.x = -PI / 2; h3.rotation.z = PI / 2; add(g, h3, 0, y, 0); },
+   info(P) { const R = P.R, r = P.rho; return [L('Σφαίρα με ακτίνα R και σφαιρική κοιλότητα με ακτίνα ρ', 0x93a4b8), L(`V(σφαίρας R) = 4/3 πR³ = ${fx(4 / 3 * PI * R ** 3)} cm³`, C.sph), L(`V(σφαίρας ρ) = 4/3 πρ³ = ${fx(4 / 3 * PI * r ** 3)} cm³`, C.rad), L(`V = 4/3 π (R³ − ρ³) = ${fx(4 / 3 * PI * (R ** 3 - r ** 3))} cm³`, C.res), L(`Πάχος φλοιού R − ρ = ${fx(R - r, 1)} cm`, 0xeaf1f8)]; } },
+ { name: '10. Βρίσκω την ακτίνα από τον όγκο ή το εμβαδόν',
+   par: [{ k: 'k', l: 'Δεδομένο: 1 όγκος, 2 εμβαδόν', min: 1, max: 2, st: 1, v: 1 }, { k: 'val', l: 'Τιμή του δεδομένου (cm³ ή cm²)', min: 10, max: 400, st: 10, v: 100 }],
+   build(g, P) { const k = Math.round(P.k), R = k == 1 ? Math.cbrt(3 * P.val / (4 * PI)) : Math.sqrt(P.val / (4 * PI)); sphere(g, R, C.sph, .5, 0, R, 0); ring(g, R, C.res, 0, R, 0, .05); seg(g, [0, R, 0], [R, R, 0], C.rad, .05); floor(g, 12); },
+   info(P) { const k = Math.round(P.k), v = P.val, R = k == 1 ? Math.cbrt(3 * v / (4 * PI)) : Math.sqrt(v / (4 * PI));
+     return [L(k == 1 ? `Δίνεται ο όγκος V = ${fx(v, 0)} cm³` : `Δίνεται το εμβαδόν E = ${fx(v, 0)} cm²`, 0xeaf1f8), L(k == 1 ? `R = ∛(3V / 4π) = ∛(3 · ${fx(v, 0)} / 4π) = ${fx(R)} cm` : `R = √(E / 4π) = √(${fx(v, 0)} / 4π) = ${fx(R)} cm`, k == 1 ? C.cone : C.res), L(k == 1 ? `Έλεγχος: E = 4πR² = ${fx(4 * PI * R * R)} cm²` : `Έλεγχος: V = 4/3 πR³ = ${fx(4 / 3 * PI * R ** 3)} cm³`, 0xeaf1f8)]; } }
+];
+
+// ---------- Σκηνή ----------
+const canvas = document.getElementById('c');
+const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.xr.enabled = true;
+const scene = new THREE.Scene(); scene.background = new THREE.Color(0x0e1420);
+const camera = new THREE.PerspectiveCamera(50, 1, .05, 500); camera.position.set(22, 18, 30);
+const controls = new OrbitControls(camera, canvas); controls.target.set(0, 6, 0); controls.enableDamping = true;
+scene.add(new THREE.HemisphereLight(0xffffff, 0x445566, 1.1)); const dl = new THREE.DirectionalLight(0xffffff, 1.2); dl.position.set(6, 12, 8); scene.add(dl);
+const world = new THREE.Group(); scene.add(world);
+const content = new THREE.Group(); world.add(content);
+
+let cur = Math.min(9, Math.max(0, parseInt(new URLSearchParams(location.search).get('k')) || 0));
+let P = {};
+const $ = id => document.getElementById(id);
+const sel = $('sel'); S.forEach((s, i) => { const o = document.createElement('option'); o.value = i; o.textContent = s.name; sel.appendChild(o); });
+
+function clearGroup(g) { while (g.children.length) { const c = g.children.pop(); c.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) o.material.dispose(); }); } }
+function rebuild() {
+  clearGroup(content); const s = S[cur]; s.par.forEach(p => { if (P[p.k] === undefined) P[p.k] = p.v; });
+  s.build(content, P); const info = s.info(P);
+  $('info').innerHTML = info.map(l => `<p style="color:${LIGHT(l.c)}">${l.t}</p>`).join('');
+  s.par.forEach(p => { const el = $('v_' + p.k); if (el) { el.value = P[p.k]; $('t_' + p.k).textContent = fx(+P[p.k], 2); } });
+  drawPanel();
+}
+function selectState(i) {
+  cur = (i + S.length) % S.length; sel.value = cur; P = {}; const s = S[cur];
+  s.par.forEach(p => P[p.k] = p.v);
+  $('sliders').innerHTML = s.par.map(p => `<div class="sl"><label>${p.l} = <span id="t_${p.k}"></span></label><input id="v_${p.k}" type="range" min="${p.min}" max="${p.max}" step="${p.st}" value="${p.v}"></div>`).join('');
+  s.par.forEach(p => $('v_' + p.k).addEventListener('input', e => { P[p.k] = +e.target.value; rebuild(); }));
+  rebuild(); fit(); history.replaceState(null, '', '?k=' + cur);
+}
+sel.onchange = () => selectState(+sel.value); $('prev').onclick = () => selectState(cur - 1); $('next').onclick = () => selectState(cur + 1);
+function fit() { const bb = new THREE.Box3().setFromObject(content); const c = bb.getCenter(new THREE.Vector3()), sz = bb.getSize(new THREE.Vector3()); const rad = Math.max(sz.x, sz.y, sz.z) * .75 + 1;
+  controls.target.copy(c); const d = rad / Math.tan(camera.fov * PI / 360) * 1.15; camera.position.set(c.x + d * .55, c.y + d * .45, c.z + d * .75); camera.near = d / 100; camera.far = d * 20; camera.updateProjectionMatrix(); controls.update(); }
+function resize() { const w = innerWidth, h = innerHeight; renderer.setSize(w, h, false); camera.aspect = w / h; if (w > 720) camera.setViewOffset(w, h, -186, 0, w, h); else camera.clearViewOffset(); camera.updateProjectionMatrix(); }
+addEventListener('resize', resize); resize();
+
+// ---------- XR ----------
+const SC = .01; // cm → m στα γυαλιά και στο AR του tablet
+const panel = (() => { const cv = document.createElement('canvas'); cv.width = 1024; cv.height = 768; const tx = new THREE.CanvasTexture(cv); const m = new THREE.Mesh(new THREE.PlaneGeometry(.64, .48), new THREE.MeshBasicMaterial({ map: tx, transparent: true })); m.visible = false; return { cv, tx, m, btn: [] }; })();
+scene.add(panel.m);
+function wrap(ctx, text, w) { const out = []; let line = ''; text.split(' ').forEach(wd => { const t = line ? line + ' ' + wd : wd; if (ctx.measureText(t).width > w && line) { out.push(line); line = wd; } else line = t; }); out.push(line); return out; }
+function drawPanel() {
+  const { cv, tx } = panel, x = cv.getContext('2d'); x.fillStyle = 'rgba(21,32,47,.96)'; x.fillRect(0, 0, 1024, 768); panel.btn = [];
+  const s = S[cur]; x.fillStyle = '#fff'; x.font = 'bold 34px Segoe UI,Arial'; x.fillText(s.name.slice(0, 44), 28, 52);
+  const B = (txt, bx, by, bw, act) => { x.fillStyle = '#1d2c40'; x.strokeStyle = '#2c415d'; x.lineWidth = 2; x.fillRect(bx, by, bw, 56); x.strokeRect(bx, by, bw, 56); x.fillStyle = '#eaf1f8'; x.font = '32px Segoe UI,Arial'; x.textAlign = 'center'; x.fillText(txt, bx + bw / 2, by + 39); x.textAlign = 'left'; panel.btn.push({ x0: bx, y0: by, x1: bx + bw, y1: by + 56, act }); };
+  B('◀', 28, 74, 90, () => selectState(cur - 1)); B('▶', 906, 74, 90, () => selectState(cur + 1));
+  let y = 176; s.par.forEach(p => { x.fillStyle = '#EF6C00'; x.font = '28px Segoe UI,Arial'; x.fillText(`${p.l} = ${fx(+P[p.k], 2)}`, 28, y);
+    const step = (d) => () => { P[p.k] = Math.min(p.max, Math.max(p.min, Math.round((+P[p.k] + d * p.st) / p.st) * p.st)); rebuild(); };
+    B('−−', 560, y - 40, 100, step(-4)); B('−', 672, y - 40, 100, step(-1)); B('+', 784, y - 40, 100, step(1)); B('++', 896, y - 40, 100, step(4)); y += 74; });
+  x.font = '27px Segoe UI,Arial'; S[cur].info(P).forEach(l => { x.fillStyle = LIGHT(l.c); wrap(x, l.t, 960).forEach(t => { if (y < 740) { x.fillText(t, 28, y); y += 34; } }); y += 6; });
+  tx.needsUpdate = true;
+}
+const ray = new THREE.Raycaster(), tmpM = new THREE.Matrix4();
+function onSelect(ctrl) {
+  tmpM.identity().extractRotation(ctrl.matrixWorld); ray.ray.origin.setFromMatrixPosition(ctrl.matrixWorld); ray.ray.direction.set(0, 0, -1).applyMatrix4(tmpM);
+  if (panel.m.visible) { const h = ray.intersectObject(panel.m)[0]; if (h && h.uv) { const px = h.uv.x * 1024, py = (1 - h.uv.y) * 768; const b = panel.btn.find(b => px >= b.x0 && px <= b.x1 && py >= b.y0 && py <= b.y1); if (b) { b.act(); return; } } }
+  if (reticle.visible) { world.position.copy(reticle.position); placed = true; } else if (!placed) { placeFront(); }
+}
+let placed = false, session = null, hitSource = null, domMode = false;
+const reticle = new THREE.Mesh(new THREE.RingGeometry(.08, .1, 32).rotateX(-PI / 2), new THREE.MeshBasicMaterial({ color: 0xEF6C00 })); reticle.matrixAutoUpdate = false; reticle.visible = false; scene.add(reticle);
+const reticlePos = new THREE.Vector3(); reticle.position.set(0, 0, 0);
+function placeFront() { const c = renderer.xr.getCamera(); const d = new THREE.Vector3(); c.getWorldDirection(d); d.y = 0; d.normalize(); const p = new THREE.Vector3().setFromMatrixPosition(c.matrixWorld).addScaledVector(d, 1.0); world.position.set(p.x, p.y - .55, p.z); placed = true; }
+async function start(mode) {
+  const opt = mode === 'ar' ? { requiredFeatures: ['local-floor'], optionalFeatures: ['hit-test', 'dom-overlay'], domOverlay: { root: $('ui') } } : { optionalFeatures: ['local-floor'] };
+  try { session = await navigator.xr.requestSession(mode === 'ar' ? 'immersive-ar' : 'immersive-vr', opt); } catch (e) { session = await navigator.xr.requestSession(mode === 'ar' ? 'immersive-ar' : 'immersive-vr', { optionalFeatures: ['local-floor', 'hit-test'] }); }
+  renderer.xr.setReferenceSpaceType('local-floor'); await renderer.xr.setSession(session);
+  domMode = !!session.domOverlayState; placed = false; world.scale.setScalar(SC); world.position.set(0, 0, -1); scene.background = mode === 'ar' ? null : new THREE.Color(0x0e1420);
+  renderer.setClearAlpha(mode === 'ar' ? 0 : 1);
+  panel.m.visible = !domMode; if (!domMode) { $('ui').style.display = 'none'; }
+  if (mode === 'ar' && session.requestHitTestSource) { try { const vs = await session.requestReferenceSpace('viewer'); hitSource = await session.requestHitTestSource({ space: vs }); } catch (e) { hitSource = null; } }
+  if (mode === 'vr') { placeFront(); }
+  session.addEventListener('end', () => { session = null; hitSource = null; world.scale.setScalar(1); world.position.set(0, 0, 0); scene.background = new THREE.Color(0x0e1420); renderer.setClearAlpha(1); panel.m.visible = false; reticle.visible = false; $('ui').style.display = ''; });
+}
+for (let i = 0; i < 2; i++) { const c = renderer.xr.getController(i); c.addEventListener('select', () => onSelect(c)); scene.add(c);
+  const ln = new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3(0, 0, -1.2)]), new THREE.LineBasicMaterial({ color: 0xEF6C00 })); c.add(ln); }
+// Το DOM overlay στο tablet: ένα πάτημα εκτός του πάνελ τοποθετεί τη σκηνή στο δάπεδο
+renderer.xr.addEventListener('sessionstart', () => {});
+(async () => { const box = $('xr'); if (!navigator.xr) return;
+  const mk = (t, m) => { const b = document.createElement('button'); b.textContent = t; b.onclick = () => start(m); box.appendChild(b); };
+  try { if (await navigator.xr.isSessionSupported('immersive-ar')) mk('Είσοδος σε AR', 'ar'); } catch (e) {}
+  try { if (await navigator.xr.isSessionSupported('immersive-vr')) mk('Είσοδος σε VR', 'vr'); } catch (e) {} })();
+
+renderer.setAnimationLoop((t, frame) => {
+  if (frame && hitSource) { const r = frame.getHitTestResults(hitSource); if (r.length) { const pose = r[0].getPose(renderer.xr.getReferenceSpace()); reticle.visible = !placed || true; reticle.matrix.fromArray(pose.transform.matrix); reticle.position.setFromMatrixPosition(reticle.matrix); } else reticle.visible = false; }
+  if (session && panel.m.visible) { const c = renderer.xr.getCamera(); const d = new THREE.Vector3(); c.getWorldDirection(d); const p = new THREE.Vector3().setFromMatrixPosition(c.matrixWorld); panel.m.position.copy(p).addScaledVector(d, .9).add(new THREE.Vector3(-.5, -.05, 0)); panel.m.lookAt(p); }
+  if (!session) controls.update(); renderer.render(scene, camera);
+});
+// Πάτημα στην οθόνη του AR (tablet): τοποθέτηση στο σημείο του στόχου
+addEventListener('beforexrselect', e => { });
+selectState(cur);
+window.__sfaira = { selectState, S, get cur() { return cur; }, setP: (k, v) => { P[k] = v; rebuild(); }, renderer, scene };
+</script>
+</body>
+</html>
