@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Κανονικότητες Α΄ Γυμνασίου — AR</title>
+<style>
+  :root{--bg:#0e1420;--ink:#eaf1f8;--dim:#9fb0c6;--line:rgba(255,255,255,.12);--or:#E36C09}
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font-family:"Segoe UI",system-ui,sans-serif;overflow:hidden}
+  #c{position:fixed;inset:0;width:100%;height:100%;display:block;touch-action:none}
+  #ui{position:fixed;left:0;top:0;bottom:0;width:min(400px,100%);padding:14px 16px;overflow:auto;
+      background:linear-gradient(90deg,rgba(14,20,32,.94),rgba(14,20,32,.82));border-right:1px solid var(--line)}
+  h1{font-size:19px;margin:0 0 2px;letter-spacing:-.01em}
+  .sec{color:var(--dim);font-size:13px;margin:0 0 10px}
+  .nav{display:flex;gap:6px;align-items:center;margin:6px 0 10px}
+  .nav button{background:#1b2740;color:var(--ink);border:1px solid var(--line);border-radius:9px;width:44px;height:38px;font-size:18px;cursor:pointer}
+  .nav .st{flex:1;font-size:14px;font-weight:600}
+  .sl{margin:8px 0}
+  .sl label{display:flex;justify-content:space-between;font-size:14px;color:var(--or);margin-bottom:2px}
+  .sl input{width:100%;accent-color:var(--or)}
+  #lines{margin:12px 0;font-size:16px;line-height:1.7}
+  #lines div{margin-bottom:2px}
+  .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+  .row button{background:#E36C09;color:#fff;border:none;border-radius:9px;padding:10px 14px;font:600 14px "Segoe UI",system-ui,sans-serif;cursor:pointer}
+  .row button.alt{background:#1F6FB2}
+  #msg{font-size:12.5px;color:var(--dim);margin-top:10px;min-height:18px}
+  body.xr #c{display:none}
+  body.xr.dom #ui{background:rgba(14,20,32,.78);width:min(340px,70%)}
+  body.xr:not(.dom) #ui{display:none}
+  a{color:#5ed0c0}
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="ui">
+  <h1 id="ttl"></h1><p class="sec" id="sec"></p>
+  <div class="nav"><button id="prev" aria-label="Προηγούμενη κατάσταση">‹</button><div class="st" id="stn"></div><button id="next" aria-label="Επόμενη κατάσταση">›</button></div>
+  <div id="sls"></div>
+  <div id="lines"></div>
+  <div class="row"><button id="bAR">AR</button><button id="bVR" class="alt">VR</button></div>
+  <div id="msg"></div>
+</div>
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
+<script type="module">
+import * as THREE from 'three';
+
+/* ---------- Βοηθητικά ---------- */
+const SUP={'0':'⁰','1':'¹','2':'²','3':'³','4':'⁴','5':'⁵','6':'⁶','7':'⁷','8':'⁸','9':'⁹','-':'⁻'};
+const sup=n=>String(n).split('').map(c=>SUP[c]||c).join('');
+const fmt=n=>String(Math.round(n*100)/100).replace('-','−').replace('.',',');
+const B='#1F6FB2',G='#2E9E4F',P='#7B4FA0',R='#C0392B',O='#E36C09',K='#555555',Y='#8A8F98';
+/* ---------- Σχήματα ---------- */
+const matC={};const mat=c=>matC[c]||(matC[c]=new THREE.MeshLambertMaterial({color:c}));
+const gBox=new THREE.BoxGeometry(1,1,1), gBall=new THREE.SphereGeometry(1,22,16), gCyl=new THREE.CylinderGeometry(1,1,1,64);
+function box(g,x,y,z,w,h,d,c){const m=new THREE.Mesh(gBox,mat(c));m.scale.set(w,h,d);m.position.set(x,y,z);g.add(m);return m;}
+function ball(g,x,y,z,r,c){const m=new THREE.Mesh(gBall,mat(c));m.scale.set(r,r,r);m.position.set(x,y,z);g.add(m);return m;}
+function cyl(g,x,y,z,r,h,c){const m=new THREE.Mesh(gCyl,mat(c));m.scale.set(r,h,r);m.position.set(x,y,z);g.add(m);return m;}
+function clearGroup(g){while(g.children.length){const o=g.children.pop();o.traverse(n=>{if(n.userData.own){n.geometry.dispose();if(n.material.map)n.material.map.dispose();n.material.dispose();}});}}
+
+
+function stick(g,x1,y1,x2,y2,c,t=.09){const dx=x2-x1,dy=y2-y1,L=Math.hypot(dx,dy);const m=box(g,(x1+x2)/2,(y1+y2)/2,0,L+t,t,t,c);m.rotation.z=Math.atan2(dy,dx);return m;}
+const axes=(g,xm,ym0,ym1)=>{box(g,xm/2,0,0,xm,.06,.06,'#333333');box(g,0,(ym0+ym1)/2,0,.06,ym1-ym0,.06,'#333333');};
+const tl=(n,f)=>Array.from({length:n},(_,i)=>fmt(f(i+1))).join(', ');
+const SEC='§ 4.1 και § 4.2 Κανονικότητες';
+const LET=['Α','Β','Γ'],UNITS=[[1,2],[1,2,3],[1,1,2],[1,2,2,3]],CC=[B,G,R];
+const S=[
+{t:'Επαναλαμβανόμενα μοτίβα',s:SEC,fit:22,ctr:[10.5,0,0],
+ p:[['m','Μοτίβο',1,4,1,2],['n','Θέση ν',1,100,1,57]],
+ build:(p,g)=>{const u=UNITS[p.m-1],k=u.length;box(g,10.5,-.75,0,21,.1,.8,'#dbe7f3');
+   for(let i=1;i<=20;i++)ball(g,i,0,0,.4,CC[u[(i-1)%k]-1]);
+   box(g,.5+k/2,1.0,0,k,.12,.12,O);
+   if(p.n<=20)box(g,p.n,-.65,0,.7,.25,.7,O);},
+ lines:p=>{const u=UNITS[p.m-1],k=u.length,pat=u.map(j=>LET[j-1]).join('');
+   return [['Η μονάδα επανάληψης '+pat+' έχει '+k+' στοιχεία',B],['Μοτίβο: '+pat.repeat(4)+'…',K],['Στη θέση ν = '+p.n+' βρίσκεται το '+LET[u[(p.n-1)%k]-1],R],['Υπόλοιπο της (ν − 1) : '+k+' είναι '+((p.n-1)%k),P]];}},
+{t:'Προσθετικά μοτίβα',s:SEC,fit:16,ctr:[4.5,2,0],
+ p:[['a','Πρώτος όρος',-5,10,1,2],['d','Προσθέτουμε',-5,10,1,4]],
+ build:(p,g)=>{box(g,4.5,-.05,0,9,.1,1,'#dbe7f3');for(let i=1;i<=8;i++){const v=p.a+(i-1)*p.d,h=Math.max(Math.abs(v)*.12,.03);box(g,i,v>=0?h/2:-h/2,0,.7,h,.7,v>=0?B:R);}},
+ lines:p=>[['Πρώτος όρος: '+fmt(p.a),B],['Κάθε όρος = ο προηγούμενος '+(p.d<0?'−':'+')+' '+fmt(Math.abs(p.d)),O],['Όροι: '+tl(5,i=>p.a+(i-1)*p.d)+', …',R],['Ύψος ράβδου ανάλογο του όρου, κόκκινο για αρνητικούς',K]]},
+{t:'Πολλαπλασιαστικά μοτίβα',s:SEC,fit:9,ctr:[3.85,3,0],
+ p:[['a','Πρώτος όρος',1,5,1,3],['r','Πολλαπλασιάζουμε επί',1,5,1,2]],
+ build:(p,g)=>{const tm=p.a*Math.pow(p.r,5);box(g,3.85,-.05,0,7.2,.1,1.2,'#dbe7f3');for(let i=1;i<=6;i++){const v=p.a*Math.pow(p.r,i-1),h=Math.max(6*v/tm,.05);box(g,i*1.1,h/2,0,.8,h,.8,G);}},
+ lines:p=>[['Πρώτος όρος: '+p.a,B],['Κάθε όρος = ο προηγούμενος × '+p.r,G],['Όροι: '+tl(5,i=>p.a*Math.pow(p.r,i-1))+', …',R],['Ύψος ράβδου ανάλογο του όρου',K]]},
+{t:'Γεωμετρικό μοτίβο με σπιρτόξυλα',s:SEC,fit:11,ctr:[5,.5,0],
+ p:[['n','Τετράγωνα ν',1,10,1,4]],
+ build:(p,g)=>{const n=p.n;for(let i=1;i<=n;i++){const c=i===n?R:B;stick(g,i-1,0,i,0,c);stick(g,i-1,1,i,1,c);}
+   for(let j=0;j<=n;j++)stick(g,j,0,j,1,j===n?R:B);},
+ lines:p=>[['Τετράγωνα: '+p.n,B],['Σπιρτόξυλα: 3ν + 1 = '+(3*p.n+1),R],['Πλήθη: '+tl(Math.min(p.n,6),i=>3*i+1)+', …',K],['Κάθε νέο τετράγωνο (κόκκινο) προσθέτει 3 σπιρτόξυλα',O]]},
+{t:'Η κανονικότητα α · ν',s:SEC,fit:24,ctr:[10.5,0,0],
+ p:[['a','α',-5,5,.5,2.5],['n','ν',1,20,1,10]],
+ build:(p,g)=>{const sc=.2;axes(g,21,-11,11);for(let i=1;i<=20;i++)ball(g,i,p.a*i*sc,0,.22,B);
+   const h=p.a*p.n*sc;box(g,p.n,h/2,0,.07,Math.max(Math.abs(h),.01),.07,R);ball(g,p.n,h,0,.4,R);},
+ lines:p=>[['Γενικός όρος: α · ν = '+fmt(p.a)+' · ν',B],['Όροι: '+tl(4,i=>p.a*i)+', …',K],['Ο ν-οστός όρος για ν = '+p.n+' είναι '+fmt(p.a*p.n),R]]},
+{t:'Βρες το α από τους όρους',s:SEC,fit:14,ctr:[3.5,0,0],
+ p:[['e','Άσκηση',1,3,1,1],['a','Δοκιμή για το α',-10,10,.5,1]],
+ build:(p,g)=>{const G0=[2.5,-1.5,7][p.e-1];axes(g,7,-9.5,9.5);for(let i=1;i<=6;i++){ball(g,i,G0*i*.15,0,.22,P);ball(g,i,p.a*i*.15,.4,.16,R);}},
+ lines:p=>{const G0=[2.5,-1.5,7][p.e-1];return [['Δίνονται οι όροι (μοβ): '+tl(4,i=>G0*i)+', …',P],['Δοκιμή (κόκκινο): α · ν = '+fmt(p.a)+' · ν',R],[p.a===G0?'Ταιριάζει! Το α είναι '+fmt(G0):'Δεν ταιριάζει, δοκίμασε άλλο α',p.a===G0?G:K]];}}
+];
+
+/* ---------- Κατάσταση εφαρμογής ---------- */
+let si=0; const val={};
+const q=new URLSearchParams(location.search); const k0=parseInt(q.get('k')||'1',10);
+if(k0>=1&&k0<=S.length) si=k0-1;
+const $=id=>document.getElementById(id);
+function resetVals(){S[si].p.forEach(d=>val[d[0]]=d[5]);}
+resetVals();
+
+/* ---------- Σκηνή ---------- */
+const canvas=$('c');
+const renderer=new THREE.WebGLRenderer({canvas,antialias:true,alpha:true});
+renderer.setPixelRatio(Math.min(devicePixelRatio,2)); renderer.xr.enabled=true;
+const scene=new THREE.Scene(); scene.background=null;
+const cam=new THREE.PerspectiveCamera(50,1,.05,50); cam.position.set(0,1.35,1.9);
+scene.add(new THREE.AmbientLight(0xffffff,1.15));
+const sun=new THREE.DirectionalLight(0xffffff,1.1); sun.position.set(1.5,3,2); scene.add(sun);
+const root=new THREE.Group(); scene.add(root);
+const board=new THREE.Group(); root.add(board);
+board.position.set(.25,1.3,0);
+const dyn=new THREE.Group(); board.add(dyn);
+const MS=.6;                                   // μέγιστο μέγεθος μοντέλου σε μέτρα
+function drawGraph(){
+  clearGroup(dyn);
+  const st=S[si]; st.build(val,dyn);
+  const sc=MS/st.fit; dyn.scale.setScalar(sc);
+  dyn.position.set(-st.ctr[0]*sc,-st.ctr[1]*sc,-st.ctr[2]*sc);
+}
+
+/* ---------- HTML πάνελ ---------- */
+function buildUI(){
+  const st=S[si];
+  $('ttl').textContent=st.t; $('sec').textContent=st.s; $('stn').textContent=(si+1)+' από '+S.length;
+  const box=$('sls'); box.innerHTML='';
+  st.p.forEach(d=>{
+    const w=document.createElement('div');w.className='sl';
+    const l=document.createElement('label');const nm=document.createElement('span');nm.textContent=d[1];const vv=document.createElement('span');vv.id='v_'+d[0];l.append(nm,vv);
+    const r=document.createElement('input');r.type='range';r.min=d[2];r.max=d[3];r.step=d[4];r.value=val[d[0]];
+    r.addEventListener('input',()=>{val[d[0]]=parseFloat(r.value);refresh();});
+    w.append(l,r);box.append(w);
+  });
+  refresh();
+}
+function refresh(){
+  const st=S[si];
+  st.p.forEach(d=>{const e=$('v_'+d[0]);if(e)e.textContent=fmt(val[d[0]]);});
+  const ls=st.lines(val); const L=$('lines'); L.innerHTML='';
+  ls.forEach(([t,c])=>{const d=document.createElement('div');d.textContent=t;d.style.color=(c===K?'#cbd5e1':c);L.append(d);});
+  drawGraph(); panelDirty=true;
+}
+function go(n){si=(n+S.length)%S.length;resetVals();buildUI();history.replaceState(null,'','?k='+(si+1));}
+$('prev').onclick=()=>go(si-1);$('next').onclick=()=>go(si+1);
+
+/* ---------- 3D πάνελ για γυαλιά ---------- */
+const PW=.62,PH=.62*704/1024;
+const pc=document.createElement('canvas');pc.width=1024;pc.height=704;const pg=pc.getContext('2d');
+const ptex=new THREE.CanvasTexture(pc);const panel=new THREE.Mesh(new THREE.PlaneGeometry(PW,PH),new THREE.MeshBasicMaterial({map:ptex,transparent:true}));
+panel.position.set(-.55,1.3,0);panel.visible=false;root.add(panel);
+let hits=[],panelDirty=true;
+function btn(x,y,w,h,txt,fn,fill){pg.fillStyle=fill||'#1b2740';pg.strokeStyle='rgba(255,255,255,.25)';pg.lineWidth=2;
+  pg.beginPath();pg.roundRect(x,y,w,h,12);pg.fill();pg.stroke();pg.fillStyle='#eaf1f8';pg.font='bold 34px sans-serif';pg.textAlign='center';pg.textBaseline='middle';pg.fillText(txt,x+w/2,y+h/2+2);hits.push({x,y,w,h,fn});}
+function drawPanel(){
+  const st=S[si];hits=[];
+  pg.clearRect(0,0,1024,704);pg.fillStyle='rgba(14,20,32,.92)';pg.beginPath();pg.roundRect(0,0,1024,704,28);pg.fill();
+  pg.textAlign='left';pg.textBaseline='alphabetic';pg.fillStyle='#eaf1f8';pg.font='bold 42px sans-serif';pg.fillText(st.t,30,64);
+  pg.fillStyle='#9fb0c6';pg.font='28px sans-serif';pg.fillText(st.s,30,102);
+  let y=130;
+  st.lines(val).forEach(([t,c])=>{pg.fillStyle=c==='#555555'?'#cbd5e1':c;pg.font='34px sans-serif';pg.fillText(t,30,y+34);y+=48;});
+  y=Math.max(y+10,330);
+  st.p.forEach(d=>{const v=val[d[0]];
+    pg.fillStyle='#E36C09';pg.font='30px sans-serif';pg.textAlign='left';pg.fillText(d[1]+' = '+fmt(v),30,y+44);
+    btn(500,y,100,64,'−−',()=>adj(d,-5));btn(610,y,100,64,'−',()=>adj(d,-1));btn(720,y,100,64,'+',()=>adj(d,1));btn(830,y,100,64,'++',()=>adj(d,5));
+    y+=76;});
+  btn(30,626,120,64,'‹',()=>go(si-1));pg.fillStyle='#eaf1f8';pg.font='bold 30px sans-serif';pg.textAlign='center';pg.fillText((si+1)+' από '+S.length,512,668);
+  btn(874,626,120,64,'›',()=>go(si+1));
+  ptex.needsUpdate=true;panelDirty=false;
+}
+function adj(d,m){const [id,,mn,mx,stp]=d;let v=val[id]+m*stp;v=Math.max(mn,Math.min(mx,Math.round(v/stp)*stp));val[id]=v;
+  const r=document.querySelector('#sls .sl:nth-child('+(S[si].p.indexOf(d)+1)+') input');if(r)r.value=v;refresh();}
+
+/* ---------- Είσοδος ---------- */
+let rotY=-.5,rotX=.65,drag=null,zoom=1.25;
+canvas.addEventListener('pointerdown',e=>{drag={x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId);});
+canvas.addEventListener('pointermove',e=>{if(!drag)return;rotY+=(e.clientX-drag.x)*.006;rotX=Math.max(-.7,Math.min(.7,rotX+(e.clientY-drag.y)*.004));drag={x:e.clientX,y:e.clientY};});
+canvas.addEventListener('pointerup',()=>drag=null);
+canvas.addEventListener('wheel',e=>{zoom=Math.max(.8,Math.min(4,zoom*(1+e.deltaY*.001)));e.preventDefault();},{passive:false});
+function resize(){const w=innerWidth,h=innerHeight;renderer.setSize(w,h,false);cam.aspect=w/h;cam.updateProjectionMatrix();}
+addEventListener('resize',resize);
+
+/* ---------- AR / VR ---------- */
+const msg=$('msg');let session=null,hitSrc=null,placed=false;
+const reticle=new THREE.Mesh(new THREE.RingGeometry(.08,.1,32).rotateX(-Math.PI/2),new THREE.MeshBasicMaterial({color:0xE36C09}));
+reticle.matrixAutoUpdate=false;reticle.visible=false;scene.add(reticle);
+const ray=new THREE.Raycaster();const tmp=new THREE.Matrix4();
+const ctrls=[0,1].map(i=>{const c=renderer.xr.getController(i);
+  const ln=new THREE.Line(new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(),new THREE.Vector3(0,0,-1.5)]),new THREE.LineBasicMaterial({color:0xE36C09}));c.add(ln);
+  c.addEventListener('select',()=>onSelect(c));scene.add(c);return c;});
+function onSelect(c){
+  if(!session)return;
+  if(hitSrc&&!placed&&reticle.visible){root.position.setFromMatrixPosition(reticle.matrix);root.position.y+=0;board.position.set(.2,.35,0);panel.visible=false;placed=true;return;}
+  if(!panel.visible)return;
+  tmp.identity().extractRotation(c.matrixWorld);ray.ray.origin.setFromMatrixPosition(c.matrixWorld);ray.ray.direction.set(0,0,-1).applyMatrix4(tmp);
+  const h=ray.intersectObject(panel)[0];if(!h||!h.uv)return;
+  const px=h.uv.x*1024,py=(1-h.uv.y)*704;const b=hits.find(b=>px>=b.x&&px<=b.x+b.w&&py>=b.y&&py<=b.y+b.h);if(b)b.fn();
+}
+async function start(mode){
+  if(!navigator.xr){msg.textContent='Το WebXR δεν υποστηρίζεται σε αυτόν τον περιηγητή. Χρησιμοποίησε την προβολή 3D.';return;}
+  const ok=await navigator.xr.isSessionSupported(mode).catch(()=>false);
+  if(!ok){msg.textContent=(mode==='immersive-ar'?'Το AR':'Το VR')+' δεν είναι διαθέσιμο εδώ. Δοκίμασε το άλλο ή την προβολή 3D.';return;}
+  const opt={optionalFeatures:['local-floor','hit-test','dom-overlay'],domOverlay:{root:document.body}};
+  try{session=await navigator.xr.requestSession(mode,opt);}catch(e){msg.textContent='Δεν άνοιξε η συνεδρία: '+e.message;return;}
+  renderer.xr.setReferenceSpaceType('local-floor');await renderer.xr.setSession(session);
+  document.body.classList.add('xr');
+  const dom=!!session.domOverlayState;if(dom)document.body.classList.add('dom');
+  placed=false;root.position.set(0,0,-1.3);root.rotation.set(0,0,0);board.rotation.set(0,0,0);board.position.set(.25,1.3,0);
+  if(mode==='immersive-ar'&&dom){
+    // tablet: ολισθητές HTML + τοποθέτηση με hit-test
+    panel.visible=false;
+    try{const vs=await session.requestReferenceSpace('viewer');hitSrc=await session.requestHitTestSource({space:vs});}catch(e){hitSrc=null;}
+    if(hitSrc){root.position.set(0,0,0);board.position.set(0,.45,-1.2);}
+    msg.textContent=hitSrc?'Πάτησε στο τραπέζι για να τοποθετηθεί το γράφημα.':'';
+  }else{panel.visible=true;panelDirty=true;hitSrc=null;}
+  session.addEventListener('end',()=>{session=null;hitSrc=null;document.body.classList.remove('xr','dom');reticle.visible=false;root.position.set(0,0,0);board.position.set(.25,1.3,0);panel.visible=false;resize();});
+}
+$('bAR').onclick=()=>start('immersive-ar');$('bVR').onclick=()=>start('immersive-vr');
+
+/* ---------- Βρόχος ---------- */
+renderer.setAnimationLoop((t,frame)=>{
+  if(!renderer.xr.isPresenting){
+    root.rotation.set(0,0,0);root.position.set(0,0,0);
+    cam.position.set(0,1.3,zoom);cam.lookAt(0,1.3,0);panel.visible=false;
+    const off=innerWidth>760?.32:0;board.rotation.set(rotX,rotY,0);board.position.set(off,1.3,0);
+  }else if(frame&&hitSrc&&!placed){
+    const hs=frame.getHitTestResults(hitSrc);
+    if(hs.length){const pose=hs[0].getPose(renderer.xr.getReferenceSpace());reticle.visible=true;reticle.matrix.fromArray(pose.transform.matrix);}else reticle.visible=false;
+  }
+  if(placed)reticle.visible=false;
+  if(panel.visible&&panelDirty)drawPanel();
+  renderer.render(scene,cam);
+});
+resize();buildUI();
+window.__app={S,val,go,drawGraph,get si(){return si;},adj,drawPanel,pc};
+</script>
+</body>
+</html>
